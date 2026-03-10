@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Ordem Paranormal</title>
+    <style>
+        :root {
+            --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --border-color: rgba(50, 50, 56, 0.8); 
+            --text-primary: #e1e1e6; --accent-blue: #00b0ff; --accent-red: #e53935; --accent-green: #00e676;
+        }
+        body {
+            font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-primary); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .login-container { background: var(--bg-card); border: 1px solid var(--border-color); padding: 40px; border-radius: 12px; backdrop-filter: blur(12px); width: 350px; text-align: center; transition: 0.4s; }
+        .logo-title { font-size: 1.8em; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; }
+        .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: white; color: #3c4043; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
+        #choice-section { display: none; flex-direction: column; gap: 15px; }
+        .role-btn { background: rgba(0, 0, 0, 0.5); border: 2px solid var(--border-color); color: white; padding: 15px; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .role-btn.player:hover { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.2); }
+        .role-btn.master:hover { border-color: var(--accent-red); background: rgba(229, 57, 53, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-title">Ordem Paranormal</div>
+        <div id="login-section">
+            <button class="google-btn" onclick="simulateLogin()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20"> Continuar com o Google
+            </button>
+        </div>
+        <div id="choice-section">
+            <button class="role-btn player" onclick="goTo('ficha.html')">JOGADOR</button>
+            <button class="role-btn master" onclick="goTo('mestre.html')">MESTRE</button>
+        </div>
+    </div>
+    <script>
+        function simulateLogin() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('choice-section').style.display = 'flex';
+        }
+        function goTo(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+</html>
