@@ -180,7 +180,7 @@
             
             <div id="fields-arma" class="popup-grid" style="display:none;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">TIPO DE ATAQUE</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Corpo a corpo"></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary)">QTD. ATAATAQUES</label><input type="number" id="wp-atk" class="inv-input" value="1" min="1"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">QTD. ATAQUES</label><input type="number" id="wp-atk" class="inv-input" value="1" min="1"></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="1d8+2"></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" placeholder="19/x2"></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">ALCANCE</label><input type="text" id="wp-range" class="inv-input" placeholder="Curto"></div>
@@ -506,7 +506,7 @@
     </div>
 </div>
 
-<script src="/socket.io/socket.io.js" onerror="console.warn('Servidor local não encontrado.')"></script>
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
     let socket = null;
     if (typeof io !== 'undefined') socket = io();
@@ -1455,9 +1455,20 @@
     function save() {
         if(isLoadingData || viewCode) return; 
 
+        // 1. Calcula a foto atual corretamente ANTES de enviar, ignorando o atraso da animação
+        let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
+        if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo;
+        else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente;
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo;
+        else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
+
         const d = { attrs:{}, skills:{}, inv:[], ammo:{}, abilities:[], rituals:[], defense: document.getElementById('defense_val').value, info:{}, charImages: charImages, charStatus: charStatus };
         ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; });
-        d.info['char_img'] = document.getElementById('char_img_display').src;
+        
+        // 2. Guarda a URL correta no objeto de dados
+        d.info['char_img'] = currentImgUrl;
+
         document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value);
         document.querySelectorAll('[id^="skill_"]').forEach(i => d.skills[i.id] = i.value);
         document.querySelectorAll('[id^="chk_"]').forEach(i => d.skills[i.id] = i.checked);
@@ -1480,7 +1491,7 @@
                 codigo: playerCode,
                 id: playerCode,
                 nome: jogadorNome,
-                foto: document.getElementById('char_img_display') ? document.getElementById('char_img_display').src : '',
+                foto: currentImgUrl, // 3. Envia a URL exata e atualizada para o Escudo do Mestre
                 nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
                 defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
                 vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
