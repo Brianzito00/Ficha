@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escudo do Mestre - Ordem Paranormal</title>
+    <style>
+        :root {
+            --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85);
+            --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
+            --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
+            background-size: cover; background-attachment: fixed; color: var(--text-primary);
+            margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
+        }
+
+        .mestre-top-bar {
+            background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; 
+            border-radius: 12px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+        }
+        .code-input {
+            padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
+            color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; width: 250px;
+        }
+        .btn-add-player {
+            background: var(--accent-green); border: none; color: black; font-weight: bold; 
+            padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-add-player:hover { filter: brightness(1.2); }
+
+        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; }
+
+        .players-container {
+            flex: 3; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px;
+        }
+
+        .player-card {
+            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
+            padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; gap: 10px; transition: 0.3s; position: relative;
+        }
+
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); }
+        .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
+        .player-info { font-size: 0.8em; color: var(--text-secondary); }
+        
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
+
+        .bar-container { background: rgba(0,0,0,0.8); height: 20px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; }
+        .bar-fill { height: 100%; transition: width 0.4s ease; }
+        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
+        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
+        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.85em; font-weight: bold; line-height: 20px; text-shadow: 1px 1px 2px #000; }
+
+        .status-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+        .tag { font-size: 0.7em; padding: 3px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .tag-lesionado { background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red); }
+        .tag-morrendo { background: var(--accent-red); animation: pulseRed 1.5s infinite; }
+        .tag-enlouquecendo { background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue); }
+
+        .log-container {
+            flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+            display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px;
+        }
+        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); }
+        .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; }
+        .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
+        .log-item .roll-result { font-size: 1.5em; font-weight: 900; text-align: center; margin: 5px 0; }
+
+        @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
+        
+        /* Modal da Ficha iframe */
+        #modal-ficha {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .btn-close-modal {
+            background: var(--accent-red); color: white; border: none; padding: 10px 20px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; font-size: 1.2em; margin-bottom: 10px;
+        }
+        .btn-ver-ficha {
+            background: rgba(0, 176, 255, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue);
+            width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px;
+        }
+        .btn-ver-ficha:hover { background: var(--accent-blue); color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="mestre-top-bar">
+        <span style="font-weight: bold; color: var(--accent-blue);">Conectar Ficha:</span>
+        <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Código do Jogador" maxlength="4">
+        <button class="btn-add-player" onclick="adicionarJogador()">+ ADICIONAR JOGADOR</button>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="players-container" id="players-board">
+        </div>
+
+        <div class="log-container">
+            <div class="log-title">🎲 LOG DE DADOS E AÇÕES</div>
+            <div class="log-messages" id="log-box">
+                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8em; margin-top: 20px;" id="aguardar-msg">A aguardar rolagens...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-ficha">
+        <div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end;">
+            <button class="btn-close-modal" onclick="fecharFicha()">X FECHAR FICHA</button>
+        </div>
+        <iframe id="iframe-ficha" src="" style="width: 95%; max-width: 1400px; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const playersBoard = document.getElementById('players-board');
+        const logBox = document.getElementById('log-box');
+
+        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
+
+        socket.on('connect', () => {
+            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo));
+        });
+
+        function adicionarJogador() {
+            const input = document.getElementById('add-code-input');
+            const codigo = input.value.toUpperCase().trim();
+            if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) {
+                jogadoresPermitidos.push(codigo);
+                localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
+                socket.emit('request_player', codigo);
+            }
+            input.value = '';
+        }
+
+        function removerJogador(codigo) {
+            jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo);
+            localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
+            const card = document.getElementById(`player-${codigo}`);
+            if (card) card.remove();
+        }
+
+        // Funções para abrir o iframe da ficha do jogador
+        function abrirFicha(codigo) {
+            const iframe = document.getElementById('iframe-ficha');
+            iframe.src = `ficha.html?view=${codigo}`;
+            document.getElementById('modal-ficha').style.display = 'flex';
+        }
+
+        function fecharFicha() {
+            document.getElementById('modal-ficha').style.display = 'none';
+            document.getElementById('iframe-ficha').src = '';
+        }
+
+        socket.on('update_mestre', (dados) => {
+            if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
+
+            let card = document.getElementById(`player-${dados.codigo}`);
+            if (!card) {
+                card = document.createElement('div');
+                card.className = 'player-card';
+                card.id = `player-${dados.codigo}`;
+                playersBoard.appendChild(card);
+            }
+
+            const percVida = Math.min(Math.max((dados.vida_atual / dados.vida_max) * 100, 0), 100) || 0;
+            const percSani = Math.min(Math.max((dados.sani_atual / dados.sani_max) * 100, 0), 100) || 0;
+
+            let tagsHtml = '';
+            if (dados.status) {
+                if (dados.status.morrendo) tagsHtml += `<span class="tag tag-morrendo">Morrendo</span>`;
+                else if (dados.status.lesionado) tagsHtml += `<span class="tag tag-lesionado">Lesionado</span>`;
+                if (dados.status.inconsciente) tagsHtml += `<span class="tag tag-lesionado" style="background: #ff5252;">Inconsciente</span>`;
+                if (dados.status.enlouquecendo) tagsHtml += `<span class="tag tag-enlouquecendo">Enlouquecendo</span>`;
+            }
+
+            card.innerHTML = `
+                <button class="btn-remove" onclick="removerJogador('${dados.codigo}')" title="Remover do ecrã">X</button>
+                <div class="player-header">
+                    <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img">
+                    <div>
+                        <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
+                        <div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
+                        <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Cód: ${dados.codigo}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold;">VIDA</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fill-vida" style="width: ${percVida}%"></div>
+                        <div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold;">SANIDADE</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fill-sani" style="width: ${percSani}%"></div>
+                        <div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div>
+                    </div>
+                </div>
+                <div class="status-tags">${tagsHtml}</div>
+                
+                <button class="btn-ver-ficha" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>
+            `;
+        });
+
+        socket.on('novo_log', (dados) => {
+            if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
+            const waitMsg = document.getElementById('aguardar-msg');
+            if (waitMsg) waitMsg.remove();
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            const colorStyle = dados.cor ? dados.cor.replace('color:white', 'color:var(--text-primary)') : 'color:var(--text-primary)';
+            logItem.innerHTML = `
+                <div class="player-name">${dados.jogador || 'Alguém'} rolou:</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${dados.acao}</div>
+                <div class="roll-result" style="${colorStyle}">${dados.resultado}</div>
+            `;
+            logBox.prepend(logItem); 
+        });
+    </script>
+</body>
+</html>
