@@ -10,94 +10,125 @@
             --accent-green: #00e676; --accent-red: #e53935;
         }
 
-        /* FUNDO TRANSPARENTE PARA O STREAMLABS / OBS */
+        /* FUNDO TRANSPARENTE E ALINHAMENTO NA BASE DA TELA */
         body {
             margin: 0; padding: 20px; font-family: 'Roboto', sans-serif;
             background: transparent; color: white; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+            height: 100vh; box-sizing: border-box;
         }
 
-        /* PAINEL DE CONTROLO SECRETO (Aparece ao passar o rato) */
+        /* PAINEL DE CONTROLO SECRETO (Fica no topo esquerdo) */
         .admin-panel {
+            position: absolute; top: 20px; left: 20px;
             background: rgba(18, 18, 20, 0.95); border: 2px solid var(--accent-blue);
             padding: 10px 15px; border-radius: 8px; display: flex; gap: 10px; align-items: center;
-            margin-bottom: 20px; width: max-content;
-            opacity: 0; transition: opacity 0.3s ease; /* Fica invisível na stream normal */
+            opacity: 0; transition: opacity 0.3s ease; z-index: 100;
         }
-        /* No Streamlabs, quando clicar em "Interagir", basta passar o rato aqui em cima para aparecer */
+        /* No OBS, passe o rato por cima do ecrã no modo "Interagir" para ver o painel */
         body:hover .admin-panel { opacity: 1; }
 
         .admin-input { padding: 8px; background: #000; color: white; border: 1px solid #444; border-radius: 4px; font-weight: bold; text-transform: uppercase; text-align: center; width: 100px; }
         .admin-btn { background: var(--accent-blue); color: black; font-weight: bold; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .admin-btn:hover { filter: brightness(1.2); }
 
-        /* LISTA DE JOGADORES NO OVERLAY */
+        /* LISTA DE JOGADORES (HORIZONTAL) */
         #party-container {
-            display: flex; flex-direction: column; gap: 15px;
+            display: flex; flex-direction: row; gap: 20px; flex-wrap: nowrap;
+            justify-content: center; align-items: flex-end; width: 100%;
         }
 
-        /* CARTÃO DO JOGADOR */
+        /* WRAPPER DO JOGADOR (FOTO + CAIXA) */
+        .player-wrapper {
+            position: relative;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: flex-end;
+            margin-top: 150px; /* Espaço para o busto crescer para cima */
+        }
+
+        /* FOTO DO PERSONAGEM (SEM MOLDURA E COM ANIMAÇÃO) */
+        .char-foto {
+            width: auto;
+            max-width: 250px;
+            height: 250px; /* Altura máxima da arte */
+            object-fit: contain; /* Mantém a proporção do PNG */
+            object-position: bottom;
+            margin-bottom: -15px; /* Faz a foto sobrepor um pouco a caixa de status */
+            z-index: 5;
+            transition: opacity 0.3s ease-in-out; /* Animação de Troca de Foto */
+            filter: drop-shadow(0px 5px 15px rgba(0,0,0,0.8));
+        }
+
+        /* CARTÃO DE STATUS DO JOGADOR */
         .player-card {
-            width: 320px;
             background: rgba(18, 18, 20, 0.85);
             border: 2px solid rgba(50, 50, 56, 0.8);
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.9);
             backdrop-filter: blur(8px);
             display: flex; align-items: center; gap: 15px;
-            position: relative;
+            position: relative; width: max-content;
+            min-width: 280px;
+            z-index: 10; /* Fica à frente do pé do personagem */
         }
 
-        /* BOTÃO DE REMOVER (Só aparece ao passar o rato no cartão) */
+        /* BOTÃO DE REMOVER */
         .btn-remove {
-            position: absolute; top: -10px; left: -10px; background: var(--accent-red);
+            position: absolute; top: -10px; right: -10px; background: var(--accent-red);
             color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black;
+            font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black; z-index: 20;
         }
-        .player-card:hover .btn-remove { opacity: 1; }
+        .player-wrapper:hover .btn-remove { opacity: 1; }
 
-        /* LADO ESQUERDO (INFORMAÇÕES E BARRAS) */
+        /* INFORMAÇÕES E BARRAS */
         .info-side { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .char-nome { font-size: 1.3em; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase; margin: 0 0 2px 0; text-shadow: 1px 1px 3px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        .char-stats { font-size: 0.7em; color: #a8a8b3; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+        .char-nome { font-size: 1.2em; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase; margin: 0 0 2px 0; text-shadow: 1px 1px 3px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .char-stats { font-size: 0.65em; color: #a8a8b3; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .bar-wrapper { margin-bottom: 6px; }
         .bar-label { font-size: 0.6em; font-weight: bold; margin-bottom: 2px; text-shadow: 1px 1px 2px black; letter-spacing: 1px; }
-        .bar-bg { background: rgba(0,0,0,0.8); height: 18px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; }
+        .bar-bg { background: rgba(0,0,0,0.8); height: 16px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; }
         .bar-fill { height: 100%; transition: width 0.4s ease; }
         .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
-        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.75em; font-weight: 900; line-height: 18px; text-shadow: 1px 1px 2px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
-
-        /* LADO DIREITO (FOTO) */
-        .photo-side { flex: 0 0 90px; display: flex; align-items: center; justify-content: center; }
-        .char-foto { width: 90px; height: 90px; object-fit: cover; border-radius: 10px; border: 2px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0,0,0,0.8); transition: 0.3s; }
+        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.7em; font-weight: 900; line-height: 16px; text-shadow: 1px 1px 2px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
 
         /* CAIXA DE MUNIÇÃO */
+        .ammo-side { display: flex; align-items: center; justify-content: center; }
         .ammo-box {
-            background: rgba(0,0,0,0.6); border: 1px solid #444; border-radius: 6px;
-            padding: 4px 8px; display: flex; align-items: center; justify-content: space-between;
-            margin-top: 5px;
+            background: rgba(0,0,0,0.6); border: 1px solid #444; border-radius: 8px;
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+            height: max-content; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
-        .ammo-details { display: flex; flex-direction: column; }
-        .ammo-name { font-size: 0.65em; color: white; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
+        .ammo-icon { font-size: 1.6em; filter: drop-shadow(2px 2px 2px black); }
+        .ammo-details { display: flex; flex-direction: column; justify-content: center; }
+        .ammo-name { font-size: 0.65em; color: white; font-weight: bold; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
         .ammo-type { font-size: 0.55em; color: var(--accent-yellow); text-transform: uppercase; font-weight: bold; }
-        .ammo-count { font-size: 1.1em; font-weight: 900; color: white; text-shadow: 1px 1px 3px black; margin-left: 5px; }
+        .ammo-count { font-size: 1.3em; font-weight: 900; color: white; text-shadow: 2px 2px 4px black; margin-left: 5px; }
 
-        /* EFEITOS DE STATUS NA FOTO */
-        .status-lesionado { border-color: var(--accent-red) !important; }
-        .status-morrendo { border-color: var(--accent-red) !important; box-shadow: 0 0 20px var(--accent-red) !important; animation: pulseRed 1s infinite; }
-        .status-enlouquecendo { border-color: var(--accent-blue) !important; box-shadow: 0 0 20px var(--accent-blue) !important; animation: pulseBlue 1s infinite; }
+        /* AURA DE STATUS NA FOTO (Em vez de borda, usa Drop Shadow) */
+        .status-lesionado { filter: drop-shadow(0px 0px 15px var(--accent-red)) !important; }
+        .status-morrendo { animation: pulseRedAura 1.5s infinite !important; }
+        .status-enlouquecendo { animation: pulseBlueAura 1.5s infinite !important; }
 
-        @keyframes pulseRed { 0% { box-shadow: 0 0 5px var(--accent-red); } 50% { box-shadow: 0 0 25px var(--accent-red); } 100% { box-shadow: 0 0 5px var(--accent-red); } }
-        @keyframes pulseBlue { 0% { box-shadow: 0 0 5px var(--accent-blue); } 50% { box-shadow: 0 0 25px var(--accent-blue); } 100% { box-shadow: 0 0 5px var(--accent-blue); } }
+        @keyframes pulseRedAura { 
+            0% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
+            50% { filter: drop-shadow(0 0 25px var(--accent-red)); } 
+            100% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
+        }
+        @keyframes pulseBlueAura { 
+            0% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
+            50% { filter: drop-shadow(0 0 25px var(--accent-blue)); } 
+            100% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
+        }
     </style>
 </head>
 <body>
 
-    <div class="admin-panel" title="Este painel fica invisível no OBS se tirar o rato de cima">
+    <div class="admin-panel" title="Painel invisível. Use no modo 'Interagir' do OBS">
         <input type="text" id="new-code" class="admin-input" placeholder="CÓDIGO" maxlength="4">
-        <button class="admin-btn" onclick="addPlayer()">+ ADICIONAR AO OVERLAY</button>
+        <button class="admin-btn" onclick="addPlayer()">+ ADICIONAR JOGADOR</button>
     </div>
 
     <div id="party-container"></div>
@@ -115,7 +146,6 @@
             streamCodes.forEach(codigo => socket.emit('request_player', codigo));
         });
 
-        // Adiciona um jogador novo ao overlay
         function addPlayer() {
             const input = document.getElementById('new-code');
             const codigo = input.value.toUpperCase().trim();
@@ -127,38 +157,96 @@
             input.value = '';
         }
 
-        // Remove um jogador do overlay
         function removePlayer(codigo) {
             streamCodes = streamCodes.filter(c => c !== codigo);
             localStorage.setItem('stream_codes', JSON.stringify(streamCodes));
-            const card = document.getElementById(`card-${codigo}`);
-            if (card) card.remove();
+            const wrapper = document.getElementById(`wrapper-${codigo}`);
+            if (wrapper) wrapper.remove();
         }
 
-        // Recebe os dados em tempo real
+        // Recebe os dados em tempo real e atualiza SEM recriar os elementos (para a animação funcionar)
         socket.on('update_mestre', (dados) => {
             if (!dados.codigo || !streamCodes.includes(dados.codigo)) return;
 
-            let card = document.getElementById(`card-${dados.codigo}`);
-            if (!card) {
-                card = document.createElement('div');
-                card.className = 'player-card';
-                card.id = `card-${dados.codigo}`;
-                partyContainer.appendChild(card);
+            let wrapper = document.getElementById(`wrapper-${dados.codigo}`);
+            
+            // Se o jogador não existir na tela, cria a estrutura HTML base
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'player-wrapper';
+                wrapper.id = `wrapper-${dados.codigo}`;
+
+                wrapper.innerHTML = `
+                    <button class="btn-remove" onclick="removePlayer('${dados.codigo}')" title="Remover do Ecrã">X</button>
+                    <img id="foto-${dados.codigo}" class="char-foto" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-current-src="">
+                    
+                    <div class="player-card">
+                        <div class="info-side">
+                            <h3 class="char-nome" id="nome-${dados.codigo}">Desconhecido</h3>
+                            <div class="char-stats" id="stats-${dados.codigo}">NEX: 0% &nbsp;|&nbsp; DEF: 10</div>
+                            
+                            <div class="bar-wrapper">
+                                <div class="bar-label" style="color: var(--accent-red);">VIDA</div>
+                                <div class="bar-bg">
+                                    <div class="bar-fill fill-vida" id="bar-vida-${dados.codigo}" style="width: 100%;"></div>
+                                    <div class="bar-text" id="text-vida-${dados.codigo}">0 / 0</div>
+                                </div>
+                            </div>
+
+                            <div class="bar-wrapper">
+                                <div class="bar-label" style="color: var(--accent-blue);">SANIDADE</div>
+                                <div class="bar-bg">
+                                    <div class="bar-fill fill-sani" id="bar-sani-${dados.codigo}" style="width: 100%;"></div>
+                                    <div class="bar-text" id="text-sani-${dados.codigo}">0 / 0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ammo-side" id="ammo-side-${dados.codigo}">
+                            </div>
+                    </div>
+                `;
+                partyContainer.appendChild(wrapper);
             }
 
-            // Cálculos das barras
+            // ATUALIZAÇÃO DA FOTO COM ANIMAÇÃO FADE
+            const imgEl = document.getElementById(`foto-${dados.codigo}`);
+            const novaFoto = dados.foto || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+            
+            if(imgEl.getAttribute('data-current-src') !== novaFoto) {
+                imgEl.style.opacity = 0; // Desaparece
+                setTimeout(() => {
+                    imgEl.src = novaFoto; // Troca a imagem
+                    imgEl.setAttribute('data-current-src', novaFoto);
+                    imgEl.onload = () => imgEl.style.opacity = 1; // Reaparece quando carregar
+                    setTimeout(() => imgEl.style.opacity = 1, 100); 
+                }, 300);
+            }
+
+            // EFEITOS DE AURA PARA MORRENDO / ENLOUQUECENDO (Drop Shadow)
+            imgEl.className = 'char-foto'; // Reseta as classes
+            if (dados.status?.morrendo) imgEl.classList.add('status-morrendo');
+            else if (dados.status?.enlouquecendo) imgEl.classList.add('status-enlouquecendo');
+            else if (dados.status?.lesionado) imgEl.classList.add('status-lesionado');
+
+            // Atualiza Textos
+            document.getElementById(`nome-${dados.codigo}`).innerText = dados.nome || 'Desconhecido';
+            document.getElementById(`stats-${dados.codigo}`).innerHTML = `NEX: ${dados.nex || 0}% &nbsp;|&nbsp; DEF: ${dados.defesa || 10}`;
+
+            // Atualiza Barras
             const percVida = Math.min(Math.max((dados.vida_atual / dados.vida_max) * 100, 0), 100) || 0;
             const percSani = Math.min(Math.max((dados.sani_atual / dados.sani_max) * 100, 0), 100) || 0;
+            
+            document.getElementById(`bar-vida-${dados.codigo}`).style.width = percVida + '%';
+            document.getElementById(`text-vida-${dados.codigo}`).innerText = `${dados.vida_atual} / ${dados.vida_max}`;
+            
+            document.getElementById(`bar-sani-${dados.codigo}`).style.width = percSani + '%';
+            document.getElementById(`text-sani-${dados.codigo}`).innerText = `${dados.sani_atual} / ${dados.sani_max}`;
 
-            // Define Efeitos da Foto
-            let fotoClass = "char-foto";
-            if (dados.status?.morrendo) fotoClass += " status-morrendo";
-            else if (dados.status?.enlouquecendo) fotoClass += " status-enlouquecendo";
-            else if (dados.status?.lesionado) fotoClass += " status-lesionado";
-
-            // Verifica a Arma de Disparo Equipada
-            let ammoHtml = `<div class="ammo-box" style="display: none;"></div>`;
+            // Atualiza a Caixa de Munição
+            const ammoSide = document.getElementById(`ammo-side-${dados.codigo}`);
+            let ammoHtml = '';
+            
             if (dados.fullData && dados.fullData.inv) {
                 const armaEquipada = dados.fullData.inv.find(item => 
                     item.eq === true && 
@@ -167,53 +255,20 @@
                 );
 
                 if (armaEquipada) {
-                    const nomeCurto = armaEquipada.n.split(' ')[0]; // Pega a primeira palavra para não quebrar o layout
+                    const nomeCurto = armaEquipada.n.split(' ')[0]; // Primeira palavra
                     ammoHtml = `
                         <div class="ammo-box">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="font-size: 1.2em;">🔫</div>
-                                <div class="ammo-details">
-                                    <span class="ammo-name">${nomeCurto}</span>
-                                    <span class="ammo-type">${armaEquipada.ammo}</span>
-                                </div>
+                            <div class="ammo-icon">🔫</div>
+                            <div class="ammo-details">
+                                <span class="ammo-name">${nomeCurto}</span>
+                                <span class="ammo-type">${armaEquipada.ammo}</span>
                             </div>
-                            <div class="ammo-count">${armaEquipada.currentShots || 0} / ${armaEquipada.capacity || 0}</div>
+                            <div class="ammo-count">${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</div>
                         </div>
                     `;
                 }
             }
-
-            // Constrói o HTML do Cartão
-            card.innerHTML = `
-                <button class="btn-remove" onclick="removePlayer('${dados.codigo}')" title="Remover do Ecrã">X</button>
-                
-                <div class="info-side">
-                    <h3 class="char-nome">${dados.nome || 'Desconhecido'}</h3>
-                    <div class="char-stats">NEX: ${dados.nex || 0}% &nbsp;|&nbsp; DEF: ${dados.defesa || 10}</div>
-                    
-                    <div class="bar-wrapper">
-                        <div class="bar-label" style="color: var(--accent-red);">VIDA</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill fill-vida" style="width: ${percVida}%;"></div>
-                            <div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div>
-                        </div>
-                    </div>
-
-                    <div class="bar-wrapper">
-                        <div class="bar-label" style="color: var(--accent-blue);">SANIDADE</div>
-                        <div class="bar-bg">
-                            <div class="bar-fill fill-sani" style="width: ${percSani}%;"></div>
-                            <div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div>
-                        </div>
-                    </div>
-
-                    ${ammoHtml}
-                </div>
-
-                <div class="photo-side">
-                    <img src="${dados.foto || 'https://via.placeholder.com/90'}" class="${fotoClass}">
-                </div>
-            `;
+            ammoSide.innerHTML = ammoHtml;
         });
     </script>
 </body>
