@@ -522,10 +522,6 @@
     
     document.getElementById('display-player-code').innerText = viewCode ? "VISÃO: " + viewCode : playerCode;
 
-    if (socket && !viewCode) {
-        socket.on('connect', () => save()); 
-    }
-
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
@@ -1603,6 +1599,19 @@
             }
         } else {
             load(); 
+        }
+
+        if (socket && !viewCode) {
+            socket.on('connect', () => save()); 
+
+            // Ouve comandos enviados pelo Mestre (ex: clique no botão de + Vida)
+            socket.on('comando_mestre', (dados) => {
+                if (dados.codigo === playerCode) {
+                    if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
+                    else if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
+                    else if (dados.tipo === 'status') toggleStatus(dados.status);
+                }
+            });
         }
 
         renderPremadeCatalogs(); 
