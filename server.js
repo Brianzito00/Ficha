@@ -20,15 +20,24 @@ const playersData = {};
 io.on('connection', (socket) => {
     console.log('🟢 Um utilizador ligou-se:', socket.id);
 
-    // Recebe atualizações da ficha e guarda na memória do servidor
+    // Recebe atualizações normais do Jogador
     socket.on('status_change', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo] = dados;
-            io.emit('update_mestre', dados); // Partilha com todos (o mestre filtra no frontend)
+            io.emit('update_mestre', dados); 
         }
     });
 
-    // NOVO: Recebe comandos do Mestre (ex: tirar vida) e envia para o Jogador
+    // NOVO: Recebe edições complexas feitas pelo Mestre DENTRO do pop-up
+    socket.on('mestre_force_sync', (dados) => {
+        if(dados.codigo) {
+            playersData[dados.codigo] = dados;
+            io.emit('update_mestre', dados); // Atualiza os escudos e iframes
+            io.emit('mestre_force_sync_player', dados); // Força a atualização do navegador do jogador
+        }
+    });
+
+    // Recebe os comandos dos botões de (+) e (-) do Escudo
     socket.on('comando_mestre', (dados) => {
         io.emit('comando_mestre', dados);
     });
@@ -38,7 +47,7 @@ io.on('connection', (socket) => {
         io.emit('novo_log', dados);
     });
 
-    // Quando o Mestre adiciona um código, o servidor envia logo a ficha se já existir na memória
+    // Quando o Mestre adiciona um código
     socket.on('request_player', (codigo) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
