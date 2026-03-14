@@ -31,108 +31,107 @@
         .admin-btn { background: var(--accent-blue); color: black; font-weight: bold; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .admin-btn:hover { filter: brightness(1.2); }
 
-        /* RECIPIENTE DOS JOGADORES (ALINHADOS LADO A LADO) */
+        /* RECIPIENTE DOS JOGADORES */
         #party-container {
             display: flex; flex-direction: row; gap: 40px; flex-wrap: nowrap;
             justify-content: center; align-items: flex-end; width: 100%;
         }
 
-        /* =======================================================
-           LAYOUT DO JOGADOR: PERSONAGEM (ESQUERDA) + CAIXA (DIREITA)
-           ======================================================= */
+        /* LAYOUT DO JOGADOR: FOTO (ESQUERDA) + TEXTOS FLUTUANTES (DIREITA) */
         .player-widget {
             position: relative;
-            width: 290px;
             display: flex;
-            justify-content: flex-end; /* Empurra a caixa preta para a direita */
-            margin-top: 180px; /* Dá espaço para a cabeça do personagem sair da caixa */
+            align-items: flex-end;
+            margin-top: 150px; 
+            width: max-content;
         }
 
-        /* FOTO DO PERSONAGEM (PNG LIVRE SEM MOLDURA) */
+        /* FOTO DO PERSONAGEM (PNG LIVRE) */
         .char-art {
-            position: absolute;
-            left: -30px; /* Puxa o personagem para fora da caixa à esquerda */
-            bottom: 0;
             width: 170px;
-            height: 280px; /* Personagem grande saindo do topo */
+            height: 280px;
             object-fit: contain;
             object-position: bottom center;
-            z-index: 2; /* Fica na frente da caixa de status */
-            filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)); /* Apenas a sombra da silhueta */
+            z-index: 2;
+            filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.8)); 
             transition: opacity 0.3s ease-in-out;
             pointer-events: none;
+            margin-right: 10px; /* Afasta o texto do PNG */
         }
 
-        /* CAIXA PRETA DE INFORMAÇÕES */
-        .status-card {
-            width: 220px;
-            background: rgba(18, 18, 22, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-left: 3px solid var(--accent-blue);
-            border-radius: 12px;
-            padding: 15px 15px 15px 70px; /* Espaço vazio na esquerda para não tapar o personagem */
+        /* CAIXA DE INFORMAÇÕES (AGORA TOTALMENTE INVISÍVEL, SÓ TEXTO) */
+        .info-container {
             display: flex; flex-direction: column; justify-content: center;
-            box-shadow: 5px 5px 20px rgba(0,0,0,0.8);
-            z-index: 1;
-            position: relative;
+            padding-bottom: 20px; /* Alinha o texto perto da cintura do personagem */
+            z-index: 10;
         }
 
-        /* BOTÃO DE REMOVER O JOGADOR DA TELA */
+        /* BOTÃO DE REMOVER (Fica no canto do widget) */
         .btn-remove {
-            position: absolute; top: -10px; right: -10px; background: var(--accent-red);
+            position: absolute; top: -20px; right: 0; background: var(--accent-red);
             color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black; z-index: 10;
+            font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black; z-index: 20;
         }
         .player-widget:hover .btn-remove { opacity: 1; }
 
-        /* NOME DO PERSONAGEM */
+        /* ESTILOS DOS TEXTOS FLUTUANTES COM CONTORNO FORTE PARA O OBS */
         .char-nome {
-            font-size: 1.1em; font-weight: 900; color: var(--text-primary); text-transform: uppercase;
-            margin: 0 0 10px 0; text-shadow: 1px 1px 3px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 1.5em; font-weight: 900; color: white; text-transform: uppercase;
+            margin: 0 0 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;
+            /* Contorno preto forte (Stroke) + Sombra */
+            text-shadow: 
+                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
+                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
+                4px 4px 10px rgba(0,0,0,0.9);
         }
 
-        /* BARRAS DE VIDA E SANIDADE */
-        .bar-wrapper { margin-bottom: 6px; }
-        .bar-label { font-size: 0.6em; font-weight: bold; margin-bottom: 2px; text-shadow: 1px 1px 2px black; letter-spacing: 1px; }
-        .bar-bg { background: rgba(0,0,0,0.8); height: 14px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; }
-        .bar-fill { height: 100%; transition: width 0.4s ease; }
-        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
-        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
-        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.7em; font-weight: 900; line-height: 14px; text-shadow: 1px 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+        .status-line {
+            font-size: 1.3em;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            /* Contorno preto forte */
+            text-shadow: 
+                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
+                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
+                3px 3px 5px rgba(0,0,0,0.8);
+        }
 
-        /* ETIQUETA DE MUNIÇÃO (Fica presa ao topo da caixa preta) */
-        .ammo-badge {
-            position: absolute;
-            top: -15px;
-            right: 15px;
-            background: rgba(10, 10, 12, 0.95);
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 4px 8px;
+        .lbl-pv { color: var(--accent-red); }
+        .lbl-san { color: var(--accent-blue); }
+        .val-num { color: white; letter-spacing: 1px; }
+
+        /* MUNIÇÃO FLUTUANTE */
+        .ammo-line {
+            font-size: 1.1em;
+            font-weight: 900;
+            color: var(--accent-yellow);
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
-            z-index: 5;
+            margin-top: 5px;
+            text-shadow: 
+                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
+                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000;
         }
-        .ammo-icon { font-size: 1.1em; }
-        .ammo-text { color: white; font-weight: 900; font-size: 0.9em; text-shadow: 1px 1px 2px black; }
-        .ammo-type { color: var(--accent-yellow); font-size: 0.6em; font-weight: bold; text-transform: uppercase; margin-right: 4px; }
+        .ammo-val { color: white; }
 
-        /* AURAS DE STATUS (Aplica uma sombra colorida no recorte do PNG) */
-        .status-lesionado { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 10px var(--accent-red)) !important; }
+        /* AURAS DE STATUS (Sombra colorida ao redor do corpo do personagem) */
+        .status-lesionado { filter: drop-shadow(0 0 10px var(--accent-red)) !important; }
         .status-morrendo { animation: pulseRedAura 1.5s infinite !important; }
         .status-enlouquecendo { animation: pulseBlueAura 1.5s infinite !important; }
 
         @keyframes pulseRedAura { 
-            0% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 5px var(--accent-red)); } 
-            50% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 20px var(--accent-red)); } 
-            100% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 5px var(--accent-red)); } 
+            0% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
+            50% { filter: drop-shadow(0 0 20px var(--accent-red)); } 
+            100% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
         }
         @keyframes pulseBlueAura { 
-            0% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 5px var(--accent-blue)); } 
-            50% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 20px var(--accent-blue)); } 
-            100% { filter: drop-shadow(5px 0px 10px rgba(0,0,0,0.8)) drop-shadow(0 0 5px var(--accent-blue)); } 
+            0% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
+            50% { filter: drop-shadow(0 0 20px var(--accent-blue)); } 
+            100% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
         }
     </style>
 </head>
@@ -190,28 +189,20 @@
                     
                     <img id="foto-${dados.codigo}" class="char-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-current-src="">
                     
-                    <div class="status-card">
-                        
-                        <div id="ammo-badge-${dados.codigo}"></div>
-
+                    <div class="info-container">
                         <div class="char-nome" id="nome-${dados.codigo}">Desconhecido</div>
                         
-                        <div class="bar-wrapper">
-                            <div class="bar-label" style="color: var(--accent-red);">VIDA</div>
-                            <div class="bar-bg">
-                                <div class="bar-fill fill-vida" id="bar-vida-${dados.codigo}" style="width: 100%;"></div>
-                                <div class="bar-text" id="text-vida-${dados.codigo}">0 / 0</div>
-                            </div>
+                        <div class="status-line">
+                            <span class="lbl-pv">PV</span>
+                            <span class="val-num" id="text-vida-${dados.codigo}">0/0</span>
                         </div>
 
-                        <div class="bar-wrapper">
-                            <div class="bar-label" style="color: var(--accent-blue);">SANIDADE</div>
-                            <div class="bar-bg">
-                                <div class="bar-fill fill-sani" id="bar-sani-${dados.codigo}" style="width: 100%;"></div>
-                                <div class="bar-text" id="text-sani-${dados.codigo}">0 / 0</div>
-                            </div>
+                        <div class="status-line">
+                            <span class="lbl-san">SAN</span>
+                            <span class="val-num" id="text-sani-${dados.codigo}">0/0</span>
                         </div>
 
+                        <div id="ammo-badge-${dados.codigo}"></div>
                     </div>
                 `;
                 partyContainer.appendChild(widget);
@@ -237,23 +228,13 @@
             else if (dados.status?.enlouquecendo) imgEl.classList.add('status-enlouquecendo');
             else if (dados.status?.lesionado) imgEl.classList.add('status-lesionado');
 
-            // MUDANÇA DA COR DA BORDA CONSOANTE O STATUS
-            const statusCard = widget.querySelector('.status-card');
-            statusCard.style.borderLeftColor = dados.status?.enlouquecendo ? 'var(--accent-blue)' : (dados.status?.morrendo || dados.status?.lesionado ? 'var(--accent-red)' : 'var(--accent-blue)');
-
-            // ATUALIZA NOME E BARRAS
+            // ATUALIZA TEXTOS (NOME, PV, SAN)
+            // Pegar só o primeiro nome se o nome for muito grande, ou deixa tudo. Deixei completo mas limitado no CSS
             document.getElementById(`nome-${dados.codigo}`).innerText = dados.nome || 'Desconhecido';
+            document.getElementById(`text-vida-${dados.codigo}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
+            document.getElementById(`text-sani-${dados.codigo}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
 
-            const percVida = Math.min(Math.max((dados.vida_atual / dados.vida_max) * 100, 0), 100) || 0;
-            const percSani = Math.min(Math.max((dados.sani_atual / dados.sani_max) * 100, 0), 100) || 0;
-            
-            document.getElementById(`bar-vida-${dados.codigo}`).style.width = percVida + '%';
-            document.getElementById(`text-vida-${dados.codigo}`).innerText = `${dados.vida_atual} / ${dados.vida_max}`;
-            
-            document.getElementById(`bar-sani-${dados.codigo}`).style.width = percSani + '%';
-            document.getElementById(`text-sani-${dados.codigo}`).innerText = `${dados.sani_atual} / ${dados.sani_max}`;
-
-            // ATUALIZA A ETIQUETA DA MUNIÇÃO
+            // ATUALIZA A MUNIÇÃO (Só aparece se tiver arma de disparo equipada)
             const ammoBadge = document.getElementById(`ammo-badge-${dados.codigo}`);
             let ammoHtml = '';
             
@@ -266,10 +247,9 @@
 
                 if (armaEquipada) {
                     ammoHtml = `
-                        <div class="ammo-badge">
-                            <span class="ammo-type">${armaEquipada.ammo}</span>
-                            <span class="ammo-icon">🔫</span>
-                            <span class="ammo-text">${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</span>
+                        <div class="ammo-line">
+                            <span style="font-size:1.2em;">🔫</span>
+                            <span class="ammo-val">${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</span>
                         </div>
                     `;
                 }
