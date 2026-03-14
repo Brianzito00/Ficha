@@ -1452,9 +1452,9 @@
 
     // --- FUNÇÕES DE SALVAR, EXPORTAR E CARREGAR ---
     function save() {
-        if(isLoadingData || viewCode) return; 
+        if(isLoadingData) return; 
 
-        // 1. Calcula a foto atual corretamente ANTES de enviar, ignorando o atraso da animação
+        // 1. Calcula a foto atual
         let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
         if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo;
         else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente;
@@ -1482,15 +1482,39 @@
             d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); 
         });
         
+        // 3. O Mestre está editando na janela dele (Iframe)
+        if (viewCode) {
+            if (socket) {
+                const payload = {
+                    codigo: viewCode,
+                    origin: socket.id, // Envia a identificação para o Iframe não se auto-atualizar
+                    nome: document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido',
+                    foto: currentImgUrl,
+                    nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
+                    defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
+                    vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
+                    vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
+                    sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0,
+                    sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
+                    status: charStatus,
+                    fullData: d
+                };
+                socket.emit('mestre_force_sync', payload);
+            }
+            return; // Cancela para não guardar no computador do mestre acidentalmente
+        }
+
+        // 4. Jogador Normal a editar
         localStorage.setItem('ordem_save_local', JSON.stringify(d));
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
             socket.emit('status_change', {
                 codigo: playerCode,
+                origin: socket.id,
                 id: playerCode,
                 nome: jogadorNome,
-                foto: currentImgUrl, // 3. Envia a URL exata e atualizada para o Escudo do Mestre
+                foto: currentImgUrl,
                 nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
                 defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
                 vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
@@ -1591,7 +1615,9 @@
             
             if (socket) {
                 socket.on('update_mestre', (dados) => {
-                    if (dados.codigo === viewCode && dados.fullData) {
+                    // Apenas recarrega se for o código certo e se NÃO for o próprio Iframe que enviou a alteração
+                    if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) {
+                        isLoadingData = true;
                         populateData(dados.fullData);
                     }
                 });
@@ -1604,12 +1630,20 @@
         if (socket && !viewCode) {
             socket.on('connect', () => save()); 
 
-            // Ouve comandos enviados pelo Mestre (ex: clique no botão de + Vida)
             socket.on('comando_mestre', (dados) => {
                 if (dados.codigo === playerCode) {
                     if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
                     else if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
                     else if (dados.tipo === 'status') toggleStatus(dados.status);
+                }
+            });
+
+            // Sincroniza a ficha caso o Mestre a edite no escudo
+            socket.on('mestre_force_sync_player', (dados) => {
+                if (dados.codigo === playerCode && dados.fullData) {
+                    isLoadingData = true;
+                    populateData(dados.fullData);
+                    localStorage.setItem('ordem_save_local', JSON.stringify(dados.fullData));
                 }
             });
         }
