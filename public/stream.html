@@ -12,7 +12,7 @@
 
         /* FUNDO INVISÍVEL PARA O OBS */
         body {
-            margin: 0; padding: 20px; font-family: 'Roboto', sans-serif;
+            margin: 0; padding: 20px; font-family: 'Arial', 'Roboto', sans-serif;
             background: transparent; color: white; overflow: hidden;
             display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
             height: 100vh; box-sizing: border-box;
@@ -33,7 +33,7 @@
 
         /* RECIPIENTE DOS JOGADORES */
         #party-container {
-            display: flex; flex-direction: row; gap: 40px; flex-wrap: nowrap;
+            display: flex; flex-direction: row; gap: 50px; flex-wrap: nowrap;
             justify-content: center; align-items: flex-end; width: 100%;
         }
 
@@ -48,50 +48,53 @@
 
         /* FOTO DO PERSONAGEM (PNG LIVRE) */
         .char-art {
-            width: 170px;
-            height: 280px;
+            width: auto;
+            max-width: 250px;
+            height: 300px; /* Altura do personagem */
             object-fit: contain;
             object-position: bottom center;
             z-index: 2;
-            filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.8)); 
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)); 
             transition: opacity 0.3s ease-in-out;
             pointer-events: none;
-            margin-right: 10px; /* Afasta o texto do PNG */
+            margin-right: 15px; /* Espaço entre o PNG e o texto */
         }
 
-        /* CAIXA DE INFORMAÇÕES (AGORA TOTALMENTE INVISÍVEL, SÓ TEXTO) */
+        /* CAIXA DE INFORMAÇÕES (TOTALMENTE INVISÍVEL, SÓ TEXTO) */
         .info-container {
-            display: flex; flex-direction: column; justify-content: center;
-            padding-bottom: 20px; /* Alinha o texto perto da cintura do personagem */
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
+            padding-bottom: 25px; /* Altura onde o texto fica em relação ao pé do personagem */
             z-index: 10;
         }
 
-        /* BOTÃO DE REMOVER (Fica no canto do widget) */
+        /* BOTÃO DE REMOVER (Fica no canto do widget ao passar o rato) */
         .btn-remove {
-            position: absolute; top: -20px; right: 0; background: var(--accent-red);
+            position: absolute; top: -30px; right: 0; background: var(--accent-red);
             color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
             font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black; z-index: 20;
         }
         .player-widget:hover .btn-remove { opacity: 1; }
 
-        /* ESTILOS DOS TEXTOS FLUTUANTES COM CONTORNO FORTE PARA O OBS */
+        /* NOME DO PERSONAGEM */
         .char-nome {
-            font-size: 1.5em; font-weight: 900; color: white; text-transform: uppercase;
-            margin: 0 0 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;
+            font-size: 1.8em; font-weight: 900; color: white; text-transform: uppercase;
+            margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;
+            letter-spacing: 1px;
             /* Contorno preto forte (Stroke) + Sombra */
             text-shadow: 
                 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
                 0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
-                4px 4px 10px rgba(0,0,0,0.9);
+                4px 4px 5px rgba(0,0,0,0.8);
         }
 
+        /* LINHA DE STATUS (PV / SAN) */
         .status-line {
-            font-size: 1.3em;
+            font-size: 1.6em;
             font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
+            gap: 8px; /* Espaço entre os números e a sigla */
+            margin-bottom: -2px; /* Junta um pouco as linhas */
             /* Contorno preto forte */
             text-shadow: 
                 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
@@ -99,24 +102,16 @@
                 3px 3px 5px rgba(0,0,0,0.8);
         }
 
-        .lbl-pv { color: var(--accent-red); }
-        .lbl-san { color: var(--accent-blue); }
         .val-num { color: white; letter-spacing: 1px; }
+        .lbl-pv { color: var(--accent-red); font-size: 0.9em; }
+        .lbl-san { color: var(--accent-blue); font-size: 0.9em; }
 
-        /* MUNIÇÃO FLUTUANTE */
+        /* MUNIÇÃO FLUTUANTE (Se houver arma equipada) */
         .ammo-line {
-            font-size: 1.1em;
-            font-weight: 900;
-            color: var(--accent-yellow);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 5px;
-            text-shadow: 
-                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
-                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000;
+            font-size: 1.2em;
+            margin-top: 4px;
         }
-        .ammo-val { color: white; }
+        .lbl-mun { color: var(--accent-yellow); font-size: 0.9em; }
 
         /* AURAS DE STATUS (Sombra colorida ao redor do corpo do personagem) */
         .status-lesionado { filter: drop-shadow(0 0 10px var(--accent-red)) !important; }
@@ -178,7 +173,7 @@
 
             let widget = document.getElementById(`widget-${dados.codigo}`);
             
-            // SE O WIDGET AINDA NÃO EXISTE, CRIA-O
+            // SE O WIDGET AINDA NÃO EXISTE, CRIA A ESTRUTURA BASE
             if (!widget) {
                 widget = document.createElement('div');
                 widget.className = 'player-widget';
@@ -193,13 +188,13 @@
                         <div class="char-nome" id="nome-${dados.codigo}">Desconhecido</div>
                         
                         <div class="status-line">
-                            <span class="lbl-pv">PV</span>
                             <span class="val-num" id="text-vida-${dados.codigo}">0/0</span>
+                            <span class="lbl-pv">PV</span>
                         </div>
 
                         <div class="status-line">
-                            <span class="lbl-san">SAN</span>
                             <span class="val-num" id="text-sani-${dados.codigo}">0/0</span>
+                            <span class="lbl-san">SAN</span>
                         </div>
 
                         <div id="ammo-badge-${dados.codigo}"></div>
@@ -228,9 +223,11 @@
             else if (dados.status?.enlouquecendo) imgEl.classList.add('status-enlouquecendo');
             else if (dados.status?.lesionado) imgEl.classList.add('status-lesionado');
 
-            // ATUALIZA TEXTOS (NOME, PV, SAN)
-            // Pegar só o primeiro nome se o nome for muito grande, ou deixa tudo. Deixei completo mas limitado no CSS
-            document.getElementById(`nome-${dados.codigo}`).innerText = dados.nome || 'Desconhecido';
+            // ATUALIZA TEXTOS
+            // Pega apenas o primeiro nome para não ficar gigante na tela da stream
+            let primeiroNome = (dados.nome || 'Desconhecido').split(' ')[0];
+            document.getElementById(`nome-${dados.codigo}`).innerText = primeiroNome;
+            
             document.getElementById(`text-vida-${dados.codigo}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
             document.getElementById(`text-sani-${dados.codigo}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
 
@@ -247,9 +244,9 @@
 
                 if (armaEquipada) {
                     ammoHtml = `
-                        <div class="ammo-line">
-                            <span style="font-size:1.2em;">🔫</span>
-                            <span class="ammo-val">${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</span>
+                        <div class="status-line ammo-line">
+                            <span class="val-num">🔫 ${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</span>
+                            <span class="lbl-mun">MUN</span>
                         </div>
                     `;
                 }
