@@ -2,71 +2,151 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Stream Overlay - Ficha de Personagem</title>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         :root {
-            --cor-brilho: #ff4a4a; /* Cor do contorno (muda por personagem) */
+            --accent-red: #e53935;
+            --accent-blue: #00b0ff;
+            --accent-yellow: #ffcf33;
+            --bg-overlay: rgba(0, 0, 0, 0.7);
         }
 
         body {
-            background-color: transparent;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            gap: 20px;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+            background: transparent; /* Fundo transparente para o OBS */
         }
 
-        .personagem-card {
+        /* Container Principal do Overlay */
+        #stream-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
-            min-width: 250px;
+            gap: 20px;
+            padding: 15px 30px;
+            background: var(--bg-overlay);
+            border-radius: 15px;
+            border-bottom: 4px solid var(--accent-red);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            min-width: 600px;
         }
 
-        .avatar-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
-        }
-
-        .avatar {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 5px;
-            /* O brilho da imagem que você enviou */
-            filter: drop-shadow(0 0 8px var(--cor-brilho));
-        }
-
-        .status-info {
-            margin-left: 15px;
+        /* Nome do Personagem */
+        .char-name {
             color: white;
             font-weight: bold;
-            font-size: 1.2rem;
-            text-shadow: 1px 1px 2px black;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            border-right: 2px solid rgba(255,255,255,0.2);
+            padding-right: 20px;
         }
 
-        .vida { color: #ff8585; }
-        .sanidade { color: #c085ff; }
-        .municao { color: #ff85ec; font-size: 0.9rem; }
+        /* Grupo de Barras */
+        .stats-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
 
-        /* Classe para quando a vida estiver baixa (mudar foto) */
-        .ferido { filter: grayscale(50%) sepia(50%) drop-shadow(0 0 8px red); }
+        /* Estrutura das Barras */
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            color: #ccc;
+            font-size: 0.8rem;
+            font-weight: bold;
+            width: 40px;
+        }
+
+        .bar-container {
+            flex-grow: 1;
+            height: 12px;
+            background: #222;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.5s ease-out;
+        }
+
+        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
+        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
+        .fill-effort { background: linear-gradient(90deg, #b8860b, var(--accent-yellow)); }
+
+        .bar-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+            line-height: 12px;
+            text-shadow: 1px 1px 1px black;
+        }
     </style>
 </head>
 <body>
 
-    <div class="personagem-card">
-        <div class="avatar-container">
-            <img src="https://via.placeholder.com/80" class="avatar" id="foto-p1">
-        </div>
-        <div class="status-info">
-            <div class="vida" id="vida-p1">32/32</div>
-            <div class="sanidade" id="san-p1">54/54</div>
-            <div class="municao" id="ammo-p1">6 munições</div>
+    <div id="stream-container">
+        <div class="char-name" id="display-nome">CARREGANDO...</div>
+        
+        <div class="stats-group">
+            <div class="bar-wrapper">
+                <span class="bar-label">PV</span>
+                <div class="bar-container">
+                    <div id="bar-vida" class="bar-fill fill-vida"></div>
+                    <div class="bar-text"><span id="txt-vida-atual">0</span>/<span id="txt-vida-max">0</span></div>
+                </div>
+            </div>
+
+            <div class="bar-wrapper">
+                <span class="bar-label">SAN</span>
+                <div class="bar-container">
+                    <div id="bar-sani" class="bar-fill fill-sani"></div>
+                    <div class="bar-text"><span id="txt-sani-atual">0</span>/<span id="txt-sani-max">0</span></div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script>
+        const socket = io();
+
+        // Recebe atualizações em tempo real do servidor
+        socket.on('updateData', (data) => {
+            if (data) {
+                // Atualiza Nome
+                document.getElementById('display-nome').innerText = data.nome || "Personagem";
+
+                // Atualiza Vida
+                updateBar('vida', data.vidaAtual, data.vidaMax);
+                
+                // Atualiza Sanidade
+                updateBar('sani', data.saniAtual, data.saniMax);
+            }
+        });
+
+        function updateBar(prefix, atual, max) {
+            const perc = (atual / max) * 100;
+            document.getElementById(`bar-${prefix}`).style.width = perc + '%';
+            document.getElementById(`txt-${prefix}-atual`).innerText = atual;
+            document.getElementById(`txt-${prefix}-max`).innerText = max;
+        }
+    </script>
 </body>
 </html>
