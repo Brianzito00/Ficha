@@ -9,6 +9,11 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Redireciona a página inicial para a ficha
+app.get('/', (req, res) => {
+    res.redirect('/ficha.html');
+});
+
 // Memória do servidor: guarda o último status de cada jogador por código
 const playersData = {}; 
 
@@ -21,6 +26,11 @@ io.on('connection', (socket) => {
             playersData[dados.codigo] = dados;
             io.emit('update_mestre', dados); // Partilha com todos (o mestre filtra no frontend)
         }
+    });
+
+    // NOVO: Recebe comandos do Mestre (ex: tirar vida) e envia para o Jogador
+    socket.on('comando_mestre', (dados) => {
+        io.emit('comando_mestre', dados);
     });
 
     // Recebe rolagens
@@ -40,7 +50,7 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🚀 Servidor a correr na porta ${PORT}!`);
 });
