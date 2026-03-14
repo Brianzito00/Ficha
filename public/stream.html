@@ -1,258 +1,72 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay de Stream - Ordem Paranormal</title>
     <style>
         :root {
-            --accent-blue: #00b0ff; --accent-yellow: #ffcf33; 
-            --accent-green: #00e676; --accent-red: #e53935;
+            --cor-brilho: #ff4a4a; /* Cor do contorno (muda por personagem) */
         }
 
-        /* FUNDO INVISÍVEL PARA O OBS */
         body {
-            margin: 0; padding: 20px; font-family: 'Arial', 'Roboto', sans-serif;
-            background: transparent; color: white; overflow: hidden;
-            display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
-            height: 100vh; box-sizing: border-box;
-        }
-
-        /* PAINEL SECRETO PARA ADICIONAR CÓDIGOS */
-        .admin-panel {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(18, 18, 20, 0.95); border: 2px solid var(--accent-blue);
-            padding: 10px 15px; border-radius: 8px; display: flex; gap: 10px; align-items: center;
-            opacity: 0; transition: opacity 0.3s ease; z-index: 100;
-        }
-        body:hover .admin-panel { opacity: 1; }
-
-        .admin-input { padding: 8px; background: #000; color: white; border: 1px solid #444; border-radius: 4px; font-weight: bold; text-transform: uppercase; text-align: center; width: 100px; outline: none;}
-        .admin-btn { background: var(--accent-blue); color: black; font-weight: bold; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-        .admin-btn:hover { filter: brightness(1.2); }
-
-        /* RECIPIENTE DOS JOGADORES */
-        #party-container {
-            display: flex; flex-direction: row; gap: 50px; flex-wrap: nowrap;
-            justify-content: center; align-items: flex-end; width: 100%;
-        }
-
-        /* LAYOUT DO JOGADOR: FOTO (ESQUERDA) + TEXTOS FLUTUANTES (DIREITA) */
-        .player-widget {
-            position: relative;
+            background-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
-            align-items: flex-end;
-            margin-top: 150px; 
-            width: max-content;
+            gap: 20px;
+            padding: 20px;
         }
 
-        /* FOTO DO PERSONAGEM (PNG LIVRE) */
-        .char-art {
-            width: auto;
-            max-width: 250px;
-            height: 300px; /* Altura do personagem */
-            object-fit: contain;
-            object-position: bottom center;
-            z-index: 2;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)); 
-            transition: opacity 0.3s ease-in-out;
-            pointer-events: none;
-            margin-right: 15px; /* Espaço entre o PNG e o texto */
-        }
-
-        /* CAIXA DE INFORMAÇÕES (TOTALMENTE INVISÍVEL, SÓ TEXTO) */
-        .info-container {
-            display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
-            padding-bottom: 25px; /* Altura onde o texto fica em relação ao pé do personagem */
-            z-index: 10;
-        }
-
-        /* BOTÃO DE REMOVER (Fica no canto do widget ao passar o rato) */
-        .btn-remove {
-            position: absolute; top: -30px; right: 0; background: var(--accent-red);
-            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-weight: bold; cursor: pointer; opacity: 0; transition: 0.2s; box-shadow: 0 0 10px black; z-index: 20;
-        }
-        .player-widget:hover .btn-remove { opacity: 1; }
-
-        /* NOME DO PERSONAGEM */
-        .char-nome {
-            font-size: 1.8em; font-weight: 900; color: white; text-transform: uppercase;
-            margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;
-            letter-spacing: 1px;
-            /* Contorno preto forte (Stroke) + Sombra */
-            text-shadow: 
-                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
-                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
-                4px 4px 5px rgba(0,0,0,0.8);
-        }
-
-        /* LINHA DE STATUS (PV / SAN) */
-        .status-line {
-            font-size: 1.6em;
-            font-weight: 900;
+        .personagem-card {
             display: flex;
             align-items: center;
-            gap: 8px; /* Espaço entre os números e a sigla */
-            margin-bottom: -2px; /* Junta um pouco as linhas */
-            /* Contorno preto forte */
-            text-shadow: 
-                2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000,
-                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
-                3px 3px 5px rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 250px;
         }
 
-        .val-num { color: white; letter-spacing: 1px; }
-        .lbl-pv { color: var(--accent-red); font-size: 0.9em; }
-        .lbl-san { color: var(--accent-blue); font-size: 0.9em; }
-
-        /* MUNIÇÃO FLUTUANTE (Se houver arma equipada) */
-        .ammo-line {
-            font-size: 1.2em;
-            margin-top: 4px;
+        .avatar-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
         }
-        .lbl-mun { color: var(--accent-yellow); font-size: 0.9em; }
 
-        /* AURAS DE STATUS (Sombra colorida ao redor do corpo do personagem) */
-        .status-lesionado { filter: drop-shadow(0 0 10px var(--accent-red)) !important; }
-        .status-morrendo { animation: pulseRedAura 1.5s infinite !important; }
-        .status-enlouquecendo { animation: pulseBlueAura 1.5s infinite !important; }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            /* O brilho da imagem que você enviou */
+            filter: drop-shadow(0 0 8px var(--cor-brilho));
+        }
 
-        @keyframes pulseRedAura { 
-            0% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
-            50% { filter: drop-shadow(0 0 20px var(--accent-red)); } 
-            100% { filter: drop-shadow(0 0 5px var(--accent-red)); } 
+        .status-info {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px black;
         }
-        @keyframes pulseBlueAura { 
-            0% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
-            50% { filter: drop-shadow(0 0 20px var(--accent-blue)); } 
-            100% { filter: drop-shadow(0 0 5px var(--accent-blue)); } 
-        }
+
+        .vida { color: #ff8585; }
+        .sanidade { color: #c085ff; }
+        .municao { color: #ff85ec; font-size: 0.9rem; }
+
+        /* Classe para quando a vida estiver baixa (mudar foto) */
+        .ferido { filter: grayscale(50%) sepia(50%) drop-shadow(0 0 8px red); }
     </style>
 </head>
 <body>
 
-    <div class="admin-panel">
-        <input type="text" id="new-code" class="admin-input" placeholder="CÓDIGO" maxlength="4">
-        <button class="admin-btn" onclick="addPlayer()">+ ADICIONAR</button>
+    <div class="personagem-card">
+        <div class="avatar-container">
+            <img src="https://via.placeholder.com/80" class="avatar" id="foto-p1">
+        </div>
+        <div class="status-info">
+            <div class="vida" id="vida-p1">32/32</div>
+            <div class="sanidade" id="san-p1">54/54</div>
+            <div class="municao" id="ammo-p1">6 munições</div>
+        </div>
     </div>
 
-    <div id="party-container"></div>
-
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <script>
-        const socket = io();
-        const partyContainer = document.getElementById('party-container');
-        
-        let streamCodes = JSON.parse(localStorage.getItem('stream_codes')) || [];
-
-        socket.on('connect', () => {
-            streamCodes.forEach(codigo => socket.emit('request_player', codigo));
-        });
-
-        function addPlayer() {
-            const input = document.getElementById('new-code');
-            const codigo = input.value.toUpperCase().trim();
-            if (codigo.length > 0 && !streamCodes.includes(codigo)) {
-                streamCodes.push(codigo);
-                localStorage.setItem('stream_codes', JSON.stringify(streamCodes));
-                socket.emit('request_player', codigo);
-            }
-            input.value = '';
-        }
-
-        function removePlayer(codigo) {
-            streamCodes = streamCodes.filter(c => c !== codigo);
-            localStorage.setItem('stream_codes', JSON.stringify(streamCodes));
-            const widget = document.getElementById(`widget-${codigo}`);
-            if (widget) widget.remove();
-        }
-
-        socket.on('update_mestre', (dados) => {
-            if (!dados.codigo || !streamCodes.includes(dados.codigo)) return;
-
-            let widget = document.getElementById(`widget-${dados.codigo}`);
-            
-            // SE O WIDGET AINDA NÃO EXISTE, CRIA A ESTRUTURA BASE
-            if (!widget) {
-                widget = document.createElement('div');
-                widget.className = 'player-widget';
-                widget.id = `widget-${dados.codigo}`;
-
-                widget.innerHTML = `
-                    <button class="btn-remove" onclick="removePlayer('${dados.codigo}')" title="Remover">X</button>
-                    
-                    <img id="foto-${dados.codigo}" class="char-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-current-src="">
-                    
-                    <div class="info-container">
-                        <div class="char-nome" id="nome-${dados.codigo}">Desconhecido</div>
-                        
-                        <div class="status-line">
-                            <span class="val-num" id="text-vida-${dados.codigo}">0/0</span>
-                            <span class="lbl-pv">PV</span>
-                        </div>
-
-                        <div class="status-line">
-                            <span class="val-num" id="text-sani-${dados.codigo}">0/0</span>
-                            <span class="lbl-san">SAN</span>
-                        </div>
-
-                        <div id="ammo-badge-${dados.codigo}"></div>
-                    </div>
-                `;
-                partyContainer.appendChild(widget);
-            }
-
-            // ATUALIZA A IMAGEM (com animação fade)
-            const imgEl = document.getElementById(`foto-${dados.codigo}`);
-            const novaFoto = dados.foto || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-            
-            if(imgEl.getAttribute('data-current-src') !== novaFoto) {
-                imgEl.style.opacity = 0; 
-                setTimeout(() => {
-                    imgEl.src = novaFoto;
-                    imgEl.setAttribute('data-current-src', novaFoto);
-                    imgEl.onload = () => imgEl.style.opacity = 1;
-                    setTimeout(() => imgEl.style.opacity = 1, 100); 
-                }, 300);
-            }
-
-            // APLICA A AURA DE STATUS AO REDOR DO PNG
-            imgEl.className = 'char-art'; 
-            if (dados.status?.morrendo) imgEl.classList.add('status-morrendo');
-            else if (dados.status?.enlouquecendo) imgEl.classList.add('status-enlouquecendo');
-            else if (dados.status?.lesionado) imgEl.classList.add('status-lesionado');
-
-            // ATUALIZA TEXTOS
-            // Pega apenas o primeiro nome para não ficar gigante na tela da stream
-            let primeiroNome = (dados.nome || 'Desconhecido').split(' ')[0];
-            document.getElementById(`nome-${dados.codigo}`).innerText = primeiroNome;
-            
-            document.getElementById(`text-vida-${dados.codigo}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
-            document.getElementById(`text-sani-${dados.codigo}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
-
-            // ATUALIZA A MUNIÇÃO (Só aparece se tiver arma de disparo equipada)
-            const ammoBadge = document.getElementById(`ammo-badge-${dados.codigo}`);
-            let ammoHtml = '';
-            
-            if (dados.fullData && dados.fullData.inv) {
-                const armaEquipada = dados.fullData.inv.find(item => 
-                    item.eq === true && 
-                    item.type === 'arma' && 
-                    item.atkType && item.atkType.toLowerCase().includes('disparo')
-                );
-
-                if (armaEquipada) {
-                    ammoHtml = `
-                        <div class="status-line ammo-line">
-                            <span class="val-num">🔫 ${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}</span>
-                            <span class="lbl-mun">MUN</span>
-                        </div>
-                    `;
-                }
-            }
-            ammoBadge.innerHTML = ammoHtml;
-        });
-    </script>
 </body>
 </html>
