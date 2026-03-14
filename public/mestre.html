@@ -124,8 +124,8 @@
     <script>
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
 
-        // 👉 SUBSTITUA AQUI o link para o URL onde hospedou a ficha no GitHub:
-        const URL_FICHA_GITHUB = "https://SEU_USUARIO.github.io/SEU_REPOSITORIO/ficha.html";
+        // 👉 Usando o caminho relativo! Funciona perfeito no localhost, Render, Glitch, etc.
+        const URL_FICHA = "/ficha.html"; 
         
         const socket = io();
         const playersBoard = document.getElementById('players-board');
@@ -155,7 +155,8 @@
 
         function abrirFicha(codigo) {
             const iframe = document.getElementById('iframe-ficha');
-            iframe.src = `${URL_FICHA_GITHUB}?view=${codigo}`;
+            // Como usamos /ficha.html, ele vai procurar o arquivo no mesmo servidor onde o escudo está rodando
+            iframe.src = `${URL_FICHA}?view=${codigo}`;
             document.getElementById('modal-ficha').style.display = 'flex';
         }
 
