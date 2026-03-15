@@ -96,6 +96,7 @@
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(10px);
         }
 
         .modal-content {
@@ -485,7 +486,10 @@
         
         function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
             const box = document.querySelector('.popup-box-dice'); 
-            box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9')`;
+            
+            // O TRUQUE DA ANIMAÇÃO: Adicionar um timestamp ao link do GIF faz o navegador recarregar a imagem e repetir a animação!
+            box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+            
             let numEl = document.getElementById('popup-num'); 
             numEl.innerHTML = n; 
             if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
@@ -586,10 +590,8 @@
 
         function rolarMonstrosIniciativa() {
             if(monstros.length === 0) return alert("Não existem monstros no ecrã para rolar iniciativa.");
-            // Rola a iniciativa automaticamente para cada monstro existente
             monstros.forEach(m => rolarPericiaMonstro(m.id, 'iniciativa'));
             
-            // Força a aba iniciativa a abrir caso o mestre clique
             if (!document.getElementById('tab-iniciativa').classList.contains('active')) {
                 mudarAba('iniciativa');
             }
@@ -601,7 +603,6 @@
         function abrirModalCriatura() {
             document.getElementById('modal-criatura').style.display = 'flex';
             
-            // Reseta Atributos e Perícias (SÓ AGI, FOR, PRE)
             ['agi','for','pre'].forEach(a => document.getElementById(`c-${a}`).value = '1');
             ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
                 document.getElementById(`c-treino-${p}`).checked = false;
@@ -663,14 +664,12 @@
             const defesa = document.getElementById('c-defesa').value || '0';
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
 
-            // Extrai Atributos
             const attrs = {
                 agi: parseInt(document.getElementById('c-agi').value) || 1,
                 for: parseInt(document.getElementById('c-for').value) || 1,
                 pre: parseInt(document.getElementById('c-pre').value) || 1
             };
 
-            // Extrai Perícias
             const skills = {};
             ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
                 skills[p] = {
@@ -709,7 +708,7 @@
             monstros = monstros.filter(m => m.id !== id);
             localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
             renderizarMonstros();
-            removerIniciativa(id); // Limpa da iniciativa tbm se for deletado
+            removerIniciativa(id); 
         }
 
         function alterarVidaMonstro(id, delta) {
@@ -723,7 +722,6 @@
             }
         }
 
-        // --- SISTEMA DE ROLAGEM DE DANO ---
         function rolarDanoMonstro(monstroNome, ataqueNome, formulaDano) {
             let formula = formulaDano.toLowerCase().replace(/\s+/g, ''); 
             let total = 0;
@@ -753,7 +751,6 @@
             showPopup(total, `DANO: ${ataqueNome}`, "color:var(--accent-red)", monstroNome);
         }
 
-        // --- SISTEMA UNIFICADO DE PERÍCIAS (D20) ---
         function rolarPericiaMonstro(id, keyPericia) {
             const monstro = monstros.find(m => m.id === id);
             if (!monstro) return;
@@ -767,7 +764,6 @@
             const attrVal = monstro.attrs[info.attr] || 1;
             const skillData = monstro.skills[keyPericia] || { bonus: 0, treinado: false };
 
-            // Cálculo idêntico ao da ficha principal
             let f = Math.floor(skillData.bonus + (attrVal * info.mod) + (skillData.treinado ? 10 : 0));
             let d = Math.floor(Math.random() * 20) + 1;
             
