@@ -192,7 +192,7 @@
 
                 // O código olha DIRETAMENTE para o objeto arma_ativa enviado pelo servidor
                 if (dados.arma_ativa) {
-                    const arma = dados.arma_ativa;
+                    const arma = dados.Arma_Ativa;
                     // Verifica se a arma que está na mão é de disparo
                     const ehDisparo = arma.atkType && arma.atkType.toLowerCase().includes('disparo');
                     
