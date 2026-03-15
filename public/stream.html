@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Persistente</title>
+    <title>Overlay RPG - Arma Ativa</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
@@ -24,12 +24,16 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: opacity 0.5s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .foto-container {
-            width: 130px;
-            height: 130px;
+            width: 130px; height: 130px;
             position: relative;
         }
 
@@ -40,14 +44,15 @@
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
+        /* EFEITO DE VIDA BAIXA */
         .perigo {
-            animation: pulse-red 1.5s infinite;
+            animation: pulse-red 1.2s infinite ease-in-out;
             filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
         @keyframes pulse-red {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.7; }
         }
 
         .status-numbers {
@@ -55,22 +60,29 @@
             flex-direction: column;
             gap: 0px;
             font-family: 'Grenze Gotisch', cursive;
-            font-size: 3rem;
-            line-height: 0.9;
+            font-size: 3.2rem;
+            line-height: 0.85;
         }
 
-        .val-vida { color: #ffcccc; text-shadow: 0 0 12px #ff4d4d, 0 0 5px #ff0000; }
-        .val-sani { color: #e0e0ff; text-shadow: 0 0 12px #8080ff, 0 0 5px #0000ff; }
-        .val-ammo { color: #ffffcc; text-shadow: 0 0 12px #ffcf33, 0 0 5px #ffae00; font-size: 2.5rem; }
+        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000; }
+        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff; }
+        .val-ammo { 
+            color: #ffffcc; 
+            text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00; 
+            font-size: 2.8rem;
+            min-height: 1em; /* Garante que o espaço exista mesmo vazio */
+        }
 
+        /* PAINEL DE CONTROLE */
         .setup-panel {
             position: fixed; bottom: 15px; right: 15px;
-            background: rgba(0, 0, 0, 0.8); border: 1px solid #ffcf33;
-            padding: 8px; border-radius: 8px; display: flex; gap: 8px; z-index: 1000;
+            background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
+            padding: 10px; border-radius: 10px; display: flex; gap: 8px; z-index: 1000;
         }
 
-        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; }
-        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 2px 8px; }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
+        .setup-panel button:hover { background: #ffcf33; color: black; }
     </style>
 </head>
 <body>
@@ -89,10 +101,9 @@
         const container = document.getElementById('multi-overlay-container');
         let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
 
-        // Ao carregar a página, reconecta os jogadores salvos
+        // Carregar jogadores salvos
         window.onload = () => {
             activePlayers.forEach(code => renderPlayerCard(code));
-            // Pequeno delay para garantir conexão do socket
             setTimeout(() => {
                 activePlayers.forEach(code => socket.emit('request_player', code));
             }, 1000);
@@ -137,7 +148,7 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // Atualiza Foto e Status Perigo
+                // 1. Atualizar Foto e Cor de Perigo (Abaixo de 25%)
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
@@ -145,28 +156,30 @@
                     fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
                 
-                // Vida e Sanidade
+                // 2. Atualizar Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // ATUALIZAÇÃO DA ARMA EM TEMPO REAL
+                // 3. Lógica da ARMA ATIVA
                 const ammoEl = document.getElementById(`ammo-${cod}`);
-                let textoMunicao = "";
+                let muniParaExibir = "";
 
-                // O socket deve enviar o fullData com o inventário atualizado
                 if (dados.fullData && dados.fullData.inv) {
+                    // Procura no inventário a arma que está EQUIPADA (eq: true) e é de DISPARO
                     const armaAtiva = dados.fullData.inv.find(item => 
                         item.eq === true && 
                         item.type === 'arma' && 
                         (item.atkType && item.atkType.toLowerCase().includes('disparo'))
                     );
 
+                    // Se encontrou uma arma ativa que usa munição, mostra o número atual
                     if (armaAtiva) {
-                        textoMunicao = `${armaAtiva.currentShots || 0}/${armaAtiva.capacity || 0}`;
+                        muniParaExibir = armaAtiva.currentShots || "0";
                     }
                 }
                 
-                ammoEl.innerText = textoMunicao;
+                // Se muniParaExibir for "", o campo amarelo some automaticamente
+                ammoEl.innerText = muniParaExibir;
             }
         });
     </script>
