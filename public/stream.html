@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Ordem Paranormal</title>
+    <title>Overlay RPG - Versão Final</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
         body {
             margin: 0; padding: 20px;
-            background: transparent; /* Essencial para o OBS */
+            background: transparent;
             color: white;
             font-family: 'Arial', sans-serif;
             overflow: hidden;
         }
 
-        /* CONTAINER DOS CARDS */
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
@@ -34,7 +33,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* FOTO DO PERSONAGEM */
         .foto-container {
             width: 130px; height: 130px;
             position: relative;
@@ -45,10 +43,9 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            transition: filter 0.3s;
         }
 
-        /* EFEITO DE PULSAR EM VERMELHO (VIDA BAIXA) */
+        /* EFEITO DE VIDA BAIXA (25%) */
         .perigo {
             animation: pulse-red 1.2s infinite ease-in-out;
             filter: drop-shadow(0 0 15px #ff0000) !important;
@@ -59,7 +56,6 @@
             50% { opacity: 0.7; filter: drop-shadow(0 0 20px #ff0000); }
         }
 
-        /* NÚMEROS ESTILO NEON */
         .status-numbers {
             display: flex;
             flex-direction: column;
@@ -69,39 +65,19 @@
             line-height: 0.85;
         }
 
-        .val-vida { 
-            color: #ffcccc; 
-            text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000, 2px 2px 2px black; 
-        }
-        .val-sani { 
-            color: #e0e0ff; 
-            text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff, 2px 2px 2px black; 
-        }
-        .val-ammo { 
-            color: #ffffcc; 
-            text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00, 2px 2px 2px black; 
-            font-size: 2.8rem;
-        }
+        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000, 2px 2px 2px black; }
+        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff, 2px 2px 2px black; }
+        .val-ammo { color: #ffffcc; text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00, 2px 2px 2px black; font-size: 2.8rem; }
 
-        /* PAINEL DE CONFIGURAÇÃO (CANTO INFERIOR) */
+        /* PAINEL DE CONTROLE NO OBS */
         .setup-panel {
             position: fixed; bottom: 15px; right: 15px;
             background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
             padding: 10px; border-radius: 10px; display: flex; gap: 8px; z-index: 1000;
         }
 
-        .setup-panel input { 
-            background: #000; border: 1px solid #444; color: white; 
-            width: 60px; text-align: center; font-weight: bold; border-radius: 4px;
-        }
-
-        .setup-panel button { 
-            background: #222; color: #ffcf33; border: 1px solid #ffcf33; 
-            cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; 
-            transition: 0.2s;
-        }
-
-        .setup-panel button:hover { background: #ffcf33; color: black; }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; border-radius: 4px; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -118,20 +94,15 @@
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        
-        // Recupera jogadores salvos no navegador para não sumirem no F5
         let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
 
-        // Inicialização ao carregar a página
         window.onload = () => {
             activePlayers.forEach(code => renderPlayerCard(code));
-            // Pequeno delay para garantir que o socket está pronto antes de pedir os dados
             setTimeout(() => {
                 activePlayers.forEach(code => socket.emit('request_player', code));
             }, 1000);
         };
 
-        // Função para adicionar novo jogador na tela
         function addPlayer() {
             const code = document.getElementById('codigo-input').value.toUpperCase().trim();
             if (code && !activePlayers.includes(code)) {
@@ -143,7 +114,6 @@
             }
         }
 
-        // Cria o HTML do card do jogador
         function renderPlayerCard(code) {
             if (document.getElementById(`card-${code}`)) return;
             const div = document.createElement('div');
@@ -162,47 +132,45 @@
             container.appendChild(div);
         }
 
-        // Limpa a tela e a memória do navegador
         function limparSessao() {
             localStorage.removeItem('overlay_players');
             activePlayers = [];
             container.innerHTML = "";
         }
 
-        // ESCUTA AS ATUALIZAÇÕES DO SERVIDOR
         socket.on('update_mestre', (dados) => {
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // 1. Atualiza Foto e Alerta de Perigo (Vida <= 25%)
+                // Atualiza Foto e Efeito de Sangue/Perigo
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
-                    fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
-                    const percVida = (dados.vida_atual / dados.vida_max) * 100;
-                    fotoEl.classList.toggle('perigo', percVida <= 25);
+                    fotoEl.src = dados.foto || '';
+                    const perc = (dados.vida_atual / dados.vida_max) * 100;
+                    fotoEl.classList.toggle('perigo', perc <= 25);
                 }
                 
-                // 2. Atualiza Vida e Sanidade
+                // Atualiza Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // 3. Lógica da ARMA ATIVA (Sincronização Direta)
+                // Lógica da Arma Selecionada (Conforme o teu arquivo de ficha)
                 const ammoEl = document.getElementById(`ammo-${cod}`);
-                let muniExibicao = "";
+                let muniValor = "";
 
-                // O código olha DIRETAMENTE para o objeto arma_ativa enviado pelo servidor
-                if (dados.arma_ativa) {
-                    const arma = dados.Arma_Ativa;
-                    // Verifica se a arma que está na mão é de disparo
-                    const ehDisparo = arma.atkType && arma.atkType.toLowerCase().includes('disparo');
+                // Verifica se o inventário veio nos dados
+                if (dados.inventory || (dados.fullData && dados.fullData.inventory)) {
+                    const inv = dados.inventory || dados.fullData.inventory;
                     
-                    if (ehDisparo) {
-                        muniExibicao = arma.currentShots || "0";
+                    // Procura o item que está equipado e é do tipo arma de disparo
+                    const armaAtiva = inv.find(item => item.equipped === true && item.type === 'armadisp');
+
+                    if (armaAtiva) {
+                        muniValor = armaAtiva.currentShots || "0";
                     }
                 }
                 
-                // Atualiza o número amarelo (ou esconde se não for arma de disparo)
-                ammoEl.innerText = muniExibicao;
+                ammoEl.innerText = muniValor;
             }
         });
     </script>
