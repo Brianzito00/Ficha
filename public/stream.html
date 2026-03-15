@@ -3,81 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Versão Final</title>
+    <title>Overlay RPG - Arma Ativa</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
-        body {
-            margin: 0; padding: 20px;
-            background: transparent;
-            color: white;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-        }
+        body { margin: 0; padding: 20px; background: transparent; color: white; overflow: hidden; }
+        #multi-overlay-container { display: flex; flex-direction: column; gap: 25px; }
 
-        #multi-overlay-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
+        .player-card { display: flex; align-items: center; gap: 15px; }
 
-        .player-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .foto-container {
-            width: 130px; height: 130px;
-            position: relative;
-        }
-
-        .foto {
-            width: 100%; height: 100%;
-            object-fit: cover;
+        .foto-container { width: 130px; height: 130px; position: relative; }
+        .foto { 
+            width: 100%; height: 100%; object-fit: cover; 
             -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* EFEITO DE VIDA BAIXA (25%) */
-        .perigo {
-            animation: pulse-red 1.2s infinite ease-in-out;
-            filter: drop-shadow(0 0 15px #ff0000) !important;
-        }
+        .perigo { animation: pulse-red 1.2s infinite ease-in-out; filter: drop-shadow(0 0 15px #ff0000) !important; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px #ff0000); }
-            50% { opacity: 0.7; filter: drop-shadow(0 0 20px #ff0000); }
-        }
-
-        .status-numbers {
-            display: flex;
-            flex-direction: column;
-            gap: 0px;
-            font-family: 'Grenze Gotisch', cursive;
-            font-size: 3.2rem;
-            line-height: 0.85;
+        .status-numbers { 
+            display: flex; flex-direction: column; 
+            font-family: 'Grenze Gotisch', cursive; font-size: 3.2rem; line-height: 0.85; 
         }
 
         .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000, 2px 2px 2px black; }
         .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff, 2px 2px 2px black; }
         .val-ammo { color: #ffffcc; text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00, 2px 2px 2px black; font-size: 2.8rem; }
 
-        /* PAINEL DE CONTROLE NO OBS */
         .setup-panel {
-            position: fixed; bottom: 15px; right: 15px;
-            background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
-            padding: 10px; border-radius: 10px; display: flex; gap: 8px; z-index: 1000;
+            position: fixed; bottom: 15px; right: 15px; background: rgba(0, 0, 0, 0.85); 
+            padding: 10px; border-radius: 10px; border: 1px solid #ffcf33; z-index: 1000;
         }
-
-        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; border-radius: 4px; }
-        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -85,7 +43,7 @@
     <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="CÓD" maxlength="4">
+        <input type="text" id="codigo-input" placeholder="CÓD">
         <button onclick="addPlayer()">ADD</button>
         <button onclick="limparSessao()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
@@ -98,9 +56,7 @@
 
         window.onload = () => {
             activePlayers.forEach(code => renderPlayerCard(code));
-            setTimeout(() => {
-                activePlayers.forEach(code => socket.emit('request_player', code));
-            }, 1000);
+            setTimeout(() => activePlayers.forEach(code => socket.emit('request_player', code)), 1000);
         };
 
         function addPlayer() {
@@ -110,7 +66,6 @@
                 localStorage.setItem('overlay_players', JSON.stringify(activePlayers));
                 renderPlayerCard(code);
                 socket.emit('request_player', code);
-                document.getElementById('codigo-input').value = "";
             }
         }
 
@@ -120,9 +75,7 @@
             div.className = 'player-card';
             div.id = `card-${code}`;
             div.innerHTML = `
-                <div class="foto-container">
-                    <img src="" id="foto-${code}" class="foto">
-                </div>
+                <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
                 <div class="status-numbers">
                     <div class="val-vida" id="vida-${code}">0/0</div>
                     <div class="val-sani" id="sani-${code}">0/0</div>
@@ -142,35 +95,34 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // Atualiza Foto e Efeito de Sangue/Perigo
+                // Atualiza Vida e Sanidade
+                document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
+                document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
+                
+                // Atualiza Foto e Efeito de Perigo (25% de vida)
                 const fotoEl = document.getElementById(`foto-${cod}`);
-                if (fotoEl) {
-                    fotoEl.src = dados.foto || '';
+                if (fotoEl && dados.foto) {
+                    fotoEl.src = dados.foto;
                     const perc = (dados.vida_atual / dados.vida_max) * 100;
                     fotoEl.classList.toggle('perigo', perc <= 25);
                 }
-                
-                // Atualiza Vida e Sanidade
-                document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
-                document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
-                
-                // Lógica da Arma Selecionada (Conforme o teu arquivo de ficha)
-                const ammoEl = document.getElementById(`ammo-${cod}`);
-                let muniValor = "";
 
-                // Verifica se o inventário veio nos dados
-                if (dados.inventory || (dados.fullData && dados.fullData.inventory)) {
-                    const inv = dados.inventory || dados.fullData.inventory;
-                    
-                    // Procura o item que está equipado e é do tipo arma de disparo
-                    const armaAtiva = inv.find(item => item.equipped === true && item.type === 'armadisp');
+                // BUSCA A ARMA ATIVA NO INVENTÁRIO (Filtrando por tipo armadisp e equipped true)
+                const ammoEl = document.getElementById(`ammo-${cod}`);
+                let muniExibir = "";
+
+                if (dados.inventory && Array.isArray(dados.inventory)) {
+                    // Procura especificamente a arma de disparo que está equipada na ficha
+                    const armaAtiva = dados.inventory.find(item => 
+                        item.equipped === true && item.type === 'armadisp'
+                    );
 
                     if (armaAtiva) {
-                        muniValor = armaAtiva.currentShots || "0";
+                        muniExibir = armaAtiva.currentShots || "0";
                     }
                 }
                 
-                ammoEl.innerText = muniValor;
+                ammoEl.innerText = muniExibir;
             }
         });
     </script>
