@@ -3,118 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG Minimalist</title>
+    <title>Overlay RPG - Munição Amarela</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
         body {
             margin: 0; padding: 20px;
-            background: transparent; /* Transparente para o OBS */
+            background: transparent;
             color: white;
             font-family: 'Arial', sans-serif;
-            overflow: hidden;
         }
 
-        /* CONTAINER DE TODOS OS JOGADORES */
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 25px;
         }
 
-        /* CARD DO JOGADOR */
         .player-card {
             display: flex;
             align-items: center;
-            gap: 20px;
-            position: relative;
+            gap: 15px;
+            transition: 0.3s;
         }
 
-        /* FOTO COM BRILHO EXTERNO */
         .foto-container {
+            width: 130px;
+            height: 130px;
             position: relative;
-            width: 120px;
-            height: 120px;
         }
 
         .foto {
             width: 100%; height: 100%;
             object-fit: cover;
-            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.5)); /* Brilho laranja suave */
+            /* Máscara para suavizar a base da imagem */
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* STATUS NUMÉRICOS */
+        /* ESTILO DOS NÚMEROS COM GLOW */
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            font-family: 'Grenze Gotisch', cursive; /* Fonte mais estilizada */
-            font-size: 2.8rem;
-            line-height: 1;
+            gap: 0px;
+            font-family: 'Grenze Gotisch', cursive;
+            font-size: 3rem;
+            line-height: 0.9;
         }
 
-        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000; }
-        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff; }
-        .val-pe   { color: #f5e0ff; text-shadow: 0 0 15px #d480ff, 0 0 5px #9900ff; font-size: 2.2rem; }
+        /* Cores e Brilhos baseados na sua imagem */
+        .val-vida { 
+            color: #ffcccc; 
+            text-shadow: 0 0 12px #ff4d4d, 0 0 5px #ff0000; 
+        }
+        .val-sani { 
+            color: #e0e0ff; 
+            text-shadow: 0 0 12px #8080ff, 0 0 5px #0000ff; 
+        }
+        /* MUNIÇÃO AMARELA */
+        .val-ammo { 
+            color: #ffffcc; 
+            text-shadow: 0 0 12px #ffcf33, 0 0 5px #ffae00; 
+            font-size: 2.5rem; /* Um pouco menor para caber o "X/X" */
+        }
 
-        /* PAINEL DE CONFIGURAÇÃO (CANTO INFERIOR DIREITO) */
+        /* PAINEL DE CONTROLE (Inferior Direito) */
         .setup-panel {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #444;
-            padding: 10px;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #ffcf33;
+            padding: 8px;
             border-radius: 8px;
             display: flex;
-            gap: 10px;
-            backdrop-filter: blur(5px);
+            gap: 8px;
             z-index: 1000;
         }
 
         .setup-panel input {
-            background: #111;
-            border: 1px solid #555;
-            color: white;
-            padding: 5px;
-            width: 60px;
-            text-align: center;
-            border-radius: 4px;
+            background: #000; border: 1px solid #444; color: white;
+            width: 50px; text-align: center; border-radius: 4px;
         }
 
         .setup-panel button {
-            background: #333;
-            color: #aaa;
-            border: 1px solid #555;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .setup-panel button:hover { background: #444; color: white; }
-
-        /* ANIMAÇÃO DE DANO */
-        .tomou-dano { animation: shake 0.5s; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            20% { transform: translate(-3px, 0px); }
-            40% { transform: translate(3px, 2px); }
-            60% { transform: translate(-3px, -1px); }
-            80% { transform: translate(3px, 1px); }
-            100% { transform: translate(0px, 0px); }
+            background: #222; color: #ffcf33; border: 1px solid #ffcf33;
+            cursor: pointer; border-radius: 4px; font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div id="multi-overlay-container">
-        </div>
+    <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
         <input type="text" id="codigo-input" placeholder="CÓD" maxlength="4">
-        <button onclick="addPlayer()">+ ADICIONAR</button>
+        <button onclick="addPlayer()">ADICIONAR</button>
         <button onclick="document.getElementById('multi-overlay-container').innerHTML=''">LIMPAR</button>
     </div>
 
@@ -122,48 +106,62 @@
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        let codes = [];
+        let activePlayers = [];
 
         function addPlayer() {
             const code = document.getElementById('codigo-input').value.toUpperCase().trim();
-            if (code && !codes.includes(code)) {
-                codes.push(code);
-                const card = document.createElement('div');
-                card.className = 'player-card';
-                card.id = `card-${code}`;
-                card.innerHTML = `
+            if (code && !activePlayers.includes(code)) {
+                activePlayers.push(code);
+                
+                const div = document.createElement('div');
+                div.className = 'player-card';
+                div.id = `card-${code}`;
+                div.innerHTML = `
                     <div class="foto-container">
                         <img src="" id="foto-${code}" class="foto">
                     </div>
-                    <div class="status-numbers" id="status-${code}">
+                    <div class="status-numbers">
                         <div class="val-vida" id="vida-${code}">0/0</div>
                         <div class="val-sani" id="sani-${code}">0/0</div>
-                        <div class="val-pe" id="pe-${code}">0</div>
+                        <div class="val-ammo" id="ammo-${code}">0</div>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(div);
                 socket.emit('request_player', code);
                 document.getElementById('codigo-input').value = "";
             }
         }
 
         socket.on('update_mestre', (dados) => {
-            if (codes.includes(dados.codigo)) {
-                const card = document.getElementById(`card-${dados.codigo}`);
+            if (activePlayers.includes(dados.codigo)) {
+                // Foto
+                document.getElementById(`foto-${dados.codigo}`).src = dados.foto || 'https://via.placeholder.com/130';
                 
-                // Atualiza Foto
-                document.getElementById(`foto-${dados.codigo}`).src = dados.foto || 'https://via.placeholder.com/120';
-                
-                // Atualiza Números
+                // Vida e Sanidade
                 document.getElementById(`vida-${dados.codigo}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${dados.codigo}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // PE ou Munição (ajustado para o 3º número da sua imagem)
-                document.getElementById(`pe-${dados.codigo}`).innerText = dados.pe || dados.nex || 0;
+                // LÓGICA DA MUNIÇÃO
+                let displayAmmo = "0";
+                
+                // Verifica se o objeto completo de inventário existe nos dados enviados
+                if (dados.fullData && dados.fullData.inv) {
+                    const armaEquipada = dados.fullData.inv.find(item => 
+                        item.eq === true && 
+                        item.type === 'arma' && 
+                        (item.atkType && item.atkType.toLowerCase().includes('disparo'))
+                    );
 
-                // Efeito de tremer se a vida mudar (opcional)
-                card.classList.add('tomou-dano');
-                setTimeout(() => card.classList.remove('tomou-dano'), 500);
+                    if (armaEquipada) {
+                        // Se achar a arma, mostra Atual / Capacidade
+                        displayAmmo = `${armaEquipada.currentShots || 0}/${armaEquipada.capacity || 0}`;
+                    }
+                } else if (dados.municao_atual !== undefined) {
+                    // Caso o seu servidor envie um campo simples de munição
+                    displayAmmo = dados.municao_atual;
+                }
+
+                document.getElementById(`ammo-${dados.codigo}`).innerText = displayAmmo;
             }
         });
     </script>
