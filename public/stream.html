@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Dinâmico</title>
+    <title>Overlay RPG - Persistente</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
@@ -24,7 +24,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            transition: 0.3s;
+            transition: opacity 0.5s ease;
         }
 
         .foto-container {
@@ -38,19 +38,16 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            transition: filter 0.5s ease;
         }
 
-        /* ANIMAÇÃO DE PERIGO (VIDA BAIXA) */
         .perigo {
             animation: pulse-red 1.5s infinite;
             filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
         @keyframes pulse-red {
-            0% { opacity: 1; }
+            0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
-            100% { opacity: 1; }
         }
 
         .status-numbers {
@@ -72,8 +69,8 @@
             padding: 8px; border-radius: 8px; display: flex; gap: 8px; z-index: 1000;
         }
 
-        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 50px; text-align: center; }
-        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 2px 8px; }
     </style>
 </head>
 <body>
@@ -82,62 +79,81 @@
 
     <div class="setup-panel">
         <input type="text" id="codigo-input" placeholder="CÓD" maxlength="4">
-        <button onclick="addPlayer()">ADICIONAR</button>
-        <button onclick="document.getElementById('multi-overlay-container').innerHTML=''; activePlayers=[]">LIMPAR</button>
+        <button onclick="addPlayer()">ADD</button>
+        <button onclick="limparSessao()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        let activePlayers = [];
+        let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
+
+        // Ao carregar a página, reconecta os jogadores salvos
+        window.onload = () => {
+            activePlayers.forEach(code => renderPlayerCard(code));
+            // Pequeno delay para garantir conexão do socket
+            setTimeout(() => {
+                activePlayers.forEach(code => socket.emit('request_player', code));
+            }, 1000);
+        };
 
         function addPlayer() {
             const code = document.getElementById('codigo-input').value.toUpperCase().trim();
             if (code && !activePlayers.includes(code)) {
                 activePlayers.push(code);
-                const div = document.createElement('div');
-                div.className = 'player-card';
-                div.id = `card-${code}`;
-                div.innerHTML = `
-                    <div class="foto-container">
-                        <img src="" id="foto-${code}" class="foto">
-                    </div>
-                    <div class="status-numbers">
-                        <div class="val-vida" id="vida-${code}">0/0</div>
-                        <div class="val-sani" id="sani-${code}">0/0</div>
-                        <div class="val-ammo" id="ammo-${code}"></div>
-                    </div>
-                `;
-                container.appendChild(div);
+                localStorage.setItem('overlay_players', JSON.stringify(activePlayers));
+                renderPlayerCard(code);
                 socket.emit('request_player', code);
                 document.getElementById('codigo-input').value = "";
             }
+        }
+
+        function renderPlayerCard(code) {
+            if (document.getElementById(`card-${code}`)) return;
+            const div = document.createElement('div');
+            div.className = 'player-card';
+            div.id = `card-${code}`;
+            div.innerHTML = `
+                <div class="foto-container">
+                    <img src="" id="foto-${code}" class="foto">
+                </div>
+                <div class="status-numbers">
+                    <div class="val-vida" id="vida-${code}">--/--</div>
+                    <div class="val-sani" id="sani-${code}">--/--</div>
+                    <div class="val-ammo" id="ammo-${code}"></div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function limparSessao() {
+            localStorage.removeItem('overlay_players');
+            activePlayers = [];
+            container.innerHTML = "";
         }
 
         socket.on('update_mestre', (dados) => {
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // Foto e Alerta de Vida Baixa (25%)
+                // Atualiza Foto e Status Perigo
                 const fotoEl = document.getElementById(`foto-${cod}`);
-                fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
-                
-                const percentualVida = (dados.vida_atual / dados.vida_max) * 100;
-                if (percentualVida <= 25) {
-                    fotoEl.classList.add('perigo');
-                } else {
-                    fotoEl.classList.remove('perigo');
+                if (fotoEl) {
+                    fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
+                    const percVida = (dados.vida_atual / dados.vida_max) * 100;
+                    fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
                 
                 // Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // LÓGICA DA ARMA ATIVA (SÓ DISPARO E SÓ SE EQUIPADA)
+                // ATUALIZAÇÃO DA ARMA EM TEMPO REAL
                 const ammoEl = document.getElementById(`ammo-${cod}`);
                 let textoMunicao = "";
 
+                // O socket deve enviar o fullData com o inventário atualizado
                 if (dados.fullData && dados.fullData.inv) {
                     const armaAtiva = dados.fullData.inv.find(item => 
                         item.eq === true && 
@@ -150,7 +166,7 @@
                     }
                 }
                 
-                ammoEl.innerText = textoMunicao; // Fica vazio se não houver arma de disparo equipada
+                ammoEl.innerText = textoMunicao;
             }
         });
     </script>
