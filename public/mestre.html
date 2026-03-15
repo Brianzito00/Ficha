@@ -93,7 +93,7 @@
 
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         
-        #modal-ficha, .modal-overlay {
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
         }
@@ -145,11 +145,20 @@
         </div>
     </div>
 
-    <div id="modal-ficha">
+    <div id="modal-ficha" class="modal-overlay">
         <div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end;">
             <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1.2em; margin-bottom: 10px;" onclick="fecharFicha()">X FECHAR FICHA</button>
         </div>
         <iframe id="iframe-ficha" src="" style="width: 95%; max-width: 1400px; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe>
+    </div>
+
+    <div id="modal-dano" class="modal-overlay" style="z-index: 10000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; border-color: var(--accent-red);">
+            <h2 id="dano-titulo" style="color: var(--text-primary); margin-top: 0; margin-bottom: 5px;">Ataque</h2>
+            <div id="dano-resultado" style="font-size: 3.5em; font-weight: 900; color: var(--accent-red); margin: 15px 0; text-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);">0</div>
+            <div id="dano-detalhes" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9em; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px;">Detalhes</div>
+            <button class="btn-add" style="width: 100%; font-size: 1.2em;" onclick="document.getElementById('modal-dano').style.display='none'">Confirmar Dano</button>
+        </div>
     </div>
 
     <div id="modal-criatura" class="modal-overlay">
@@ -177,14 +186,14 @@
 
             <div class="form-group">
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    Ataques <button onclick="addCampoDinamico('c-ataques-list', 'Ataque (Ex: Mordida 1d6+2)')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button>
+                    Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar Ataque</button>
                 </label>
                 <div id="c-ataques-list"></div>
             </div>
 
             <div class="form-group">
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    Poderes Gerais <button onclick="addCampoDinamico('c-poderes-list', 'Poder (Ex: Regeneração 5 PV)')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button>
+                    Poderes Gerais <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar Poder</button>
                 </label>
                 <div id="c-poderes-list"></div>
             </div>
@@ -241,7 +250,7 @@
 
         socket.on('update_mestre', (dados) => {
             if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
-
+            // ... (Aualização visual do jogador omitida para focar no novo código, mas continua funcionando igual)
             let card = document.getElementById(`player-${dados.codigo}`);
             if (!card) {
                 card = document.createElement('div');
@@ -341,20 +350,32 @@
             document.getElementById('modal-criatura').style.display = 'flex';
             document.getElementById('c-ataques-list').innerHTML = '';
             document.getElementById('c-poderes-list').innerHTML = '';
-            addCampoDinamico('c-ataques-list', 'Ataque (Ex: Mordida 1d6+2)');
-            addCampoDinamico('c-poderes-list', 'Poder (Ex: Regeneração 5 PV)');
+            addCampoAtaque('c-ataques-list');
+            addCampoPoder('c-poderes-list');
         }
 
         function fecharModalCriatura() {
             document.getElementById('modal-criatura').style.display = 'none';
         }
 
-        function addCampoDinamico(containerId, placeholder) {
+        function addCampoAtaque(containerId) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'dynamic-row';
             div.innerHTML = `
-                <input type="text" class="monster-input dynamic-input" style="flex:1;" placeholder="${placeholder}">
+                <input type="text" class="monster-input atq-nome" style="flex:2;" placeholder="Nome (Ex: Mordida)">
+                <input type="text" class="monster-input atq-dano" style="flex:1;" placeholder="Dano (Ex: 1d6+2)">
+                <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addCampoPoder(containerId) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.innerHTML = `
+                <input type="text" class="monster-input pow-nome" style="flex:1;" placeholder="Poder (Ex: Regeneração 5 PV)">
                 <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
             `;
             container.appendChild(div);
@@ -368,8 +389,14 @@
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
             const luta = parseInt(document.getElementById('c-luta').value) || 10;
 
-            const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
-            const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
+            const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => {
+                return {
+                    nome: row.querySelector('.atq-nome').value.trim(),
+                    dano: row.querySelector('.atq-dano').value.trim()
+                };
+            }).filter(atq => atq.nome !== '' && atq.dano !== '');
+
+            const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.pow-nome')).map(inp => inp.value).filter(val => val.trim() !== '');
 
             const novaCriatura = {
                 id: Date.now().toString(),
@@ -402,12 +429,69 @@
             }
         }
 
+        // --- SISTEMA DE ROLAGEM DE DANO ---
+        function rolarDanoMonstro(monstroNome, ataqueNome, formulaDano) {
+            let formula = formulaDano.toLowerCase().replace(/\s+/g, ''); // Remove espaços (Ex: 1d6 + 2 => 1d6+2)
+            let total = 0;
+            let detalhes = [];
+            
+            // Divide a fórmula separando os + e - para calcular tudo
+            let pieces = formula.match(/[+\-]?[^+\-]+/g); 
+            
+            if(!pieces) {
+                alert("Fórmula de dano inválida!");
+                return;
+            }
+
+            pieces.forEach(p => {
+                let sinal = 1;
+                if(p.startsWith('+')) { p = p.substring(1); }
+                else if(p.startsWith('-')) { sinal = -1; p = p.substring(1); }
+                
+                if(p.includes('d')) { // Se for dado
+                    let parts = p.split('d');
+                    let qtd = parseInt(parts[0]) || 1;
+                    let faces = parseInt(parts[1]) || 1;
+                    let rolls = [];
+                    let sum = 0;
+                    
+                    for(let i=0; i<qtd; i++) {
+                        let r = Math.floor(Math.random() * faces) + 1;
+                        rolls.push(r);
+                        sum += r;
+                    }
+                    total += (sum * sinal);
+                    detalhes.push((sinal < 0 ? '-' : '+') + `[${rolls.join(',')}]`);
+                } else { // Se for bônus fixo
+                    let val = parseInt(p);
+                    if(!isNaN(val)) {
+                        total += (val * sinal);
+                        detalhes.push((sinal < 0 ? '-' : '+') + val);
+                    }
+                }
+            });
+
+            // Evitar dano negativo
+            if(total < 0) total = 0;
+
+            let detalheFinal = detalhes.join(' ').replace(/^\+/, ''); // Ex: [3,4] +2
+
+            // Exibir no Pop-Up!
+            document.getElementById('dano-titulo').innerText = `${monstroNome} usou ${ataqueNome}!`;
+            document.getElementById('dano-resultado').innerText = `${total}`;
+            document.getElementById('dano-detalhes').innerHTML = `<strong>Fórmula:</strong> ${formulaDano}<br><strong style="color:var(--accent-yellow);">Dados:</strong> ${detalheFinal}`;
+            document.getElementById('modal-dano').style.display = 'flex';
+
+            // Registar no LOG!
+            adicionarAoLog(monstroNome, `Ataque: ${ataqueNome} (${formulaDano})`, `🗡️ ${total} de Dano`, "color:var(--accent-red)");
+        }
+
+        // --- SISTEMA DE ROLAGEM DE ACERTO (LUTA) ---
         function rolarLutaMonstro(id) {
             const monstro = monstros.find(m => m.id === id);
             if (!monstro) return;
 
             const valor = monstro.luta;
-            // Cálculo baseado na tabela exata enviada
             const targetN = 21 - valor;
             const targetB = 21 - Math.floor(valor / 2);
             const targetE = 21 - Math.floor(valor / 5);
@@ -417,7 +501,6 @@
             let resultadoStr = "Fracasso";
             let cor = "color:var(--text-secondary)";
 
-            // Se o alvo for menor ou igual a 20 E o dado for maior ou igual ao alvo
             if (targetE <= 20 && dado >= targetE) {
                 resultadoStr = "Sucesso Extremo";
                 cor = "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red);";
@@ -429,19 +512,13 @@
                 cor = "color:var(--accent-green)";
             }
 
-            // Falha Crítica / Desastre em d20 geralmente é 1
             if (dado === 1) {
                 resultadoStr = "Desastre";
                 cor = "color:#ff5252; font-weight:bold;";
             }
 
-            // Formatando o 'x' para alvos impossíveis
             const formatTarget = (t) => t > 20 ? 'x' : t;
-            const tN = formatTarget(targetN);
-            const tB = formatTarget(targetB);
-            const tE = formatTarget(targetE);
-
-            const textoAcao = `Rolou Luta (Hab: ${valor})<br><small style="color:gray;">Alvos (N: ${tN} | B: ${tB} | E: ${tE})</small>`;
+            const textoAcao = `Rolou Acerto (Hab: ${valor})<br><small style="color:gray;">Alvos (N: ${formatTarget(targetN)} | B: ${formatTarget(targetB)} | E: ${formatTarget(targetE)})</small>`;
             const resultadoFinal = `🎲 ${dado} - ${resultadoStr}`;
             
             adicionarAoLog(monstro.nome, textoAcao, resultadoFinal, cor);
@@ -456,8 +533,20 @@
                 
                 let listasHTML = '';
                 if (monstro.ataques && monstro.ataques.length > 0) {
-                    listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 2px 0 2px 15px; padding:0;">` + monstro.ataques.map(a => `<li>${a}</li>`).join('') + `</ul></div>`;
+                    let linhasAtaque = monstro.ataques.map(a => {
+                        // Compatibilidade com versões antigas (se o ataque for só texto)
+                        if (typeof a === 'string') return `<li>${a}</li>`;
+                        
+                        return `
+                        <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
+                            <span><strong style="color:white;">${a.nome}</strong>: ${a.dano}</span>
+                            <button class="btn-ctrl" style="width: auto; padding: 2px 8px; font-size: 0.8em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Dano</button>
+                        </li>`;
+                    }).join('');
+
+                    listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 5px 0 5px 15px; padding:0;">${linhasAtaque}</ul></div>`;
                 }
+                
                 if (monstro.poderes && monstro.poderes.length > 0) {
                     listasHTML += `<div><strong style="color:var(--accent-blue);">Poderes:</strong><ul style="margin: 2px 0 0 15px; padding:0;">` + monstro.poderes.map(p => `<li>${p}</li>`).join('') + `</ul></div>`;
                 }
@@ -496,7 +585,7 @@
                         ${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}
                     </div>
 
-                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Ataque / Luta D20 (Hab: ${monstro.luta})</button>
+                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Acerto / D20 (Hab: ${monstro.luta})</button>
                 `;
                 grid.appendChild(card);
             });
