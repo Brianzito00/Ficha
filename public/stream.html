@@ -3,76 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Minimalist</title>
+    <title>Overlay RPG - Arma Ativa</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
         body {
-            margin: 0;
-            padding: 30px;
-            background: transparent; /* Fundo transparente para o OBS */
+            margin: 0; padding: 20px;
+            background: transparent;
             color: white;
             font-family: 'Arial', sans-serif;
-            overflow: hidden;
         }
 
-        /* CONTAINER DOS CARDS - ALINHADO À ESQUERDA */
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
-            gap: 40px;
-            position: relative;
-            z-index: 1;
+            gap: 25px;
         }
 
         .player-card {
             display: flex;
             align-items: center;
-            gap: 20px;
-            animation: fadeIn 0.6s ease-out;
+            gap: 15px;
+            animation: fadeIn 0.5s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-30px); }
+            from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
         .foto-container {
-            width: 140px;
-            height: 140px;
+            width: 130px; height: 130px;
             position: relative;
         }
 
         .foto {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
-            /* Máscara para suavizar a base da imagem como na referência */
-            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            transition: filter 0.3s;
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* EFEITO DE PULSAR (VIDA BAIXA) */
+        /* EFEITO DE VIDA BAIXA */
         .perigo {
-            animation: pulse-red 1.5s infinite ease-in-out;
+            animation: pulse-red 1.2s infinite ease-in-out;
             filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
         @keyframes pulse-red {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.7; }
         }
 
-        /* STATUS NUMÉRICOS COM GLOW */
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 0px;
             font-family: 'Grenze Gotisch', cursive;
-            font-size: 3.5rem;
-            line-height: 0.8;
-            user-select: none;
+            font-size: 3.2rem;
+            line-height: 0.85;
         }
 
         .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000; }
@@ -81,91 +70,57 @@
             color: #ffffcc; 
             text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00; 
             font-size: 2.8rem;
-            margin-top: 5px;
+            min-height: 1em; /* Garante que o espaço exista mesmo vazio */
         }
 
-        /* PAINEL DE CONTROLE - MOVIDO PARA O CANTO OPOSTO E DISCRETO */
+        /* PAINEL DE CONTROLE */
         .setup-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            gap: 8px;
-            z-index: 9999; /* Garante que fique acima de tudo mas no canto */
-            backdrop-filter: blur(5px);
+            position: fixed; bottom: 15px; right: 15px;
+            background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
+            padding: 10px; border-radius: 10px; display: flex; gap: 8px; z-index: 1000;
         }
 
-        .setup-panel input {
-            background: #111;
-            border: 1px solid #555;
-            color: white;
-            padding: 5px;
-            width: 70px;
-            text-align: center;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        .setup-panel button {
-            background: #333;
-            color: #ffcf33;
-            border: 1px solid #ffcf33;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            padding: 5px 12px;
-            font-size: 12px;
-        }
-
-        .setup-panel button:hover {
-            background: #ffcf33;
-            color: black;
-        }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
+        .setup-panel button:hover { background: #ffcf33; color: black; }
     </style>
 </head>
 <body>
 
-    <div id="multi-overlay-container">
-        </div>
+    <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="CÓDIGO" maxlength="4">
+        <input type="text" id="codigo-input" placeholder="CÓD" maxlength="4">
         <button onclick="addPlayer()">ADD</button>
-        <button onclick="limparTudo()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
+        <button onclick="limparSessao()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        
-        // Recupera jogadores do armazenamento local para persistência
-        let activePlayers = JSON.parse(localStorage.getItem('rpg_overlay_players')) || [];
+        let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
 
+        // Carregar jogadores salvos
         window.onload = () => {
-            activePlayers.forEach(code => criarCardHTML(code));
+            activePlayers.forEach(code => renderPlayerCard(code));
             setTimeout(() => {
                 activePlayers.forEach(code => socket.emit('request_player', code));
             }, 1000);
         };
 
         function addPlayer() {
-            const input = document.getElementById('codigo-input');
-            const code = input.value.toUpperCase().trim();
+            const code = document.getElementById('codigo-input').value.toUpperCase().trim();
             if (code && !activePlayers.includes(code)) {
                 activePlayers.push(code);
-                localStorage.setItem('rpg_overlay_players', JSON.stringify(activePlayers));
-                criarCardHTML(code);
+                localStorage.setItem('overlay_players', JSON.stringify(activePlayers));
+                renderPlayerCard(code);
                 socket.emit('request_player', code);
-                input.value = "";
+                document.getElementById('codigo-input').value = "";
             }
         }
 
-        function criarCardHTML(code) {
+        function renderPlayerCard(code) {
             if (document.getElementById(`card-${code}`)) return;
             const div = document.createElement('div');
             div.className = 'player-card';
@@ -183,8 +138,8 @@
             container.appendChild(div);
         }
 
-        function limparTudo() {
-            localStorage.removeItem('rpg_overlay_players');
+        function limparSessao() {
+            localStorage.removeItem('overlay_players');
             activePlayers = [];
             container.innerHTML = "";
         }
@@ -192,40 +147,39 @@
         socket.on('update_mestre', (dados) => {
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
-
-                // Atualiza Foto e Efeito de Vida Baixa (Abaixo de 25%)
+                
+                // 1. Atualizar Foto e Cor de Perigo (Abaixo de 25%)
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
-                    fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
+                    fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
                     const percVida = (dados.vida_atual / dados.vida_max) * 100;
-                    if (percVida <= 25) {
-                        fotoEl.classList.add('perigo');
-                    } else {
-                        fotoEl.classList.remove('perigo');
-                    }
+                    fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
-
-                // Atualiza Vida e Sanidade
+                
+                // 2. Atualizar Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
-
-                // LÓGICA DA ARMA ATIVA
+                
+                // 3. Lógica da ARMA ATIVA
                 const ammoEl = document.getElementById(`ammo-${cod}`);
-                let muniTexto = "";
+                let muniParaExibir = "";
 
-                // Verifica se o inventário está nos dados
-                if (dados.inventory || (dados.fullData && dados.fullData.inventory)) {
-                    const inv = dados.inventory || dados.fullData.inventory;
-                    
-                    // Busca a arma que está EQUIPADA e é de DISPARO (conforme sua ficha)
-                    const armaAtiva = inv.find(item => item.equipped === true && item.type === 'armadisp');
+                if (dados.fullData && dados.fullData.inv) {
+                    // Procura no inventário a arma que está EQUIPADA (eq: true) e é de DISPARO
+                    const armaAtiva = dados.fullData.inv.find(item => 
+                        item.eq === true && 
+                        item.type === 'arma' && 
+                        (item.atkType && item.atkType.toLowerCase().includes('disparo'))
+                    );
 
+                    // Se encontrou uma arma ativa que usa munição, mostra o número atual
                     if (armaAtiva) {
-                        muniTexto = armaAtiva.currentShots || "0";
+                        muniParaExibir = armaAtiva.currentShots || "0";
                     }
                 }
                 
-                ammoEl.innerText = muniTexto; // Fica vazio se não houver arma de disparo ativa
+                // Se muniParaExibir for "", o campo amarelo some automaticamente
+                ammoEl.innerText = muniParaExibir;
             }
         });
     </script>
