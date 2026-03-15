@@ -426,7 +426,7 @@
             </div>
             
             <div class="equipped-weapons-header">Arma Ativa</div>
-            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon()"></select>
+            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
             <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
 
             <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
@@ -1464,7 +1464,8 @@
 
         const d = { attrs:{}, skills:{}, inv:[], ammo:{}, abilities:[], rituals:[], defense: document.getElementById('defense_val').value, info:{}, charImages: charImages, charStatus: charStatus };
         ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; });
-        
+        const activeWeaponSelect = document.getElementById('active-weapon-select');
+d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
         // 2. Guarda a URL correta no objeto de dados
         d.info['char_img'] = currentImgUrl;
 
