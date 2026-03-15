@@ -109,7 +109,7 @@
         .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; }
         .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px;}
         .btn-roll:hover { filter: brightness(1.2); }
-        .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto;}
+        .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto;}
 
         /* ESTILOS DO POPUP DE DADOS IDÊNTICO AO DO JOGADOR */
         .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
@@ -315,10 +315,7 @@
         });
 
         // --- SISTEMA UNIFICADO DE LOG E ROLAGENS PARA O MESTRE ---
-        
         socket.on('novo_log', (dados) => {
-            // Se vier do mestre (codigo === null), aceitamos.
-            // Se vier de um jogador (codigo != null), só aceitamos se ele estiver na nossa lista.
             if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
         });
@@ -354,10 +351,9 @@
             document.getElementById('popup-dice').style.display = 'flex';
             setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
 
-            // Avisa o servidor (e consequentemente todos os jogadores) da rolagem do mestre
             if (socket) {
                 socket.emit('rolagem_feita', {
-                    codigo: null, // "null" indica que foi o mestre a fazer
+                    codigo: null, 
                     jogador: jogador,
                     acao: r,
                     resultado: n,
@@ -399,14 +395,30 @@
             document.getElementById('modal-criatura').style.display = 'none';
         }
 
+        // NOVO: Adiciona o formulário do ataque com os novos campos solicitados!
         function addCampoAtaque(containerId) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'dynamic-row';
+            div.style.flexDirection = 'column';
+            div.style.background = 'rgba(0,0,0,0.3)';
+            div.style.padding = '10px';
+            div.style.borderRadius = '8px';
+            div.style.position = 'relative';
+            div.style.border = '1px solid #333';
+            div.style.marginBottom = '10px';
+            
             div.innerHTML = `
-                <input type="text" class="monster-input atq-nome" style="flex:2;" placeholder="Nome (Ex: Mordida)">
-                <input type="text" class="monster-input atq-dano" style="flex:1;" placeholder="Dano (Ex: 1d6+2)">
-                <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
+                <button class="btn-ctrl" onclick="this.parentElement.remove()" style="position: absolute; top: -10px; right: -10px; background:var(--accent-red); width: 24px; height: 24px; font-size: 0.8em; border-radius: 50%;">X</button>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <div style="flex:2;"><label style="font-size:0.7em; color:gray;">NOME DO ATAQUE</label><input type="text" class="monster-input atq-nome" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: Garras"></div>
+                    <div style="flex:1;"><label style="font-size:0.7em; color:gray;">TIPO</label><input type="text" class="monster-input atq-tipo" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: Corte"></div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div style="flex:1;"><label style="font-size:0.7em; color:gray;">QTD</label><input type="number" class="monster-input atq-qtd" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 2" value="1"></div>
+                    <div style="flex:1.5;"><label style="font-size:0.7em; color:gray;">DANO</label><input type="text" class="monster-input atq-dano" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 1d6+2"></div>
+                    <div style="flex:1;"><label style="font-size:0.7em; color:gray;">CRÍTICO</label><input type="text" class="monster-input atq-crit" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 19/x2" value="20/x2"></div>
+                </div>
             `;
             container.appendChild(div);
         }
@@ -430,10 +442,14 @@
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
             const luta = parseInt(document.getElementById('c-luta').value) || 10;
 
+            // Extrai a informação dos novos campos estruturados
             const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => {
                 return {
                     nome: row.querySelector('.atq-nome').value.trim(),
-                    dano: row.querySelector('.atq-dano').value.trim()
+                    tipo: row.querySelector('.atq-tipo').value.trim(),
+                    qtd: parseInt(row.querySelector('.atq-qtd').value) || 1,
+                    dano: row.querySelector('.atq-dano').value.trim(),
+                    critico: row.querySelector('.atq-crit').value.trim()
                 };
             }).filter(atq => atq.nome !== '' && atq.dano !== '');
 
@@ -507,7 +523,6 @@
 
             if(total < 0) total = 0;
 
-            // Chama a nova função grandiosa! O nome do monstro é passado como o "jogador"
             showPopup(total, `DANO: ${ataqueNome}`, "color:var(--accent-red)", monstroNome);
         }
 
@@ -542,7 +557,6 @@
                 cor = "color:#ff5252; font-weight:bold;";
             }
 
-            // Exibe a rolagem épica do monstro!
             showPopup(dado, `ATQ (${resultadoStr})`, cor, monstro.nome);
         }
 
@@ -556,16 +570,27 @@
                 let listasHTML = '';
                 if (monstro.ataques && monstro.ataques.length > 0) {
                     let linhasAtaque = monstro.ataques.map(a => {
+                        // Compatibilidade para criaturas velhas criadas apenas com nome/dano
                         if (typeof a === 'string') return `<li>${a}</li>`;
                         
+                        // Compila as novas informações na UI da cartinha da Criatura
+                        let nomeExibicao = a.qtd && a.qtd > 1 ? `${a.qtd}x ${a.nome}` : a.nome;
+                        let tipoText = a.tipo ? ` (${a.tipo})` : '';
+                        let critText = a.critico && a.critico !== '20/x2' ? ` | Crit: ${a.critico}` : '';
+
                         return `
-                        <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">
-                            <span><strong style="color:white;">${a.nome}</strong>: ${a.dano}</span>
-                            <button class="btn-ctrl" style="width: auto; padding: 2px 8px; font-size: 0.8em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Dano</button>
+                        <li style="display: flex; flex-direction: column; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span><strong style="color:white;">${nomeExibicao}</strong><span style="color:var(--text-secondary); font-size:0.85em;">${tipoText}</span></span>
+                                <button class="btn-ctrl" style="width: auto; padding: 4px 10px; font-size: 0.85em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Rolar Dano</button>
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary);">
+                                Dano: <span style="color:var(--accent-yellow); font-weight:bold;">${a.dano}</span>${critText}
+                            </div>
                         </li>`;
                     }).join('');
 
-                    listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 5px 0 5px 15px; padding:0;">${linhasAtaque}</ul></div>`;
+                    listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 5px 0 5px 0; padding:0; list-style:none;">${linhasAtaque}</ul></div>`;
                 }
                 
                 if (monstro.poderes && monstro.poderes.length > 0) {
