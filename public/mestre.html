@@ -20,35 +20,67 @@
 
         .mestre-top-bar {
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; 
-            border-radius: 12px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center;
+            border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
         }
         .code-input {
             padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
             color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; width: 250px;
         }
-        .btn-add-player {
+        .btn-add {
             background: var(--accent-green); border: none; color: black; font-weight: bold; 
             padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s;
         }
-        .btn-add-player:hover { filter: brightness(1.2); }
+        .btn-add:hover { filter: brightness(1.2); }
+
+        /* Estilos das Abas */
+        .tabs-container {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 10px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold;
+            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+            border-bottom: none;
+        }
+        .tab-btn.active {
+            background: var(--accent-red); color: white; border-color: var(--accent-red);
+        }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; }
 
-        .players-container {
-            flex: 3; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px;
+        /* Área da Esquerda (Jogadores e Monstros) */
+        .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
+
+        .players-container, .monsters-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
         }
 
-        .player-card {
+        /* Formulário de Monstros */
+        .monster-form {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        }
+        .monster-input {
+            padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
+            color: white; border-radius: 6px; font-weight: bold;
+        }
+
+        /* Cartões genéricos (Jogadores e Monstros) */
+        .player-card, .monster-card {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; gap: 10px; transition: 0.3s; position: relative;
         }
+        .monster-card { border-color: var(--accent-red); }
 
         .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); }
+        .monster-img { border-color: var(--accent-red); }
         .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
+        .monster-name { color: var(--accent-red); }
         .player-info { font-size: 0.8em; color: var(--text-secondary); }
         
         .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
@@ -100,11 +132,29 @@
     <div class="mestre-top-bar">
         <span style="font-weight: bold; color: var(--accent-blue);">Conectar Ficha:</span>
         <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Código do Jogador" maxlength="4">
-        <button class="btn-add-player" onclick="adicionarJogador()">+ ADICIONAR JOGADOR</button>
+        <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR JOGADOR</button>
+    </div>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
+        <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros</button>
     </div>
 
     <div class="content-wrapper">
-        <div class="players-container" id="players-board"></div>
+        <div class="left-panel">
+            <div class="players-container" id="players-board"></div>
+
+            <div id="monsters-board" style="display: none; flex-direction: column; height: 100%;">
+                <div class="monster-form">
+                    <input type="text" id="monster-nome" class="monster-input" placeholder="Nome do Monstro" style="flex: 2;">
+                    <input type="number" id="monster-vd" class="monster-input" placeholder="VD" style="flex: 1;">
+                    <input type="number" id="monster-vida" class="monster-input" placeholder="Vida Máx" style="flex: 1;">
+                    <button class="btn-add" style="background: var(--accent-red); color: white;" onclick="adicionarMonstro()">+ CRIAR MONSTRO</button>
+                </div>
+                <div class="monsters-grid" id="monsters-grid"></div>
+            </div>
+        </div>
+
         <div class="log-container">
             <div class="log-title">🎲 LOG DE DADOS E AÇÕES</div>
             <div class="log-messages" id="log-box">
@@ -122,11 +172,9 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
+        // --- LÓGICA DE JOGADORES (Mantida igual) ---
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
-
-        // 👉 Usando o caminho relativo! Funciona perfeito no localhost, Render, Glitch, etc.
         const URL_FICHA = "/ficha.html"; 
-        
         const socket = io();
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
@@ -155,7 +203,6 @@
 
         function abrirFicha(codigo) {
             const iframe = document.getElementById('iframe-ficha');
-            // Como usamos /ficha.html, ele vai procurar o arquivo no mesmo servidor onde o escudo está rodando
             iframe.src = `${URL_FICHA}?view=${codigo}`;
             document.getElementById('modal-ficha').style.display = 'flex';
         }
@@ -165,7 +212,6 @@
             document.getElementById('iframe-ficha').src = '';
         }
 
-        // Envia o comando para o servidor repassar ao jogador
         function alterarStatusMestre(codigo, tipo, valor) {
             if (tipo === 'vida' || tipo === 'sani') {
                 socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
@@ -228,7 +274,6 @@
                     </div>
                 </div>
                 <div class="status-tags">${tagsHtml}</div>
-                
                 <button class="btn-ver-ficha" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>
             `;
         });
@@ -247,6 +292,111 @@
             `;
             logBox.prepend(logItem); 
         });
+
+        // --- SISTEMA DE ABAS ---
+        function mudarAba(aba) {
+            document.getElementById('tab-jogadores').classList.remove('active');
+            document.getElementById('tab-monstros').classList.remove('active');
+            document.getElementById('players-board').style.display = 'none';
+            document.getElementById('monsters-board').style.display = 'none';
+
+            if (aba === 'jogadores') {
+                document.getElementById('tab-jogadores').classList.add('active');
+                document.getElementById('players-board').style.display = 'grid';
+            } else if (aba === 'monstros') {
+                document.getElementById('tab-monstros').classList.add('active');
+                document.getElementById('monsters-board').style.display = 'flex';
+                renderizarMonstros();
+            }
+        }
+
+        // --- LÓGICA DE MONSTROS ---
+        let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
+
+        function adicionarMonstro() {
+            const nomeInput = document.getElementById('monster-nome');
+            const vdInput = document.getElementById('monster-vd');
+            const vidaInput = document.getElementById('monster-vida');
+
+            if (!nomeInput.value || !vidaInput.value) return alert("Preenche o nome e a vida máxima do monstro!");
+
+            const novoMonstro = {
+                id: Date.now().toString(),
+                nome: nomeInput.value,
+                vd: vdInput.value || '0',
+                vida_max: parseInt(vidaInput.value),
+                vida_atual: parseInt(vidaInput.value)
+            };
+
+            monstros.push(novoMonstro);
+            salvarMonstros();
+            renderizarMonstros();
+
+            nomeInput.value = '';
+            vdInput.value = '';
+            vidaInput.value = '';
+        }
+
+        function removerMonstro(id) {
+            monstros = monstros.filter(m => m.id !== id);
+            salvarMonstros();
+            renderizarMonstros();
+        }
+
+        function alterarVidaMonstro(id, delta) {
+            const monstro = monstros.find(m => m.id === id);
+            if (monstro) {
+                monstro.vida_atual += delta;
+                if (monstro.vida_atual > monstro.vida_max) monstro.vida_atual = monstro.vida_max;
+                if (monstro.vida_atual < 0) monstro.vida_atual = 0;
+                salvarMonstros();
+                renderizarMonstros();
+            }
+        }
+
+        function salvarMonstros() {
+            localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
+        }
+
+        function renderizarMonstros() {
+            const grid = document.getElementById('monsters-grid');
+            grid.innerHTML = '';
+
+            monstros.forEach(monstro => {
+                const percVida = Math.min(Math.max((monstro.vida_atual / monstro.vida_max) * 100, 0), 100) || 0;
+                const card = document.createElement('div');
+                card.className = 'monster-card';
+                card.innerHTML = `
+                    <button class="btn-remove" onclick="removerMonstro('${monstro.id}')" title="Remover Monstro">X</button>
+                    <div class="player-header" style="border-bottom-color: var(--accent-red);">
+                        <img src="https://i.imgur.com/k2oT3L8.png" class="player-img monster-img" alt="Monster Icon">
+                        <div>
+                            <h3 class="player-name monster-name">${monstro.nome}</h3>
+                            <div class="player-info">VD: ${monstro.vd}</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', -1)">-</button>
+                            <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', -10)" style="font-size: 0.7em;">-10</button>
+                            <div class="bar-container">
+                                <div class="bar-fill fill-vida" style="width: ${percVida}%"></div>
+                                <div class="bar-text">${monstro.vida_atual} / ${monstro.vida_max}</div>
+                            </div>
+                            <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 10)" style="font-size: 0.7em;">+10</button>
+                            <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Renderiza na primeira carga se for necessário
+        if (document.getElementById('tab-monstros').classList.contains('active')) {
+            renderizarMonstros();
+        }
     </script>
 </body>
 </html>
