@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Minimalist</title>
+    <title>Overlay RPG - Arma no Slot Ativo</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
         body {
             margin: 0;
             padding: 30px;
-            background: transparent; /* Fundo transparente para o OBS */
+            background: transparent;
             color: white;
             font-family: 'Arial', sans-serif;
             overflow: hidden;
         }
 
-        /* CONTAINER DOS CARDS - ALINHADO À ESQUERDA */
+        /* ALINHAMENTO DOS CARDS E CORREÇÃO DE SOBREPOSIÇÃO */
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
@@ -47,13 +47,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Máscara para suavizar a base da imagem como na referência */
             -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             transition: filter 0.3s;
         }
 
-        /* EFEITO DE PULSAR (VIDA BAIXA) */
         .perigo {
             animation: pulse-red 1.5s infinite ease-in-out;
             filter: drop-shadow(0 0 15px #ff0000) !important;
@@ -64,7 +62,7 @@
             50% { opacity: 0.6; }
         }
 
-        /* STATUS NUMÉRICOS COM GLOW */
+        /* NÚMEROS ESTILO NEON ALINHADOS */
         .status-numbers {
             display: flex;
             flex-direction: column;
@@ -75,16 +73,16 @@
             user-select: none;
         }
 
-        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000; }
-        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff; }
+        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000, 2px 2px 2px black; }
+        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff, 2px 2px 2px black; }
         .val-ammo { 
             color: #ffffcc; 
-            text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00; 
+            text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00, 2px 2px 2px black; 
             font-size: 2.8rem;
             margin-top: 5px;
         }
 
-        /* PAINEL DE CONTROLE - MOVIDO PARA O CANTO OPOSTO E DISCRETO */
+        /* PAINEL TOTALMENTE NO CANTO OPOSTO PARA NÃO ATRAPALHAR */
         .setup-panel {
             position: fixed;
             bottom: 20px;
@@ -95,45 +93,29 @@
             border-radius: 8px;
             display: flex;
             gap: 8px;
-            z-index: 9999; /* Garante que fique acima de tudo mas no canto */
+            z-index: 9999;
             backdrop-filter: blur(5px);
         }
 
         .setup-panel input {
-            background: #111;
-            border: 1px solid #555;
-            color: white;
-            padding: 5px;
-            width: 70px;
-            text-align: center;
-            border-radius: 4px;
-            outline: none;
+            background: #111; border: 1px solid #555; color: white;
+            padding: 5px; width: 70px; text-align: center; border-radius: 4px; outline: none;
         }
 
         .setup-panel button {
-            background: #333;
-            color: #ffcf33;
-            border: 1px solid #ffcf33;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            padding: 5px 12px;
-            font-size: 12px;
+            background: #333; color: #ffcf33; border: 1px solid #ffcf33;
+            cursor: pointer; border-radius: 4px; font-weight: bold; padding: 5px 12px; font-size: 12px;
         }
 
-        .setup-panel button:hover {
-            background: #ffcf33;
-            color: black;
-        }
+        .setup-panel button:hover { background: #ffcf33; color: black; }
     </style>
 </head>
 <body>
 
-    <div id="multi-overlay-container">
-        </div>
+    <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="CÓDIGO" maxlength="4">
+        <input type="text" id="codigo-input" placeholder="CÓD" maxlength="4">
         <button onclick="addPlayer()">ADD</button>
         <button onclick="limparTudo()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
@@ -142,15 +124,11 @@
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        
-        // Recupera jogadores do armazenamento local para persistência
         let activePlayers = JSON.parse(localStorage.getItem('rpg_overlay_players')) || [];
 
         window.onload = () => {
             activePlayers.forEach(code => criarCardHTML(code));
-            setTimeout(() => {
-                activePlayers.forEach(code => socket.emit('request_player', code));
-            }, 1000);
+            setTimeout(() => { activePlayers.forEach(code => socket.emit('request_player', code)); }, 1000);
         };
 
         function addPlayer() {
@@ -171,9 +149,7 @@
             div.className = 'player-card';
             div.id = `card-${code}`;
             div.innerHTML = `
-                <div class="foto-container">
-                    <img src="" id="foto-${code}" class="foto">
-                </div>
+                <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
                 <div class="status-numbers">
                     <div class="val-vida" id="vida-${code}">--/--</div>
                     <div class="val-sani" id="sani-${code}">--/--</div>
@@ -193,39 +169,37 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
 
-                // Atualiza Foto e Efeito de Vida Baixa (Abaixo de 25%)
+                // 1. Atualiza Foto
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
                     const percVida = (dados.vida_atual / dados.vida_max) * 100;
-                    if (percVida <= 25) {
-                        fotoEl.classList.add('perigo');
-                    } else {
-                        fotoEl.classList.remove('perigo');
-                    }
+                    fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
 
-                // Atualiza Vida e Sanidade
-                document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
-                document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
+                // 2. Atualiza Vida e Sanidade
+                document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
+                document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
-                // LÓGICA DA ARMA ATIVA
+                // 3. LÓGICA EXATA DO SLOT "ARMA ATIVA"
                 const ammoEl = document.getElementById(`ammo-${cod}`);
                 let muniTexto = "";
 
-                // Verifica se o inventário está nos dados
-                if (dados.inventory || (dados.fullData && dados.fullData.inventory)) {
-                    const inv = dados.inventory || dados.fullData.inventory;
+                // Verifica se a ficha enviou o ID da arma que está selecionada no dropdown
+                if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
+                    const idArmaNoSlot = dados.fullData.arma_ativa_id;
                     
-                    // Busca a arma que está EQUIPADA e é de DISPARO (conforme sua ficha)
-                    const armaAtiva = inv.find(item => item.equipped === true && item.type === 'armadisp');
+                    // Busca aquela arma específica no inventário
+                    const armaSelecionada = dados.fullData.inv.find(item => item.id === idArmaNoSlot);
 
-                    if (armaAtiva) {
-                        muniTexto = armaAtiva.currentShots || "0";
+                    // Se a arma existir e não for corpo-a-corpo (ou seja, se a munição for diferente de "Nenhuma")
+                    if (armaSelecionada && armaSelecionada.ammo !== "Nenhuma") {
+                        muniTexto = armaSelecionada.currentShots || "0";
                     }
                 }
                 
-                ammoEl.innerText = muniTexto; // Fica vazio se não houver arma de disparo ativa
+                // Se muniTexto for vazio, o campo simplesmente não aparece (ideal para armas de corpo a corpo)
+                ammoEl.innerText = muniTexto;
             }
         });
     </script>
