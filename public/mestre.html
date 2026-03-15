@@ -119,10 +119,33 @@
         .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         
-        /* GRID DOS ATRIBUTOS: 3x2 (3 colunas que quebram para 2 linhas) */
-        .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
         .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
+
+        /* --- ESTILOS DA ABA DE INICIATIVA --- */
+        #iniciativa-board {
+            display: none; flex-direction: column; height: 100%; overflow: hidden;
+        }
+        .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
+        
+        .ini-card {
+            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
+            padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px);
+        }
+        .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
+        .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
+        
+        .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
+        .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
+        .ini-info { flex: 1; }
+        .ini-name { font-size: 1.3em; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; color: white; }
+        .ini-details { font-size: 0.85em; color: var(--text-secondary); }
+        .ini-total-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px; border: 1px solid #333; }
+        .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
+        .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -136,17 +159,27 @@
     <div class="tabs-container">
         <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
         <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros / Criaturas</button>
+        <button class="tab-btn" id="tab-iniciativa" onclick="mudarAba('iniciativa')">⚔️ Iniciativa</button>
     </div>
 
     <div class="content-wrapper">
         <div class="left-panel">
             <div class="players-container" id="players-board"></div>
 
-            <div id="monsters-board" style="display: none; flex-direction: column; height: 100%;">
+            <div id="monsters-board">
                 <div style="margin-bottom: 20px;">
                     <button class="btn-add" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
                 </div>
                 <div class="monsters-grid" id="monsters-grid"></div>
+            </div>
+
+            <div id="iniciativa-board">
+                <div class="ini-controls">
+                    <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white;" onclick="limparIniciativa()">🗑️ LIMPAR INICIATIVA</button>
+                    <button class="btn-add" style="flex: 2; font-size: 1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR INICIATIVA DOS MONSTROS</button>
+                </div>
+                <div class="ini-list-container" id="iniciativa-list-container">
+                    </div>
             </div>
         </div>
 
@@ -193,9 +226,7 @@
                 <div class="attr-grid">
                     <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
                     <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
                     <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
                 </div>
             </div>
 
@@ -258,7 +289,10 @@
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
 
-        // Tabela D20 e Perícias Base (Sincronizada com a Ficha)
+        let playersDataMemoria = {}; // Guarda os atributos/stats completos dos jogadores em tempo real
+        let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
+
+        // Tabela D20 e Perícias Base
         const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
         const periciasMonstroInfo = {
             'luta': { attr: 'for', mod: 0.25, nome: 'Luta' },
@@ -301,12 +335,15 @@
 
         function alterarStatusMestre(codigo, tipo, valor) {
             if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
-            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, status: valor });
+            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, status: valor });
         }
 
         socket.on('update_mestre', (dados) => {
             if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
             
+            // Guarda as informações na memória local para sabermos os Bônus de Iniciativa deles!
+            playersDataMemoria[dados.codigo] = dados;
+
             let card = document.getElementById(`player-${dados.codigo}`);
             if (!card) {
                 card = document.createElement('div');
@@ -362,11 +399,71 @@
             `;
         });
 
-        // --- SISTEMA UNIFICADO DE LOG ---
+        // --- SISTEMA UNIFICADO DE LOG E INTERCEPTAÇÃO DE INICIATIVA ---
         socket.on('novo_log', (dados) => {
             if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
+
+            // INTERCEPTADOR AUTOMÁTICO DE INICIATIVA
+            if (dados.acao.toLowerCase().includes('iniciativa')) {
+                processarIniciativa(dados);
+            }
         });
+
+        function processarIniciativa(dados) {
+            let dadoPuro = parseInt(dados.resultado) || 0;
+            let isPlayer = dados.codigo !== null;
+            let idUnico = isPlayer ? dados.codigo : 'monstro_' + dados.jogador + '_' + Date.now(); 
+            
+            let bonusCalc = 0;
+            let agiBase = 0;
+            let foto = 'https://via.placeholder.com/60';
+            let nomeStr = dados.jogador;
+
+            if (isPlayer) {
+                let pData = playersDataMemoria[dados.codigo];
+                if (pData && pData.fullData) {
+                    let fd = pData.fullData;
+                    agiBase = parseInt(fd.attrs['attr_agi']) || 1;
+                    let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0;
+                    let isTreinado = fd.skills['chk_iniciativa'] === true;
+                    
+                    let penalty = 0;
+                    if (fd.inv) {
+                        let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada')));
+                        if (hasHeavy) penalty = -5;
+                    }
+                    
+                    // Cálculo igual à ficha principal
+                    bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty);
+                    foto = pData.foto || foto;
+                }
+            } else {
+                let monstro = monstros.find(m => m.nome === dados.jogador);
+                if (monstro) {
+                    idUnico = monstro.id;
+                    agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1;
+                    let sData = monstro.skills ? monstro.skills['iniciativa'] : null;
+                    if (sData) {
+                        bonusCalc = Math.floor(sData.bonus + (agiBase * 0.50) + (sData.treinado ? 10 : 0));
+                    }
+                    foto = monstro.foto || foto;
+                }
+            }
+
+            let totalIniciativa = dadoPuro + bonusCalc;
+
+            let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
+            if (objIndex > -1) {
+                iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa };
+            } else {
+                iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa });
+            }
+
+            if (document.getElementById('tab-iniciativa').classList.contains('active')) {
+                renderizarIniciativa();
+            }
+        }
 
         function adicionarAoLog(nome, acao, resultado, corStr = '') {
             const waitMsg = document.getElementById('aguardar-msg');
@@ -410,11 +507,15 @@
             }
         }
 
+        // --- NAVEGAÇÃO DE ABAS ---
         function mudarAba(aba) {
             document.getElementById('tab-jogadores').classList.remove('active');
             document.getElementById('tab-monstros').classList.remove('active');
+            document.getElementById('tab-iniciativa').classList.remove('active');
+            
             document.getElementById('players-board').style.display = 'none';
             document.getElementById('monsters-board').style.display = 'none';
+            document.getElementById('iniciativa-board').style.display = 'none';
 
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
@@ -423,6 +524,74 @@
                 document.getElementById('tab-monstros').classList.add('active');
                 document.getElementById('monsters-board').style.display = 'flex';
                 renderizarMonstros();
+            } else if (aba === 'iniciativa') {
+                document.getElementById('tab-iniciativa').classList.add('active');
+                document.getElementById('iniciativa-board').style.display = 'flex';
+                renderizarIniciativa();
+            }
+        }
+
+        // --- LÓGICA DA ABA INICIATIVA ---
+        function renderizarIniciativa() {
+            // A MÁGICA DA ORDENAÇÃO EXATA
+            iniciativaList.sort((a, b) => {
+                if (b.total !== a.total) return b.total - a.total; // 1. Maior Total
+                if (b.dado !== a.dado) return b.dado - a.dado;     // 2. Maior Dado cru no d20
+                if (b.bonus !== a.bonus) return b.bonus - a.bonus; // 3. Maior Bônus de Iniciativa
+                return b.agi - a.agi;                              // 4. Maior Agilidade
+            });
+
+            localStorage.setItem('mestre_iniciativa', JSON.stringify(iniciativaList));
+            
+            const listContainer = document.getElementById('iniciativa-list-container');
+            listContainer.innerHTML = '';
+
+            if (iniciativaList.length === 0) {
+                listContainer.innerHTML = `<div style="text-align:center; color:var(--text-secondary); margin-top:30px;">Peça aos jogadores para rolarem iniciativa na ficha ou clique em Rolar Monstros.</div>`;
+                return;
+            }
+
+            iniciativaList.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `ini-card ${item.isPlayer ? 'is-player' : 'is-monster'}`;
+                
+                card.innerHTML = `
+                    <button class="btn-remove" style="top: -5px; right: -5px; z-index: 10;" onclick="removerIniciativa('${item.id}')">X</button>
+                    <div class="ini-rank">#${index + 1}</div>
+                    <img src="${item.foto}" class="ini-img">
+                    <div class="ini-info">
+                        <h3 class="ini-name">${item.nome}</h3>
+                        <div class="ini-details">Dado: <b>${item.dado}</b> | Bônus: <b>+${item.bonus}</b> | AGI: <b>${item.agi}</b></div>
+                    </div>
+                    <div class="ini-total-box">
+                        <div class="ini-total">${item.total}</div>
+                        <div class="ini-total-lbl">Total</div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function removerIniciativa(id) {
+            iniciativaList = iniciativaList.filter(i => i.id !== id);
+            renderizarIniciativa();
+        }
+
+        function limparIniciativa() {
+            if(confirm("Tem a certeza que deseja limpar toda a Ordem de Iniciativa?")) {
+                iniciativaList = [];
+                renderizarIniciativa();
+            }
+        }
+
+        function rolarMonstrosIniciativa() {
+            if(monstros.length === 0) return alert("Não existem monstros no ecrã para rolar iniciativa.");
+            // Rola a iniciativa automaticamente para cada monstro existente
+            monstros.forEach(m => rolarPericiaMonstro(m.id, 'iniciativa'));
+            
+            // Força a aba iniciativa a abrir caso o mestre clique
+            if (!document.getElementById('tab-iniciativa').classList.contains('active')) {
+                mudarAba('iniciativa');
             }
         }
 
@@ -432,8 +601,8 @@
         function abrirModalCriatura() {
             document.getElementById('modal-criatura').style.display = 'flex';
             
-            // Reseta os 5 Atributos e as 6 Perícias
-            ['agi','for','int','pre','vig'].forEach(a => document.getElementById(`c-${a}`).value = '1');
+            // Reseta Atributos e Perícias (SÓ AGI, FOR, PRE)
+            ['agi','for','pre'].forEach(a => document.getElementById(`c-${a}`).value = '1');
             ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
                 document.getElementById(`c-treino-${p}`).checked = false;
                 document.getElementById(`c-bonus-${p}`).value = '0';
@@ -498,9 +667,7 @@
             const attrs = {
                 agi: parseInt(document.getElementById('c-agi').value) || 1,
                 for: parseInt(document.getElementById('c-for').value) || 1,
-                int: parseInt(document.getElementById('c-int').value) || 1,
-                pre: parseInt(document.getElementById('c-pre').value) || 1,
-                vig: parseInt(document.getElementById('c-vig').value) || 1
+                pre: parseInt(document.getElementById('c-pre').value) || 1
             };
 
             // Extrai Perícias
@@ -542,6 +709,7 @@
             monstros = monstros.filter(m => m.id !== id);
             localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
             renderizarMonstros();
+            removerIniciativa(id); // Limpa da iniciativa tbm se for deletado
         }
 
         function alterarVidaMonstro(id, delta) {
@@ -644,9 +812,7 @@
                     <div style="display:flex; justify-content:space-around; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; font-size: 0.85em;">
                         <span title="Agilidade" style="color:var(--text-secondary)">AGI <span style="color:white">${monstro.attrs.agi}</span></span>
                         <span title="Força" style="color:var(--text-secondary)">FOR <span style="color:white">${monstro.attrs.for}</span></span>
-                        <span title="Intelecto" style="color:var(--text-secondary)">INT <span style="color:white">${monstro.attrs.int}</span></span>
                         <span title="Presença" style="color:var(--text-secondary)">PRE <span style="color:white">${monstro.attrs.pre}</span></span>
-                        <span title="Vigor" style="color:var(--text-secondary)">VIG <span style="color:white">${monstro.attrs.vig}</span></span>
                     </div>`;
                 }
 
@@ -736,6 +902,7 @@
         }
 
         if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
+        if (document.getElementById('tab-iniciativa').classList.contains('active')) renderizarIniciativa();
     </script>
 </body>
 </html>
