@@ -34,41 +34,24 @@
         .btn-add:hover { filter: brightness(1.2); }
 
         /* Estilos das Abas */
-        .tabs-container {
-            display: flex; gap: 10px; margin-bottom: 20px;
-        }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
             background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
             padding: 10px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold;
-            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
-            border-bottom: none;
+            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none;
         }
-        .tab-btn.active {
-            background: var(--accent-red); color: white; border-color: var(--accent-red);
-        }
+        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
         .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; }
 
-        /* Área da Esquerda (Jogadores e Monstros) */
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
         .players-container, .monsters-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
         }
 
-        /* Formulário de Monstros */
-        .monster-form {
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
-            padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
-        }
-        .monster-input {
-            padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
-            color: white; border-radius: 6px; font-weight: bold;
-        }
-
-        /* Cartões genéricos (Jogadores e Monstros) */
         .player-card, .monster-card {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
@@ -77,13 +60,13 @@
         .monster-card { border-color: var(--accent-red); }
 
         .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; }
         .monster-img { border-color: var(--accent-red); }
         .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
-        .player-info { font-size: 0.8em; color: var(--text-secondary); }
+        .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
         
-        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; }
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; }
         .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
         .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
 
@@ -112,19 +95,24 @@
 
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         
-        #modal-ficha {
+        #modal-ficha, .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
         }
-        .btn-close-modal {
-            background: var(--accent-red); color: white; border: none; padding: 10px 20px; font-weight: bold;
-            border-radius: 8px; cursor: pointer; font-size: 1.2em; margin-bottom: 10px;
+
+        /* Estilos do Modal de Criatura */
+        .modal-content {
+            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
+            padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.9);
         }
-        .btn-ver-ficha {
-            background: rgba(0, 176, 255, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue);
-            width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 5px;
-        }
-        .btn-ver-ficha:hover { background: var(--accent-blue); color: black; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
+        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; }
+        .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px;}
+        .btn-roll:hover { filter: brightness(1.2); }
+        .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 150px; overflow-y: auto;}
     </style>
 </head>
 <body>
@@ -137,7 +125,7 @@
 
     <div class="tabs-container">
         <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
-        <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros</button>
+        <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros / Criaturas</button>
     </div>
 
     <div class="content-wrapper">
@@ -145,11 +133,8 @@
             <div class="players-container" id="players-board"></div>
 
             <div id="monsters-board" style="display: none; flex-direction: column; height: 100%;">
-                <div class="monster-form">
-                    <input type="text" id="monster-nome" class="monster-input" placeholder="Nome do Monstro" style="flex: 2;">
-                    <input type="number" id="monster-vd" class="monster-input" placeholder="VD" style="flex: 1;">
-                    <input type="number" id="monster-vida" class="monster-input" placeholder="Vida Máx" style="flex: 1;">
-                    <button class="btn-add" style="background: var(--accent-red); color: white;" onclick="adicionarMonstro()">+ CRIAR MONSTRO</button>
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-add" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
                 </div>
                 <div class="monsters-grid" id="monsters-grid"></div>
             </div>
@@ -165,23 +150,66 @@
 
     <div id="modal-ficha">
         <div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end;">
-            <button class="btn-close-modal" onclick="fecharFicha()">X FECHAR FICHA</button>
+            <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1.2em; margin-bottom: 10px;" onclick="fecharFicha()">X FECHAR FICHA</button>
         </div>
         <iframe id="iframe-ficha" src="" style="width: 95%; max-width: 1400px; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe>
     </div>
 
+    <div id="modal-criatura" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Criatura</h2>
+            
+            <div class="form-group"><label>Nome</label><input type="text" id="c-nome" class="monster-input" placeholder="Ex: Zumbi de Sangue"></div>
+            <div class="form-group"><label>Foto URL</label><input type="text" id="c-foto" class="monster-input" placeholder="https://link-da-imagem.com/foto.png"></div>
+            
+            <div style="display:flex; gap: 10px;">
+                <div class="form-group" style="flex:1;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: NEX 20% - DT 15"></div>
+                <div class="form-group" style="flex:1;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" placeholder="15"></div>
+            </div>
+
+            <div style="display:flex; gap: 10px;">
+                <div class="form-group" style="flex:1;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" placeholder="Ex: 50"></div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333;">
+                <label style="font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); display: block; margin-bottom: 5px;">Atributos para Luta</label>
+                <div style="display:flex; gap: 10px;">
+                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Atributo Base (Qtd. Dados)</label><input type="number" id="c-atributo" class="monster-input" value="1"></div>
+                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Perícia Luta (Bônus)</label><input type="number" id="c-luta" class="monster-input" value="0"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    Ataques <button onclick="addCampoDinamico('c-ataques-list', 'Ataque (Ex: Mordida 1d6+2)')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button>
+                </label>
+                <div id="c-ataques-list"></div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    Poderes Gerais <button onclick="addCampoDinamico('c-poderes-list', 'Poder (Ex: Regeneração 5 PV)')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button>
+                </label>
+                <div id="c-poderes-list"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn-remove" style="position: static;" onclick="fecharModalCriatura()">Cancelar</button>
+                <button class="btn-add" style="background: var(--accent-green);" onclick="salvarCriatura()">Guardar Criatura</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
-        // --- LÓGICA DE JOGADORES (Mantida igual) ---
+        // --- JOGADORES E BASE ---
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
 
-        socket.on('connect', () => {
-            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo));
-        });
+        socket.on('connect', () => { jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); });
 
         function adicionarJogador() {
             const input = document.getElementById('add-code-input');
@@ -202,8 +230,7 @@
         }
 
         function abrirFicha(codigo) {
-            const iframe = document.getElementById('iframe-ficha');
-            iframe.src = `${URL_FICHA}?view=${codigo}`;
+            document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo}`;
             document.getElementById('modal-ficha').style.display = 'flex';
         }
 
@@ -213,11 +240,8 @@
         }
 
         function alterarStatusMestre(codigo, tipo, valor) {
-            if (tipo === 'vida' || tipo === 'sani') {
-                socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
-            } else if (tipo === 'status') {
-                socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, status: valor });
-            }
+            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
+            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, status: valor });
         }
 
         socket.on('update_mestre', (dados) => {
@@ -242,7 +266,7 @@
             `;
 
             card.innerHTML = `
-                <button class="btn-remove" onclick="removerJogador('${dados.codigo}')" title="Remover do ecrã">X</button>
+                <button class="btn-remove" onclick="removerJogador('${dados.codigo}')">X</button>
                 <div class="player-header">
                     <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img">
                     <div>
@@ -274,24 +298,31 @@
                     </div>
                 </div>
                 <div class="status-tags">${tagsHtml}</div>
-                <button class="btn-ver-ficha" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>
+                <button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>
             `;
         });
 
+        // --- SISTEMA DE LOGS ---
         socket.on('novo_log', (dados) => {
-            if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
+            if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
+            adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
+        });
+
+        function adicionarAoLog(nome, acao, resultado, corStr = '') {
             const waitMsg = document.getElementById('aguardar-msg');
             if (waitMsg) waitMsg.remove();
+            
             const logItem = document.createElement('div');
             logItem.className = 'log-item';
-            const colorStyle = dados.cor ? dados.cor.replace('color:white', 'color:var(--text-primary)') : 'color:var(--text-primary)';
+            const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)');
+            
             logItem.innerHTML = `
-                <div class="player-name">${dados.jogador || 'Alguém'} rolou:</div>
-                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${dados.acao}</div>
-                <div class="roll-result" style="${colorStyle}">${dados.resultado}</div>
+                <div class="player-name">${nome || 'Mestre'}:</div>
+                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div>
+                <div class="roll-result" style="${colorStyle}">${resultado}</div>
             `;
             logBox.prepend(logItem); 
-        });
+        }
 
         // --- SISTEMA DE ABAS ---
         function mudarAba(aba) {
@@ -310,36 +341,61 @@
             }
         }
 
-        // --- LÓGICA DE MONSTROS ---
+        // --- LÓGICA DE MONSTROS / CRIATURAS ---
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
 
-        function adicionarMonstro() {
-            const nomeInput = document.getElementById('monster-nome');
-            const vdInput = document.getElementById('monster-vd');
-            const vidaInput = document.getElementById('monster-vida');
+        function abrirModalCriatura() {
+            document.getElementById('modal-criatura').style.display = 'flex';
+            document.getElementById('c-ataques-list').innerHTML = '';
+            document.getElementById('c-poderes-list').innerHTML = '';
+            addCampoDinamico('c-ataques-list', 'Ataque (Ex: Mordida 1d6+2)');
+            addCampoDinamico('c-poderes-list', 'Poder (Ex: Regeneração 5 PV)');
+        }
 
-            if (!nomeInput.value || !vidaInput.value) return alert("Preenche o nome e a vida máxima do monstro!");
+        function fecharModalCriatura() {
+            document.getElementById('modal-criatura').style.display = 'none';
+        }
 
-            const novoMonstro = {
+        function addCampoDinamico(containerId, placeholder) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.innerHTML = `
+                <input type="text" class="monster-input dynamic-input" style="flex:1;" placeholder="${placeholder}">
+                <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function salvarCriatura() {
+            const nome = document.getElementById('c-nome').value || 'Criatura Desconhecida';
+            const foto = document.getElementById('c-foto').value || 'https://i.imgur.com/k2oT3L8.png';
+            const presenca = document.getElementById('c-presenca').value || 'N/A';
+            const defesa = document.getElementById('c-defesa').value || '0';
+            const vida = parseInt(document.getElementById('c-vida').value) || 1;
+            const atributo = parseInt(document.getElementById('c-atributo').value) || 1;
+            const luta = parseInt(document.getElementById('c-luta').value) || 0;
+
+            const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
+            const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
+
+            const novaCriatura = {
                 id: Date.now().toString(),
-                nome: nomeInput.value,
-                vd: vdInput.value || '0',
-                vida_max: parseInt(vidaInput.value),
-                vida_atual: parseInt(vidaInput.value)
+                nome, foto, presenca, defesa,
+                vida_max: vida, vida_atual: vida,
+                atributo, luta, ataques, poderes
             };
 
-            monstros.push(novoMonstro);
-            salvarMonstros();
+            monstros.push(novaCriatura);
+            localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
+            
+            fecharModalCriatura();
             renderizarMonstros();
-
-            nomeInput.value = '';
-            vdInput.value = '';
-            vidaInput.value = '';
         }
 
         function removerMonstro(id) {
             monstros = monstros.filter(m => m.id !== id);
-            salvarMonstros();
+            localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
             renderizarMonstros();
         }
 
@@ -349,13 +405,39 @@
                 monstro.vida_atual += delta;
                 if (monstro.vida_atual > monstro.vida_max) monstro.vida_atual = monstro.vida_max;
                 if (monstro.vida_atual < 0) monstro.vida_atual = 0;
-                salvarMonstros();
+                localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
                 renderizarMonstros();
             }
         }
 
-        function salvarMonstros() {
-            localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
+        function rolarLutaMonstro(id) {
+            const monstro = monstros.find(m => m.id === id);
+            if (!monstro) return;
+
+            let numDados = Math.max(1, monstro.atributo);
+            let rolagens = [];
+            
+            for (let i = 0; i < numDados; i++) {
+                rolagens.push(Math.floor(Math.random() * 20) + 1);
+            }
+
+            let melhorDado = Math.max(...rolagens);
+            
+            // Regra do Ordem: Se o atributo for 0, rola 2 dados e escolhe o pior (Regra Opcional, mantive o básico de 1 dado min acima, mas ajustado aqui se quiseres)
+            if (monstro.atributo <= 0) {
+                rolagens = [Math.floor(Math.random() * 20) + 1, Math.floor(Math.random() * 20) + 1];
+                melhorDado = Math.min(...rolagens);
+            }
+
+            const total = melhorDado + monstro.luta;
+            
+            let cor = 'color:var(--accent-yellow)';
+            if (melhorDado === 20) cor = 'color:var(--accent-green)';
+            if (melhorDado === 1) cor = 'color:var(--accent-red)';
+
+            const textoAcao = `Rolou Luta (${monstro.atributo}d20 + ${monstro.luta})<br><small style="color:gray;">[${rolagens.join(', ')}] -> ${melhorDado} + ${monstro.luta}</small>`;
+            
+            adicionarAoLog(monstro.nome, textoAcao, total, cor);
         }
 
         function renderizarMonstros() {
@@ -364,17 +446,31 @@
 
             monstros.forEach(monstro => {
                 const percVida = Math.min(Math.max((monstro.vida_atual / monstro.vida_max) * 100, 0), 100) || 0;
+                
+                let listasHTML = '';
+                if (monstro.ataques && monstro.ataques.length > 0) {
+                    listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 2px 0 2px 15px; padding:0;">` + monstro.ataques.map(a => `<li>${a}</li>`).join('') + `</ul></div>`;
+                }
+                if (monstro.poderes && monstro.poderes.length > 0) {
+                    listasHTML += `<div><strong style="color:var(--accent-blue);">Poderes:</strong><ul style="margin: 2px 0 0 15px; padding:0;">` + monstro.poderes.map(p => `<li>${p}</li>`).join('') + `</ul></div>`;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'monster-card';
                 card.innerHTML = `
                     <button class="btn-remove" onclick="removerMonstro('${monstro.id}')" title="Remover Monstro">X</button>
+                    
                     <div class="player-header" style="border-bottom-color: var(--accent-red);">
-                        <img src="https://i.imgur.com/k2oT3L8.png" class="player-img monster-img" alt="Monster Icon">
+                        <img src="${monstro.foto}" class="player-img monster-img" alt="Monster Icon">
                         <div>
                             <h3 class="player-name monster-name">${monstro.nome}</h3>
-                            <div class="player-info">VD: ${monstro.vd}</div>
+                            <div class="player-info">
+                                <strong>Defesa:</strong> ${monstro.defesa} <br>
+                                <strong>Presença:</strong> ${monstro.presenca}
+                            </div>
                         </div>
                     </div>
+                    
                     <div>
                         <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div>
                         <div style="display: flex; align-items: center; gap: 5px;">
@@ -388,15 +484,19 @@
                             <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 1)">+</button>
                         </div>
                     </div>
+
+                    <div class="monster-details">
+                        ${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}
+                    </div>
+
+                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Ataque / Luta (${monstro.atributo}d20 + ${monstro.luta})</button>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Renderiza na primeira carga se for necessário
-        if (document.getElementById('tab-monstros').classList.contains('active')) {
-            renderizarMonstros();
-        }
+        // Renderiza na primeira carga se a aba estiver ativa
+        if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
     </script>
 </body>
 </html>
