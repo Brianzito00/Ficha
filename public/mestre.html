@@ -118,6 +118,10 @@
         .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
         .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .attr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+        .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
+        .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
     </style>
 </head>
 <body>
@@ -180,15 +184,47 @@
                 <div class="form-group" style="flex:1;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: NEX 20% - DT 15"></div>
                 <div class="form-group" style="flex:1;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" placeholder="15"></div>
             </div>
+            
+            <div class="form-group"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" placeholder="Ex: 50"></div>
 
-            <div style="display:flex; gap: 10px;">
-                <div class="form-group" style="flex:1;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" placeholder="Ex: 50"></div>
+            <div class="form-group">
+                <label>Atributos</label>
+                <div class="attr-grid">
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div>
+                </div>
             </div>
 
-            <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333;">
-                <label style="font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); display: block; margin-bottom: 5px;">Habilidade Luta (1 a 20)</label>
-                <div style="display:flex; gap: 10px;">
-                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Valor Habilidade</label><input type="number" id="c-luta" class="monster-input" value="10" placeholder="Ex: 10"></div>
+            <div class="form-group">
+                <label>Perícias Principais</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label>
+                        <input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label>
+                        <input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label>
+                        <input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label>
+                        <input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label>
+                        <input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label>
+                        <input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
                 </div>
             </div>
 
@@ -220,6 +256,17 @@
         const socket = io();
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
+
+        // Tabela D20 e Perícias Base (Mesma da Ficha)
+        const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
+        const periciasMonstroInfo = {
+            'luta': { attr: 'for', mod: 0.25, nome: 'Luta' },
+            'pontaria': { attr: 'agi', mod: 0.45, nome: 'Pontaria' },
+            'iniciativa': { attr: 'agi', mod: 0.50, nome: 'Iniciativa' },
+            'reflexos': { attr: 'agi', mod: 0.35, nome: 'Reflexos' },
+            'percepcao': { attr: 'pre', mod: 0.50, nome: 'Percepção' },
+            'vontade': { attr: 'pre', mod: 0.50, nome: 'Vontade' }
+        };
 
         socket.on('connect', () => { jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); });
 
@@ -314,7 +361,7 @@
             `;
         });
 
-        // --- SISTEMA UNIFICADO DE LOG E ROLAGENS PARA O MESTRE ---
+        // --- SISTEMA UNIFICADO DE LOG ---
         socket.on('novo_log', (dados) => {
             if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
@@ -362,8 +409,6 @@
             }
         }
 
-        // ------------------------------------------
-
         function mudarAba(aba) {
             document.getElementById('tab-jogadores').classList.remove('active');
             document.getElementById('tab-monstros').classList.remove('active');
@@ -385,6 +430,14 @@
 
         function abrirModalCriatura() {
             document.getElementById('modal-criatura').style.display = 'flex';
+            
+            // Reseta Atributos e Perícias
+            ['agi','for','int','pre','vig'].forEach(a => document.getElementById(`c-${a}`).value = '1');
+            ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
+                document.getElementById(`c-treino-${p}`).checked = false;
+                document.getElementById(`c-bonus-${p}`).value = '0';
+            });
+
             document.getElementById('c-ataques-list').innerHTML = '';
             document.getElementById('c-poderes-list').innerHTML = '';
             addCampoAtaque('c-ataques-list');
@@ -395,7 +448,6 @@
             document.getElementById('modal-criatura').style.display = 'none';
         }
 
-        // NOVO: Adiciona o formulário do ataque com os novos campos solicitados!
         function addCampoAtaque(containerId) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
@@ -440,9 +492,25 @@
             const presenca = document.getElementById('c-presenca').value || 'N/A';
             const defesa = document.getElementById('c-defesa').value || '0';
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
-            const luta = parseInt(document.getElementById('c-luta').value) || 10;
 
-            // Extrai a informação dos novos campos estruturados
+            // Extrai Atributos
+            const attrs = {
+                agi: parseInt(document.getElementById('c-agi').value) || 1,
+                for: parseInt(document.getElementById('c-for').value) || 1,
+                int: parseInt(document.getElementById('c-int').value) || 1,
+                pre: parseInt(document.getElementById('c-pre').value) || 1,
+                vig: parseInt(document.getElementById('c-vig').value) || 1
+            };
+
+            // Extrai Perícias
+            const skills = {};
+            ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
+                skills[p] = {
+                    treinado: document.getElementById(`c-treino-${p}`).checked,
+                    bonus: parseInt(document.getElementById(`c-bonus-${p}`).value) || 0
+                };
+            });
+
             const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => {
                 return {
                     nome: row.querySelector('.atq-nome').value.trim(),
@@ -459,7 +527,7 @@
                 id: Date.now().toString(),
                 nome, foto, presenca, defesa,
                 vida_max: vida, vida_atual: vida,
-                luta, ataques, poderes
+                attrs, skills, ataques, poderes
             };
 
             monstros.push(novaCriatura);
@@ -492,11 +560,7 @@
             let total = 0;
             
             let pieces = formula.match(/[+\-]?[^+\-]+/g); 
-            
-            if(!pieces) {
-                alert("Fórmula de dano inválida!");
-                return;
-            }
+            if(!pieces) return alert("Fórmula de dano inválida!");
 
             pieces.forEach(p => {
                 let sinal = 1;
@@ -508,56 +572,62 @@
                     let qtd = parseInt(parts[0]) || 1;
                     let faces = parseInt(parts[1]) || 1;
                     let sum = 0;
-                    
-                    for(let i=0; i<qtd; i++) {
-                        sum += Math.floor(Math.random() * faces) + 1;
-                    }
+                    for(let i=0; i<qtd; i++) sum += Math.floor(Math.random() * faces) + 1;
                     total += (sum * sinal);
                 } else { 
                     let val = parseInt(p);
-                    if(!isNaN(val)) {
-                        total += (val * sinal);
-                    }
+                    if(!isNaN(val)) total += (val * sinal);
                 }
             });
 
             if(total < 0) total = 0;
-
             showPopup(total, `DANO: ${ataqueNome}`, "color:var(--accent-red)", monstroNome);
         }
 
-        // --- SISTEMA DE ROLAGEM DE ACERTO (LUTA) ---
-        function rolarLutaMonstro(id) {
+        // --- SISTEMA UNIFICADO DE PERÍCIAS (D20) ---
+        function rolarPericiaMonstro(id, keyPericia) {
             const monstro = monstros.find(m => m.id === id);
             if (!monstro) return;
 
-            const valor = monstro.luta;
-            const targetN = 21 - valor;
-            const targetB = 21 - Math.floor(valor / 2);
-            const targetE = 21 - Math.floor(valor / 5);
+            // Se for uma criatura antiga sem "attrs" e "skills" salvos, dá aviso.
+            if (!monstro.attrs || !monstro.skills) {
+                alert("Esta criatura foi criada num formato antigo. Por favor recrie-a.");
+                return;
+            }
 
-            const dado = Math.floor(Math.random() * 20) + 1;
+            const info = periciasMonstroInfo[keyPericia];
+            const attrVal = monstro.attrs[info.attr] || 1;
+            const skillData = monstro.skills[keyPericia] || { bonus: 0, treinado: false };
+
+            let f = Math.floor(skillData.bonus + (attrVal * info.mod) + (skillData.treinado ? 10 : 0));
+            let d = Math.floor(Math.random() * 20) + 1;
             
-            let resultadoStr = "Fracasso";
-            let cor = "color:var(--text-secondary)";
+            let fLimit = f > 20 ? 20 : (f < 1 ? 1 : f);
+            let m = tabelaD20[fLimit];
 
-            if (targetE <= 20 && dado >= targetE) {
-                resultadoStr = "Sucesso Extremo";
+            let resultadoStr = "FALHA";
+            let cor = "color:var(--accent-red)";
+
+            if (d === 20) {
+                resultadoStr = "CRÍTICO";
                 cor = "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red);";
-            } else if (targetB <= 20 && dado >= targetB) {
-                resultadoStr = "Sucesso Bom";
+            } else if (d >= m.e && m.e != 99) {
+                resultadoStr = "EXTREMO";
+                cor = "color:var(--accent-yellow)";
+            } else if (d >= m.b && m.b != 99) {
+                resultadoStr = "BOM";
                 cor = "color:var(--accent-blue)";
-            } else if (targetN <= 20 && dado >= targetN) {
-                resultadoStr = "Sucesso Normal";
+            } else if (d >= m.n) {
+                resultadoStr = "NORMAL";
                 cor = "color:var(--accent-green)";
             }
 
-            if (dado === 1) {
-                resultadoStr = "Desastre";
+            if (d === 1) {
+                resultadoStr = "DESASTRE";
                 cor = "color:#ff5252; font-weight:bold;";
             }
 
-            showPopup(dado, `ATQ (${resultadoStr})`, cor, monstro.nome);
+            showPopup(d, `${info.nome} (${resultadoStr})`, cor, monstro.nome);
         }
 
         function renderizarMonstros() {
@@ -567,13 +637,24 @@
             monstros.forEach(monstro => {
                 const percVida = Math.min(Math.max((monstro.vida_atual / monstro.vida_max) * 100, 0), 100) || 0;
                 
+                // Puxa Atributos (se for criatura recente)
+                let attrsHTML = '';
+                if(monstro.attrs) {
+                    attrsHTML = `
+                    <div style="display:flex; justify-content:space-around; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; font-size: 0.85em;">
+                        <span title="Agilidade" style="color:var(--text-secondary)">AGI <span style="color:white">${monstro.attrs.agi}</span></span>
+                        <span title="Força" style="color:var(--text-secondary)">FOR <span style="color:white">${monstro.attrs.for}</span></span>
+                        <span title="Intelecto" style="color:var(--text-secondary)">INT <span style="color:white">${monstro.attrs.int}</span></span>
+                        <span title="Presença" style="color:var(--text-secondary)">PRE <span style="color:white">${monstro.attrs.pre}</span></span>
+                        <span title="Vigor" style="color:var(--text-secondary)">VIG <span style="color:white">${monstro.attrs.vig}</span></span>
+                    </div>`;
+                }
+
                 let listasHTML = '';
                 if (monstro.ataques && monstro.ataques.length > 0) {
                     let linhasAtaque = monstro.ataques.map(a => {
-                        // Compatibilidade para criaturas velhas criadas apenas com nome/dano
                         if (typeof a === 'string') return `<li>${a}</li>`;
                         
-                        // Compila as novas informações na UI da cartinha da Criatura
                         let nomeExibicao = a.qtd && a.qtd > 1 ? `${a.qtd}x ${a.nome}` : a.nome;
                         let tipoText = a.tipo ? ` (${a.tipo})` : '';
                         let critText = a.critico && a.critico !== '20/x2' ? ` | Crit: ${a.critico}` : '';
@@ -582,7 +663,7 @@
                         <li style="display: flex; flex-direction: column; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                                 <span><strong style="color:white;">${nomeExibicao}</strong><span style="color:var(--text-secondary); font-size:0.85em;">${tipoText}</span></span>
-                                <button class="btn-ctrl" style="width: auto; padding: 4px 10px; font-size: 0.85em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Rolar Dano</button>
+                                <button class="btn-ctrl" style="width: auto; padding: 4px 10px; font-size: 0.85em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Dano</button>
                             </div>
                             <div style="font-size: 0.85em; color: var(--text-secondary);">
                                 Dano: <span style="color:var(--accent-yellow); font-weight:bold;">${a.dano}</span>${critText}
@@ -595,6 +676,23 @@
                 
                 if (monstro.poderes && monstro.poderes.length > 0) {
                     listasHTML += `<div><strong style="color:var(--accent-blue);">Poderes:</strong><ul style="margin: 2px 0 0 15px; padding:0;">` + monstro.poderes.map(p => `<li>${p}</li>`).join('') + `</ul></div>`;
+                }
+
+                // Renderiza Botões de Perícias (se existirem)
+                let btnPericiasHTML = '';
+                if(monstro.skills) {
+                    btnPericiasHTML = `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:10px;">
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'iniciativa')" style="background:var(--bg-card); color:white; border:1px solid #444;">Iniciativa</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'percepcao')" style="background:var(--bg-card); color:white; border:1px solid #444;">Percepção</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'reflexos')" style="background:var(--bg-card); color:white; border:1px solid #444;">Reflexos</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'vontade')" style="background:var(--bg-card); color:white; border:1px solid #444;">Vontade</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'luta')" style="border-color:var(--accent-blue);">🗡️ Luta</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'pontaria')" style="border-color:var(--accent-blue);">🔫 Pontaria</button>
+                    </div>`;
+                } else {
+                    // Botão antigo de Luta para criaturas antigas
+                    btnPericiasHTML = `<button class="btn-roll" style="width:100%; margin-top:10px;" onclick="alert('Criatura antiga. Por favor recrie para usar as perícias completas.')">🎲 Perícias (Desativado)</button>`;
                 }
 
                 const card = document.createElement('div');
@@ -613,6 +711,8 @@
                         </div>
                     </div>
                     
+                    ${attrsHTML}
+
                     <div>
                         <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div>
                         <div style="display: flex; align-items: center; gap: 5px;">
@@ -631,7 +731,7 @@
                         ${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}
                     </div>
 
-                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Acerto / D20 (Hab: ${monstro.luta})</button>
+                    ${btnPericiasHTML}
                 `;
                 grid.appendChild(card);
             });
