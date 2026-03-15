@@ -33,7 +33,6 @@
         }
         .btn-add:hover { filter: brightness(1.2); }
 
-        /* Estilos das Abas */
         .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
             background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
@@ -44,7 +43,6 @@
         .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; }
-
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
         .players-container, .monsters-grid {
@@ -91,7 +89,7 @@
         .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; }
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
-        .log-item .roll-result { font-size: 1.5em; font-weight: 900; text-align: center; margin: 5px 0; }
+        .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
 
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         
@@ -100,7 +98,6 @@
             background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
         }
 
-        /* Estilos do Modal de Criatura */
         .modal-content {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
@@ -172,10 +169,9 @@
             </div>
 
             <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333;">
-                <label style="font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); display: block; margin-bottom: 5px;">Atributos para Luta</label>
+                <label style="font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); display: block; margin-bottom: 5px;">Habilidade Luta (1 a 20)</label>
                 <div style="display:flex; gap: 10px;">
-                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Atributo Base (Qtd. Dados)</label><input type="number" id="c-atributo" class="monster-input" value="1"></div>
-                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Perícia Luta (Bônus)</label><input type="number" id="c-luta" class="monster-input" value="0"></div>
+                    <div class="form-group" style="flex:1; margin-bottom:0;"><label style="color:var(--text-secondary); font-size:0.8em;">Valor Habilidade</label><input type="number" id="c-luta" class="monster-input" value="10" placeholder="Ex: 10"></div>
                 </div>
             </div>
 
@@ -202,7 +198,6 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
-        // --- JOGADORES E BASE ---
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
@@ -302,7 +297,6 @@
             `;
         });
 
-        // --- SISTEMA DE LOGS ---
         socket.on('novo_log', (dados) => {
             if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
@@ -324,7 +318,6 @@
             logBox.prepend(logItem); 
         }
 
-        // --- SISTEMA DE ABAS ---
         function mudarAba(aba) {
             document.getElementById('tab-jogadores').classList.remove('active');
             document.getElementById('tab-monstros').classList.remove('active');
@@ -341,7 +334,7 @@
             }
         }
 
-        // --- LÓGICA DE MONSTROS / CRIATURAS ---
+        // --- LÓGICA DE MONSTROS ---
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
 
         function abrirModalCriatura() {
@@ -373,8 +366,7 @@
             const presenca = document.getElementById('c-presenca').value || 'N/A';
             const defesa = document.getElementById('c-defesa').value || '0';
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
-            const atributo = parseInt(document.getElementById('c-atributo').value) || 1;
-            const luta = parseInt(document.getElementById('c-luta').value) || 0;
+            const luta = parseInt(document.getElementById('c-luta').value) || 10;
 
             const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
             const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.dynamic-input')).map(inp => inp.value).filter(val => val.trim() !== '');
@@ -383,7 +375,7 @@
                 id: Date.now().toString(),
                 nome, foto, presenca, defesa,
                 vida_max: vida, vida_atual: vida,
-                atributo, luta, ataques, poderes
+                luta, ataques, poderes
             };
 
             monstros.push(novaCriatura);
@@ -414,30 +406,45 @@
             const monstro = monstros.find(m => m.id === id);
             if (!monstro) return;
 
-            let numDados = Math.max(1, monstro.atributo);
-            let rolagens = [];
+            const valor = monstro.luta;
+            // Cálculo baseado na tabela exata enviada
+            const targetN = 21 - valor;
+            const targetB = 21 - Math.floor(valor / 2);
+            const targetE = 21 - Math.floor(valor / 5);
+
+            const dado = Math.floor(Math.random() * 20) + 1;
             
-            for (let i = 0; i < numDados; i++) {
-                rolagens.push(Math.floor(Math.random() * 20) + 1);
+            let resultadoStr = "Fracasso";
+            let cor = "color:var(--text-secondary)";
+
+            // Se o alvo for menor ou igual a 20 E o dado for maior ou igual ao alvo
+            if (targetE <= 20 && dado >= targetE) {
+                resultadoStr = "Sucesso Extremo";
+                cor = "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red);";
+            } else if (targetB <= 20 && dado >= targetB) {
+                resultadoStr = "Sucesso Bom";
+                cor = "color:var(--accent-blue)";
+            } else if (targetN <= 20 && dado >= targetN) {
+                resultadoStr = "Sucesso Normal";
+                cor = "color:var(--accent-green)";
             }
 
-            let melhorDado = Math.max(...rolagens);
-            
-            // Regra do Ordem: Se o atributo for 0, rola 2 dados e escolhe o pior (Regra Opcional, mantive o básico de 1 dado min acima, mas ajustado aqui se quiseres)
-            if (monstro.atributo <= 0) {
-                rolagens = [Math.floor(Math.random() * 20) + 1, Math.floor(Math.random() * 20) + 1];
-                melhorDado = Math.min(...rolagens);
+            // Falha Crítica / Desastre em d20 geralmente é 1
+            if (dado === 1) {
+                resultadoStr = "Desastre";
+                cor = "color:#ff5252; font-weight:bold;";
             }
 
-            const total = melhorDado + monstro.luta;
-            
-            let cor = 'color:var(--accent-yellow)';
-            if (melhorDado === 20) cor = 'color:var(--accent-green)';
-            if (melhorDado === 1) cor = 'color:var(--accent-red)';
+            // Formatando o 'x' para alvos impossíveis
+            const formatTarget = (t) => t > 20 ? 'x' : t;
+            const tN = formatTarget(targetN);
+            const tB = formatTarget(targetB);
+            const tE = formatTarget(targetE);
 
-            const textoAcao = `Rolou Luta (${monstro.atributo}d20 + ${monstro.luta})<br><small style="color:gray;">[${rolagens.join(', ')}] -> ${melhorDado} + ${monstro.luta}</small>`;
+            const textoAcao = `Rolou Luta (Hab: ${valor})<br><small style="color:gray;">Alvos (N: ${tN} | B: ${tB} | E: ${tE})</small>`;
+            const resultadoFinal = `🎲 ${dado} - ${resultadoStr}`;
             
-            adicionarAoLog(monstro.nome, textoAcao, total, cor);
+            adicionarAoLog(monstro.nome, textoAcao, resultadoFinal, cor);
         }
 
         function renderizarMonstros() {
@@ -489,13 +496,12 @@
                         ${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}
                     </div>
 
-                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Ataque / Luta (${monstro.atributo}d20 + ${monstro.luta})</button>
+                    <button class="btn-roll" onclick="rolarLutaMonstro('${monstro.id}')">🎲 Rolar Ataque / Luta D20 (Hab: ${monstro.luta})</button>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Renderiza na primeira carga se a aba estiver ativa
         if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
     </script>
 </body>
