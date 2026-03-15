@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Arma Ativa</title>
+    <title>Overlay RPG - Munição Dinâmica</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
@@ -24,11 +24,11 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.8s ease forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-20px); }
+            from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
@@ -42,17 +42,17 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            transition: filter 0.3s;
         }
 
-        /* EFEITO DE VIDA BAIXA */
         .perigo {
-            animation: pulse-red 1.2s infinite ease-in-out;
+            animation: pulse-red 1.5s infinite;
             filter: drop-shadow(0 0 15px #ff0000) !important;
         }
 
         @keyframes pulse-red {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.02); opacity: 0.7; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         .status-numbers {
@@ -60,29 +60,22 @@
             flex-direction: column;
             gap: 0px;
             font-family: 'Grenze Gotisch', cursive;
-            font-size: 3.2rem;
-            line-height: 0.85;
+            font-size: 3rem;
+            line-height: 0.9;
         }
 
-        .val-vida { color: #ffcccc; text-shadow: 0 0 15px #ff4d4d, 0 0 5px #ff0000; }
-        .val-sani { color: #e0e0ff; text-shadow: 0 0 15px #8080ff, 0 0 5px #0000ff; }
-        .val-ammo { 
-            color: #ffffcc; 
-            text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00; 
-            font-size: 2.8rem;
-            min-height: 1em; /* Garante que o espaço exista mesmo vazio */
-        }
+        .val-vida { color: #ffcccc; text-shadow: 0 0 12px #ff4d4d, 0 0 5px #ff0000; }
+        .val-sani { color: #e0e0ff; text-shadow: 0 0 12px #8080ff, 0 0 5px #0000ff; }
+        .val-ammo { color: #ffffcc; text-shadow: 0 0 12px #ffcf33, 0 0 5px #ffae00; font-size: 2.8rem; }
 
-        /* PAINEL DE CONTROLE */
         .setup-panel {
             position: fixed; bottom: 15px; right: 15px;
             background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
-            padding: 10px; border-radius: 10px; display: flex; gap: 8px; z-index: 1000;
+            padding: 8px; border-radius: 8px; display: flex; gap: 8px; z-index: 1000;
         }
 
-        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; }
-        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
-        .setup-panel button:hover { background: #ffcf33; color: black; }
+        .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; }
+        .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -101,7 +94,6 @@
         const container = document.getElementById('multi-overlay-container');
         let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
 
-        // Carregar jogadores salvos
         window.onload = () => {
             activePlayers.forEach(code => renderPlayerCard(code));
             setTimeout(() => {
@@ -130,8 +122,8 @@
                     <img src="" id="foto-${code}" class="foto">
                 </div>
                 <div class="status-numbers">
-                    <div class="val-vida" id="vida-${code}">--/--</div>
-                    <div class="val-sani" id="sani-${code}">--/--</div>
+                    <div class="val-vida" id="vida-${code}">0/0</div>
+                    <div class="val-sani" id="sani-${code}">0/0</div>
                     <div class="val-ammo" id="ammo-${code}"></div>
                 </div>
             `;
@@ -148,7 +140,7 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // 1. Atualizar Foto e Cor de Perigo (Abaixo de 25%)
+                // Foto e Status Perigo
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
@@ -156,30 +148,29 @@
                     fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
                 
-                // 2. Atualizar Vida e Sanidade
+                // Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // 3. Lógica da ARMA ATIVA
+                // MUNIÇÃO DINÂMICA (APENAS ATUAL)
                 const ammoEl = document.getElementById(`ammo-${cod}`);
-                let muniParaExibir = "";
+                let muniAtual = "";
 
                 if (dados.fullData && dados.fullData.inv) {
-                    // Procura no inventário a arma que está EQUIPADA (eq: true) e é de DISPARO
-                    const armaAtiva = dados.fullData.inv.find(item => 
+                    // Busca apenas a arma que está marcada como equipada E é de disparo
+                    const armaEquipada = dados.fullData.inv.find(item => 
                         item.eq === true && 
                         item.type === 'arma' && 
                         (item.atkType && item.atkType.toLowerCase().includes('disparo'))
                     );
 
-                    // Se encontrou uma arma ativa que usa munição, mostra o número atual
-                    if (armaAtiva) {
-                        muniParaExibir = armaAtiva.currentShots || "0";
+                    if (armaEquipada) {
+                        // Exibe apenas o número atual (ex: 12)
+                        muniAtual = armaEquipada.currentShots || "0";
                     }
                 }
                 
-                // Se muniParaExibir for "", o campo amarelo some automaticamente
-                ammoEl.innerText = muniParaExibir;
+                ammoEl.innerText = muniAtual;
             }
         });
     </script>
