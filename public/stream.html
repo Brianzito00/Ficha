@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Arma Ativa</title>
+    <title>Overlay RPG - Arma Ativa Direta</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 
@@ -44,7 +44,6 @@
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* EFEITO DE VIDA BAIXA */
         .perigo {
             animation: pulse-red 1.2s infinite ease-in-out;
             filter: drop-shadow(0 0 15px #ff0000) !important;
@@ -70,10 +69,8 @@
             color: #ffffcc; 
             text-shadow: 0 0 15px #ffcf33, 0 0 5px #ffae00; 
             font-size: 2.8rem;
-            min-height: 1em; /* Garante que o espaço exista mesmo vazio */
         }
 
-        /* PAINEL DE CONTROLE */
         .setup-panel {
             position: fixed; bottom: 15px; right: 15px;
             background: rgba(0, 0, 0, 0.85); border: 1px solid #ffcf33;
@@ -82,7 +79,6 @@
 
         .setup-panel input { background: #000; border: 1px solid #444; color: white; width: 60px; text-align: center; font-weight: bold; }
         .setup-panel button { background: #222; color: #ffcf33; border: 1px solid #ffcf33; cursor: pointer; font-weight: bold; padding: 4px 10px; border-radius: 4px; }
-        .setup-panel button:hover { background: #ffcf33; color: black; }
     </style>
 </head>
 <body>
@@ -101,7 +97,6 @@
         const container = document.getElementById('multi-overlay-container');
         let activePlayers = JSON.parse(localStorage.getItem('overlay_players')) || [];
 
-        // Carregar jogadores salvos
         window.onload = () => {
             activePlayers.forEach(code => renderPlayerCard(code));
             setTimeout(() => {
@@ -130,8 +125,8 @@
                     <img src="" id="foto-${code}" class="foto">
                 </div>
                 <div class="status-numbers">
-                    <div class="val-vida" id="vida-${code}">--/--</div>
-                    <div class="val-sani" id="sani-${code}">--/--</div>
+                    <div class="val-vida" id="vida-${code}">0/0</div>
+                    <div class="val-sani" id="sani-${code}">0/0</div>
                     <div class="val-ammo" id="ammo-${code}"></div>
                 </div>
             `;
@@ -148,7 +143,7 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 
-                // 1. Atualizar Foto e Cor de Perigo (Abaixo de 25%)
+                // Foto e Status Perigo
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/130';
@@ -156,29 +151,22 @@
                     fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
                 
-                // 2. Atualizar Vida e Sanidade
+                // Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual}/${dados.vida_max}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual}/${dados.sani_max}`;
                 
-                // 3. Lógica da ARMA ATIVA
+                // LÓGICA DA ARMA ATIVA DIRETA
                 const ammoEl = document.getElementById(`ammo-${cod}`);
                 let muniParaExibir = "";
 
-                if (dados.fullData && dados.fullData.inv) {
-                    // Procura no inventário a arma que está EQUIPADA (eq: true) e é de DISPARO
-                    const armaAtiva = dados.fullData.inv.find(item => 
-                        item.eq === true && 
-                        item.type === 'arma' && 
-                        (item.atkType && item.atkType.toLowerCase().includes('disparo'))
-                    );
+                // Verifica se existe o objeto da arma que está na mão do jogador agora
+                const armaAtiva = dados.arma_ativa; 
 
-                    // Se encontrou uma arma ativa que usa munição, mostra o número atual
-                    if (armaAtiva) {
-                        muniParaExibir = armaAtiva.currentShots || "0";
-                    }
+                if (armaAtiva && (armaAtiva.atkType && armaAtiva.atkType.toLowerCase().includes('disparo'))) {
+                    // Se a arma ativa for de disparo, mostra a munição atual dela
+                    muniParaExibir = armaAtiva.currentShots || "0";
                 }
                 
-                // Se muniParaExibir for "", o campo amarelo some automaticamente
                 ammoEl.innerText = muniParaExibir;
             }
         });
