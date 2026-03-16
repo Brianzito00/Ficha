@@ -152,8 +152,8 @@
 <body>
 
     <div class="mestre-top-bar">
-        <span style="font-weight: bold; color: var(--accent-blue);">Conectar Ficha:</span>
-        <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Código do Jogador" maxlength="4">
+        <span style="font-weight: bold; color: var(--accent-blue);">Conectar Jogador:</span>
+        <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Usuário (Login)" maxlength="30">
         <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR JOGADOR</button>
     </div>
 
@@ -370,7 +370,7 @@
                     <div>
                         <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
                         <div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
-                        <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Cód: ${dados.codigo}</div>
+                        <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${dados.codigo}</div>
                     </div>
                 </div>
                 <div>
