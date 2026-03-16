@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
-        /* Importação da fonte do Ordem Paranormal para os Dados */
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
         :root {
@@ -114,7 +113,7 @@
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
         
-        /* ESTILOS DO POPUP DE DADOS CENTRALIZADOS COM A FONTE DO ORDEM */
+        /* ESTILOS DO POPUP DE DADOS CORRIGIDOS (COM FONTE PERMANENT MARKER E CENTRALIZADO) */
         .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -571,10 +570,6 @@
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
-
-    // Variáveis auxiliares para o modal de ataques
-    let pendingRollParams = null;
-    let pendingMaxAtaques = 1;
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
@@ -1288,7 +1283,8 @@
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
         let resEl = document.getElementById('popup-res'); 
         resEl.innerHTML = r; 
-        // O style (st) agora deve ser passado como propriedade ou atribuido mantendo as regras css
+        
+        // APLICA O ESTILO (st) À STRING HTML
         resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
         
         if (r.includes('CRÍTICO')) {
@@ -1316,7 +1312,6 @@
         }
     }
 
-    // --- FUNÇÕES DE LÓGICA DO MODAL DE MÚLTIPLOS ATAQUES ---
     function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) {
         document.getElementById('max-atk-display').innerText = maxAtk;
         const input = document.getElementById('input-qtd-ataques');
@@ -1399,43 +1394,40 @@
 
             if (d === 1) {
                 textFormat = "DESASTRE";
-                colorFormat = "color:#ff5252; font-weight:bold; text-shadow: 2px 2px 4px #000;";
+                colorFormat = "color:#ff5252; font-weight:bold;";
             } else {
                 allDesastre = false;
                 if (isCrit && eArma) {
                     textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
                 } else if (eArma) {
                     textFormat = d >= m.n ? "ACERTO" : "FALHA";
-                    colorFormat = d >= m.n ? "color:var(--accent-green); text-shadow: 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
+                    colorFormat = d >= m.n ? "color:var(--accent-green)" : "color:var(--accent-red)";
                 } else {
                     if (d === 20) {
                         textFormat = "CRÍTICO";
-                        colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                        colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
                     } else if (d >= m.e && m.e != 99) {
                         textFormat = "EXTREMO";
-                        colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;";
+                        colorFormat = "color:var(--accent-yellow)";
                     } else if (d >= m.b && m.b != 99) {
                         textFormat = "BOM";
-                        colorFormat = "color:var(--accent-blue); text-shadow: 2px 2px 4px #000;";
+                        colorFormat = "color:var(--accent-blue)";
                     } else if (d >= m.n) {
                         textFormat = "NORMAL";
-                        colorFormat = "color:var(--accent-green); text-shadow: 2px 2px 4px #000;";
+                        colorFormat = "color:var(--accent-green)";
                     } else {
                         textFormat = "FALHA";
-                        colorFormat = "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
+                        colorFormat = "color:var(--accent-red)";
                     }
                 }
             }
 
             if (numAttacks > 1) {
-                resultsArray.push(`<span style="${colorFormat}">${d} (${textFormat})</span>`);
+                let listColor = colorFormat.replace("color:", "").replace(";", "");
+                resultsArray.push(`<span style="color:${listColor}; ${isCrit?'text-shadow: 0 0 10px #ff0000; font-weight:bold;':''}">${d} (${textFormat})</span>`);
             } else {
-                if(d === 1) {
-                    showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
-                } else {
-                    showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
-                }
+                showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
             }
         }
 
@@ -1710,7 +1702,7 @@
             let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`;
             if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`;
             if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-            const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+            const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
             addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || "");
         });
         
