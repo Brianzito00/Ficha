@@ -1328,7 +1328,8 @@
         }
     }
     
-    function rolarTesteD20(n, id, ak, modPerc) {
+    // Função unificada de rolagem
+    function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
         let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
@@ -1344,10 +1345,11 @@
         let d = Math.floor(Math.random()*20)+1;
         let m = tabelaD20[f>20?20:f<1?1:f];
         let isCrit = false;
+        let isDesastre = d === 1;
         
         let numAttacks = 1;
 
-        if (n === "Luta" || n === "Pontaria") {
+        if (eArma && (n === "Luta" || n === "Pontaria")) {
             const sel = document.getElementById('active-weapon-select');
             if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) {
                 const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id;
@@ -1363,11 +1365,13 @@
             lastAttackWasCrit = isCrit || d === 20;
         }
         
-        if (numAttacks > 1 && (n === "Luta" || n === "Pontaria")) {
+        // Rolagem Múltipla (Arma com Qtd. Ataques > 1)
+        if (eArma && numAttacks > 1 && (n === "Luta" || n === "Pontaria")) {
             let results = []; let anyCrit = false;
             for(let i=0; i<numAttacks; i++) {
                 let rd = Math.floor(Math.random()*20)+1; 
                 let isThisCrit = false;
+                let isThisDesastre = rd === 1;
                 
                 const sel = document.getElementById('active-weapon-select');
                 if (sel && sel.value) {
@@ -1379,21 +1383,48 @@
                 }
                 
                 if (isThisCrit || rd === 20) anyCrit = true;
-                let rm = tabelaD20[f>20?20:f<1?1:f];
-                if (isThisCrit || rd === 20) { results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); } 
-                else {
-                    let st = rd >= rm.e && rm.e != 99 ? "var(--accent-yellow)" : rd >= rm.b && rm.b != 99 ? "var(--accent-blue)" : rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
-                    let lbl = rd >= rm.e && rm.e != 99 ? "EXT" : rd >= rm.b && rm.b != 99 ? "BOM" : rd >= rm.n ? "NOR" : "FALHA";
+                
+                if (isThisDesastre) {
+                    results.push(`<span style="color:#ff5252; font-weight:bold;">${rd} (DESASTRE)</span>`);
+                } else if (isThisCrit || rd === 20) { 
+                    results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); 
+                } else {
+                    let rm = tabelaD20[f>20?20:f<1?1:f];
+                    let lbl = rd >= rm.n ? "ACERTO" : "FALHA";
+                    let st = rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
                     results.push(`<span style="color:${st}">${rd} (${lbl})</span>`);
                 }
             }
             lastAttackWasCrit = anyCrit;
             let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
             showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
-        } else {
+        } 
+        // Rolagem Única (Arma ou Perícia)
+        else {
             let res;
-            if (isCrit || d === 20) { res = ["CRÍTICO", "var(--accent-red)"]; } 
-            else { res = d >= m.e && m.e != 99 ? ["EXTREMO","var(--accent-yellow)"] : d >= m.b && m.b != 99 ? ["BOM","var(--accent-blue)"] : d >= m.n ? ["NORMAL","var(--accent-green)"] : ["FALHA","var(--accent-red)"]; }
+            if (isDesastre) {
+                res = ["DESASTRE", "#ff5252; font-weight:bold"];
+            } else if (eArma) {
+                // Regra de Arma: Crítico, Acerto, Falha
+                if (isCrit || d === 20) { 
+                    res = ["CRÍTICO", "var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"]; 
+                } else { 
+                    res = d >= m.n ? ["ACERTO", "var(--accent-green)"] : ["FALHA", "var(--accent-red)"]; 
+                }
+            } else {
+                // Regra de Perícia: Extremo, Bom, Normal, Falha
+                if (d === 20) {
+                    res = ["CRÍTICO", "var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"];
+                } else if (d >= m.e && m.e != 99) {
+                    res = ["EXTREMO", "var(--accent-yellow)"];
+                } else if (d >= m.b && m.b != 99) {
+                    res = ["BOM", "var(--accent-blue)"];
+                } else if (d >= m.n) {
+                    res = ["NORMAL", "var(--accent-green)"];
+                } else {
+                    res = ["FALHA", "var(--accent-red)"];
+                }
+            }
             showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
         }
     }
@@ -1406,7 +1437,8 @@
         let skillObj = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_") === sn);
         if(!skillObj) { skillObj = periciasBase.find(p => p.nome === "Luta"); } 
         
-        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod); 
+        // Passa TRUE no último parâmetro para ativar a lógica de arma
+        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod, true); 
     }
 
     function rolarDanoArma(id) { 
@@ -1651,7 +1683,7 @@
                     <span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span>
                 </div>
                 <div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;">
-                    <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod})" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;">
+                    <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;">
                         <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);">
                     </button>
                 </div>
