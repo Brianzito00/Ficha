@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
+        /* Importação da fonte do Ordem Paranormal para os Dados */
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
         :root {
@@ -113,13 +114,13 @@
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
         
-        /* ESTILOS DO POPUP DE DADOS ATUALIZADOS */
-        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
+        /* ESTILOS DO POPUP DE DADOS CENTRALIZADOS COM A FONTE DO ORDEM */
+        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.5), 2px 2px 4px #000; line-height: 1; margin-bottom: 5px; }
-        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 90%; }
+        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin-bottom: 5px; }
+        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
@@ -1285,7 +1286,10 @@
         
         let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
-        let resEl = document.getElementById('popup-res'); resEl.innerHTML = r; resEl.style = st;
+        let resEl = document.getElementById('popup-res'); 
+        resEl.innerHTML = r; 
+        // O style (st) agora deve ser passado como propriedade ou atribuido mantendo as regras css
+        resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
         
         if (r.includes('CRÍTICO')) {
             box.style.animation = 'shakeCrit 0.4s infinite'; 
@@ -1395,31 +1399,31 @@
 
             if (d === 1) {
                 textFormat = "DESASTRE";
-                colorFormat = "color:#ff5252; font-weight:bold;";
+                colorFormat = "color:#ff5252; font-weight:bold; text-shadow: 2px 2px 4px #000;";
             } else {
                 allDesastre = false;
                 if (isCrit && eArma) {
                     textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
+                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
                 } else if (eArma) {
                     textFormat = d >= m.n ? "ACERTO" : "FALHA";
-                    colorFormat = d >= m.n ? "color:var(--accent-green)" : "color:var(--accent-red)";
+                    colorFormat = d >= m.n ? "color:var(--accent-green); text-shadow: 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
                 } else {
                     if (d === 20) {
                         textFormat = "CRÍTICO";
-                        colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
+                        colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
                     } else if (d >= m.e && m.e != 99) {
                         textFormat = "EXTREMO";
-                        colorFormat = "color:var(--accent-yellow)";
+                        colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;";
                     } else if (d >= m.b && m.b != 99) {
                         textFormat = "BOM";
-                        colorFormat = "color:var(--accent-blue)";
+                        colorFormat = "color:var(--accent-blue); text-shadow: 2px 2px 4px #000;";
                     } else if (d >= m.n) {
                         textFormat = "NORMAL";
-                        colorFormat = "color:var(--accent-green)";
+                        colorFormat = "color:var(--accent-green); text-shadow: 2px 2px 4px #000;";
                     } else {
                         textFormat = "FALHA";
-                        colorFormat = "color:var(--accent-red)";
+                        colorFormat = "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
                     }
                 }
             }
@@ -1427,23 +1431,27 @@
             if (numAttacks > 1) {
                 resultsArray.push(`<span style="${colorFormat}">${d} (${textFormat})</span>`);
             } else {
-                showPopup(d, n + " (" + textFormat + ")", colorFormat);
+                if(d === 1) {
+                    showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
+                } else {
+                    showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
+                }
             }
         }
 
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0;">` 
-                + resultsArray.map((r, idx) => `<div><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
+            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0; width: 100%;">` 
+                + resultsArray.map((r, idx) => `<div style="text-align:center; width:100%;"><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
                 + `</div>`;
             
             let actionText = anyCrit ? "ATAQUE MÚLTIPLO<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "ATAQUE MÚLTIPLO";
             if (allDesastre) actionText = "ATAQUE MÚLTIPLO<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
             
-            let combinedHtml = `${actionText}<div style="margin-top:15px;">${finalHtml}</div>`;
+            let combinedHtml = `${actionText}<div style="margin-top:15px; width:100%; display:flex; justify-content:center;">${finalHtml}</div>`;
             
-            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0;");
+            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0; text-align:center;");
         }
     }
 
@@ -1476,15 +1484,15 @@
             const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0;
             if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
             
-            let title = isCrit ? "DANO CRÍTICO (" + wp.name + ")" : "DANO (" + wp.name + ")"; 
-            let color = isCrit ? "color: #ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 2px 2px 0px #000;" : "color: var(--accent-red)";
+            let title = isCrit ? `DANO CRÍTICO<br>(${wp.name})` : `DANO<br>(${wp.name})`; 
+            let color = isCrit ? "color: #ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 2px 2px 0px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
             showPopup(t, title, color);
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
         lastAttackWasCrit = false; 
     }
 
     function rolarDadoPersonalizado() {
-        document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "Personalizado", "color:white");
+        document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white");
     }
 
     function toggleTrained(sn) { document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); updateAllPericias(); }
@@ -1702,7 +1710,7 @@
             let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`;
             if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`;
             if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-            const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+            const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
             addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || "");
         });
         
