@@ -117,7 +117,19 @@
         .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-
+        @keyframes shakeCrit {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-2deg); }
+            20% { transform: translate(-3px, 0px) rotate(2deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(-1px, 2px) rotate(-2deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-2deg); }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-2deg); }
+        }
         @media (max-width: 768px) {
             body { padding: 10px; }
             .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
@@ -1313,6 +1325,18 @@
         let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
         let resEl = document.getElementById('popup-res'); resEl.innerHTML = r; resEl.style = st;
+        
+        // --- EFEITO ESPECIAL DE CRÍTICO ---
+        if (r.includes('CRÍTICO')) {
+            box.style.animation = 'shakeCrit 0.4s infinite'; // Faz a caixa tremer!
+            box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; // Brilho vermelho intenso
+            box.style.borderColor = '#ff0000';
+        } else {
+            box.style.animation = 'none';
+            box.style.boxShadow = 'none';
+            box.style.borderColor = 'var(--accent-yellow)';
+        }
+
         document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
         setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
 
@@ -1348,16 +1372,15 @@
         // 1. REGRA UNIVERSAL DO DESASTRE
         if (d === 1) {
             showPopup(d, n + " (DESASTRE)", "color:#ff5252; font-weight:bold");
-            return; // Para aqui e não faz mais nada
+            return;
         }
         
-        // 2. SE FOR UM ATAQUE COM ARMA (LUTA OU PONTARIA)
+        // 2. SE FOR UM ATAQUE COM ARMA
         if (eArma) {
             let isCrit = false;
             let numAttacks = 1;
             const sel = document.getElementById('active-weapon-select');
             
-            // Vai buscar as infos da arma ativa para saber a margem de crítico
             if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) {
                 const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id;
                 const wp = equippedWeaponsData.find(w => w.id === wpId);
@@ -1371,7 +1394,6 @@
             }
             lastAttackWasCrit = isCrit || d === 20;
 
-            // Se a arma dá vários tiros/ataques de uma vez
             if (numAttacks > 1) {
                 let results = []; let anyCrit = false;
                 for(let i=0; i<numAttacks; i++) {
@@ -1390,7 +1412,7 @@
                     if (rd === 1) {
                         results.push(`<span style="color:#ff5252; font-weight:bold;">${rd} (DESASTRE)</span>`);
                     } else if (isThisCrit || rd === 20) { 
-                        results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); 
+                        results.push(`<span style="color:#ffcf33; text-shadow: 0 0 5px #ff0000; font-weight:bold;">${rd} (CRÍTICO)</span>`); 
                     } else {
                         let rm = tabelaD20[f>20?20:f<1?1:f];
                         let lbl = rd >= rm.n ? "ACERTO" : "FALHA";
@@ -1400,12 +1422,15 @@
                 }
                 lastAttackWasCrit = anyCrit;
                 let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
-                showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
+                
+                // Se algum tiro foi crítico, o título avisa e treme!
+                let actionText = anyCrit ? "Ataque (CRÍTICO!)" : "Ataque Múltiplo";
+                showPopup(numAttacks + "x", actionText, "color:white; margin-top:0;");
             } 
-            // Se for só 1 ataque normal da arma
             else {
                 if (lastAttackWasCrit) { 
-                    showPopup(d, n + " (CRÍTICO)", "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"); 
+                    // NOVO VISUAL DO CRÍTICO: Amarelo vibrante com sombra vermelha
+                    showPopup(d, n + " (CRÍTICO)", "color:#ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000, 2px 2px 0px #000;"); 
                 } else { 
                     let res = d >= m.n ? ["ACERTO", "var(--accent-green)"] : ["FALHA", "var(--accent-red)"]; 
                     showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
@@ -1413,7 +1438,7 @@
             }
         } 
         
-        // 3. SE FOR ROLAGEM DE PERÍCIA (SEM ARMAS)
+        // 3. SE FOR ROLAGEM DE PERÍCIA
         else {
             let res;
             if (d >= m.e && m.e != 99) {
@@ -1458,8 +1483,10 @@
         try {
             const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0;
             if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
+            
             let title = isCrit ? "DANO CRÍTICO (" + wp.name + ")" : "DANO (" + wp.name + ")"; 
-            let color = isCrit ? "color: var(--accent-yellow)" : "color: var(--accent-red)";
+            // Dano do Crítico também treme a caixa e tem cor diferente!
+            let color = isCrit ? "color: #ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 2px 2px 0px #000;" : "color: var(--accent-red)";
             showPopup(t, title, color);
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
         lastAttackWasCrit = false; 
