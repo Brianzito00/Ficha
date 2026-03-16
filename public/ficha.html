@@ -2,431 +2,1748 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha do Jogador - Ordem Paranormal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
         :root {
-            --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85);
+            --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
             --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
+            --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
         body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover; background-attachment: fixed; color: var(--text-primary);
-            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .ficha-container {
-            width: 100%; max-width: 900px; background: var(--bg-card); border: 2px solid var(--border-color);
-            border-radius: 12px; padding: 25px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-        }
-
-        .top-bar {
-            display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px; margin-bottom: 20px;
-        }
-
-        .player-code-display { font-size: 1.5em; font-weight: 900; color: var(--accent-blue); text-transform: uppercase; }
+        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
+        .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         
-        .btn-action { background: var(--accent-green); color: black; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        .btn-action:hover { filter: brightness(1.2); }
-        .btn-logout { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); }
-        .btn-logout:hover { background: rgba(229, 57, 53, 0.1); }
-
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.8em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; }
-        .form-input { padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; border-radius: 6px; font-size: 1em; }
-
-        /* Barras de Status */
-        .status-box { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; margin-bottom: 20px;}
-        .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .status-row h3 { margin: 0; width: 100px; font-size: 1.1em; }
-        .bar-container { flex: 1; background: #000; height: 30px; border-radius: 6px; position: relative; overflow: hidden; border: 1px solid #555; }
-        .bar-fill { height: 100%; transition: width 0.3s; }
-        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
-        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
-        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; line-height: 30px; font-weight: bold; text-shadow: 1px 1px 2px black; }
-        .btn-status { width: 35px; height: 35px; background: #333; color: white; border: 1px solid #555; border-radius: 6px; cursor: pointer; font-size: 1.2em; font-weight: bold; }
-
-        /* Atributos */
-        .attr-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 25px; }
-        .attr-box { flex: 1; background: rgba(0,0,0,0.5); border: 2px solid #444; border-radius: 12px; padding: 10px; text-align: center; }
-        .attr-lbl { display: block; font-size: 0.9em; font-weight: bold; color: var(--text-secondary); margin-bottom: 5px; }
-        .attr-input { width: 100%; text-align: center; background: transparent; border: none; color: white; font-size: 2em; font-weight: 900; outline: none; }
-
-        /* Perícias e Botões */
-        .skills-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .btn-roll { background: rgba(32, 32, 36, 0.9); border: 1px solid var(--accent-blue); color: white; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1em; text-transform: uppercase;}
-        .btn-roll:hover { background: var(--accent-blue); color: black; }
+        .tabs-nav { display: flex; gap: 10px; width: auto; }
+        .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; transition: 0.3s; backdrop-filter: blur(8px); margin: 0; }
+        .tab-btn.active { background: var(--accent-blue); color: #000; border-color: var(--accent-blue); }
         
-        .skill-group { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
-        .skill-group label { flex: 1; font-size: 0.85em; cursor: pointer; }
-        .skill-bonus { width: 40px; text-align: center; padding: 5px; background: #111; border: 1px solid #444; color: white; border-radius: 4px; }
+        .main-container { width: 100%; max-width: 1300px; display: none; }
+        .main-container.active { display: block; }
+        
+        .columns-wrapper { display: flex; gap: 20px; align-items: flex-start; }
+        .panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-card); margin-bottom: 20px; backdrop-filter: blur(8px); }
+        .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
 
-        /* POPUP DE DADOS */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
-        .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
+        .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
+
+        /* BARRAS DE STATUS */
+        .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
+        .status-box { background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); padding: 10px; border-radius: 8px; text-align: center; }
+        .status-header { margin-bottom: 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
+        .status-controls { display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 10px; }
+        .status-btn { background: rgba(30, 30, 35, 0.9); border: 2px solid var(--border-color); color: white; border-radius: 6px; width: 30px; height: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .status-btn:hover { background: rgba(60, 60, 65, 1); border-color: var(--accent-blue); transform: scale(1.05); }
+        .status-btn:active { transform: scale(0.95); }
+        .status-bar-container { position: relative; flex: 1; height: 30px; background: rgba(0,0,0,0.8); border-radius: 6px; border: 2px solid #222; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+        .status-bar-fill { height: 100%; width: 100%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); box-shadow: 0 0 10px rgba(229, 57, 53, 0.5); }
+        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); box-shadow: 0 0 10px rgba(0, 176, 255, 0.5); }
+        .status-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; gap: 5px; font-weight: 900; font-size: 1em; text-shadow: 1px 1px 2px black, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+        .status-input { background: transparent; border: none; color: white; text-align: center; font-weight: 900; font-size: 1em; width: 40px; outline: none; text-shadow: inherit; pointer-events: auto; }
+        .status-input:focus { border-bottom: 2px solid white; }
+        .status-input::-webkit-outer-spin-button, .status-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .status-input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+
+        .status-toggles-container { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        .status-toggle { background: rgba(0,0,0,0.5); border: 1px solid #444; color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; font-size: 0.65em; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .status-toggle:hover { border-color: #888; color: white; }
+        .status-toggle.active-lesionado { background: rgba(229, 57, 53, 0.4); border-color: var(--accent-red); color: white; }
+        .status-toggle.active-inconsciente { background: rgba(150, 0, 0, 0.6); border-color: #ff5252; color: white; }
+        .status-toggle.active-morrendo { background: var(--accent-red); border-color: #fff; color: white; animation: pulseRed 1.5s infinite; }
+        .status-toggle.active-enlouquecendo { background: rgba(0, 176, 255, 0.6); border-color: #fff; color: white; animation: pulseBlue 1.5s infinite; }
+
+        @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 12px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
+        @keyframes pulseBlue { 0% { box-shadow: 0 0 2px var(--accent-blue); } 50% { box-shadow: 0 0 12px var(--accent-blue); } 100% { box-shadow: 0 0 2px var(--accent-blue); } }
+
+        /* ATRIBUTOS E PERÍCIAS */
+        .attr-box { background: var(--bg-input); padding: 12px; border-radius: 10px; border: 1px solid rgba(51, 51, 51, 0.5); margin-bottom: 15px; text-align: center; }
+        .attr-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--accent-yellow); color: white; text-align: center; font-size: 1.5em; font-weight: 900; }
+        .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .skill-card { background: rgba(25, 25, 27, 0.7); border: 1px solid rgba(45, 45, 48, 0.8); border-radius: 8px; padding: 10px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .skill-card:hover { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.05); }
+        .skill-card.trained { border-color: var(--accent-yellow); background: rgba(255, 207, 51, 0.05); }
+        .skill-card.trained:hover { border-color: var(--accent-yellow); filter: brightness(1.2); }
+        .skill-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .skill-targets { display: flex; justify-content: center; gap: 10px; font-size: 0.68em; background: rgba(10, 10, 11, 0.7); padding: 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-weight: bold; margin-top: 8px; pointer-events: none; }
+        .target-n { color: var(--accent-green); } .target-b { color: var(--accent-blue); } .target-e { color: var(--accent-yellow); }
+
+        .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; }
+        .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
+        .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+
+        .weight-container { background: rgba(18, 18, 20, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(51, 51, 51, 0.5); }
+        .weight-bar-bg { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; overflow: hidden; margin-top: 8px; border: 1px solid #222; }
+        .weight-bar-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: 0.5s; }
+        .weight-bar-fill.overweight { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+
+        .ammo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .ammo-box label { display: block; font-size: 0.7em; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+
+        .inv-table { width: 100%; border-collapse: collapse; }
+        .inv-row-main { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(45, 45, 48, 0.8); }
+        .inv-row-main:hover { background: rgba(42, 42, 46, 0.8); }
+        .inv-table th { color: var(--text-secondary); font-size: 0.8em; text-align: left; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .inv-table td { padding: 12px 10px; }
+        
+        .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; transition: 0.2s; }
+        .btn-add:hover { filter: brightness(1.2); }
+        .btn-del { background: var(--accent-red); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-weight: bold; transition: 0.2s; }
+        .btn-del:hover { filter: brightness(1.2); }
+        .item-equipped { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-yellow); margin-right: 8px; }
+        .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
+        .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
+        .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; }
+        .ritual-btn:hover { filter: brightness(1.2); }
+
+        .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
+        .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
+        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
         .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
-        @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         
-        #save-status { font-size: 0.8em; color: var(--text-secondary); font-style: italic; margin-left: 10px; }
+        @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
+            .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; }
+            .columns-wrapper { flex-direction: column; }
+            .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; }
+            .char-info-wrapper { flex-direction: column; }
+            .status-grid { grid-template-columns: 1fr; gap: 10px; }
+            .ammo-grid { grid-template-columns: repeat(2, 1fr); }
+            .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
+            .popup-box-dice { width: 95%; height: 300px; }
+            .popup-grid { grid-template-columns: 1fr; }
+            .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; }
+            .inv-input { font-size: 16px; } 
+        }
     </style>
 </head>
 <body>
 
-    <div class="ficha-container">
+<div class="top-bar">
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="openTab('tab-personagem', this)">Personagem</button>
+        <button class="tab-btn" onclick="openTab('tab-inventario', this)">Inventário</button>
+        <button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button>
+    </div>
+    <div class="top-buttons" id="main-top-buttons">
+        <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">
+            JOGADOR: <span id="display-player-code" style="color: white; letter-spacing: 2px; font-size: 1.1em; margin-left: 5px;">----</span>
+            <span id="save-status" style="font-size: 0.7em; color: var(--text-secondary); margin-left: 15px; font-style: italic;">A aguardar...</span>
+        </div>
+        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button>
+        <label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin: 0; display: flex; align-items: center;" title="Carregar ficheiro .json">
+            📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)">
+        </label>
+        <button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao login">Sair (Logout)</button>
+    </div>
+</div>
+
+<div id="popup-new-item" class="popup-overlay">
+    <div class="popup-box" style="width: 550px;" onclick="event.stopPropagation()">
+        <h3 id="popup-new-item-title" style="color: var(--accent-green); margin-top: 0; text-align: center;">Adicionar ao Inventário</h3>
         
-        <div class="top-bar">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="player-code-display" id="display-player-code">CARREGANDO...</div>
-                <span id="save-status">A aguardar alterações...</span>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button id="btn-type-item" class="tab-btn active" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('item')">Item Comum</button>
+            <button id="btn-type-armacc" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('armacc')">Arma (Corpo)</button>
+            <button id="btn-type-armadisp" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('armadisp')">Arma (Disparo)</button>
+        </div>
+        <input type="hidden" id="new-item-type" value="item">
+        
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            
+            <div id="generic-item-fields">
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:2;"><label style="font-size:0.8em; color:var(--text-secondary)">NOME DO ITEM/ARMA</label><input type="text" id="new-item-name" class="inv-input" placeholder="Ex: Espada Curta"></div>
+                    <div style="flex:1;"><label style="font-size:0.8em; color:var(--text-secondary)">ESPAÇOS</label><input type="number" id="new-item-weight" class="inv-input" value="1" step="1" min="0"></div>
+                </div>
+                <div style="margin-top: 15px;"><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM (OPCIONAL)</label><input type="text" id="new-item-img" class="inv-input" placeholder="Cole o link da imagem aqui..."></div>
             </div>
-            <div id="main-top-buttons" style="display: flex; gap: 10px;">
-                <button class="btn-action" id="btn-salvar" onclick="save()">💾 Salvar</button>
-                <button class="btn-action btn-logout" id="btn-logout" onclick="fazerLogout()">Sair (Logout)</button>
+
+            <div id="fields-comum"><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label><textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea></div>
+            
+            <div id="fields-arma" class="popup-grid" style="display:none;">
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">TIPO DE ATAQUE</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Corpo a corpo"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">QTD. ATAQUES</label><input type="number" id="wp-atk" class="inv-input" value="1" min="1"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="1d8+2"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" placeholder="19/x2"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">ALCANCE</label><input type="text" id="wp-range" class="inv-input" placeholder="Curto"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">MUNIÇÃO</label><select id="wp-ammo" class="inv-input" style="padding: 7px; color: #fff;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">CAPACIDADE (BALAS)</label><input type="number" id="wp-capacity" class="inv-input" value="6" min="1"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">PERÍCIA</label><input type="text" id="wp-skill" class="inv-input" placeholder="Luta..."></div>
+                <div style="grid-column: span 2;"><label style="font-size:0.7em; color:var(--text-secondary)">DANO EXTRA</label><input type="text" id="wp-extra" class="inv-input" placeholder="+1d6 Fogo"></div>
+            </div>
+
+            <div id="fields-item-catalog" style="display:none;">
+                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique num item para adicioná-lo diretamente à sua mochila.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="item-grid-container">
+                </div>
+            </div>
+
+            <div id="fields-armacc-catalog" style="display:none;">
+                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armacc-grid-container">
+                </div>
+            </div>
+
+            <div id="fields-armadisp-catalog" style="display:none;">
+                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armadisp-grid-container">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <button class="btn-add" id="btn-confirm-add-item" style="flex:1; margin:0;" onclick="confirmAddItem()">ADICIONAR</button>
+                <button class="btn-del" style="flex:1;" onclick="closeItemPopup()">CANCELAR</button>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="grid-info">
-            <div class="form-group"><label>Nome do Personagem</label><input type="text" id="char_nome" class="form-input" placeholder="Ex: Arthur Cervero"></div>
-            <div class="form-group"><label>Ocupação / Classe</label><input type="text" id="char_ocupacao" class="form-input" placeholder="Ex: Combatente"></div>
-            <div class="form-group"><label>Nível de Exposição (NEX %)</label><input type="number" id="char_nex" class="form-input" placeholder="5"></div>
-            <div class="form-group"><label>Defesa</label><input type="number" id="defense_val" class="form-input" placeholder="10"></div>
+<div id="popup-item-info" class="popup-overlay" onclick="closeItemInfo()">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 id="info-general-name" style="margin-top: 0; text-align: center; text-transform: uppercase;">Nome Item</h3>
+        <img id="info-general-img" src="" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:8px; display:none; border: 1px solid var(--border-color);">
+        <div id="info-general-details" style="color:var(--text-primary); font-size:0.95em; line-height: 1.5;"></div>
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue); color: black;" onclick="openEditItemPopup()">✏️ EDITAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeItemInfo()">FECHAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="popup-new-ability" class="popup-overlay">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 style="color: var(--accent-green); margin-top: 0; text-align: center;">Nova Habilidade</h3>
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">NOME DA HABILIDADE</label><input type="text" id="new-ability-name" class="inv-input" placeholder="Ex: Ataque Especial"></div>
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO</label><textarea id="new-ability-desc" class="inv-input" style="height:100px; resize:none;" placeholder="Descreva os efeitos da habilidade..."></textarea></div>
+            <div style="display:flex; gap:10px; margin-top:5px;"><button class="btn-add" style="flex:1; margin:0;" onclick="confirmAddAbility()">ADICIONAR</button><button class="btn-del" style="flex:1;" onclick="closeAbilityPopup()">CANCELAR</button></div>
+        </div>
+    </div>
+</div>
+
+<div id="popup-new-ritual" class="popup-overlay">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 style="color: var(--accent-purple); margin-top: 0; text-align: center;">Aprender Ritual</h3>
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:2;"><label style="font-size:0.8em; color:var(--text-secondary)">NOME DO RITUAL</label><input type="text" id="rit-name" class="inv-input" placeholder="Ex: Decadência"></div>
+                <div style="flex:1;"><label style="font-size:0.8em; color:var(--text-secondary)">CÍRCULO</label><select id="rit-circ" class="inv-input"><option value="1º">1º</option><option value="2º">2º</option><option value="3º">3º</option><option value="4º">4º</option></select></div>
+            </div>
+            <div>
+                <label style="font-size:0.8em; color:var(--text-secondary)">ELEMENTO</label>
+                <select id="rit-elem" class="inv-input">
+                    <option value="Conhecimento">Conhecimento</option><option value="Energia">Energia</option><option value="Medo">Medo</option><option value="Morte">Morte</option><option value="Sangue">Sangue</option>
+                </select>
+            </div>
+            <div class="popup-grid">
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">EXECUÇÃO</label><input type="text" id="rit-exec" class="inv-input" placeholder="Ex: Padrão"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">ALCANCE</label><input type="text" id="rit-range" class="inv-input" placeholder="Ex: Curto"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">ALVO / ÁREA</label><input type="text" id="rit-target" class="inv-input" placeholder="Ex: 1 Ser"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary)">DURAÇÃO</label><input type="text" id="rit-dur" class="inv-input" placeholder="Ex: Instantânea"></div>
+                <div style="grid-column: span 2;"><label style="font-size:0.7em; color:var(--text-secondary)">RESISTÊNCIA</label><input type="text" id="rit-res" class="inv-input" placeholder="Ex: Fortitude reduz à metade"></div>
+            </div>
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM (OPCIONAL)</label><input type="text" id="rit-img" class="inv-input" placeholder="Cole o link da imagem aqui..."></div>
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO GERAL</label><textarea id="rit-desc-geral" class="inv-input" style="height:50px; resize:none;" placeholder="Efeito base do ritual..."></textarea></div>
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">DISCENTE</label><textarea id="rit-desc-discente" class="inv-input" style="height:45px; resize:none;" placeholder="Efeito discente (+ PE)..."></textarea></div>
+            <div><label style="font-size:0.8em; color:var(--text-secondary)">VERDADEIRO</label><textarea id="rit-desc-verdadeiro" class="inv-input" style="height:45px; resize:none;" placeholder="Efeito verdadeiro (+ PE)..."></textarea></div>
+            <div style="display:flex; gap:10px; margin-top:5px;"><button class="btn-add" style="flex:1; margin:0;" onclick="confirmAddRitual()">ADICIONAR</button><button class="btn-del" style="flex:1;" onclick="closeRitualPopup()">CANCELAR</button></div>
+        </div>
+    </div>
+</div>
+
+<div id="popup-ritual-info" class="popup-overlay" onclick="closeRitualInfo()">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 id="info-rit-name" style="margin-top: 0; text-align: center; text-transform: uppercase;">Nome Ritual</h3>
+        <img id="info-rit-img" src="" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:8px; display:none; border: 1px solid var(--border-color);">
+        <div id="info-rit-details" style="color:var(--text-primary); font-size:0.95em; line-height: 1.5;"></div>
+        <button class="btn-del" style="width:100%; margin-top:20px; padding:12px; border-radius:6px; background:#333;" onclick="closeRitualInfo()">FECHAR</button>
+    </div>
+</div>
+
+<div id="popup-char-imgs" class="popup-overlay" onclick="closeCharImgPopup()">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 style="color: var(--accent-blue); margin-top: 0; text-align: center;">Fotos de Status do Personagem</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">NORMAL</label><input type="text" id="img-normal" class="inv-input" placeholder="URL da foto normal..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input" placeholder="URL da foto lesionado..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input" placeholder="URL da foto inconsciente..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">MORRENDO</label><input type="text" id="img-morrendo" class="inv-input" placeholder="URL da foto morrendo..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" placeholder="URL da foto enlouquecendo..."></div>
+            <div><label style="font-size:0.7em; color:var(--accent-yellow); font-weight:bold;">LESIONADO + ENLOUQUECENDO</label><input type="text" id="img-les-enlouq" class="inv-input" placeholder="URL da foto combinada..."></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue);" onclick="saveCharImgPopup()">SALVAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeCharImgPopup()">FECHAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="popup-skill-info" class="popup-overlay" onclick="closeSkillPopup()">
+    <div class="popup-box" onclick="event.stopPropagation()">
+        <h3 id="popup-skill-name" style="color: var(--accent-blue); margin-top: 0; text-align: center; text-transform: uppercase;">Nome Perícia</h3>
+        
+        <div style="background: rgba(255, 207, 51, 0.1); border: 1px solid var(--accent-yellow); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px;">
+            <input type="checkbox" id="popup-skill-trained" style="width: 20px; height: 20px; accent-color: var(--accent-yellow); cursor: pointer;" onchange="updateSkillPopupCalc()">
+            <label for="popup-skill-trained" style="font-weight: bold; color: var(--accent-yellow); cursor: pointer; text-transform: uppercase; font-size: 0.9em;">Treinada (+10)</label>
         </div>
 
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 12px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color);">
+            <span style="color: var(--text-secondary); font-size: 0.85em; font-weight: bold;">NATURAL (<span id="popup-skill-attr-name"></span>)</span>
+            <span id="popup-skill-natural" style="color: var(--accent-green); font-size: 1.2em; font-weight: bold;">0</span>
+        </div>
+
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color);">
+            <span style="color: var(--text-secondary); font-size: 0.85em; font-weight: bold;">BÔNUS EXTRA</span>
+            <input type="number" id="popup-skill-bonus" class="inv-input" style="width: 60px; text-align: center; font-size: 1.2em; font-weight: bold; background: transparent; padding: 0; border: none; border-bottom: 2px solid var(--accent-blue);" value="0" oninput="updateSkillPopupCalc()">
+        </div>
+
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: rgba(0, 176, 255, 0.1); border-radius: 8px; border: 1px solid var(--accent-blue);">
+            <span style="color: white; font-size: 1em; font-weight: bold;">TOTAL</span>
+            <span id="popup-skill-total" style="color: var(--accent-blue); font-size: 1.8em; font-weight: 900;">0</span>
+        </div>
+
+        <input type="hidden" id="popup-skill-sn">
+        <input type="hidden" id="popup-skill-attr">
+        <input type="hidden" id="popup-skill-mod">
+
+        <div style="display:flex; gap:10px;">
+            <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue);" onclick="saveSkillPopup()">SALVAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeSkillPopup()">FECHAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="popup-input-dice" class="popup-overlay" onclick="this.style.display='none'">
+    <div class="popup-box" style="width:350px; text-align:center;" onclick="event.stopPropagation()">
+        <h3 style="color: var(--accent-blue);">Rolar Dados</h3>
+        <input type="text" id="custom_dice_formula" class="inv-input" style="font-size: 1.2em; text-align:center; margin-bottom:20px;" placeholder="Ex: 2d10 + 5">
+        <button onclick="rolarDadoPersonalizado()" style="background:var(--accent-blue); border:none; color:black; width:100%; padding:12px; border-radius:6px; font-weight:bold; cursor:pointer;">ROLAR</button>
+    </div>
+</div>
+<div id="popup-dice" class="popup-overlay" onclick="closeDice()">
+    <div class="popup-box-dice">
+        <div id="popup-content" class="popup-content">
+            <div id="popup-num" class="popup-number">00</div>
+            <div id="popup-res" class="popup-res">RESULTADO</div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-personagem" class="main-container active">
+    
+    <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-title">Informações do Personagem</div>
+        
+        <div class="char-info-wrapper">
+            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <img id="char_img_display" src="https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            </div>
+
+            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
+                <div>
+                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label>
+                    <select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><script>for(let i=0; i<=95; i+=5) document.write(`<option value="${i}">${i}</option>`); document.write(`<option value="99">99</option>`);</script></select>
+                </div>
+                <div>
+                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label>
+                    <select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()">
+                        <option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option>
+                    </select>
+                </div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-grid">
         <div class="status-box">
-            <div class="status-row">
-                <h3 style="color: var(--accent-red);">VIDA</h3>
-                <button class="btn-status" onclick="alterarStatus('vida', -1)">-</button>
-                <div class="bar-container">
-                    <div class="bar-fill fill-vida" id="bar-vida" style="width: 100%;"></div>
-                    <div class="bar-text">
-                        <input type="number" id="vida_atual" value="10" style="width: 40px; background: transparent; border: none; color: white; font-weight: bold; text-align: right;" onchange="atualizarBarras()"> / 
-                        <input type="number" id="vida_max" value="10" style="width: 40px; background: transparent; border: none; color: white; font-weight: bold;" onchange="atualizarBarras()">
-                    </div>
+            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
                 </div>
-                <button class="btn-status" onclick="alterarStatus('vida', 1)">+</button>
+                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
             </div>
-            
-            <div class="status-row">
-                <h3 style="color: var(--accent-blue);">SANIDADE</h3>
-                <button class="btn-status" onclick="alterarStatus('sani', -1)">-</button>
-                <div class="bar-container">
-                    <div class="bar-fill fill-sani" id="bar-sani" style="width: 100%;"></div>
-                    <div class="bar-text">
-                        <input type="number" id="sani_atual" value="10" style="width: 40px; background: transparent; border: none; color: white; font-weight: bold; text-align: right;" onchange="atualizarBarras()"> / 
-                        <input type="number" id="sani_max" value="10" style="width: 40px; background: transparent; border: none; color: white; font-weight: bold;" onchange="atualizarBarras()">
-                    </div>
-                </div>
-                <button class="btn-status" onclick="alterarStatus('sani', 1)">+</button>
+            <div class="status-toggles-container">
+                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
+                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
+                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
             </div>
         </div>
-
-        <h3 style="color: var(--accent-yellow); margin-top: 0;">ATRIBUTOS</h3>
-        <div class="attr-container">
-            <div class="attr-box"><span class="attr-lbl">AGI</span><input type="number" id="attr_agi" class="attr-input" value="1"></div>
-            <div class="attr-box"><span class="attr-lbl">FOR</span><input type="number" id="attr_for" class="attr-input" value="1"></div>
-            <div class="attr-box"><span class="attr-lbl">INT</span><input type="number" id="attr_int" class="attr-input" value="1"></div>
-            <div class="attr-box"><span class="attr-lbl">PRE</span><input type="number" id="attr_pre" class="attr-input" value="1"></div>
-            <div class="attr-box"><span class="attr-lbl">VIG</span><input type="number" id="attr_vig" class="attr-input" value="1"></div>
-        </div>
-
-        <h3 style="color: var(--accent-yellow); margin-top: 0;">PERÍCIAS PRINCIPAIS</h3>
-        <div class="skills-grid">
-            <button class="btn-roll" onclick="rolarPericia('Iniciativa', 'attr_agi', 'chk_iniciativa', 'skill_iniciativa', 0.50)">⚔️ Iniciativa</button>
-            <button class="btn-roll" onclick="rolarPericia('Percepção', 'attr_pre', 'chk_percepcao', 'skill_percepcao', 0.50)">👁️ Percepção</button>
-            <button class="btn-roll" onclick="rolarPericia('Reflexos', 'attr_agi', 'chk_reflexos', 'skill_reflexos', 0.35)">🏃 Reflexos</button>
-            <button class="btn-roll" onclick="rolarPericia('Vontade', 'attr_pre', 'chk_vontade', 'skill_vontade', 0.50)">🧠 Vontade</button>
-            <button class="btn-roll" onclick="rolarPericia('Luta', 'attr_for', 'chk_luta', 'skill_luta', 0.25)" style="border-color: var(--accent-red); color: var(--accent-red);">🗡️ Luta</button>
-            <button class="btn-roll" onclick="rolarPericia('Pontaria', 'attr_agi', 'chk_pontaria', 'skill_pontaria', 0.45)" style="border-color: var(--accent-red); color: var(--accent-red);">🔫 Pontaria</button>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-            <div class="skill-group"><label><input type="checkbox" id="chk_iniciativa"> Iniciativa (Trein.)</label><input type="number" id="skill_iniciativa" class="skill-bonus" value="0"></div>
-            <div class="skill-group"><label><input type="checkbox" id="chk_percepcao"> Percepção (Trein.)</label><input type="number" id="skill_percepcao" class="skill-bonus" value="0"></div>
-            <div class="skill-group"><label><input type="checkbox" id="chk_reflexos"> Reflexos (Trein.)</label><input type="number" id="skill_reflexos" class="skill-bonus" value="0"></div>
-            <div class="skill-group"><label><input type="checkbox" id="chk_vontade"> Vontade (Trein.)</label><input type="number" id="skill_vontade" class="skill-bonus" value="0"></div>
-            <div class="skill-group"><label><input type="checkbox" id="chk_luta"> Luta (Trein.)</label><input type="number" id="skill_luta" class="skill-bonus" value="0"></div>
-            <div class="skill-group"><label><input type="checkbox" id="chk_pontaria"> Pontaria (Trein.)</label><input type="number" id="skill_pontaria" class="skill-bonus" value="0"></div>
-        </div>
-
-    </div>
-
-    <div id="popup-dice" class="modal-overlay" onclick="closeDice()">
-        <div class="popup-box-dice" onclick="event.stopPropagation()">
-            <div id="popup-content" class="popup-content">
-                <div id="popup-num" class="popup-number">00</div>
-                <div id="popup-res" class="popup-res">RESULTADO</div>
+        <div class="status-box">
+            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
+                </div>
+                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-
-    <script>
-        // ==========================================
-        // 1. CONFIGURAÇÃO INICIAL E LOGIN
-        // ==========================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const viewCode = urlParams.get('view'); // Se tiver "?view=NOME" no link, é o Mestre a espreitar
-        let playerCode = localStorage.getItem('usuario_logado');
-
-        // Se não for o Mestre a ver, e o jogador não fez login, expulsa para o Login!
-        if (!viewCode && !playerCode) {
-            window.location.href = '/login.html';
-        }
-
-        // Define o código visualizado no topo
-        document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : "JOGADOR: " + playerCode;
-
-        // Esconde o botão de Logout se for o Mestre
-        if (viewCode) {
-            document.getElementById('btn-logout').style.display = 'none';
-            document.getElementById('btn-salvar').style.display = 'none'; // Opcional: Mestre não precisa de botão salvar
-        }
-
-        let socket = null; 
-        if (typeof io !== 'undefined') {
-            socket = io();
+    <div class="columns-wrapper">
+        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
+        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
+        <div class="panel" style="flex:0 0 250px;">
+            <div class="panel-title">Ações</div>
+            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
+                PERSONALIZAR DADO
+            </button>
+            <div class="defense-box">
+                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
+                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
+            </div>
             
-            // Ouvir atualizações forçadas do Mestre (ex: Mestre clica no "-" da vida no Escudo)
-            socket.on('comando_mestre', (dados) => {
-                const targetCode = viewCode || playerCode;
-                if (dados.codigo === targetCode) {
-                    if (dados.tipo === 'vida') alterarStatus('vida', dados.delta);
-                    if (dados.tipo === 'sani') alterarStatus('sani', dados.delta);
-                }
-            });
+            <div class="equipped-weapons-header">Arma Ativa</div>
+            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
+            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
 
-            // Mestre forçou uma sincronização total
-            socket.on('mestre_force_sync_player', (dados) => {
-                if (!viewCode && dados.codigo === playerCode) {
-                    localStorage.setItem('ordem_save_local', JSON.stringify(dados.fullData));
-                    carregarFicha();
-                }
-            });
-        }
-
-        // ==========================================
-        // 2. MATEMÁTICA E ROLAGENS
-        // ==========================================
-        const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
-
-        function rolarPericia(nomePericia, attrId, checkboxId, bonusId, multiplicador) {
-            const attrVal = parseInt(document.getElementById(attrId).value) || 1;
-            const treinado = document.getElementById(checkboxId).checked;
-            const bonusExtra = parseInt(document.getElementById(bonusId).value) || 0;
-
-            let f = Math.floor(bonusExtra + (attrVal * multiplicador) + (treinado ? 10 : 0));
-            let d = Math.floor(Math.random() * 20) + 1;
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
+            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
+            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
             
-            let fLimit = f > 20 ? 20 : (f < 1 ? 1 : f);
-            let m = tabelaD20[fLimit];
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
+            <div id="learned-rituals-list" style="display:flex; flex-wrap:wrap; gap:5px;">
+                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual aprendido.</div>
+            </div>
+            
+        </div>
+    </div>
+</div>
 
-            let resultadoStr = "FALHA";
-            let cor = "color:var(--accent-red)";
+<div id="tab-inventario" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Mochila e Carga</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
+            </div>
+            <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
+        </div>
+        <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
+        <table class="inv-table">
+            <thead>
+                <tr>
+                    <th style="width:65%;">Inventário (Clique para Detalhes)</th>
+                    <th style="width:15%; text-align:center;">Espaços</th>
+                    <th style="width:20%; text-align:center;">Ação</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <div class="panel-title">Munições</div>
+        <div class="ammo-grid">
+            <div class="ammo-box">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;">
+                <label>Leve / Curta</label>
+                <input type="number" id="ammo_curta" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()">
+            </div>
+            <div class="ammo-box">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;">
+                <label>Longa</label>
+                <input type="number" id="ammo_longa" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()">
+            </div>
+            <div class="ammo-box">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;">
+                <label>Pesada</label>
+                <input type="number" id="ammo_pesada" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()">
+            </div>
+            <div class="ammo-box">
+                <div style="width:100%; height:50px; display:flex; align-items:center; justify-content:center; color:var(--accent-yellow); font-size:2em; margin-bottom:5px;">★</div>
+                <label>Especial</label>
+                <input type="number" id="ammo_especial" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()">
+            </div>
+        </div>
+    </div>
+</div>
 
-            if (d === 20) {
-                resultadoStr = "CRÍTICO";
-                cor = "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red);";
-            } else if (d >= m.e && m.e != 99) {
-                resultadoStr = "EXTREMO";
-                cor = "color:var(--accent-yellow)";
-            } else if (d >= m.b && m.b != 99) {
-                resultadoStr = "BOM";
-                cor = "color:var(--accent-blue)";
-            } else if (d >= m.n) {
-                resultadoStr = "NORMAL";
-                cor = "color:var(--accent-green)";
+<div id="tab-rituais" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Grimório e Conhecimento</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
+        </div>
+        <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Novo Ritual</button>
+        <table class="inv-table">
+            <thead><tr><th style="width:75%;">Ritual (Clique para Detalhes)</th><th style="width:15%; text-align:center;">Elemento</th><th style="width:10%; text-align:center;">Ação</th></tr></thead>
+            <tbody id="rituals-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
+<script>
+    // ==========================================
+    // 1. CONFIGURAÇÃO INICIAL (FIREBASE E LOGIN)
+    // ==========================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewCode = urlParams.get('view'); 
+    let playerCode = localStorage.getItem('usuario_logado'); // Mudança para Firebase
+
+    // Redireciona para o login se não for o mestre a ver e não estiver logado
+    if (!playerCode && !viewCode) {
+        window.location.href = '/login.html';
+    }
+    
+    document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : playerCode;
+
+    // Função de Logout
+    function fazerLogout() {
+        localStorage.removeItem('usuario_logado');
+        localStorage.removeItem('ordem_save_local');
+        window.location.href = '/login.html';
+    }
+
+    let socket = null;
+    if (typeof io !== 'undefined') socket = io();
+
+    let isLoadingData = false;
+    let currentViewedItemId = null; 
+    let editingItemId = null; 
+
+    const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
+    const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
+    let equippedWeaponsData = [];
+    let currentOccupation = "Nenhuma";
+    let lastAttackWasCrit = false;
+
+    let charImages = { normal: '', lesionado: '', inconsciente: '', morrendo: '', enlouquecendo: '', les_enlouq: '' };
+    let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
+
+    const imgDict = {
+        'espada da ordem': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEju5bkRj--vXSVBbQ5BQJYn3kVz35QQD1IEf6NDnxI5Ie7eq-S-Sh6YkMr75lWI5Pw9hNlhKdenz9fzAiuiQYWN6hnxNLx9_m-B1XQDFJGwJxjrxLLCeolauP9mvD9YYaYtY9dzTFGJmoLtAKHOYnqe4Z3GCEIIxGeoQEKGsjxv-KIDHJmdnPKlc94AXRwa/s320/Espada%20da%20Ordem.png",
+        'escopeta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhISlyZ5FTMNtk515SBRl7xa4D4yHisGG6vdqr20AA73SJWlk7H6JuN9yha2tLse3MCklAoGYUCT6FQLvsufeXZ_EuoIbHjVH8sk7Nn0PbjclXNcGQbxMZ3kxHQlcmtRuw2ksS_GDOQjP4I_vBVY6sTylIaEWNAe3oNxbz4vguqiLLtZDKHfN0fKdCXf9ZY/s320/ink.png",
+        'soqueira': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpegg79kPPLZvXMLn_PMPUgiJfSMKpEigTxCLDkOhPKNbZsQtMqo_4SrH7JNGmOBIllXi66nizJU6WssMvrt-YgXVA0moMFKjDjmzLVqh6tR0oxocShg7IfYFHjlW25GKJCVTf4OVX2s5ZY-KGiL0qIpYTyPtwd74-48e-BTps3Bx0CMH6FFpLsqBTL91A/s320/Soqueiras.png",
+        'faca': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMy1Auh8lIT4zHxcRwpWhzA_Jk7Qu9_ILzGAJHdi60Rvu4FfUlwWVuzHuu5HXmy0JuVIpRRBJ8xA_0WGbHIHQM_lobrl3ZUA-ZGnlwQLZs4lSGI6stfHfXCyg656-qyN-nOaTLfUwBYTDX6sdWr5XhMPs5Tb6WMM7vdLneEJuWCLm4MuOpiqaQRCw9mLhN/s320/Faca.png",
+        'machado': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIyZF4bFM3yTMs4dPBKxXxt_-eHtSgDntPZqRc9CwWYWlCZtLyLdjTi63qCcRed-m5Ddcd4KZi5fo2guDyBGXk3B35X1lFpfJOTtNptON_eitnfUihUVehba86gRmsuD7JDSkucRcvo2cJJHAJzxDEadm6lCBwgSTNCMV4XvNGpCVVEeIUxK8-FpOfNPw8/s320/Machado.png",
+        'machete': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwXKDbmSRGW48rlposLbMD2H4xIQwA39v6LvrnGJhOjJTis3wOfOeC4_h_yAoMqWbPgAzTsWXM6iR4yUH4SqeY-pDEYb6fuKIXDoH7z3355fW5h6tW_vnG-9OfwWkhdnmo9BZiB5wr9-uVQX4Id5OHlcNyw2vKEyOLtqjLlqo8b8Xil3zmpTquKXOhOkAr/s320/Machete.png",
+        'martelo': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiC3r5t4TBIdSv9sMHwaIaGocHjDhnD1DYizZ8GBgi_Kba-KbtM8hljeRjg_u332wbOkCDXidt7nSh5n8MTqaA3F1BierA0tXbrfyh1V2MFxgqmWyk4D_9YKF-0NrO5TSFzClEJsh2IeTSs6pN-leKjEJogJxXqY6W4DEIdB0SzL47of_Vrxw9YkgWSFAT/s320/Martelo.png",
+        'marreta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8gpzP0SJc9j2Zsb1K2XeoYfedZRYihBaXas_bKut2b_lwRXSqOHkjHL__pmamdVhJ9nyNTaTaIPwvW_p2ntWKvx3BExg_FK46gG_ti5Cm2ZzCXS7hP_ZVkLWRUr40H-f2okfKDuEwkZ89jOY5SIbx_c2uaAu2wUl4Of24lT3r_xHVZ5AidYwuh1aLa7_j/s320/Marreta.png",
+        'serra elétrica': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWIytinBbLwLA9l6DyHOReFOvU5wYL6jDcwVDX92aQSjOl-8v2z-ftEv3Ur2b3wW-3BFA09eXiwOU_W7DhhescDK1cATlnj51PSsxHxRdj4l_7ZXeSGvOoh6PFG93xpzI_FE6YHFtr3YgzAylhfTkUc9ppuZWcvpKaGYTjOSsNfy-Y60DchJbW0oFywSMQ/s320/Serra%20El%C3%A9trica.png",
+        'mochila': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmOTfY9u0Z_loviBw9gJrS9mYQ-4tQYMErCLCvrSMlj1SCj2hZI0Z4TqXBTM3SqEp31yDRglUiV0vUntoTCgw1vAFAuQ1sw1qe0oZj8acEv2KJnsu4D0iEz24N-or8dQQZNZC3WMmwMpfFbhHbYaPP1mng5m_Dcimy0wwzRenifx4uGXOd8s4dj7-XAEfT/w295-h414/Mochila.png",
+        'lanterna': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilX9DWfY6eIGG0Gzoi-JA_2TTahiX_Mpkz1ut3qUJw82L3QZP-3x9LKk_3zOgUzP5bihX8RnetgKp-UIgjdcQ41dSKjV_YtkdLNu4XmQ8LKARChKNpcX5NmPYrLoG3PFVRR0kdpQJPhm0e1sn1ONNHsS1gCahi_qNrCkJO0pTQb-GZBBlHVs4WoeSldg-t/s1600/Lanterna.png",
+        'proteção leve': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_4GIAm69-0y1zSykwJdvvA2-UQ-2ReN2-Qs0vSB1sHhhiOWbxSL9nl8BpZcrL2PXlkGGklLUBX5ULciy7L9xGwc7evILQX14EvqhR_Jgv8-Jpxx-wKFXbILucU_JorR32pZGdlnewBv0M_YeZu2c9gQtsiP1pYMY1SokOng8qwkSb8UHm7jn8ywi57Fo6/s320/Colete%20Leve.png",
+        'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png"
+    };
+
+    const premadeItems = [
+        { name: "Mochila", weight: 0, desc: "Uma mochila leve e de alta qualidade. Ela não usa nenhum espaço e aumenta sua capacidade de carga em 2 espaços.", img: imgDict['mochila'] },
+        { name: "Lanterna", weight: 1, desc: "Ilumina lugares escuros. Além disso, você pode gastar uma ação de movimento para mirar a luz nos olhos de um ser em alcance curto. Ele fica ofuscado por 1 rodada, mas imune à lanterna pelo resto da cena.", img: imgDict['lanterna'] },
+        { name: "Proteção Leve", weight: 2, desc: "Jaqueta de couro pesada ou um colete de kevlar. Essa proteção é tipicamente usada por seguranças e policiais. +5 de Defesa.", img: imgDict['proteção leve'] },
+        { name: "Proteção Pesada", weight: 5, desc: "Equipamento usado por forças especiais da polícia e pelo exército. Fornece resistência a balístico, corte, impacto e perfuração. No entanto, por ser desconfortável e volumosa, impõe –5 em testes de perícias que sofrem penalidade de carga. +10 de Defesa", img: imgDict['proteção pesada'] }
+    ];
+
+    const premadeMeleeWeapons = [
+        { name: "Soqueira", atk: 2, dmg: "1d6", crit: "20/x2", range: "Toque", skill: "Luta", img: imgDict['soqueira'], weight: 1 },
+        { name: "Faca", atk: 1, dmg: "1d4", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDict['faca'], weight: 1 },
+        { name: "Machado", atk: 1, dmg: "1d8", crit: "20/x3", range: "Curto", skill: "Luta", img: imgDict['machado'], weight: 2 },
+        { name: "Machete", atk: 1, dmg: "1d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDict['machete'], weight: 1 },
+        { name: "Martelo", atk: 1, dmg: "1d6", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDict['martelo'], weight: 1 },
+        { name: "Marreta", atk: 1, dmg: "1d10", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDict['marreta'], weight: 2 },
+        { name: "Espada da Ordem", atk: 1, dmg: "1d8", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDict['espada da ordem'], weight: 2 },
+        { name: "Serra Elétrica", atk: 1, dmg: "2d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDict['serra elétrica'], weight: 2 }
+    ];
+
+    const premadeRangedWeapons = [
+        { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 },
+        { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1 },
+        { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1 },
+        { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDict['escopeta'], weight: 2 },
+        { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1 },
+        { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2 },
+        { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2 },
+        { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 },
+        { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2 }
+    ];
+
+    function getAutoImage(n, currentImg) {
+        if (currentImg && currentImg.trim() !== "") return currentImg;
+        const nLower = n.toLowerCase();
+        for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; }
+        return currentImg;
+    }
+
+    // VERIFICA SE A PROTEÇÃO PESADA ESTÁ EQUIPADA
+    function hasHeavyArmorEquipped() {
+        let hasIt = false;
+        document.querySelectorAll('.hidden-data-item').forEach(h => {
+            if(h.getAttribute('data-eq') === 'true') {
+                const n = h.getAttribute('data-n').toLowerCase();
+                if(n.includes('proteção pesada') || n.includes('protecao pesada')) {
+                    hasIt = true;
+                }
             }
+        });
+        return hasIt;
+    }
 
-            if (d === 1) { resultadoStr = "DESASTRE"; cor = "color:#ff5252; font-weight:bold;"; }
+    function openCharImgPopup() {
+        document.getElementById('img-normal').value = charImages.normal || '';
+        document.getElementById('img-lesionado').value = charImages.lesionado || '';
+        document.getElementById('img-inconsciente').value = charImages.inconsciente || '';
+        document.getElementById('img-morrendo').value = charImages.morrendo || '';
+        document.getElementById('img-enlouquecendo').value = charImages.enlouquecendo || '';
+        document.getElementById('img-les-enlouq').value = charImages.les_enlouq || '';
+        document.getElementById('popup-char-imgs').style.display = 'flex';
+    }
+    
+    function closeCharImgPopup() { document.getElementById('popup-char-imgs').style.display = 'none'; }
+    
+    function saveCharImgPopup() {
+        charImages.normal = document.getElementById('img-normal').value;
+        charImages.lesionado = document.getElementById('img-lesionado').value;
+        charImages.inconsciente = document.getElementById('img-inconsciente').value;
+        charImages.morrendo = document.getElementById('img-morrendo').value;
+        charImages.enlouquecendo = document.getElementById('img-enlouquecendo').value;
+        charImages.les_enlouq = document.getElementById('img-les-enlouq').value;
+        updateProfilePicture(); save(); closeCharImgPopup();
+    }
 
-            showPopup(d, `${nomePericia} (${resultadoStr})`, cor);
-        }
+    function toggleStatus(type) {
+        charStatus[type] = !charStatus[type];
+        updateProfilePicture(); save();
+    }
 
-        // ==========================================
-        // 3. ANIMAÇÃO DO DADO E POPUP
-        // ==========================================
-        function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+    function updateProfilePicture() {
+        let imgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
         
-        function showPopup(n, r="TOTAL", st="color:white") {
-            const box = document.querySelector('.popup-box-dice'); 
-            // O truque da animação: ?t=tempo força o GIF a recomeçar do zero a cada rolagem!
-            box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
-            
-            let numEl = document.getElementById('popup-num'); 
-            numEl.innerHTML = n; 
-            numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
-            
-            let resEl = document.getElementById('popup-res'); 
-            resEl.innerHTML = r; resEl.style = st;
-            
-            document.getElementById('popup-content').style.display = 'none'; 
-            document.getElementById('popup-dice').style.display = 'flex';
-            setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
+        if (charStatus.morrendo && charImages.morrendo) imgUrl = charImages.morrendo;
+        else if (charStatus.inconsciente && charImages.inconsciente) imgUrl = charImages.inconsciente;
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) imgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) imgUrl = charImages.enlouquecendo;
+        else if (charStatus.lesionado && charImages.lesionado) imgUrl = charImages.lesionado;
 
-            // Envia para o Mestre
-            if (socket) {
-                const pName = document.getElementById('char_nome').value || playerCode;
-                socket.emit('rolagem_feita', {
-                    codigo: viewCode || playerCode, 
-                    jogador: pName,
-                    acao: r,
-                    resultado: n,
-                    cor: st
-                });
+        let imgEl = document.getElementById('char_img_display');
+        if(imgEl && imgEl.src !== imgUrl) {
+            imgEl.style.opacity = 0;
+            setTimeout(() => {
+                imgEl.src = imgUrl;
+                imgEl.onload = () => imgEl.style.opacity = 1;
+                setTimeout(() => imgEl.style.opacity = 1, 100); 
+            }, 300);
+        }
+
+        ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => {
+            let btn = document.getElementById('btn-status-' + s);
+            if(btn) {
+                if(charStatus[s]) btn.classList.add('active-' + s);
+                else btn.classList.remove('active-' + s);
+            }
+        });
+    }
+
+    function applyOccupation(newOcc) {
+        const skillsMap = {
+            "Academico": ["ciencias", "investigacao"], "AgenteSaude": ["intuicao", "medicina"], "Artista": ["artes", "enganacao"], "Atleta": ["acrobacia", "atletismo"],
+            "Chef": ["fortitude", "profissao"], "Criminoso": ["crime", "furtividade"], "EntendedorOculto": ["ocultismo", "religiao"], "Engenheiro": ["profissao", "tecnologia"],
+            "Desgarrado": ["fortitude", "sobrevivencia"], "Investigador": ["investigacao", "percepcao"], "Lutador": ["luta", "reflexos"], "Policial": ["pontaria", "percepcao"],
+            "Religioso": ["religiao", "vontade"], "TI": ["investigacao", "tecnologia"], "Universitario": ["atualidades", "investigacao"], "Jornalista": ["atualidades", "investigacao"],
+            "Revoltado": ["furtividade", "vontade"]
+        };
+        if(currentOccupation !== "Nenhuma" && skillsMap[currentOccupation]) { skillsMap[currentOccupation].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = false; toggleTrained(s); } }); }
+        if(newOcc !== "Nenhuma" && skillsMap[newOcc]) { skillsMap[newOcc].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = true; toggleTrained(s); } }); }
+        currentOccupation = newOcc;
+    }
+
+    function openTab(id, btn) { document.querySelectorAll('.main-container, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if(id === 'tab-inventario') updateWeight(); }
+    
+    function changeStatus(type, amount) { let el = document.getElementById(type + '_atual'); if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } }
+    function updateStatusBars() {
+        const vA = parseInt(document.getElementById('vida_atual').value) || 0, vM = parseInt(document.getElementById('vida_max').value) || 1;
+        const sA = parseInt(document.getElementById('sani_atual').value) || 0, sM = parseInt(document.getElementById('sani_max').value) || 1;
+        document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%';
+        document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%';
+    }
+
+    // --- SKILL POPUP ---
+    function openSkillPopup(sn, nome, attr, mod) {
+        document.getElementById('popup-skill-name').innerText = nome;
+        document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")";
+        let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0;
+        document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod);
+        document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked;
+        document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value;
+        document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod;
+        updateSkillPopupCalc();
+        document.getElementById('popup-skill-info').style.display = 'flex';
+    }
+
+    function updateSkillPopupCalc() {
+        let mod = parseFloat(document.getElementById('popup-skill-mod').value), attr = document.getElementById('popup-skill-attr').value;
+        let sn = document.getElementById('popup-skill-sn').value;
+        let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0;
+        let natural = Math.floor(at * mod), bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0;
+        let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0;
+        
+        let penalty = 0;
+        if (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) {
+            penalty = -5;
+        }
+        
+        document.getElementById('popup-skill-total').innerText = natural + bonus + trained + penalty;
+    }
+
+    function saveSkillPopup() {
+        let sn = document.getElementById('popup-skill-sn').value;
+        document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked;
+        document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value;
+        toggleTrained(sn); save(); closeSkillPopup();
+    }
+    function closeSkillPopup() { document.getElementById('popup-skill-info').style.display = 'none'; }
+
+    // --- HABILIDADES E ITENS ---
+    function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
+    function closeAbilityPopup() { document.getElementById('popup-new-ability').style.display='none'; }
+    function confirmAddAbility() { const n = document.getElementById('new-ability-name').value, d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); closeAbilityPopup(); }
+    function addAbility(n, d) {
+        const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString(), safeD = (d||"").replace(/"/g, "'");
+        const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD);
+        div.style.background = 'rgba(18, 18, 20, 0.8)'; div.style.border = '1px solid rgba(51, 51, 51, 0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative';
+        div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="removeAbility('${id}')">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase; padding-right:20px;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`;
+        document.getElementById('abilities-list').appendChild(div); save();
+    }
+    function removeAbility(id) { const el = document.getElementById('ability-'+id); if(el) { el.remove(); save(); } }
+
+    function openItemPopup() { 
+        document.getElementById('popup-new-item-title').innerText = "Adicionar ao Inventário";
+        document.getElementById('btn-confirm-add-item').innerText = "ADICIONAR";
+        document.getElementById('popup-new-item').style.display='flex'; 
+    }
+    
+    function closeItemPopup() { 
+        document.getElementById('popup-new-item').style.display='none'; 
+        ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { 
+            let el = document.getElementById(i); 
+            if(el) el.value=(i==='new-item-weight'||i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); 
+        }); 
+        document.getElementById('wp-ammo').value='Nenhuma'; 
+        selectItemType('item'); 
+        editingItemId = null; // Reseta o ID de edição se cancelar
+    }
+
+    function selectItemType(type) {
+        document.getElementById('new-item-type').value = type;
+        
+        ['item', 'armacc', 'armadisp'].forEach(t => {
+            let btn = document.getElementById('btn-type-' + t);
+            if(btn) btn.classList.remove('active');
+        });
+        
+        // Seleciona a aba correta no topo com base na escolha
+        if(type === 'item' || type === 'pers-item') document.getElementById('btn-type-item').classList.add('active');
+        if(type === 'armacc' || type === 'pers-cc') document.getElementById('btn-type-armacc').classList.add('active');
+        if(type === 'armadisp' || type === 'pers-disp') document.getElementById('btn-type-armadisp').classList.add('active');
+
+        document.getElementById('fields-comum').style.display = 'none';
+        document.getElementById('fields-arma').style.display = 'none';
+        document.getElementById('fields-item-catalog').style.display = 'none';
+        document.getElementById('fields-armacc-catalog').style.display = 'none';
+        document.getElementById('fields-armadisp-catalog').style.display = 'none';
+        
+        const btnAdd = document.getElementById('btn-confirm-add-item');
+        const genericFields = document.getElementById('generic-item-fields');
+
+        // Mostrar catálogos
+        if (type === 'item') {
+            document.getElementById('fields-item-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none';
+            genericFields.style.display = 'none'; 
+        } else if (type === 'armacc') {
+            document.getElementById('fields-armacc-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none';
+            genericFields.style.display = 'none'; 
+        } else if (type === 'armadisp') {
+            document.getElementById('fields-armadisp-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none';
+            genericFields.style.display = 'none'; 
+        } 
+        // Mostrar campos de personalização
+        else {
+            btnAdd.style.display = 'block';
+            genericFields.style.display = 'block';
+            
+            if(type === 'pers-item') { 
+                document.getElementById('fields-comum').style.display = 'block'; 
+            } else if (type === 'pers-disp') {
+                document.getElementById('fields-arma').style.display = 'grid'; 
+                if(!editingItemId) {
+                    document.getElementById('wp-atk-type').value = 'Disparo';
+                    document.getElementById('wp-ammo').value = 'Curta';
+                }
+            } else if (type === 'pers-cc') {
+                document.getElementById('fields-arma').style.display = 'grid'; 
+                if(!editingItemId) {
+                    document.getElementById('wp-atk-type').value = 'Corpo a corpo';
+                    document.getElementById('wp-ammo').value = 'Nenhuma';
+                }
             }
         }
+    }
 
-        // ==========================================
-        // 4. BARRAS DE VIDA E SANIDADE
-        // ==========================================
-        function atualizarBarras() {
-            let vA = parseInt(document.getElementById('vida_atual').value) || 0;
-            let vM = parseInt(document.getElementById('vida_max').value) || 1;
-            let sA = parseInt(document.getElementById('sani_atual').value) || 0;
-            let sM = parseInt(document.getElementById('sani_max').value) || 1;
-            
-            if (vA > vM) { vA = vM; document.getElementById('vida_atual').value = vA; }
-            if (vA < 0) { vA = 0; document.getElementById('vida_atual').value = vA; }
-            if (sA > sM) { sA = sM; document.getElementById('sani_atual').value = sA; }
-            if (sA < 0) { sA = 0; document.getElementById('sani_atual').value = sA; }
-
-            document.getElementById('bar-vida').style.width = `${(vA / vM) * 100}%`;
-            document.getElementById('bar-sani').style.width = `${(sA / sM) * 100}%`;
-            
-            ativarAutoSave(); // Salva sempre que a barra atualiza
+    function renderPremadeCatalogs() {
+        // CATÁLOGO ITENS
+        const containerItem = document.getElementById('item-grid-container');
+        if(containerItem) {
+            containerItem.innerHTML = `
+                <div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-green); border-radius: 8px; text-align: center; background: rgba(0, 230, 118, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-item')" onmouseover="this.style.background='rgba(0, 230, 118, 0.2)'" onmouseout="this.style.background='rgba(0, 230, 118, 0.05)'">
+                    <div style="font-size: 2.5em; margin-bottom: 5px;">➕</div>
+                    <div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; text-transform: uppercase;">Item Personalizado</div>
+                </div>
+            `;
+            premadeItems.forEach((it, index) => {
+                containerItem.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeItem(${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'">
+                        <img src="${it.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name}</div>
+                        <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        function alterarStatus(tipo, delta) {
-            const input = document.getElementById(`${tipo}_atual`);
-            let val = parseInt(input.value) || 0;
-            input.value = val + delta;
-            atualizarBarras();
+        // CATÁLOGO CORPO A CORPO
+        const containerCC = document.getElementById('armacc-grid-container');
+        if(containerCC) {
+            containerCC.innerHTML = `
+                <div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-yellow); border-radius: 8px; text-align: center; background: rgba(255, 207, 51, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-cc')" onmouseover="this.style.background='rgba(255, 207, 51, 0.2)'" onmouseout="this.style.background='rgba(255, 207, 51, 0.05)'">
+                    <div style="font-size: 2.5em; margin-bottom: 5px;">➕</div>
+                    <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; text-transform: uppercase;">Arma Personalizada</div>
+                </div>
+            `;
+            premadeMeleeWeapons.forEach((wp, index) => {
+                containerCC.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'">
+                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div>
+                        <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>
+                            Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>
+                            Crítico: <span style="color:white; font-weight:bold;">${wp.crit}</span>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        // ==========================================
-        // 5. CARREGAR E GUARDAR A FICHA (FIREBASE + LOCAL)
-        // ==========================================
-        let isLoadingData = false;
-        let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
+        // CATÁLOGO DISPARO
+        const containerDisp = document.getElementById('armadisp-grid-container');
+        if(containerDisp) {
+            containerDisp.innerHTML = `
+                <div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-blue); border-radius: 8px; text-align: center; background: rgba(0, 176, 255, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-disp')" onmouseover="this.style.background='rgba(0, 176, 255, 0.2)'" onmouseout="this.style.background='rgba(0, 176, 255, 0.05)'">
+                    <div style="font-size: 2.5em; margin-bottom: 5px;">➕</div>
+                    <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; text-transform: uppercase;">Arma Personalizada</div>
+                </div>
+            `;
+            premadeRangedWeapons.forEach((wp, index) => {
+                containerDisp.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeRangedWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'">
+                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div>
+                        <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>
+                            Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>
+                            Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
 
-        function carregarFicha() {
-            isLoadingData = true;
-            const saved = localStorage.getItem('ordem_save_local');
-            if (saved) {
-                try {
-                    const d = JSON.parse(saved);
-                    // Informações
-                    if(d.info) {
-                        for(let key in d.info) {
-                            if(document.getElementById(key)) document.getElementById(key).value = d.info[key];
-                        }
-                    }
-                    if(d.defense) document.getElementById('defense_val').value = d.defense;
-                    
-                    // Atributos e Perícias
-                    if(d.attrs) { for(let key in d.attrs) { if(document.getElementById(key)) document.getElementById(key).value = d.attrs[key]; } }
-                    if(d.skills) {
-                        for(let key in d.skills) {
-                            let el = document.getElementById(key);
-                            if(el) {
-                                if(el.type === 'checkbox') el.checked = d.skills[key];
-                                else el.value = d.skills[key];
-                            }
-                        }
-                    }
-                    if(d.charStatus) charStatus = d.charStatus;
-                    atualizarBarras();
-                } catch(e) { console.error("Erro ao ler ficha salva", e); }
+    function addPremadeItem(index) {
+        const it = premadeItems[index];
+        let idToUse = editingItemId ? editingItemId : Date.now();
+        let eqStatus = true; 
+
+        if (editingItemId) {
+            const oldH = document.getElementById('item-data-' + editingItemId);
+            if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true';
+            const oldRow = document.getElementById('inv-row-' + editingItemId);
+            if(oldRow) oldRow.remove();
+        }
+
+        addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img });
+        closeItemPopup();
+    }
+
+    function addPremadeWeapon(index) {
+        const wp = premadeMeleeWeapons[index];
+        const w = wp.weight !== undefined ? wp.weight : 1; 
+        const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`;
+        
+        let idToUse = editingItemId ? editingItemId : Date.now();
+        let eqStatus = true;
+
+        if (editingItemId) {
+            const oldH = document.getElementById('item-data-' + editingItemId);
+            if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true';
+            const oldRow = document.getElementById('inv-row-' + editingItemId);
+            if(oldRow) oldRow.remove();
+        }
+
+        addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Corpo a corpo", atk: wp.atk, range: wp.range, ammo: "Nenhuma", capacity: "0", currentShots: "0" });
+        closeItemPopup();
+    }
+
+    function addPremadeRangedWeapon(index) {
+        const wp = premadeRangedWeapons[index];
+        const w = wp.weight !== undefined ? wp.weight : 1; 
+        const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`;
+        
+        let idToUse = editingItemId ? editingItemId : Date.now();
+        let eqStatus = true;
+
+        if (editingItemId) {
+            const oldH = document.getElementById('item-data-' + editingItemId);
+            if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true';
+            const oldRow = document.getElementById('inv-row-' + editingItemId);
+            if(oldRow) oldRow.remove();
+        }
+
+        addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Disparo", atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity });
+        closeItemPopup();
+    }
+
+    // EDITA O ITEM SELECIONADO
+    function openEditItemPopup() {
+        if(!currentViewedItemId) return;
+        const h = document.getElementById('item-data-' + currentViewedItemId);
+        if(!h) return;
+
+        editingItemId = currentViewedItemId; 
+        closeItemInfo(); 
+        
+        const type = h.getAttribute('data-type');
+        
+        document.getElementById('new-item-name').value = h.getAttribute('data-n');
+        document.getElementById('new-item-weight').value = h.getAttribute('data-w');
+        document.getElementById('new-item-img').value = h.getAttribute('data-img') || "";
+        
+        if(type === 'arma') {
+            let atkType = h.getAttribute('data-atktype') || "Corpo a corpo";
+            if (atkType.toLowerCase().includes("disparo")) {
+                selectItemType('pers-disp');
+            } else {
+                selectItemType('pers-cc');
             }
-            isLoadingData = false;
+            
+            document.getElementById('wp-atk-type').value = atkType;
+            document.getElementById('wp-atk').value = h.getAttribute('data-atk') || "1";
+            document.getElementById('wp-dmg').value = h.getAttribute('data-dmg') || "0";
+            document.getElementById('wp-crit').value = h.getAttribute('data-crit') || "20/x2";
+            document.getElementById('wp-range').value = h.getAttribute('data-range') || "Curto";
+            document.getElementById('wp-ammo').value = h.getAttribute('data-ammo') || "Nenhuma";
+            document.getElementById('wp-capacity').value = h.getAttribute('data-capacity') || "6";
+            document.getElementById('wp-skill').value = h.getAttribute('data-skill') || "Luta";
+            document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0";
+            document.getElementById('new-item-desc').value = "";
+        } else {
+            selectItemType('pers-item'); // Vai para os inputs manuais de itens
+            let desc = h.getAttribute('data-d');
+            document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
+        }
+        
+        document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma";
+        document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES";
+        document.getElementById('popup-new-item').style.display = 'flex';
+    }
+
+    function confirmAddItem() {
+        const n = document.getElementById('new-item-name').value, w = Math.floor(document.getElementById('new-item-weight').value), rawType = document.getElementById('new-item-type').value;
+        const type = (rawType === 'pers-item' || rawType === 'item') ? 'comum' : 'arma';
+        let img = getAutoImage(n, document.getElementById('new-item-img').value);
+        if(!n) return alert("Dê um nome!");
+        
+        let d = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", curShots = "0";
+        
+        if(type === 'comum') { 
+            d = document.getElementById('new-item-desc').value || "Sem descrição."; 
+        } else {
+            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo");
+            atk = document.getElementById('wp-atk').value || "1"; 
+            dmg = document.getElementById('wp-dmg').value || "0"; 
+            crit = document.getElementById('wp-crit').value || "20/x2"; 
+            range = document.getElementById('wp-range').value || "Curto"; 
+            ammo = document.getElementById('wp-ammo').value || "Nenhuma"; 
+            skill = document.getElementById('wp-skill').value || "Luta"; 
+            extra = document.getElementById('wp-extra').value || "0"; 
+            cap = document.getElementById('wp-capacity').value || "0"; 
+            curShots = cap;
+            
+            d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${extra}</div></div>`;
         }
 
-        function save() {
-            if(isLoadingData) return; 
+        let eqStatus = true;
+        let idToUse = Date.now();
+        
+        // SE FOR UMA EDIÇÃO, APAGA O ANTIGO E MANTÉM OS STATUS DE BALA/EQUIPADO
+        if(editingItemId) {
+            const oldH = document.getElementById('item-data-' + editingItemId);
+            if(oldH) {
+                eqStatus = oldH.getAttribute('data-eq') === 'true';
+                let oldCap = oldH.getAttribute('data-capacity');
+                if (oldCap === cap) {
+                    curShots = oldH.getAttribute('data-currentshots') !== undefined ? oldH.getAttribute('data-currentshots') : cap;
+                }
+                const oldRow = document.getElementById('inv-row-' + editingItemId);
+                if(oldRow) oldRow.remove();
+            }
+            idToUse = editingItemId;
+        }
 
-            const d = { attrs:{}, skills:{}, info:{}, defense: document.getElementById('defense_val').value, charStatus: charStatus };
-            
-            ["char_nome", "char_ocupacao", "char_nex", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { 
-                if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; 
+        addItemObj({ id: idToUse, n, w, d, eq: eqStatus, type, dmg, extra, crit, skill, img, atkType, atk, range, ammo, capacity: cap, currentShots: curShots }); 
+        closeItemPopup();
+    }
+
+    function addItemObj(o) {
+        const body = document.getElementById('inventory-body'); const r1 = document.createElement('tr'); r1.className = 'inv-row-main'; r1.id = 'inv-row-' + o.id; 
+        r1.onclick = () => openItemInfo(o.id);
+        const safeD = (o.d||"").replace(/"/g, "&quot;");
+        r1.innerHTML = `
+            <td><div style="display:flex; align-items:center;"><input type="checkbox" class="item-equipped" ${o.eq?'checked':''} onclick="event.stopPropagation()" onchange="syncItemEquip('${o.id}', this.checked); updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save()"> <b style="margin-left:8px;">${o.n}</b></div></td>
+            <td style="text-align:center;">${o.w}</td>
+            <td style="text-align:center;"><button class="btn-del" onclick="removeItem('${o.id}'); event.stopPropagation()">X</button>
+            <input type="hidden" class="hidden-data-item" id="item-data-${o.id}" data-id="${o.id}" data-n="${o.n}" data-w="${o.w}" data-d="${safeD}" data-eq="${o.eq}" data-type="${o.type}" data-dmg="${o.dmg||'0'}" data-extra="${o.extra||'0'}" data-crit="${o.crit||'20/x2'}" data-skill="${o.skill||'Luta'}" data-img="${o.img||''}" data-atktype="${o.atkType||'Corpo a corpo'}" data-atk="${o.atk||'1'}" data-range="${o.range||'Curto'}" data-ammo="${o.ammo||'Nenhuma'}" data-capacity="${o.capacity||'0'}" data-currentshots="${o.currentShots!==undefined?o.currentShots:o.capacity}"></td>
+        `;
+        body.appendChild(r1); 
+        if(!isLoadingData) { updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
+    }
+    
+    function removeItem(id) { const r1 = document.getElementById('inv-row-'+id); if(r1) r1.remove(); updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
+    
+    function syncItemEquip(id, isChecked) { 
+        const h = document.getElementById('item-data-' + id); 
+        if(h) h.setAttribute('data-eq', isChecked); 
+    }
+
+    function openItemInfo(id) {
+        currentViewedItemId = id; 
+        const h = document.getElementById('item-data-' + id); if(!h) return;
+        document.getElementById('info-general-name').innerText = h.getAttribute('data-n');
+        const imgUrl = h.getAttribute('data-img'), imgEl = document.getElementById('info-general-img');
+        if(imgUrl) { imgEl.src = imgUrl; imgEl.style.display = 'block'; } else imgEl.style.display = 'none';
+        
+        let contentHTML = h.getAttribute('data-d');
+        const type = h.getAttribute('data-type');
+        const ammo = h.getAttribute('data-ammo');
+
+        if (type === 'arma' && ammo !== "Nenhuma") {
+            const curShots = h.getAttribute('data-currentshots') || "0";
+            contentHTML += `
+                <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 6px; text-align: center; margin-top: 15px; border: 1px solid var(--accent-blue);">
+                    <b style="color:var(--text-secondary); display:block; margin-bottom:8px; font-size:0.9em; text-transform:uppercase;">BALAS / DISPAROS (${ammo})</b>
+                    <div style="display:flex; justify-content:center; align-items:center; gap:15px;">
+                        <button onclick="atirarArma('${id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding: 5px 15px;">-1</button>
+                        <span style="font-size:1.5em; font-weight:900; color:white;">${curShots}</span>
+                        <button onclick="recarregarArma('${id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold;">RECARREGAR<br><span style="font-size:0.7em">(-1 Pct)</span></button>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('info-general-details').innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 15px;">${contentHTML}</div>`;
+        document.getElementById('popup-item-info').style.display = 'flex';
+    }
+    
+    function closeItemInfo() { 
+        document.getElementById('popup-item-info').style.display = 'none'; 
+        currentViewedItemId = null;
+    }
+    
+    function openWeaponInfo(id) { openItemInfo(id); } 
+    function closeWeaponInfo() { closeItemInfo(); } 
+
+    // LÓGICA DE CÁLCULO DE PESO / ESPAÇOS COM BÓNUS DA MOCHILA E TIPO DE CORPO
+    function updateWeight() {
+        const f = parseInt(document.getElementById('attr_for').value)||0; 
+        
+        let lim = f * 5;
+        if (lim < 2) lim = 2; // Regra Padrão do Ordem: Força x 5 (Mínimo de 2)
+        
+        // Verifica o tipo de corpo
+        const bodyTypeEl = document.getElementById('char_tipo_corpo');
+        const bodyType = bodyTypeEl ? bodyTypeEl.value : 'Médio';
+        
+        // Ajuste pelo Tipo de Corpo
+        if (bodyType === 'Pequeno') {
+            lim = Math.max(1, lim - 2); 
+        } else if (bodyType === 'Grande') {
+            lim += 2;
+        }
+
+        let t = 0, bm = 0;
+        document.querySelectorAll('.hidden-data-item').forEach(h => { 
+            if(h.getAttribute('data-eq') === 'true') {
+                t += parseInt(h.getAttribute('data-w'))||0; 
+                
+                const n = h.getAttribute('data-n').toLowerCase();
+                if(n.includes('mochila militar')||n.includes('mochila tática')||n.includes('mochila tatica')) {
+                    bm = Math.max(bm, 5); 
+                } else if(n.includes('mochila')) {
+                    bm = Math.max(bm, 2);
+                }
+            }
+        });
+        
+        lim += bm; 
+        
+        ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => t += parseInt(document.getElementById(id).value)||0);
+        
+        const fill = document.getElementById('weight-bar-fill'); 
+        fill.style.width = lim>0 ? Math.min((t/lim)*100, 100)+"%" : "0%";
+        document.getElementById('weight-text').innerText = `${t} / ${lim}`;
+        t > lim ? fill.classList.add('overweight') : fill.classList.remove('overweight');
+    }
+
+    function updateWeaponsDisplay() {
+        equippedWeaponsData = [];
+        document.querySelectorAll('.hidden-data-item').forEach(h => {
+            if(h.getAttribute('data-eq') === 'true' && h.getAttribute('data-type') === 'arma') {
+                equippedWeaponsData.push({ id: h.getAttribute('data-id'), name: h.getAttribute('data-n'), desc: h.getAttribute('data-d'), dmg: h.getAttribute('data-dmg'), extra: h.getAttribute('data-extra'), crit: h.getAttribute('data-crit'), skill: h.getAttribute('data-skill'), atk: h.getAttribute('data-atk'), ammo: h.getAttribute('data-ammo'), capacity: h.getAttribute('data-capacity'), currentShots: h.getAttribute('data-currentshots') });
+            }
+        });
+        const sel = document.getElementById('active-weapon-select'), cont = document.getElementById('equipped-weapons-list');
+        if(equippedWeaponsData.length === 0) { sel.style.display = 'none'; cont.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>`; return; }
+        const cur = sel.value; sel.innerHTML = ''; 
+        equippedWeaponsData.forEach(wp => { const o = document.createElement('option'); o.value = wp.id; o.textContent = wp.name; sel.appendChild(o); });
+        sel.style.display = equippedWeaponsData.length > 1 ? 'block' : 'none';
+        sel.value = equippedWeaponsData.some(wp => wp.id === cur) ? cur : equippedWeaponsData[0].id;
+        renderActiveWeapon();
+    }
+
+    function renderActiveWeapon() {
+        const id = document.getElementById('active-weapon-select').value, wp = equippedWeaponsData.find(w => w.id === id), container = document.getElementById('equipped-weapons-list');
+        if (wp) {
+            let ammoControl = "";
+            if(wp.ammo !== "Nenhuma") {
+                ammoControl = `
+                <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <span style="font-size: 0.8em; color: var(--text-secondary); text-transform:uppercase;">${wp.ammo}:</span>
+                    <button onclick="atirarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding: 2px 10px; border-width: 2px;">-1</button>
+                    <span style="font-weight:900; color:white; font-size: 1.2em;">${wp.currentShots}</span>
+                    <button onclick="recarregarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width: 2px;">RECARREGAR</button>
+                </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px;">
+                    <button class="ritual-btn" style="border-color: var(--accent-yellow); color: var(--accent-yellow); width: 100%; margin-bottom: 8px;" onclick="openItemInfo('${wp.id}')">${wp.name}</button>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
+                        <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueArma('${wp.id}')">ATQ ${wp.atk > 1 ? '('+wp.atk+'x)' : ''}</button>
+                        <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoArma('${wp.id}')">DANO</button>
+                    </div>
+                    ${ammoControl}
+                </div>
+            `;
+        } else { container.innerHTML = ''; }
+    }
+
+    // --- FUNÇÕES DE TIRO E RECARGA ---
+    function atirarArma(id) {
+        const h = document.getElementById('item-data-' + id);
+        if(!h) return;
+        let current = parseInt(h.getAttribute('data-currentshots')) || 0;
+        if(current > 0) {
+            h.setAttribute('data-currentshots', current - 1);
+            save();
+            updateWeaponsDisplay();
+            if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id);
+        } else {
+            alert("A arma está descarregada! Você precisa recarregar.");
+        }
+    }
+
+    function recarregarArma(id) {
+        const h = document.getElementById('item-data-' + id);
+        if(!h) return;
+        const ammoType = h.getAttribute('data-ammo');
+        if(ammoType === 'Nenhuma') return;
+
+        const ammoInputId = 'ammo_' + ammoType.toLowerCase();
+        const ammoInput = document.getElementById(ammoInputId);
+
+        let currentPackets = parseInt(ammoInput.value) || 0;
+        if(currentPackets > 0) {
+            ammoInput.value = currentPackets - 1;
+            const cap = parseInt(h.getAttribute('data-capacity')) || 0;
+            h.setAttribute('data-currentshots', cap);
+            updateWeight();
+            save();
+            updateWeaponsDisplay();
+            if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id);
+        } else {
+            alert("Você não tem pacotes de munição do tipo " + ammoType.toUpperCase() + " no seu inventário!");
+        }
+    }
+
+    // --- RITUAIS ---
+    function openRitualPopup() { document.getElementById('popup-new-ritual').style.display='flex'; }
+    function closeRitualPopup() { document.getElementById('popup-new-ritual').style.display='none'; }
+    function confirmAddRitual() {
+        const n = document.getElementById('rit-name').value, el = document.getElementById('rit-elem').value; if(!n) return;
+        
+        const circ = document.getElementById('rit-circ').value;
+        const ex = document.getElementById('rit-exec').value || "-";
+        const alc = document.getElementById('rit-range').value || "-";
+        const alv = document.getElementById('rit-target').value || "-";
+        const dur = document.getElementById('rit-dur').value || "-";
+        const res = document.getElementById('rit-res').value || "-";
+        const img = document.getElementById('rit-img').value || "";
+        
+        const descGeral = document.getElementById('rit-desc-geral').value || "Sem descrição.";
+        const descDisc = document.getElementById('rit-desc-discente').value || "-";
+        const descVerd = document.getElementById('rit-desc-verdadeiro').value || "-";
+        
+        let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`;
+        if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`;
+        if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
+        
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        
+        addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); 
+        closeRitualPopup();
+    }
+    
+    function addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, eq = true, img = "") {
+        const body = document.getElementById('rituals-body');
+        const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString();
+        const safeDescGeral = (descGeral||"").replace(/"/g, "'"), safeDescDisc = (descDisc||"").replace(/"/g, "'"), safeDescVerd = (descVerd||"").replace(/"/g, "'"), safeImg = (img||"").replace(/"/g, "'");
+        let color = "var(--text-primary)";
+        if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff";
+        const r1 = document.createElement('tr'); r1.className = 'inv-row-main'; r1.id = 'rit-row-' + id;
+        r1.onclick = () => openRitualInfo(id, color);
+        r1.innerHTML = `
+            <td><div style="display:flex; align-items:center;"><input type="checkbox" class="rit-equipped item-equipped" ${eq?'checked':''} onclick="event.stopPropagation()" onchange="updateRitualsCount(); updateLearnedRitualsDisplay(); save()"><b style="margin-left:8px;">${n}</b></div></td>
+            <td style="color:${color}; font-weight:bold; text-align:center;">${el}</td>
+            <td style="text-align:center;"><button class="btn-del" onclick="removeRitual('${id}'); event.stopPropagation()">X</button></td>
+            <td style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></td>
+        `;
+        body.appendChild(r1); 
+        if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+    }
+    
+    function removeRitual(id) { document.getElementById('rit-row-'+id).remove(); updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+    function updateRitualsCount() { document.getElementById('rituals-text').innerText = document.querySelectorAll('.rit-equipped:checked').length; }
+    function updateLearnedRitualsDisplay() {
+        const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false;
+        document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
+            has = true; 
+            const hr = chk.closest('tr').querySelector('.hidden-ritual');
+            const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el');
+            const rid = hr.id.replace('rit-data-', '');
+            let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; 
+            container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`;
+        });
+        if(!has) container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual.</div>`;
+    }
+
+    // --- POPUP DE INFORMAÇÕES DE RITUAIS ---
+    function openRitualInfo(id, color) {
+        const hr = document.getElementById('rit-data-' + id);
+        const htmlDiv = document.getElementById('rit-html-' + id);
+        if(!hr || !htmlDiv) return;
+
+        document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n');
+        document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)';
+        
+        const imgUrl = hr.getAttribute('data-img');
+        const imgEl = document.getElementById('info-rit-img');
+        if(imgUrl && imgUrl.trim() !== '') { 
+            imgEl.src = imgUrl; 
+            imgEl.style.display = 'block'; 
+        } else {
+            imgEl.style.display = 'none';
+        }
+
+        document.getElementById('info-rit-details').innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid ${color || 'rgba(51, 51, 51, 0.5)'}; border-radius: 8px; padding: 15px;">${htmlDiv.innerHTML}</div>`;
+        
+        document.getElementById('popup-ritual-info').style.display = 'flex';
+    }
+
+    function closeRitualInfo() { 
+        document.getElementById('popup-ritual-info').style.display = 'none'; 
+    }
+
+    // --- DADOS E COMBATE ---
+    function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+    function showPopup(n, r="TOTAL", st="color:white") {
+        const box = document.querySelector('.popup-box-dice'); 
+        box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+        
+        let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
+        if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
+        let resEl = document.getElementById('popup-res'); resEl.innerHTML = r; resEl.style = st;
+        document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
+        setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
+
+        if (socket) {
+            const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
+            socket.emit('rolagem_feita', {
+                codigo: viewCode || playerCode,
+                jogador: viewCode ? viewCode : jogadorNome,
+                acao: r,
+                resultado: n,
+                cor: st
             });
+        }
+    }
+    
+    function rolarTesteD20(n, id, ak, modPerc) {
+        lastAttackWasCrit = false;
+        let sn = id.replace("skill_","");
+        let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
+        let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0;
+        let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false;
+        
+        let penalty = 0;
+        if (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) {
+            penalty = -5;
+        }
 
-            document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value);
-            document.querySelectorAll('[id^="skill_"]').forEach(i => d.skills[i.id] = i.value);
-            document.querySelectorAll('[id^="chk_"]').forEach(i => d.skills[i.id] = i.checked);
+        let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty);
+        let d = Math.floor(Math.random()*20)+1;
+        let m = tabelaD20[f>20?20:f<1?1:f];
+        let isCrit = false;
+        
+        let numAttacks = 1;
 
-            // Mestre a espiar não salva por cima da DB! Apenas atualiza a tela dele.
-            if (viewCode) return; 
+        if (n === "Luta" || n === "Pontaria") {
+            const sel = document.getElementById('active-weapon-select');
+            if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) {
+                const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id;
+                const wp = equippedWeaponsData.find(w => w.id === wpId);
+                if (wp) {
+                    if (wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
+                        let cMarg = parseInt(wp.crit.split('/')[0])||20; 
+                        if (d >= cMarg) isCrit = true; 
+                    }
+                    if (wp.atk) { numAttacks = parseInt(wp.atk) || 1; }
+                }
+            }
+            lastAttackWasCrit = isCrit || d === 20;
+        }
+        
+        if (numAttacks > 1 && (n === "Luta" || n === "Pontaria")) {
+            let results = []; let anyCrit = false;
+            for(let i=0; i<numAttacks; i++) {
+                let rd = Math.floor(Math.random()*20)+1; 
+                let isThisCrit = false;
+                
+                const sel = document.getElementById('active-weapon-select');
+                if (sel && sel.value) {
+                    const wp = equippedWeaponsData.find(w => w.id === sel.value);
+                    if (wp && wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
+                        let cMarg = parseInt(wp.crit.split('/')[0])||20; 
+                        if (rd >= cMarg) isThisCrit = true; 
+                    }
+                }
+                
+                if (isThisCrit || rd === 20) anyCrit = true;
+                let rm = tabelaD20[f>20?20:f<1?1:f];
+                if (isThisCrit || rd === 20) { results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); } 
+                else {
+                    let st = rd >= rm.e && rm.e != 99 ? "var(--accent-yellow)" : rd >= rm.b && rm.b != 99 ? "var(--accent-blue)" : rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
+                    let lbl = rd >= rm.e && rm.e != 99 ? "EXT" : rd >= rm.b && rm.b != 99 ? "BOM" : rd >= rm.n ? "NOR" : "FALHA";
+                    results.push(`<span style="color:${st}">${rd} (${lbl})</span>`);
+                }
+            }
+            lastAttackWasCrit = anyCrit;
+            let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
+            showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
+        } else {
+            let res;
+            if (isCrit || d === 20) { res = ["CRÍTICO", "var(--accent-red)"]; } 
+            else { res = d >= m.e && m.e != 99 ? ["EXTREMO","var(--accent-yellow)"] : d >= m.b && m.b != 99 ? ["BOM","var(--accent-blue)"] : d >= m.n ? ["NORMAL","var(--accent-green)"] : ["FALHA","var(--accent-red)"]; }
+            showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
+        }
+    }
 
-            // Guarda Localmente e na Nuvem
-            localStorage.setItem('ordem_save_local', JSON.stringify(d));
-            
-            fetch('/api/guardar_ficha', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario: playerCode, fichaData: d })
-            });
+    function rolarAtaqueArma(id) { 
+        const wp = equippedWeaponsData.find(w => w.id === id); 
+        if(!wp) return;
+        let skillName = wp.skill ? wp.skill.trim() : "Luta";
+        let sn = skillName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_");
+        let skillObj = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_") === sn);
+        if(!skillObj) { skillObj = periciasBase.find(p => p.nome === "Luta"); } 
+        
+        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod); 
+    }
 
-            // Envia para o Mestre (Atualiza Escudo em Tempo Real)
+    function rolarDanoArma(id) { 
+        const wp = equippedWeaponsData.find(w => w.id === id); if(!wp) return;
+        let dmgBase = wp.dmg || "0"; let isCrit = lastAttackWasCrit;
+        if(isCrit && wp.crit.toLowerCase() !== "nenhum") {
+            let critMult = 2;
+            if (wp.crit) {
+                let cStr = wp.crit.toLowerCase().replace(/\s/g, '');
+                if(cStr.includes('/')) { critMult = parseInt(cStr.split('/')[1].replace('x',''))||2; }
+                else if(cStr.includes('x')) { critMult = parseInt(cStr.replace('x',''))||2; }
+            }
+            dmgBase = dmgBase.replace(/(\d+)d(\d+)/ig, (match, p1, p2) => { return (parseInt(p1) * critMult) + "d" + p2; });
+            dmgBase = dmgBase.replace(/(^|[^\d])d(\d+)/ig, (match, p1, p2) => { return p1 + critMult + "d" + p2; });
+        }
+        let formula = dmgBase + "+" + (wp.extra || "0"); formula = formula.toLowerCase().replace(/\s/g, '');
+        try {
+            const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0;
+            if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
+            let title = isCrit ? "DANO CRÍTICO (" + wp.name + ")" : "DANO (" + wp.name + ")"; 
+            let color = isCrit ? "color: var(--accent-yellow)" : "color: var(--accent-red)";
+            showPopup(t, title, color);
+        } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
+        lastAttackWasCrit = false; 
+    }
+
+    function rolarDadoPersonalizado() {
+        document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "Personalizado", "color:white");
+    }
+
+    function toggleTrained(sn) { document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); updateAllPericias(); }
+    
+    function updateTargetsPericia(id, ak, modPerc) { 
+        let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; 
+        let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; 
+        let sn = id.replace("skill_","");
+        let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; 
+        
+        let penalty = 0;
+        if (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) {
+            penalty = -5;
+        }
+
+        let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); 
+        let m = tabelaD20[f>20?20:f<1?1:f]; 
+        let d = document.getElementById(id+"_targets"); 
+        if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
+    }
+    
+    function updateAllPericias() { 
+        ["agi","for","int","pre","vig"].forEach(a => { 
+            let v = parseInt(document.getElementById("attr_"+a).value)||1, m = tabelaD20[v>20?20:v]; 
+            if(document.getElementById("attr_"+a+"_targets")) document.getElementById("attr_"+a+"_targets").innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
+        }); 
+        periciasBase.forEach(p => updateTargetsPericia("skill_"+p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), p.attr, p.mod)); 
+    }
+
+    // --- FUNÇÕES DE SALVAR, EXPORTAR E CARREGAR ---
+    function save() {
+        if(isLoadingData) return; 
+
+        // 1. Calcula a foto atual
+        let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
+        if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo;
+        else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente;
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo;
+        else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
+
+        const d = { attrs:{}, skills:{}, inv:[], ammo:{}, abilities:[], rituals:[], defense: document.getElementById('defense_val').value, info:{}, charImages: charImages, charStatus: charStatus };
+        ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; });
+        const activeWeaponSelect = document.getElementById('active-weapon-select');
+        d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
+        
+        // 2. Guarda a URL correta no objeto de dados
+        d.info['char_img'] = currentImgUrl;
+
+        document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value);
+        document.querySelectorAll('[id^="skill_"]').forEach(i => d.skills[i.id] = i.value);
+        document.querySelectorAll('[id^="chk_"]').forEach(i => d.skills[i.id] = i.checked);
+        document.querySelectorAll('.hidden-data-item').forEach(h => { 
+            d.inv.push({ id: h.getAttribute('data-id'), n: h.getAttribute('data-n'), w: h.getAttribute('data-w'), d: h.getAttribute('data-d'), eq: h.getAttribute('data-eq') === 'true', type: h.getAttribute('data-type'), dmg: h.getAttribute('data-dmg'), extra: h.getAttribute('data-extra'), crit: h.getAttribute('data-crit'), skill: h.getAttribute('data-skill'), img: h.getAttribute('data-img'), atkType: h.getAttribute('data-atktype'), atk: h.getAttribute('data-atk'), range: h.getAttribute('data-range'), ammo: h.getAttribute('data-ammo'), capacity: h.getAttribute('data-capacity'), currentShots: h.getAttribute('data-currentshots') }); 
+        });
+        ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => d.ammo[id] = document.getElementById(id).value);
+        document.querySelectorAll('.ability-item').forEach(ab => { d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); });
+        
+        document.querySelectorAll('.hidden-ritual').forEach(hr => { 
+            const eq = hr.closest('tr').querySelector('.rit-equipped').checked;
+            d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); 
+        });
+        
+        // 3. O Mestre está editando na janela dele (Iframe)
+        if (viewCode) {
             if (socket) {
-                socket.emit('status_change', {
-                    codigo: playerCode,
-                    nome: d.info.char_nome || playerCode,
-                    nex: d.info.char_nex || 0,
-                    defesa: d.defense || 10,
-                    vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0,
-                    sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0,
+                const payload = {
+                    codigo: viewCode,
+                    origin: socket.id, // Envia a identificação para o Iframe não se auto-atualizar
+                    nome: document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido',
+                    foto: currentImgUrl,
+                    nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
+                    defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
+                    vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
+                    vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
+                    sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0,
+                    sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
                     status: charStatus,
                     fullData: d
-                });
+                };
+                socket.emit('mestre_force_sync', payload);
             }
+            return; // Cancela para não guardar no computador do mestre acidentalmente
         }
 
-        function fazerLogout() {
-            localStorage.removeItem('usuario_logado');
-            localStorage.removeItem('ordem_save_local');
-            window.location.href = '/login.html';
+        // 4. Jogador Normal a editar (Salva Local e no Firebase)
+        localStorage.setItem('ordem_save_local', JSON.stringify(d));
+        
+        fetch('/api/guardar_ficha', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario: playerCode, fichaData: d })
+        }).catch(e => console.error("Erro ao salvar no Firebase:", e));
+
+        if (socket) {
+            const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
+            socket.emit('status_change', {
+                codigo: playerCode,
+                origin: socket.id,
+                id: playerCode,
+                nome: jogadorNome,
+                foto: currentImgUrl,
+                nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
+                defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
+                vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
+                vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
+                sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0,
+                sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
+                status: charStatus,
+                fullData: d
+            });
+        }
+    }
+
+    // --- FUNÇÕES DE EXPORTAR E IMPORTAR JSON OFFLINE ---
+    function exportFicha() {
+        save(); // Garante que os dados mais recentes estão salvos
+        const dataStr = localStorage.getItem('ordem_save_local');
+        
+        if (!dataStr) {
+            alert("Nenhum dado encontrado para exportar!");
+            return;
         }
 
-        // ==========================================
-        // 6. AUTO-SAVE MÁGICO (DEBOUNCE 3 SEGUNDOS)
-        // ==========================================
-        let timerAutoSave;
+        // Cria o arquivo Blob com os dados em JSON
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        // Define o nome do arquivo com base no nome do personagem
+        const charName = document.getElementById('char_nome').value || "Personagem_Desconhecido";
+        const fileName = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`;
 
-        function ativarAutoSave() {
-            if (viewCode) return; // Mestre não faz auto-save
+        // Cria um link temporário para forçar o download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpa os dados criados
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function importFicha(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Salva no localStorage para manter a persistência
+                localStorage.setItem('ordem_save_local', JSON.stringify(importedData));
+                
+                // Recarrega os dados na interface
+                isLoadingData = true; 
+                populateData(importedData);
+                save(); // Força um envio rápido para a nuvem
+                
+                alert("Ficha carregada com sucesso!");
+            } catch (error) {
+                alert("Erro ao importar a ficha. Certifique-se de que é um arquivo JSON válido gerado por este sistema.");
+                console.error("Erro no Parse JSON:", error);
+            }
             
-            const statusTxt = document.getElementById('save-status');
+            // Limpa o input file para permitir importar o mesmo arquivo novamente se necessário
+            event.target.value = '';
+        };
+        
+        reader.readAsText(file);
+    }
+
+    // --- AUTO-SAVE MÁGICO DEBOUNCE ---
+    let timerAutoSave;
+    function ativarAutoSave() {
+        if (typeof viewCode !== 'undefined' && viewCode) return; // Mestre não faz auto-save
+
+        const statusTxt = document.getElementById('save-status');
+        if(statusTxt) {
             statusTxt.innerText = "A guardar...";
             statusTxt.style.color = "var(--accent-yellow)";
+        }
 
-            clearTimeout(timerAutoSave);
-            
-            timerAutoSave = setTimeout(() => {
-                save(); 
+        clearTimeout(timerAutoSave);
+        
+        timerAutoSave = setTimeout(() => {
+            if(typeof save === 'function') save(); 
+            if(statusTxt) {
                 statusTxt.innerText = "Guardado ✔️";
                 statusTxt.style.color = "var(--accent-green)";
                 setTimeout(() => { statusTxt.innerText = "A aguardar alterações..."; statusTxt.style.color = "var(--text-secondary)"; }, 2000);
-            }, 3000);
-        }
+            }
+        }, 3000);
+    }
 
-        document.addEventListener('input', ativarAutoSave);
-        document.addEventListener('change', ativarAutoSave);
-        document.addEventListener('click', (e) => {
-            if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave();
+    document.addEventListener('input', ativarAutoSave);
+    document.addEventListener('change', ativarAutoSave);
+    document.addEventListener('click', (e) => {
+        if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave();
+    });
+
+    // --- INICIALIZAÇÃO GERAL ---
+    function init() {
+        ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => {
+            let id = "attr_" + a.toLowerCase().substring(0,3);
+            document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight();"><div class="attr-targets" id="${id}_targets"></div></div>`;
+        });
+        periciasBase.forEach(p => {
+            let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_");
+            document.getElementById('pericias-container').innerHTML += `
+            <div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}', ${p.mod})" style="cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="skill-header" style="margin-bottom: 8px;">
+                    <span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span>
+                </div>
+                <div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;">
+                    <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod})" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;">
+                        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);">
+                    </button>
+                </div>
+                <div class="skill-targets" id="skill_${sn}_targets" style="pointer-events: none;"></div>
+                <input type="checkbox" id="chk_${sn}" style="display:none;">
+                <input type="number" id="skill_${sn}" value="0" style="display:none;">
+            </div>`;
         });
 
-        // Inicializa ao abrir a página
-        carregarFicha();
-        atualizarBarras();
+        if (viewCode) {
+            const topBtns = document.getElementById('main-top-buttons');
+            if(topBtns) topBtns.style.display = 'none'; 
+            
+            if (socket) {
+                socket.on('update_mestre', (dados) => {
+                    // Apenas recarrega se for o código certo e se NÃO for o próprio Iframe que enviou a alteração
+                    if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) {
+                        isLoadingData = true;
+                        populateData(dados.fullData);
+                    }
+                });
+                socket.emit('request_player', viewCode); 
+            }
+        } else {
+            load(); 
+        }
 
-    </script>
+        if (socket && !viewCode) {
+            socket.on('connect', () => save()); 
+
+            socket.on('comando_mestre', (dados) => {
+                if (dados.codigo === playerCode) {
+                    if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
+                    else if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
+                    else if (dados.tipo === 'status') toggleStatus(dados.status);
+                }
+            });
+
+            // Sincroniza a ficha caso o Mestre a edite no escudo
+            socket.on('mestre_force_sync_player', (dados) => {
+                if (dados.codigo === playerCode && dados.fullData) {
+                    isLoadingData = true;
+                    populateData(dados.fullData);
+                    localStorage.setItem('ordem_save_local', JSON.stringify(dados.fullData));
+                }
+            });
+        }
+
+        renderPremadeCatalogs(); 
+    }
+
+    function load() {
+        isLoadingData = true; 
+        let s = localStorage.getItem('ordem_save_local'); 
+        if(!s) { isLoadingData = false; return updateAllPericias(); }
+        populateData(JSON.parse(s));
+    }
+
+    function populateData(d) {
+        if(d.charImages) charImages = { ...charImages, ...d.charImages };
+        else if (d.info && d.info.char_img) charImages.normal = d.info.char_img;
+        if(d.charStatus) charStatus = d.charStatus;
+        if(d.info) { ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id) && d.info[id] !== undefined) document.getElementById(id).value = d.info[id]; }); }
+        updateProfilePicture();
+        currentOccupation = document.getElementById('char_ocupacao') ? document.getElementById('char_ocupacao').value : "Nenhuma";
+        for(let id in d.attrs) if(document.getElementById(id)) document.getElementById(id).value = d.attrs[id];
+        for(let id in d.skills) { const el = document.getElementById(id); if(el) { if(el.type==='checkbox') el.checked = d.skills[id]; else el.value = d.skills[id]; } }
+        if(d.ammo) for(let id in d.ammo) if(document.getElementById(id)) document.getElementById(id).value = d.ammo[id];
+        if(d.defense) document.getElementById('defense_val').value = d.defense;
+        
+        document.getElementById('inventory-body').innerHTML = ''; 
+        if(d.inv) d.inv.forEach(i => { addItemObj({ id: i.id||Date.now(), n: i.n, w: i.w, d: i.d, eq: i.eq, type: i.type, dmg: i.dmg, extra: i.extra, crit: i.crit, skill: i.skill, img: i.img, atkType: i.atkType, atk: i.atk, range: i.range, ammo: i.ammo, capacity: i.capacity, currentShots: i.currentShots }); });
+        
+        document.getElementById('abilities-list').innerHTML = '';
+        if(d.abilities) d.abilities.forEach(a => addAbility(a.n, a.d));
+        
+        document.getElementById('rituals-body').innerHTML = '';
+        if(d.rituals) d.rituals.forEach(r => { 
+            const descGeral = r.descGeral || r.desc || "Sem descrição.", descDisc = r.descDisc || "-", descVerd = r.descVerd || "-";
+            let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`;
+            if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`;
+            if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
+            const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+            addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || "");
+        });
+        
+        updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay();
+        document.querySelectorAll('[id^="chk_"]').forEach(c => { if(c.checked) toggleTrained(c.id.replace('chk_','')); });
+        isLoadingData = false; 
+    }
+
+    init();
+</script>
 </body>
 </html>
