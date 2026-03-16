@@ -1312,7 +1312,7 @@
         let resEl = document.getElementById('popup-res'); 
         
         let textoFinal = r;
-        if(r.includes(' (') && !r.includes('<br>')) {
+        if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) {
             textoFinal = r.replace(' (', '<br>(');
         }
         resEl.innerHTML = textoFinal; 
@@ -1320,20 +1320,18 @@
         resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
         
         box.style.animation = 'none';
-        if (r.includes('CRÍTICO')) {
-            box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
-            box.style.borderColor = '#ff0000';
-        } else {
-            box.style.boxShadow = 'none';
-            box.style.borderColor = 'var(--accent-yellow)';
-        }
+        box.style.boxShadow = 'none';
+        box.style.borderColor = 'var(--accent-yellow)';
 
         document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
         
+        // Só treme e pinta a caixa DEPOIS de aparecer o resultado (1.5s do GIF)
         setTimeout(() => {
             document.getElementById('popup-content').style.display = 'flex';
             if (r.includes('CRÍTICO')) {
                 box.style.animation = 'shakeCrit 0.4s infinite'; 
+                box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
+                box.style.borderColor = '#ff0000';
             }
         }, 1500);
 
@@ -1431,15 +1429,15 @@
 
             if (d === 1) {
                 textFormat = "DESASTRE";
-                colorFormat = "color:#ff5252; font-weight:bold; text-shadow: 2px 2px 4px #000;";
+                colorFormat = "color:#ff5252; text-shadow: 2px 2px 4px #000;";
             } else {
                 allDesastre = false;
                 if (isCrit && eArma) {
                     textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                    colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
                 } else if (d === 20 && !eArma) {
                     textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                    colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
                 } else if (d >= m.e && m.e != 99) {
                     textFormat = "EXTREMO";
                     colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;";
@@ -1456,26 +1454,25 @@
             }
 
             if (numAttacks > 1) {
+                // A cor agora é herdada diretamente do colorFormat
                 let listColor = colorFormat.replace("color:", "").replace(";", "");
-                resultsArray.push(`<span style="color:${listColor}; ${isCrit?'text-shadow: 0 0 10px #ff0000; font-weight:bold;':''}">${d} (${textFormat})</span>`);
+                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size: 0.7em; line-height: 1.2;">ATQ ${i+1}: ${d} (${textFormat})</div>`);
             } else {
-                showPopup(d, n + " (" + textFormat + ")", colorFormat);
+                showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
             }
         }
 
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0; width: 100%;">` 
-                + resultsArray.map((r, idx) => `<div style="text-align:center; width:100%;"><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
+            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">` 
+                + resultsArray.join('') 
                 + `</div>`;
             
-            let actionText = anyCrit ? "ATAQUE MÚLTIPLO<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "ATAQUE MÚLTIPLO";
-            if (allDesastre) actionText = "ATAQUE MÚLTIPLO<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
+            let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO";
+            if (allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
             
-            let combinedHtml = `${actionText}<div style="margin-top:15px; width:100%; display:flex; justify-content:center;">${finalHtml}</div>`;
-            
-            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0; text-align:center;");
+            showPopup(numAttacks + "x", `${actionText}${finalHtml}`, "color:white; text-align:center;");
         }
     }
 
@@ -1509,7 +1506,7 @@
             if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
             
             let title = isCrit ? `DANO CRÍTICO<br>(${wp.name})` : `DANO<br>(${wp.name})`; 
-            let color = isCrit ? "color: #ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 2px 2px 0px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
+            let color = isCrit ? "color: #ffcf33; text-shadow: 0 0 15px #ff0000, 2px 2px 4px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
             showPopup(t, title, color);
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
         lastAttackWasCrit = false; 
