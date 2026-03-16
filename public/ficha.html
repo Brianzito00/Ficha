@@ -124,7 +124,7 @@
         }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         
-        /* POPUP CONTENT CORRIGIDO PARA ABSOLUTE E FLEXBOX PERFEITO */
+        /* POPUP CONTENT COM FLEXBOX PERFEITO PARA CENTRALIZAR */
         .popup-content { 
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             z-index: 10; display: none; /* O JS vai mudar isto para 'flex' */
@@ -1311,36 +1311,38 @@
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
         let resEl = document.getElementById('popup-res'); 
         
-        // Separa o Nome (Dano, Ataque, Perícia) do Resultado (Falha, Crítico, Normal) e insere uma quebra de linha <br>
         let textoFinal = r;
         if(r.includes(' (') && !r.includes('<br>')) {
             textoFinal = r.replace(' (', '<br>(');
         }
         resEl.innerHTML = textoFinal; 
         
-        // APLICA O ESTILO (st) À STRING HTML PARA O TEXTO FINAL
         resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
         
+        box.style.animation = 'none';
         if (r.includes('CRÍTICO')) {
-            box.style.animation = 'shakeCrit 0.4s infinite'; 
             box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
             box.style.borderColor = '#ff0000';
         } else {
-            box.style.animation = 'none';
             box.style.boxShadow = 'none';
             box.style.borderColor = 'var(--accent-yellow)';
         }
 
-        // Tive que mudar isto de display = 'block' para display = 'flex' para o Flexbox manter tudo centrado
         document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
-        setTimeout(() => document.getElementById('popup-content').style.display = 'flex', 1500);
+        
+        setTimeout(() => {
+            document.getElementById('popup-content').style.display = 'flex';
+            if (r.includes('CRÍTICO')) {
+                box.style.animation = 'shakeCrit 0.4s infinite'; 
+            }
+        }, 1500);
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
             socket.emit('rolagem_feita', {
                 codigo: viewCode || playerCode,
                 jogador: viewCode ? viewCode : jogadorNome,
-                acao: r.replace(/<br>/g, ' '), // Remove o br para o Mestre ler normal
+                acao: r.replace(/<br>/g, ' '), 
                 resultado: n,
                 cor: st
             });
@@ -1374,6 +1376,7 @@
         document.getElementById('modal-qtd-ataques').style.display = 'none';
     }
     
+    // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
     function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
@@ -1428,32 +1431,27 @@
 
             if (d === 1) {
                 textFormat = "DESASTRE";
-                colorFormat = "color:#ff5252; font-weight:bold;";
+                colorFormat = "color:#ff5252; font-weight:bold; text-shadow: 2px 2px 4px #000;";
             } else {
                 allDesastre = false;
                 if (isCrit && eArma) {
                     textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
-                } else if (eArma) {
-                    textFormat = d >= m.n ? "ACERTO" : "FALHA";
-                    colorFormat = d >= m.n ? "color:var(--accent-green)" : "color:var(--accent-red)";
+                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                } else if (d === 20 && !eArma) {
+                    textFormat = "CRÍTICO";
+                    colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                } else if (d >= m.e && m.e != 99) {
+                    textFormat = "EXTREMO";
+                    colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;";
+                } else if (d >= m.b && m.b != 99) {
+                    textFormat = "BOM";
+                    colorFormat = "color:var(--accent-blue); text-shadow: 2px 2px 4px #000;";
+                } else if (d >= m.n) {
+                    textFormat = "NORMAL";
+                    colorFormat = "color:var(--accent-green); text-shadow: 2px 2px 4px #000;";
                 } else {
-                    if (d === 20) {
-                        textFormat = "CRÍTICO";
-                        colorFormat = "color:#ffcf33; font-weight:900; text-shadow: 0 0 10px #ff0000;";
-                    } else if (d >= m.e && m.e != 99) {
-                        textFormat = "EXTREMO";
-                        colorFormat = "color:var(--accent-yellow)";
-                    } else if (d >= m.b && m.b != 99) {
-                        textFormat = "BOM";
-                        colorFormat = "color:var(--accent-blue)";
-                    } else if (d >= m.n) {
-                        textFormat = "NORMAL";
-                        colorFormat = "color:var(--accent-green)";
-                    } else {
-                        textFormat = "FALHA";
-                        colorFormat = "color:var(--accent-red)";
-                    }
+                    textFormat = "FALHA";
+                    colorFormat = "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
                 }
             }
 
@@ -1468,16 +1466,16 @@
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0;">` 
-                + resultsArray.map((r, idx) => `<div><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
+            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0; width: 100%;">` 
+                + resultsArray.map((r, idx) => `<div style="text-align:center; width:100%;"><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
                 + `</div>`;
             
             let actionText = anyCrit ? "ATAQUE MÚLTIPLO<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "ATAQUE MÚLTIPLO";
             if (allDesastre) actionText = "ATAQUE MÚLTIPLO<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
             
-            let combinedHtml = `${actionText}<div style="margin-top:15px;">${finalHtml}</div>`;
+            let combinedHtml = `${actionText}<div style="margin-top:15px; width:100%; display:flex; justify-content:center;">${finalHtml}</div>`;
             
-            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0;");
+            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0; text-align:center;");
         }
     }
 
