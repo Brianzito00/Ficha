@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overlay RPG - Stream</title>
+    <title>Overlay RPG - Stream Minimalist</title>
     <style>
-        /* Importação da fonte estilo "Marcador" idêntica à do Ordem Paranormal */
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
         body {
@@ -20,7 +19,7 @@
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
-            gap: 40px;
+            gap: 30px;
             position: relative;
             z-index: 1;
         }
@@ -28,7 +27,7 @@
         .player-card {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
             animation: fadeIn 0.6s ease-out;
         }
 
@@ -38,8 +37,8 @@
         }
 
         .foto-container {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
             position: relative;
         }
 
@@ -47,65 +46,52 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            transition: filter 0.3s;
+            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        .perigo {
-            animation: pulse-red 1.5s infinite ease-in-out;
-            filter: drop-shadow(0 0 15px #ff0000) !important;
-        }
-
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        /* NÚMEROS ESTILO ORDEM PARANORMAL (Marcador Inclinado) */
+        /* CONFIGURAÇÃO DOS NÚMEROS */
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Mais espaço entre Vida e Sanidade para bater com a imagem */
+            gap: 5px; 
             font-family: 'Permanent Marker', cursive;
-            font-size: 3.5rem;
-            line-height: 0.8;
+            font-size: 2.8rem; /* Tamanho reduzido conforme pedido */
+            line-height: 0.9;
             user-select: none;
-            transform: skewX(-10deg); /* Inclinação no texto todo */
-            letter-spacing: 3px; /* Espaço entre os números */
+            /* Inclinação para a direita (estilo itálico da foto) */
+            transform: skewX(-15deg); 
+            letter-spacing: 2px;
         }
 
-        /* EFEITO NEON PURO: Sem borda preta, interior branco, brilho colorido intenso */
+        /* EFEITO GLOW (NEON) SEM ESCRITAS */
         .val-vida { 
             color: white; 
             text-shadow: 
-                0 0 5px #ff4d4d, 
+                0 0 8px #ff0000, 
                 0 0 15px #ff0000, 
-                0 0 30px #ff0000, 
-                0 0 45px #cc0000; 
+                0 0 30px #ff0000; 
         }
         
         .val-sani { 
             color: white; 
             text-shadow: 
-                0 0 5px #66b3ff, 
-                0 0 15px #0088ff, 
-                0 0 30px #0066cc, 
-                0 0 45px #004499; 
+                0 0 8px #00aaff, 
+                0 0 15px #00aaff, 
+                0 0 30px #0088ff; 
         }
         
         .val-ammo { 
             color: white; 
             text-shadow: 
-                0 0 5px #ffea80, 
+                0 0 8px #ffcf33, 
                 0 0 15px #ffcf33, 
-                0 0 30px #e6b800, 
-                0 0 45px #b38f00; 
-            font-size: 2.5rem;
-            margin-top: 10px;
+                0 0 30px #ffae00; 
+            font-size: 2rem;
+            margin-top: 5px;
         }
 
-        /* PAINEL TOTALMENTE NO CANTO OPOSTO PARA NÃO ATRAPALHAR A STREAM */
+        /* PAINEL DE CONTROLE */
         .setup-panel {
             position: fixed;
             bottom: 20px;
@@ -122,15 +108,13 @@
 
         .setup-panel input {
             background: #111; border: 1px solid #555; color: white;
-            padding: 5px; width: 100px; text-align: center; border-radius: 4px; outline: none; text-transform: uppercase;
+            padding: 5px; width: 100px; text-align: center; border-radius: 4px; outline: none;
         }
 
         .setup-panel button {
             background: #333; color: #ffcf33; border: 1px solid #ffcf33;
             cursor: pointer; border-radius: 4px; font-weight: bold; padding: 5px 12px; font-size: 12px;
         }
-
-        .setup-panel button:hover { background: #ffcf33; color: black; }
     </style>
 </head>
 <body>
@@ -138,7 +122,7 @@
     <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="USUÁRIO" maxlength="30">
+        <input type="text" id="codigo-input" placeholder="USUÁRIO">
         <button onclick="addPlayer()">ADD</button>
         <button onclick="limparTudo()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
@@ -174,8 +158,8 @@
             div.innerHTML = `
                 <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
                 <div class="status-numbers">
-                    <div class="val-vida" id="vida-${code}">--/--</div>
-                    <div class="val-sani" id="sani-${code}">--/--</div>
+                    <div class="val-vida" id="vida-${code}">00/00</div>
+                    <div class="val-sani" id="sani-${code}">00/00</div>
                     <div class="val-ammo" id="ammo-${code}"></div>
                 </div>
             `;
@@ -191,32 +175,18 @@
         socket.on('update_mestre', (dados) => {
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
-
-                // 1. Atualiza Foto
                 const fotoEl = document.getElementById(`foto-${cod}`);
-                if (fotoEl) {
-                    fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
-                    const percVida = (dados.vida_atual / dados.vida_max) * 100;
-                    fotoEl.classList.toggle('perigo', percVida <= 25);
-                }
+                if (fotoEl) fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
 
-                // 2. Atualiza Vida e Sanidade
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
-                // 3. Atualiza a Munição da arma ativa
                 const ammoEl = document.getElementById(`ammo-${cod}`);
                 let muniTexto = "";
-
                 if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
-                    const idArmaNoSlot = dados.fullData.arma_ativa_id;
-                    const armaSelecionada = dados.fullData.inv.find(item => item.id === idArmaNoSlot);
-
-                    if (armaSelecionada && armaSelecionada.ammo !== "Nenhuma") {
-                        muniTexto = armaSelecionada.currentShots || "0";
-                    }
+                    const arma = dados.fullData.inv.find(item => item.id === dados.fullData.arma_ativa_id);
+                    if (arma && arma.ammo !== "Nenhuma") muniTexto = arma.currentShots || "0";
                 }
-                
                 ammoEl.innerText = muniTexto;
             }
         });
