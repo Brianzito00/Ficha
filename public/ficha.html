@@ -112,10 +112,14 @@
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
         .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; }
+        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
-        .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
+        .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 80%; }
         
+        /* Ocultar barra de rolagem mas permitir scroll */
+        .popup-res::-webkit-scrollbar { width: 5px; }
+        .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
+
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
         /* Animação para tremer a caixa de dados no Crítico! */
@@ -169,6 +173,18 @@
             📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)">
         </label>
         <button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao login">Sair (Logout)</button>
+    </div>
+</div>
+
+<div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()" style="z-index: 4000;">
+    <div class="popup-box" onclick="event.stopPropagation()" style="width: 300px; text-align: center;">
+        <h3 style="color: var(--accent-blue); margin-top: 0; text-transform: uppercase;">Ataque Múltiplo</h3>
+        <p style="font-size: 0.85em; color: var(--text-secondary);">Esta arma permite até <span id="max-atk-display" style="color:white; font-weight:bold;">X</span> ataques. Quantos deseja usar agora?</p>
+        <input type="number" id="input-qtd-ataques" class="inv-input" style="font-size: 2em; text-align: center; margin-bottom: 20px;" min="1" value="1">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-add" style="flex:1; margin:0;" id="btn-confirm-ataques">ROLAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="fecharModalQtdAtaques()">CANCELAR</button>
+        </div>
     </div>
 </div>
 
@@ -550,6 +566,10 @@
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
+
+    // Variáveis auxiliares para o modal de ataques
+    let pendingRollParams = null;
+    let pendingMaxAtaques = 1;
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
@@ -1288,8 +1308,37 @@
         }
     }
     
+    // --- FUNÇÕES DE LÓGICA DO MODAL DE MÚLTIPLOS ATAQUES ---
+    function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) {
+        document.getElementById('max-atk-display').innerText = maxAtk;
+        const input = document.getElementById('input-qtd-ataques');
+        input.max = maxAtk;
+        input.value = maxAtk; 
+        
+        // Garante que o jogador não digite mais do que pode
+        input.oninput = function() {
+            let val = parseInt(this.value);
+            if (val > maxAtk) this.value = maxAtk;
+            if (val < 1) this.value = 1;
+        };
+
+        document.getElementById('modal-qtd-ataques').style.display = 'flex';
+        
+        document.getElementById('btn-confirm-ataques').onclick = function() {
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > maxAtk) val = maxAtk; 
+            fecharModalQtdAtaques();
+            rolarTesteD20(n, id, ak, modPerc, true, val);
+        };
+    }
+
+    function fecharModalQtdAtaques() {
+        document.getElementById('modal-qtd-ataques').style.display = 'none';
+    }
+
     // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
-    function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
+    function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
         let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
@@ -1317,13 +1366,14 @@
                         cMarg = parseInt(wp.crit.split('/')[0])||20; 
                     }
                     if (wp.atk && parseInt(wp.atk) > 1) { 
-                        numAttacks = parseInt(wp.atk);
-                        // Pergunta a quantidade de ataques
-                        let userChoice = prompt(`Esta arma permite até ${numAttacks} ataques.\nQuantos ataques deseja realizar agora?`, numAttacks);
-                        if (userChoice === null) return; // Cancelou a rolagem
-                        let parsed = parseInt(userChoice);
-                        if (isNaN(parsed) || parsed < 1) return;
-                        numAttacks = parsed > numAttacks ? numAttacks : parsed;
+                        let maxAtaquesPossiveis = parseInt(wp.atk);
+                        // Se ainda não escolheu a quantidade, abre o Modal e pausa a função!
+                        if (qtdAtaquesForcado === null) {
+                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak, modPerc);
+                            return; 
+                        } else {
+                            numAttacks = qtdAtaquesForcado;
+                        }
                     }
                 }
             }
@@ -1331,7 +1381,7 @@
 
         let resultsArray = [];
         let anyCrit = false;
-        let allDesastre = true; // Para saber se todos os tiros foram desastre
+        let allDesastre = true;
 
         for(let i=0; i<numAttacks; i++) {
             let d = Math.floor(Math.random()*20)+1;
@@ -1373,11 +1423,9 @@
             }
 
             if (numAttacks > 1) {
-                // Formato de lista se houver múltiplos ataques
                 let listColor = colorFormat.replace("color:", "").replace(";", "");
                 resultsArray.push(`<span style="color:${listColor}; ${isCrit?'text-shadow: 0 0 5px #ff0000; font-weight:bold;':''}">${d} (${textFormat})</span>`);
             } else {
-                // Se for só 1 ataque (ou 1 perícia), mostra direto
                 showPopup(d, n + " (" + textFormat + ")", colorFormat);
             }
         }
