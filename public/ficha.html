@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
+        /* Importação da fonte do Ordem Paranormal para os Dados */
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
         :root {
@@ -113,13 +114,36 @@
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
         
-        /* ESTILOS DO POPUP DE DADOS CORRIGIDOS (COM FONTE PERMANENT MARKER E CENTRALIZADO) */
-        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
+        /* ESTILOS DO POPUP DE DADOS CENTRALIZADOS COM A FONTE DO ORDEM */
+        .popup-box-dice { 
+            position: relative; width: 600px; height: 400px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            overflow: hidden; text-align: center; 
+        }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin-bottom: 5px; }
-        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        /* POPUP CONTENT CORRIGIDO PARA ABSOLUTE E FLEXBOX PERFEITO */
+        .popup-content { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10; display: none; /* O JS vai mudar isto para 'flex' */
+            flex-direction: column; justify-content: center; align-items: center; 
+            animation: fadeInResult 0.5s forwards; text-align: center; 
+        }
+        
+        .popup-number { 
+            font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; 
+            text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; 
+            text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; 
+        }
+        
+        .popup-res { 
+            font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; 
+            margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; 
+            max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; 
+        }
         
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
@@ -570,6 +594,10 @@
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
+
+    // Variáveis auxiliares para o modal de ataques
+    let pendingRollParams = null;
+    let pendingMaxAtaques = 1;
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
@@ -1282,9 +1310,15 @@
         let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
         let resEl = document.getElementById('popup-res'); 
-        resEl.innerHTML = r; 
         
-        // APLICA O ESTILO (st) À STRING HTML
+        // Separa o Nome (Dano, Ataque, Perícia) do Resultado (Falha, Crítico, Normal) e insere uma quebra de linha <br>
+        let textoFinal = r;
+        if(r.includes(' (') && !r.includes('<br>')) {
+            textoFinal = r.replace(' (', '<br>(');
+        }
+        resEl.innerHTML = textoFinal; 
+        
+        // APLICA O ESTILO (st) À STRING HTML PARA O TEXTO FINAL
         resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
         
         if (r.includes('CRÍTICO')) {
@@ -1297,15 +1331,16 @@
             box.style.borderColor = 'var(--accent-yellow)';
         }
 
+        // Tive que mudar isto de display = 'block' para display = 'flex' para o Flexbox manter tudo centrado
         document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
-        setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
+        setTimeout(() => document.getElementById('popup-content').style.display = 'flex', 1500);
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
             socket.emit('rolagem_feita', {
                 codigo: viewCode || playerCode,
                 jogador: viewCode ? viewCode : jogadorNome,
-                acao: r,
+                acao: r.replace(/<br>/g, ' '), // Remove o br para o Mestre ler normal
                 resultado: n,
                 cor: st
             });
@@ -1339,7 +1374,6 @@
         document.getElementById('modal-qtd-ataques').style.display = 'none';
     }
     
-    // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
     function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
@@ -1427,23 +1461,23 @@
                 let listColor = colorFormat.replace("color:", "").replace(";", "");
                 resultsArray.push(`<span style="color:${listColor}; ${isCrit?'text-shadow: 0 0 10px #ff0000; font-weight:bold;':''}">${d} (${textFormat})</span>`);
             } else {
-                showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
+                showPopup(d, n + " (" + textFormat + ")", colorFormat);
             }
         }
 
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0; width: 100%;">` 
-                + resultsArray.map((r, idx) => `<div style="text-align:center; width:100%;"><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
+            let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0;">` 
+                + resultsArray.map((r, idx) => `<div><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
                 + `</div>`;
             
             let actionText = anyCrit ? "ATAQUE MÚLTIPLO<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "ATAQUE MÚLTIPLO";
             if (allDesastre) actionText = "ATAQUE MÚLTIPLO<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
             
-            let combinedHtml = `${actionText}<div style="margin-top:15px; width:100%; display:flex; justify-content:center;">${finalHtml}</div>`;
+            let combinedHtml = `${actionText}<div style="margin-top:15px;">${finalHtml}</div>`;
             
-            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0; text-align:center;");
+            showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0;");
         }
     }
 
