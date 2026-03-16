@@ -1329,7 +1329,7 @@
     }
     
     // Função unificada de rolagem
-    function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
+   function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
         let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
@@ -1344,13 +1344,20 @@
         let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty);
         let d = Math.floor(Math.random()*20)+1;
         let m = tabelaD20[f>20?20:f<1?1:f];
-        let isCrit = false;
-        let isDesastre = d === 1;
-        
-        let numAttacks = 1;
 
-        if (eArma && (n === "Luta" || n === "Pontaria")) {
+        // 1. REGRA UNIVERSAL DO DESASTRE
+        if (d === 1) {
+            showPopup(d, n + " (DESASTRE)", "color:#ff5252; font-weight:bold");
+            return; // Para aqui e não faz mais nada
+        }
+        
+        // 2. SE FOR UM ATAQUE COM ARMA (LUTA OU PONTARIA)
+        if (eArma) {
+            let isCrit = false;
+            let numAttacks = 1;
             const sel = document.getElementById('active-weapon-select');
+            
+            // Vai buscar as infos da arma ativa para saber a margem de crítico
             if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) {
                 const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id;
                 const wp = equippedWeaponsData.find(w => w.id === wpId);
@@ -1363,67 +1370,60 @@
                 }
             }
             lastAttackWasCrit = isCrit || d === 20;
-        }
-        
-        // Rolagem Múltipla (Arma com Qtd. Ataques > 1)
-        if (eArma && numAttacks > 1 && (n === "Luta" || n === "Pontaria")) {
-            let results = []; let anyCrit = false;
-            for(let i=0; i<numAttacks; i++) {
-                let rd = Math.floor(Math.random()*20)+1; 
-                let isThisCrit = false;
-                let isThisDesastre = rd === 1;
-                
-                const sel = document.getElementById('active-weapon-select');
-                if (sel && sel.value) {
-                    const wp = equippedWeaponsData.find(w => w.id === sel.value);
-                    if (wp && wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
-                        let cMarg = parseInt(wp.crit.split('/')[0])||20; 
-                        if (rd >= cMarg) isThisCrit = true; 
+
+            // Se a arma dá vários tiros/ataques de uma vez
+            if (numAttacks > 1) {
+                let results = []; let anyCrit = false;
+                for(let i=0; i<numAttacks; i++) {
+                    let rd = Math.floor(Math.random()*20)+1; 
+                    let isThisCrit = false;
+                    
+                    if (sel && sel.value) {
+                        const wp = equippedWeaponsData.find(w => w.id === sel.value);
+                        if (wp && wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
+                            let cMarg = parseInt(wp.crit.split('/')[0])||20; 
+                            if (rd >= cMarg) isThisCrit = true; 
+                        }
+                    }
+                    if (isThisCrit || rd === 20) anyCrit = true;
+                    
+                    if (rd === 1) {
+                        results.push(`<span style="color:#ff5252; font-weight:bold;">${rd} (DESASTRE)</span>`);
+                    } else if (isThisCrit || rd === 20) { 
+                        results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); 
+                    } else {
+                        let rm = tabelaD20[f>20?20:f<1?1:f];
+                        let lbl = rd >= rm.n ? "ACERTO" : "FALHA";
+                        let st = rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
+                        results.push(`<span style="color:${st}">${rd} (${lbl})</span>`);
                     }
                 }
-                
-                if (isThisCrit || rd === 20) anyCrit = true;
-                
-                if (isThisDesastre) {
-                    results.push(`<span style="color:#ff5252; font-weight:bold;">${rd} (DESASTRE)</span>`);
-                } else if (isThisCrit || rd === 20) { 
-                    results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); 
-                } else {
-                    let rm = tabelaD20[f>20?20:f<1?1:f];
-                    let lbl = rd >= rm.n ? "ACERTO" : "FALHA";
-                    let st = rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
-                    results.push(`<span style="color:${st}">${rd} (${lbl})</span>`);
+                lastAttackWasCrit = anyCrit;
+                let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
+                showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
+            } 
+            // Se for só 1 ataque normal da arma
+            else {
+                if (lastAttackWasCrit) { 
+                    showPopup(d, n + " (CRÍTICO)", "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"); 
+                } else { 
+                    let res = d >= m.n ? ["ACERTO", "var(--accent-green)"] : ["FALHA", "var(--accent-red)"]; 
+                    showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
                 }
             }
-            lastAttackWasCrit = anyCrit;
-            let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
-            showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
         } 
-        // Rolagem Única (Arma ou Perícia)
+        
+        // 3. SE FOR ROLAGEM DE PERÍCIA (SEM ARMAS)
         else {
             let res;
-            if (isDesastre) {
-                res = ["DESASTRE", "#ff5252; font-weight:bold"];
-            } else if (eArma) {
-                // Regra de Arma: Crítico, Acerto, Falha
-                if (isCrit || d === 20) { 
-                    res = ["CRÍTICO", "var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"]; 
-                } else { 
-                    res = d >= m.n ? ["ACERTO", "var(--accent-green)"] : ["FALHA", "var(--accent-red)"]; 
-                }
+            if (d >= m.e && m.e != 99) {
+                res = ["EXTREMO", "var(--accent-yellow)"];
+            } else if (d >= m.b && m.b != 99) {
+                res = ["BOM", "var(--accent-blue)"];
+            } else if (d >= m.n) {
+                res = ["NORMAL", "var(--accent-green)"];
             } else {
-                // Regra de Perícia: Extremo, Bom, Normal, Falha
-                if (d === 20) {
-                    res = ["CRÍTICO", "var(--accent-red); text-shadow: 0 0 5px var(--accent-red)"];
-                } else if (d >= m.e && m.e != 99) {
-                    res = ["EXTREMO", "var(--accent-yellow)"];
-                } else if (d >= m.b && m.b != 99) {
-                    res = ["BOM", "var(--accent-blue)"];
-                } else if (d >= m.n) {
-                    res = ["NORMAL", "var(--accent-green)"];
-                } else {
-                    res = ["FALHA", "var(--accent-red)"];
-                }
+                res = ["FALHA", "var(--accent-red)"];
             }
             showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
         }
