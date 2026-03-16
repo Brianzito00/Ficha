@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overlay RPG - Stream</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
+        /* Importação da fonte estilo "Marcador" idêntica à do Ordem Paranormal */
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
         body {
             margin: 0;
@@ -16,7 +17,6 @@
             overflow: hidden;
         }
 
-        /* ALINHAMENTO DOS CARDS E CORREÇÃO DE SOBREPOSIÇÃO */
         #multi-overlay-container {
             display: flex;
             flex-direction: column;
@@ -62,34 +62,47 @@
             50% { opacity: 0.6; }
         }
 
-        /* NÚMEROS ESTILO NEON ALINHADOS E INCLINADOS */
+        /* NÚMEROS ESTILO ORDEM PARANORMAL (Marcador Inclinado) */
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            font-family: 'Grenze Gotisch', cursive;
+            gap: 15px; /* Mais espaço entre Vida e Sanidade para bater com a imagem */
+            font-family: 'Permanent Marker', cursive;
             font-size: 3.5rem;
             line-height: 0.8;
             user-select: none;
-            font-style: italic; /* Deixa os números inclinados */
+            transform: skewX(-10deg); /* Inclinação no texto todo */
+            letter-spacing: 3px; /* Espaço entre os números */
         }
 
-        /* Letra Branca + Efeito Neon intenso nas respectivas cores */
+        /* EFEITO NEON PURO: Sem borda preta, interior branco, brilho colorido intenso */
         .val-vida { 
             color: white; 
-            text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000, 2px 2px 4px black; 
+            text-shadow: 
+                0 0 5px #ff4d4d, 
+                0 0 15px #ff0000, 
+                0 0 30px #ff0000, 
+                0 0 45px #cc0000; 
         }
         
         .val-sani { 
             color: white; 
-            text-shadow: 0 0 5px #0088ff, 0 0 10px #0088ff, 0 0 20px #0088ff, 0 0 40px #0088ff, 2px 2px 4px black; 
+            text-shadow: 
+                0 0 5px #66b3ff, 
+                0 0 15px #0088ff, 
+                0 0 30px #0066cc, 
+                0 0 45px #004499; 
         }
         
         .val-ammo { 
             color: white; 
-            text-shadow: 0 0 5px #ffcf33, 0 0 10px #ffcf33, 0 0 20px #ffcf33, 0 0 40px #ffcf33, 2px 2px 4px black; 
-            font-size: 2.8rem;
-            margin-top: 5px;
+            text-shadow: 
+                0 0 5px #ffea80, 
+                0 0 15px #ffcf33, 
+                0 0 30px #e6b800, 
+                0 0 45px #b38f00; 
+            font-size: 2.5rem;
+            margin-top: 10px;
         }
 
         /* PAINEL TOTALMENTE NO CANTO OPOSTO PARA NÃO ATRAPALHAR A STREAM */
@@ -179,7 +192,7 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
 
-                // 1. Atualiza Foto e verifica se a vida está baixa (< 25%)
+                // 1. Atualiza Foto
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
