@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
+    <title>Ficha de Jogador</title>
     <style>
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
@@ -117,6 +117,8 @@
         .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+        /* Animação para tremer a caixa de dados no Crítico! */
         @keyframes shakeCrit {
             0% { transform: translate(2px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-2deg); }
@@ -130,6 +132,7 @@
             90% { transform: translate(2px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-2deg); }
         }
+
         @media (max-width: 768px) {
             body { padding: 10px; }
             .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
@@ -1318,6 +1321,7 @@
 
     // --- DADOS E COMBATE ---
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+    
     function showPopup(n, r="TOTAL", st="color:white") {
         const box = document.querySelector('.popup-box-dice'); 
         box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
@@ -1352,8 +1356,7 @@
         }
     }
     
-    // Função unificada de rolagem
-   function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
+    function rolarTesteD20(n, id, ak, modPerc, eArma = false) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
         let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
@@ -1423,13 +1426,11 @@
                 lastAttackWasCrit = anyCrit;
                 let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
                 
-                // Se algum tiro foi crítico, o título avisa e treme!
                 let actionText = anyCrit ? "Ataque (CRÍTICO!)" : "Ataque Múltiplo";
                 showPopup(numAttacks + "x", actionText, "color:white; margin-top:0;");
             } 
             else {
                 if (lastAttackWasCrit) { 
-                    // NOVO VISUAL DO CRÍTICO: Amarelo vibrante com sombra vermelha
                     showPopup(d, n + " (CRÍTICO)", "color:#ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000, 2px 2px 0px #000;"); 
                 } else { 
                     let res = d >= m.n ? ["ACERTO", "var(--accent-green)"] : ["FALHA", "var(--accent-red)"]; 
@@ -1462,7 +1463,6 @@
         let skillObj = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_") === sn);
         if(!skillObj) { skillObj = periciasBase.find(p => p.nome === "Luta"); } 
         
-        // Passa TRUE no último parâmetro para ativar a lógica de arma
         rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod, true); 
     }
 
@@ -1485,7 +1485,6 @@
             if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
             
             let title = isCrit ? "DANO CRÍTICO (" + wp.name + ")" : "DANO (" + wp.name + ")"; 
-            // Dano do Crítico também treme a caixa e tem cor diferente!
             let color = isCrit ? "color: #ffcf33; font-weight:900; text-shadow: 0 0 15px #ff0000, 2px 2px 0px #000;" : "color: var(--accent-red)";
             showPopup(t, title, color);
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
