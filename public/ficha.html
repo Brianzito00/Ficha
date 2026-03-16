@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
@@ -110,13 +112,15 @@
         .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
+        
+        /* ESTILOS DO POPUP DE DADOS ATUALIZADOS */
         .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
-        .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 80%; }
         
-        /* Ocultar barra de rolagem mas permitir scroll */
+        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.5), 2px 2px 4px #000; line-height: 1; margin-bottom: 5px; }
+        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 90%; }
+        
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
 
@@ -1307,7 +1311,7 @@
             });
         }
     }
-    
+
     // --- FUNÇÕES DE LÓGICA DO MODAL DE MÚLTIPLOS ATAQUES ---
     function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) {
         document.getElementById('max-atk-display').innerText = maxAtk;
@@ -1315,7 +1319,6 @@
         input.max = maxAtk;
         input.value = maxAtk; 
         
-        // Garante que o jogador não digite mais do que pode
         input.oninput = function() {
             let val = parseInt(this.value);
             if (val > maxAtk) this.value = maxAtk;
@@ -1336,8 +1339,7 @@
     function fecharModalQtdAtaques() {
         document.getElementById('modal-qtd-ataques').style.display = 'none';
     }
-
-    // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
+    
     // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
     function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
         lastAttackWasCrit = false;
@@ -1368,7 +1370,6 @@
                     }
                     if (wp.atk && parseInt(wp.atk) > 1) { 
                         let maxAtaquesPossiveis = parseInt(wp.atk);
-                        // Se ainda não escolheu a quantidade, abre o Modal e pausa a função!
                         if (qtdAtaquesForcado === null) {
                             abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak, modPerc);
                             return; 
@@ -1424,7 +1425,6 @@
             }
 
             if (numAttacks > 1) {
-                // Passa o colorFormat diretamente para o style para não perder sombras e negritos
                 resultsArray.push(`<span style="${colorFormat}">${d} (${textFormat})</span>`);
             } else {
                 showPopup(d, n + " (" + textFormat + ")", colorFormat);
@@ -1434,16 +1434,13 @@
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            // Monta a lista formatada com uma fonte mais limpa para se conseguir ler
             let finalHtml = `<div style="font-size:0.55em; line-height:1.4; display:flex; flex-direction:column; gap:8px; text-shadow: 1px 1px 0 #000; font-family: 'Roboto', sans-serif; text-transform:none; letter-spacing: 0;">` 
                 + resultsArray.map((r, idx) => `<div><b style="color:#aaa;">Atq ${idx+1}:</b> ${r}</div>`).join('') 
                 + `</div>`;
             
-            // Define o título do popup
             let actionText = anyCrit ? "ATAQUE MÚLTIPLO<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "ATAQUE MÚLTIPLO";
             if (allDesastre) actionText = "ATAQUE MÚLTIPLO<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
             
-            // Junta o Título com a Lista
             let combinedHtml = `${actionText}<div style="margin-top:15px;">${finalHtml}</div>`;
             
             showPopup(numAttacks + "x", combinedHtml, "color:white; margin-top:0;");
