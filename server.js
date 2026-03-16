@@ -2,77 +2,76 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const fs = require('fs');
+const admin = require('firebase-admin');
+
+// 1. Ligar ao Firebase usando a sua chave secreta
+const serviceAccount = require('./firebase-key.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore(); // Conecta ao Firestore
 
 const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
-// Permite que o servidor leia ficheiros JSON (usados no login/registo)
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Caminho para o nosso "Banco de Dados" em ficheiro
-const dbPath = path.join(__dirname, 'usuarios.json');
-
-// Função para ler o banco de dados
-function lerDB() {
-    if (!fs.existsSync(dbPath)) return {};
-    return JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-}
-
-// Função para guardar no banco de dados
-function guardarDB(dados) {
-    fs.writeFileSync(dbPath, JSON.stringify(dados, null, 2));
-}
-
-// Redireciona a página inicial para o LOGIN agora
 app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
-// --- SISTEMA DE CONTAS (API) ---
+// --- SISTEMA DE CONTAS (FIREBASE NA NUVEM) ---
 
-// Registar
-app.post('/api/registar', (req, res) => {
+// Registar Novo Jogador
+app.post('/api/registar', async (req, res) => {
     const { usuario, senha } = req.body;
-    const db = lerDB();
+    try {
+        const userRef = db.collection('usuarios').doc(usuario);
+        const doc = await userRef.get();
 
-    if (db[usuario]) {
-        return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
-    }
+        if (doc.exists) {
+            return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
+        }
 
-    db[usuario] = { senha: senha, ficha: null }; // Cria o utilizador sem ficha no início
-    guardarDB(db);
-    res.json({ sucesso: true });
-});
-
-// Login
-app.post('/api/login', (req, res) => {
-    const { usuario, senha } = req.body;
-    const db = lerDB();
-
-    if (!db[usuario] || db[usuario].senha !== senha) {
-        return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
-    }
-    
-    res.json({ sucesso: true, ficha: db[usuario].ficha });
-});
-
-// Guardar Ficha no Perfil
-app.post('/api/guardar_ficha', (req, res) => {
-    const { usuario, fichaData } = req.body;
-    const db = lerDB();
-
-    if (db[usuario]) {
-        db[usuario].ficha = fichaData;
-        guardarDB(db);
+        // Guarda o jogador no Firebase
+        await userRef.set({ senha: senha, ficha: null });
         res.json({ sucesso: true });
-    } else {
-        res.json({ sucesso: false, erro: 'Utilizador não encontrado.' });
+    } catch (error) {
+        console.error(error);
+        res.json({ sucesso: false, erro: 'Erro ao contactar o Firebase.' });
     }
 });
 
+// Fazer Login
+app.post('/api/login', async (req, res) => {
+    const { usuario, senha } = req.body;
+    try {
+        const userRef = db.collection('usuarios').doc(usuario);
+        const doc = await userRef.get();
+
+        if (!doc.exists || doc.data().senha !== senha) {
+            return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
+        }
+        
+        res.json({ sucesso: true, ficha: doc.data().ficha });
+    } catch (error) {
+        res.json({ sucesso: false, erro: 'Erro ao contactar o Firebase.' });
+    }
+});
+
+// Guardar Ficha para Sempre
+app.post('/api/guardar_ficha', async (req, res) => {
+    const { usuario, fichaData } = req.body;
+    try {
+        const userRef = db.collection('usuarios').doc(usuario);
+        await userRef.update({ ficha: fichaData });
+        res.json({ sucesso: true });
+    } catch (error) {
+        res.json({ sucesso: false, erro: 'Erro ao guardar a ficha na nuvem.' });
+    }
+});
 
 // --- SISTEMA EM TEMPO REAL (SOCKET.IO) ---
 const playersData = {}; 
@@ -98,27 +97,31 @@ io.on('connection', (socket) => {
     socket.on('comando_mestre', (dados) => { io.emit('comando_mestre', dados); });
     socket.on('rolagem_feita', (dados) => { io.emit('novo_log', dados); });
 
-    socket.on('request_player', (codigo) => {
+    socket.on('request_player', async (codigo) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
         } else {
-            // Se o servidor acabou de reiniciar, tenta ler a ficha salva no DB
-            const db = lerDB();
-            if (db[codigo] && db[codigo].ficha) {
-                const f = db[codigo].ficha;
-                const dadosRecuperados = {
-                    codigo: codigo,
-                    nome: f.info.char_nome,
-                    foto: f.info.char_img,
-                    nex: f.info.char_nex,
-                    defesa: f.defense,
-                    vida_atual: f.info.vida_atual, vida_max: f.info.vida_max,
-                    sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
-                    status: f.charStatus,
-                    fullData: f
-                };
-                playersData[codigo] = dadosRecuperados;
-                socket.emit('update_mestre', dadosRecuperados);
+            // Se o servidor adormeceu e acordou, ele vai buscar a ficha ao Firebase automaticamente!
+            try {
+                const doc = await db.collection('usuarios').doc(codigo).get();
+                if (doc.exists && doc.data().ficha) {
+                    const f = doc.data().ficha;
+                    const dadosRecuperados = {
+                        codigo: codigo,
+                        nome: f.info.char_nome,
+                        foto: f.info.char_img,
+                        nex: f.info.char_nex,
+                        defesa: f.defense,
+                        vida_atual: f.info.vida_atual, vida_max: f.info.vida_max,
+                        sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
+                        status: f.charStatus,
+                        fullData: f
+                    };
+                    playersData[codigo] = dadosRecuperados;
+                    socket.emit('update_mestre', dadosRecuperados);
+                }
+            } catch (error) {
+                console.log("Jogador ainda não tem ficha no Firebase.");
             }
         }
     });
@@ -128,5 +131,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor a correr na porta ${PORT}!`);
+    console.log(`🚀 Servidor com FIREBASE a correr na porta ${PORT}!`);
 });
