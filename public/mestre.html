@@ -46,6 +46,7 @@
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
+        /* A ESCALA 3x6 EXIGIDA - 3 COLUNAS */
         .players-container, .monsters-grid {
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -333,9 +334,6 @@
             window.location.href = '/login.html';
         }
 
-        // ===============================================
-        // SISTEMA DE CLOUD SAVE DO MESTRE (NUVEM / FIREBASE)
-        // ===============================================
         let cloudSaveStr = localStorage.getItem('mestre_save_nuvem');
         if (cloudSaveStr) {
             try {
@@ -377,8 +375,6 @@
             }
         };
 
-        // ===============================================
-
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
@@ -388,9 +384,6 @@
         let playersDataMemoria = {}; 
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
 
-        // ===============================================
-        // SISTEMA DE ROTEIROS E DESCRIÇÕES DE MUNDO
-        // ===============================================
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
         
@@ -555,12 +548,8 @@
             }, 1000);
         }
 
-        // ===============================================
-
         socket.on('connect', () => { 
             jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); 
-            
-            // Avisa o Overlay (OBS) mal conecta
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
         });
 
@@ -571,8 +560,6 @@
                 jogadoresPermitidos.push(codigo);
                 localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
                 socket.emit('request_player', codigo);
-                
-                // Avisa o Overlay que adicionou
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
             }
             input.value = '';
@@ -583,8 +570,6 @@
             localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
             const card = document.getElementById(`player-${codigo}`);
             if (card) card.remove();
-            
-            // Avisa o Overlay que removeu
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
         }
 
@@ -664,9 +649,13 @@
         });
 
         socket.on('comando_mestre', (dados) => {
-            // O Overlay está a pedir atualização?
             if (dados.tipo === 'request_overlay_sync') {
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
+            }
+
+            // O Overlay pediu para remover um jogador via clique!
+            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) {
+                removerJogador(dados.codigo);
             }
 
             if (dados.codigo === playerCode) {
