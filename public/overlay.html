@@ -54,7 +54,6 @@
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* CONFIGURAÇÃO DOS NÚMEROS COM A NOVA FONTE */
         .status-numbers {
             display: flex;
             flex-direction: column;
@@ -67,56 +66,21 @@
             letter-spacing: 2px;
         }
 
-        /* EFEITO GLOW (NEON) */
         .val-vida { 
             color: white; 
-            text-shadow: 
-                0 0 8px #ff0000, 
-                0 0 15px #ff0000, 
-                0 0 30px #ff0000; 
+            text-shadow: 0 0 8px #ff0000, 0 0 15px #ff0000, 0 0 30px #ff0000; 
         }
         
         .val-sani { 
             color: white; 
-            text-shadow: 
-                0 0 8px #00aaff, 
-                0 0 15px #00aaff, 
-                0 0 30px #0088ff; 
+            text-shadow: 0 0 8px #00aaff, 0 0 15px #00aaff, 0 0 30px #0088ff; 
         }
         
         .val-ammo { 
             color: white; 
-            text-shadow: 
-                0 0 8px #ffcf33, 
-                0 0 15px #ffcf33, 
-                0 0 30px #ffae00; 
+            text-shadow: 0 0 8px #ffcf33, 0 0 15px #ffcf33, 0 0 30px #ffae00; 
             font-size: 2rem;
             margin-top: 5px;
-        }
-
-        /* PAINEL DE CONTROLE */
-        .setup-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            gap: 8px;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-
-        .setup-panel input {
-            background: #111; border: 1px solid #555; color: white;
-            padding: 5px; width: 100px; text-align: center; border-radius: 4px; outline: none; text-transform: uppercase;
-        }
-
-        .setup-panel button {
-            background: #333; color: #ffcf33; border: 1px solid #ffcf33;
-            cursor: pointer; border-radius: 4px; font-weight: bold; padding: 5px 12px; font-size: 12px;
         }
     </style>
 </head>
@@ -124,37 +88,35 @@
 
     <div id="multi-overlay-container"></div>
 
-    <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="USUÁRIO" maxlength="30">
-        <button onclick="addPlayer()">ADD</button>
-        <button onclick="limparTudo()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
-    </div>
-
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
-        let activePlayers = JSON.parse(localStorage.getItem('rpg_overlay_players')) || [];
+        
+        // Puxa da memória local caso estejas a abrir no mesmo browser
+        let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
 
-        window.onload = () => {
-            activePlayers.forEach(code => criarCardHTML(code));
-            setTimeout(() => { activePlayers.forEach(code => socket.emit('request_player', code)); }, 1000);
-        };
+        function atualizarOverlay() {
+            const cardsAtuais = Array.from(container.children).map(c => c.id.replace('card-', ''));
+            
+            // Apaga quem o Mestre tirou
+            cardsAtuais.forEach(code => {
+                if (!activePlayers.includes(code)) {
+                    const el = document.getElementById(`card-${code}`);
+                    if (el) el.remove();
+                }
+            });
 
-        function addPlayer() {
-            const input = document.getElementById('codigo-input');
-            const code = input.value.toUpperCase().trim();
-            if (code && !activePlayers.includes(code)) {
-                activePlayers.push(code);
-                localStorage.setItem('rpg_overlay_players', JSON.stringify(activePlayers));
-                criarCardHTML(code);
-                socket.emit('request_player', code);
-                input.value = "";
-            }
+            // Adiciona quem o Mestre colocou
+            activePlayers.forEach(code => {
+                if (!document.getElementById(`card-${code}`)) {
+                    criarCardHTML(code);
+                    socket.emit('request_player', code);
+                }
+            });
         }
 
         function criarCardHTML(code) {
-            if (document.getElementById(`card-${code}`)) return;
             const div = document.createElement('div');
             div.className = 'player-card';
             div.id = `card-${code}`;
@@ -169,11 +131,35 @@
             container.appendChild(div);
         }
 
-        function limparTudo() {
-            localStorage.removeItem('rpg_overlay_players');
-            activePlayers = [];
-            container.innerHTML = "";
-        }
+        window.onload = () => {
+            atualizarOverlay();
+            setInterval(() => {
+                activePlayers.forEach(code => socket.emit('request_player', code));
+            }, 10000);
+        };
+
+        // 1. Sincronização via Memória do Navegador (para quem usa Chrome)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'mestre_allowed_codes') {
+                activePlayers = JSON.parse(e.newValue) || [];
+                atualizarOverlay();
+            }
+        });
+
+        // 2. Sincronização via Socket (Essencial para funcionar no OBS Studio)
+        socket.on('connect', () => {
+            // Pede ao mestre a lista de jogadores atual mal o OBS liga
+            socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
+        });
+
+        socket.on('comando_mestre', (dados) => {
+            // Recebeu a ordem do Mestre com a lista atualizada
+            if (dados.tipo === 'sync_overlay' && dados.players) {
+                activePlayers = dados.players;
+                localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
+                atualizarOverlay();
+            }
+        });
 
         socket.on('update_mestre', (dados) => {
             if (activePlayers.includes(dados.codigo)) {
@@ -181,12 +167,13 @@
                 const fotoEl = document.getElementById(`foto-${cod}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
-                    const percVida = (dados.vida_atual / dados.vida_max) * 100;
-                    fotoEl.classList.toggle('perigo', percVida <= 25);
                 }
 
-                document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
-                document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
+                const vidaEl = document.getElementById(`vida-${cod}`);
+                const saniEl = document.getElementById(`sani-${cod}`);
+                
+                if(vidaEl) vidaEl.innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
+                if(saniEl) saniEl.innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
                 const ammoEl = document.getElementById(`ammo-${cod}`);
                 let muniTexto = "";
@@ -194,7 +181,7 @@
                     const arma = dados.fullData.inv.find(item => item.id === dados.fullData.arma_ativa_id);
                     if (arma && arma.ammo !== "Nenhuma") muniTexto = arma.currentShots || "0";
                 }
-                ammoEl.innerText = muniTexto;
+                if(ammoEl) ammoEl.innerText = muniTexto;
             }
         });
     </script>
