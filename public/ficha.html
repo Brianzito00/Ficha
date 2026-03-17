@@ -1734,17 +1734,19 @@
             const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
             addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || "");
         });
-      
-        }
+        
         updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay();
+        
+        // --- FIX: Restaura a arma ativa ---
         if (d.arma_ativa_id) {
             const sel = document.getElementById('active-weapon-select');
-            // Verifica se a arma salva ainda está equipada
             if (sel && equippedWeaponsData.some(wp => wp.id === d.arma_ativa_id)) {
                 sel.value = d.arma_ativa_id;
                 renderActiveWeapon();
             }
         }
+        // -----------------------------------
+
         document.querySelectorAll('[id^="chk_"]').forEach(c => { if(c.checked) toggleTrained(c.id.replace('chk_','')); });
         isLoadingData = false; 
     }
