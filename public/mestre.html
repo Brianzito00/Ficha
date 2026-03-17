@@ -146,15 +146,23 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
-        /* ABA DE ROTEIRO */
+        /* ABA DE ROTEIRO (PROFISSIONAL) */
         #roteiro-board {
             display: none; flex-direction: column; height: 100%; overflow: hidden;
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
             padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
         }
+        .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
+        .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
+        .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
+        .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
+        .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+
         .roteiro-textarea {
-            flex: 1; background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color);
-            color: var(--text-primary); padding: 15px; font-family: 'Roboto', sans-serif;
+            flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif;
             font-size: 1.1em; border-radius: 8px; resize: none; outline: none;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6;
         }
@@ -168,53 +176,29 @@
         /* COMPATIBILIDADE PARA TELEMÓVEIS / CELULARES              */
         /* ======================================================== */
         @media (max-width: 900px) {
-            .players-container, .monsters-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 Colunas em Tablets */
-            }
+            .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            body { 
-                height: auto; 
-                overflow-y: auto; 
-                padding: 10px;
-            }
-            .content-wrapper { 
-                flex-direction: column; /* Empilha os blocos */
-                height: auto; 
-                overflow: visible; 
-            }
+            body { height: auto; overflow-y: auto; padding: 10px; }
+            .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
             .left-panel { overflow: visible; }
-            
-            /* No telemóvel os jogadores/monstros ficam em 1 coluna para legibilidade */
-            .players-container, .monsters-grid {
-                grid-template-columns: 1fr; 
-                overflow-y: visible;
-                padding-right: 0;
-            }
-
-            .log-container {
-                height: 400px; /* Dá uma altura fixa ao log no fundo da página */
-                margin-top: 10px;
-                min-width: 100%;
-            }
-
-            .tab-btn { 
-                border-radius: 8px; /* Arredonda todos os cantos */
-                margin-bottom: 5px; 
-            }
-
-            .ini-card {
-                gap: 10px;
-            }
-            
+            .players-container, .monsters-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
+            .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
+            .tab-btn { border-radius: 8px; margin-bottom: 5px; }
+            .ini-card { gap: 10px; }
             .popup-box-dice { height: 300px; }
             .popup-number { font-size: 6em; }
             .popup-res { font-size: 1.5em; }
-            
-            .attr-grid { grid-template-columns: 1fr; } /* Atributos de criar monstro em 1 coluna */
+            .attr-grid { grid-template-columns: 1fr; } 
 
-            #roteiro-board { height: 60vh; } /* Altura especifica para celular */
+            /* Layout de Roteiro Mobile */
+            #roteiro-board { height: 85vh; padding: 15px; }
+            .roteiro-layout { flex-direction: column; }
+            .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: wrap; }
+            #roteiro-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; }
+            .session-btn { flex: 0 0 auto; white-space: nowrap; }
+            .roteiro-editor { overflow-y: auto; }
         }
     </style>
 </head>
@@ -249,16 +233,24 @@
                     <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
                     <button class="btn-add" style="flex: 2; font-size: 1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
                 </div>
-                <div class="ini-list-container" id="iniciativa-list-container">
-                    </div>
+                <div class="ini-list-container" id="iniciativa-list-container"></div>
             </div>
 
             <div id="roteiro-board">
                 <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Roteiro da Campanha</h2>
-                    <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar digitação...</span>
+                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Roteiro e Anotações</h2>
+                    <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar...</span>
                 </div>
-                <textarea id="roteiro-text" class="roteiro-textarea" placeholder="Escreve aqui as anotações secretas, a história da tua campanha, falas de NPCs, atributos rápidos... Este texto salva automaticamente e fica na memória do teu dispositivo."></textarea>
+                <div class="roteiro-layout">
+                    <div class="roteiro-sidebar">
+                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button>
+                        <div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                    <div class="roteiro-editor">
+                        <h3 id="roteiro-titulo-atual" style="color: white; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--accent-blue); display: inline-block; padding-bottom: 5px;">Sessão 01</h3>
+                        <textarea id="roteiro-text" class="roteiro-textarea" placeholder="Escreve aqui as anotações secretas, a história da tua campanha, falas de NPCs, atributos rápidos... Este texto salva automaticamente."></textarea>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -313,30 +305,12 @@
             <div class="form-group">
                 <label>Perícias Principais</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label>
-                        <input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label>
-                        <input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label>
-                        <input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label>
-                        <input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label>
-                        <input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label>
-                        <input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0"></div>
                 </div>
             </div>
 
@@ -372,26 +346,97 @@
         let playersDataMemoria = {}; 
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
 
-        // Roteiro Setup
-        const roteiroInput = document.getElementById('roteiro-text');
-        roteiroInput.value = localStorage.getItem('mestre_roteiro') || '';
+        // ===============================================
+        // SISTEMA DE ROTEIROS / SESSÕES
+        // ===============================================
+        let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
+        
+        // Se for a primeira vez, migra o texto antigo (se existir) para a "Sessão 01"
+        if (!roteiros || roteiros.length === 0) {
+            let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
+            roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: textoAntigo }];
+            localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros));
+        }
+        let currentRoteiroId = roteiros[0].id;
 
+        function renderRoteiros() {
+            const list = document.getElementById('roteiro-list');
+            list.innerHTML = '';
+            roteiros.forEach((r) => {
+                const btn = document.createElement('div');
+                btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`;
+                btn.onclick = () => selecionarRoteiro(r.id);
+                btn.innerHTML = `
+                    <span style="flex:1;">${r.title}</span>
+                    <button class="btn-del" style="padding: 2px 6px; font-size:0.7em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>
+                `;
+                list.appendChild(btn);
+            });
+        }
+
+        function adicionarRoteiro() {
+            const num = roteiros.length + 1;
+            const novoId = 's' + Date.now();
+            roteiros.push({ id: novoId, title: 'Sessão ' + (num < 10 ? '0'+num : num), text: '' });
+            salvarRoteiros();
+            currentRoteiroId = novoId;
+            renderRoteiros();
+            atualizarEditorRoteiro();
+        }
+
+        function selecionarRoteiro(id) {
+            currentRoteiroId = id;
+            renderRoteiros(); 
+            atualizarEditorRoteiro();
+        }
+
+        function atualizarEditorRoteiro() {
+            const rot = roteiros.find(r => r.id === currentRoteiroId);
+            if(rot) {
+                document.getElementById('roteiro-titulo-atual').innerText = rot.title;
+                document.getElementById('roteiro-text').value = rot.text;
+            }
+        }
+
+        function apagarRoteiro(id) {
+            if(roteiros.length === 1) return alert("Precisas de ter pelo menos uma sessão criada!");
+            if(confirm("Tem a certeza que deseja apagar esta sessão e todo o seu texto secreto?")) {
+                roteiros = roteiros.filter(r => r.id !== id);
+                if(currentRoteiroId === id) currentRoteiroId = roteiros[0].id;
+                salvarRoteiros();
+                renderRoteiros();
+                atualizarEditorRoteiro();
+            }
+        }
+
+        function salvarRoteiros() {
+            localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros));
+        }
+
+        const roteiroInput = document.getElementById('roteiro-text');
         roteiroInput.addEventListener('input', function() {
-            localStorage.setItem('mestre_roteiro', this.value);
-            const status = document.getElementById('roteiro-status');
-            status.innerText = "A guardar...";
-            status.style.color = "var(--accent-yellow)";
-            
-            clearTimeout(this.saveTimeout);
-            this.saveTimeout = setTimeout(() => {
-                status.innerText = "Guardado ✔️";
-                status.style.color = "var(--accent-green)";
-                setTimeout(() => { 
-                    status.innerText = "Sincronizado na memória local.";
-                    status.style.color = "var(--text-secondary)"; 
-                }, 2000);
-            }, 1000);
+            const rot = roteiros.find(r => r.id === currentRoteiroId);
+            if(rot) {
+                rot.text = this.value;
+                salvarRoteiros();
+                
+                const status = document.getElementById('roteiro-status');
+                status.innerText = "A guardar...";
+                status.style.color = "var(--accent-yellow)";
+                
+                clearTimeout(this.saveTimeout);
+                this.saveTimeout = setTimeout(() => {
+                    status.innerText = "Guardado ✔️";
+                    status.style.color = "var(--accent-green)";
+                    setTimeout(() => { 
+                        status.innerText = "Sincronizado na memória local.";
+                        status.style.color = "var(--text-secondary)"; 
+                    }, 2000);
+                }, 1000);
+            }
         });
+
+        // ===============================================
 
         // Tabela D20 e Perícias Base
         const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
@@ -617,20 +662,28 @@
             document.getElementById('iniciativa-board').style.display = 'none';
             document.getElementById('roteiro-board').style.display = 'none';
 
+            const logContainer = document.querySelector('.log-container');
+
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
                 document.getElementById('players-board').style.display = 'grid';
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
             } else if (aba === 'monstros') {
                 document.getElementById('tab-monstros').classList.add('active');
                 document.getElementById('monsters-board').style.display = 'flex';
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
                 renderizarMonstros();
             } else if (aba === 'iniciativa') {
                 document.getElementById('tab-iniciativa').classList.add('active');
                 document.getElementById('iniciativa-board').style.display = 'flex';
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
                 renderizarIniciativa();
             } else if (aba === 'roteiro') {
                 document.getElementById('tab-roteiro').classList.add('active');
                 document.getElementById('roteiro-board').style.display = 'flex';
+                logContainer.style.display = 'none'; // Esconde os logs (Ecrã inteiro para Roteiro!)
+                renderRoteiros();
+                atualizarEditorRoteiro();
             }
         }
 
@@ -992,6 +1045,10 @@
                 grid.appendChild(card);
             });
         }
+
+        // Run this on init
+        renderRoteiros();
+        atualizarEditorRoteiro();
 
         if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
         if (document.getElementById('tab-iniciativa').classList.contains('active')) renderizarIniciativa();
