@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const admin = require('firebase-admin'); // Importa o Firebase
+const admin = require('firebase-admin');
 
 const app = express();
 const server = http.createServer(app); 
@@ -16,7 +16,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ==========================================
 let db;
 try {
-    // O Render vai ler isto do Secret File que criaste!
     const serviceAccount = require('./firebase-key.json');
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
@@ -25,23 +24,24 @@ try {
     console.log("🔥 Ligado ao Firebase com sucesso!");
 } catch (error) {
     console.error("❌ ERRO: Ficheiro 'firebase-key.json' não encontrado. Configura no Secret Files do Render!");
-    process.exit(1); // Para o servidor se não houver base de dados
+    process.exit(1);
 }
 
 // ==========================================
-// 2. CATÁLOGO GERAL DE ITENS (Agora guardado no Firebase)
+// 2. CATÁLOGO GERAL DE ITENS E RITUAIS
 // ==========================================
-let globalCatalog = { items: [], melee: [], ranged: [] };
+// ADICIONADO 'rituals' na estrutura base
+let globalCatalog = { items: [], melee: [], ranged: [], rituals: [] }; 
 
-// Carrega o catálogo do Firebase quando o servidor liga
 async function carregarCatalogo() {
     try {
         const doc = await db.collection('config').doc('catalogo').get();
         if (doc.exists) {
             globalCatalog = doc.data();
+            // Caso o banco antigo não tenha a lista de rituais ainda
+            if (!globalCatalog.rituals) globalCatalog.rituals = [];
             console.log("📦 Catálogo global carregado do Firebase!");
         } else {
-            // Se ainda não existir no Firebase, cria um vazio
             await db.collection('config').doc('catalogo').set(globalCatalog);
         }
     } catch (e) {
@@ -50,27 +50,22 @@ async function carregarCatalogo() {
 }
 carregarCatalogo();
 
-// Salva as armas e itens criados de volta no Firebase
 function salvarCatalogo() {
     db.collection('config').doc('catalogo').set(globalCatalog)
         .catch(e => console.error("Erro ao salvar catálogo no Firebase:", e));
 }
 
 // ==========================================
-// 3. ROTAS DA API (SISTEMA DE CONTAS NO FIREBASE)
+// 3. ROTAS DA API
 // ==========================================
 
-app.get('/', (req, res) => {
-    res.redirect('/login.html');
-});
+app.get('/', (req, res) => { res.redirect('/login.html'); });
 
-// Registar Novo Utilizador no Firebase
 app.post('/api/registar', async (req, res) => {
     const { usuario, senha } = req.body;
     try {
         const docRef = db.collection('usuarios').doc(usuario);
         const doc = await docRef.get();
-
         if (doc.exists) return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
 
         await docRef.set({ senha: senha, ficha: null });
@@ -81,7 +76,6 @@ app.post('/api/registar', async (req, res) => {
     }
 });
 
-// Login do Utilizador no Firebase
 app.post('/api/login', async (req, res) => {
     const { usuario, senha } = req.body;
     try {
@@ -98,12 +92,10 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Guardar Ficha no Firebase
 app.post('/api/guardar_ficha', async (req, res) => {
     const { usuario, fichaData } = req.body;
     try {
         const docRef = db.collection('usuarios').doc(usuario);
-        // O "merge: true" atualiza apenas a ficha sem apagar a senha!
         await docRef.set({ ficha: fichaData }, { merge: true }); 
         console.log(`💾 Ficha do jogador [${usuario}] salva no Firebase.`);
         res.json({ sucesso: true });
@@ -121,14 +113,15 @@ const playersData = {};
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
 
-    // --- CATÁLOGO COMPARTILHADO ---
     socket.emit('catalogo_inicial', globalCatalog);
 
     socket.on('novo_item_catalogo_global', (data) => {
-        const cat = data.catType === 'item' ? 'items' : data.catType;
+        const cat = data.catType === 'item' ? 'items' : data.catType; // agora aceita 'rituals'
+        if (!globalCatalog[cat]) globalCatalog[cat] = [];
+
         if (!globalCatalog[cat].some(it => it.name.toLowerCase() === data.item.name.toLowerCase())) {
             globalCatalog[cat].push(data.item);
-            salvarCatalogo(); // Salva logo no Firebase!
+            salvarCatalogo(); 
             socket.broadcast.emit('sync_item_catalogo_global', data);
         }
     });
@@ -137,6 +130,7 @@ io.on('connection', (socket) => {
         let mudou = false;
         const mesclar = (catName) => {
             if (clientItems[catName] && Array.isArray(clientItems[catName])) {
+                if (!globalCatalog[catName]) globalCatalog[catName] = [];
                 clientItems[catName].forEach(cItem => {
                     if (!globalCatalog[catName].some(sItem => sItem.name.toLowerCase() === cItem.name.toLowerCase())) {
                         globalCatalog[catName].push(cItem);
@@ -145,14 +139,13 @@ io.on('connection', (socket) => {
                 });
             }
         };
-        mesclar('items'); mesclar('melee'); mesclar('ranged');
+        mesclar('items'); mesclar('melee'); mesclar('ranged'); mesclar('rituals');
         if (mudou) {
             salvarCatalogo();
             socket.broadcast.emit('catalogo_inicial', globalCatalog); 
         }
     });
 
-    // --- SINCRONIZAÇÃO COM O MESTRE ---
     socket.on('status_change', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo] = dados;
@@ -174,7 +167,6 @@ io.on('connection', (socket) => {
         io.emit('nova_rolagem', dados); 
     });
 
-    // --- RECUPERAR FICHA PARA O MESTRE DO FIREBASE ---
     socket.on('request_player', async (codigo) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
@@ -204,5 +196,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Servidor a rodar na porta ${PORT} (Com Firebase definitivo!)`);
+    console.log(`🚀 Servidor a rodar na porta ${PORT}`);
 });
