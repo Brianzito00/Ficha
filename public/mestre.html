@@ -160,6 +160,13 @@
         .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
         .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
 
+        .roteiro-titulo-input {
+            background: transparent; border: none; border-bottom: 2px solid var(--accent-blue);
+            color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px;
+            padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s;
+        }
+        .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
+
         .roteiro-textarea {
             flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color);
             color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif;
@@ -247,7 +254,7 @@
                         <div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
                     <div class="roteiro-editor">
-                        <h3 id="roteiro-titulo-atual" style="color: white; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid var(--accent-blue); display: inline-block; padding-bottom: 5px;">Sessão 01</h3>
+                        <input type="text" id="roteiro-titulo-atual" class="roteiro-titulo-input" placeholder="Nome da Sessão (Ex: Sessão 01 - O Começo)">
                         <textarea id="roteiro-text" class="roteiro-textarea" placeholder="Escreve aqui as anotações secretas, a história da tua campanha, falas de NPCs, atributos rápidos... Este texto salva automaticamente."></textarea>
                     </div>
                 </div>
@@ -305,12 +312,30 @@
             <div class="form-group">
                 <label>Perícias Principais</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label>
+                        <input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label>
+                        <input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label>
+                        <input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label>
+                        <input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label>
+                        <input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
+                    <div class="skill-group">
+                        <label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label>
+                        <input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0">
+                    </div>
                 </div>
             </div>
 
@@ -351,7 +376,6 @@
         // ===============================================
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
         
-        // Se for a primeira vez, migra o texto antigo (se existir) para a "Sessão 01"
         if (!roteiros || roteiros.length === 0) {
             let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
             roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: textoAntigo }];
@@ -367,7 +391,7 @@
                 btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`;
                 btn.onclick = () => selecionarRoteiro(r.id);
                 btn.innerHTML = `
-                    <span style="flex:1;">${r.title}</span>
+                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.title}</span>
                     <button class="btn-del" style="padding: 2px 6px; font-size:0.7em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>
                 `;
                 list.appendChild(btn);
@@ -393,7 +417,7 @@
         function atualizarEditorRoteiro() {
             const rot = roteiros.find(r => r.id === currentRoteiroId);
             if(rot) {
-                document.getElementById('roteiro-titulo-atual').innerText = rot.title;
+                document.getElementById('roteiro-titulo-atual').value = rot.title;
                 document.getElementById('roteiro-text').value = rot.text;
             }
         }
@@ -414,27 +438,45 @@
         }
 
         const roteiroInput = document.getElementById('roteiro-text');
+        const roteiroTituloInput = document.getElementById('roteiro-titulo-atual');
+
+        // Dispara o salvamento ao digitar no título
+        roteiroTituloInput.addEventListener('input', function() {
+            const rot = roteiros.find(r => r.id === currentRoteiroId);
+            if(rot) {
+                rot.title = this.value || 'Sessão Sem Nome';
+                salvarRoteiros();
+                renderRoteiros(); // Atualiza a lista lateral imediatamente
+                dispararFeedbackRoteiro();
+            }
+        });
+
+        // Dispara o salvamento ao digitar no corpo do texto
         roteiroInput.addEventListener('input', function() {
             const rot = roteiros.find(r => r.id === currentRoteiroId);
             if(rot) {
                 rot.text = this.value;
                 salvarRoteiros();
-                
-                const status = document.getElementById('roteiro-status');
-                status.innerText = "A guardar...";
-                status.style.color = "var(--accent-yellow)";
-                
-                clearTimeout(this.saveTimeout);
-                this.saveTimeout = setTimeout(() => {
-                    status.innerText = "Guardado ✔️";
-                    status.style.color = "var(--accent-green)";
-                    setTimeout(() => { 
-                        status.innerText = "Sincronizado na memória local.";
-                        status.style.color = "var(--text-secondary)"; 
-                    }, 2000);
-                }, 1000);
+                dispararFeedbackRoteiro();
             }
         });
+
+        let saveTimeout;
+        function dispararFeedbackRoteiro() {
+            const status = document.getElementById('roteiro-status');
+            status.innerText = "A guardar...";
+            status.style.color = "var(--accent-yellow)";
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                status.innerText = "Guardado ✔️";
+                status.style.color = "var(--accent-green)";
+                setTimeout(() => { 
+                    status.innerText = "Sincronizado na memória local.";
+                    status.style.color = "var(--text-secondary)"; 
+                }, 2000);
+            }, 1000);
+        }
 
         // ===============================================
 
@@ -667,21 +709,21 @@
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
                 document.getElementById('players-board').style.display = 'grid';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
             } else if (aba === 'monstros') {
                 document.getElementById('tab-monstros').classList.add('active');
                 document.getElementById('monsters-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
                 renderizarMonstros();
             } else if (aba === 'iniciativa') {
                 document.getElementById('tab-iniciativa').classList.add('active');
                 document.getElementById('iniciativa-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
                 renderizarIniciativa();
             } else if (aba === 'roteiro') {
                 document.getElementById('tab-roteiro').classList.add('active');
                 document.getElementById('roteiro-board').style.display = 'flex';
-                logContainer.style.display = 'none'; // Esconde os logs (Ecrã inteiro para Roteiro!)
+                logContainer.style.display = 'none'; 
                 renderRoteiros();
                 atualizarEditorRoteiro();
             }
