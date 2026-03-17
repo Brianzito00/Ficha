@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
-// Permite que o servidor leia ficheiros JSON e encontre as suas páginas HTML
+// Permite ler JSON e encontrar os HTMLs na pasta 'public'
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -27,12 +27,11 @@ function guardarDB(dados) {
 }
 
 // ==========================================
-// BANCO DE DADOS 2: CATÁLOGO GERAL DE ITENS (catalogo_global.json)
+// BANCO DE DADOS 2: CATÁLOGO GERAL (catalogo_global.json)
 // ==========================================
 const CATALOG_FILE = path.join(__dirname, 'catalogo_global.json');
 let globalCatalog = { items: [], melee: [], ranged: [] };
 
-// Carrega o catálogo existente ao ligar o servidor
 if (fs.existsSync(CATALOG_FILE)) {
     try {
         const data = fs.readFileSync(CATALOG_FILE, 'utf8');
@@ -49,16 +48,16 @@ function salvarCatalogo() {
     fs.writeFileSync(CATALOG_FILE, JSON.stringify(globalCatalog, null, 2));
 }
 
+
 // ==========================================
-// ROTAS DA API (O SEU SISTEMA DE LOGIN VOLTOU!)
+// ROTAS DA API (LIGADAS AO SEU LOGIN.HTML)
 // ==========================================
 
-// Redireciona a página inicial para o LOGIN
 app.get('/', (req, res) => {
     res.redirect('/login.html');
 });
 
-// Registar Novo Utilizador
+// Registar
 app.post('/api/registar', (req, res) => {
     const { usuario, senha } = req.body;
     const db = lerDB();
@@ -72,7 +71,7 @@ app.post('/api/registar', (req, res) => {
     res.json({ sucesso: true });
 });
 
-// Login do Utilizador
+// Login
 app.post('/api/login', (req, res) => {
     const { usuario, senha } = req.body;
     const db = lerDB();
@@ -92,7 +91,7 @@ app.post('/api/guardar_ficha', (req, res) => {
     if (db[usuario]) {
         db[usuario].ficha = fichaData;
         guardarDB(db);
-        console.log(`💾 Ficha do jogador [${usuario}] salva no servidor.`);
+        console.log(`💾 Ficha do jogador [${usuario}] salva.`);
         res.json({ sucesso: true });
     } else {
         res.json({ sucesso: false, erro: 'Utilizador não encontrado.' });
@@ -108,23 +107,20 @@ const playersData = {};
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
 
-    // Envia o catálogo atualizado para o jogador assim que ele se conecta
+    // Envia catálogo ao entrar
     socket.emit('catalogo_inicial', globalCatalog);
 
-    // --- SISTEMA DE CATÁLOGO COMPARTILHADO ---
+    // Salvar novo item no catálogo
     socket.on('novo_item_catalogo_global', (data) => {
         const cat = data.catType === 'item' ? 'items' : data.catType;
-        
-        // Evita duplicatas no catálogo
         if (!globalCatalog[cat].some(it => it.name.toLowerCase() === data.item.name.toLowerCase())) {
             globalCatalog[cat].push(data.item);
             salvarCatalogo();
-            console.log("🛠️ Novo item salvo no catálogo global:", data.item.name);
             socket.broadcast.emit('sync_item_catalogo_global', data);
         }
     });
 
-    // Auto-Cura do Servidor (sincronização reversa)
+    // Recuperar catálogo do navegador se o servidor perder
     socket.on('sync_catalogo_reverso', (clientItems) => {
         let mudou = false;
         const mesclar = (catName) => {
@@ -137,17 +133,13 @@ io.on('connection', (socket) => {
                 });
             }
         };
-
         mesclar('items'); mesclar('melee'); mesclar('ranged');
-
         if (mudou) {
             salvarCatalogo();
-            console.log("🔄 Servidor auto-curado com itens dos jogadores!");
             socket.broadcast.emit('catalogo_inicial', globalCatalog); 
         }
     });
 
-    // --- SINCRONIZAÇÃO DA FICHA PARA O MESTRE ---
     socket.on('status_change', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo] = dados;
@@ -167,13 +159,11 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('comando_mestre', dados); 
     });
 
-    // --- ROLAGEM DE DADOS ---
     socket.on('rolagem_feita', (dados) => { 
         io.emit('novo_log', dados); 
         io.emit('nova_rolagem', dados); 
     });
 
-    // --- RECUPERAÇÃO DE FICHA PELO MESTRE ---
     socket.on('request_player', (codigo) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
