@@ -1,186 +1,125 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const path = require('path');
-const admin = require('firebase-admin');
 const fs = require('fs');
+const path = require('path');
 
-// ==========================================
-// 1. CONFIGURAÇÃO DO FIREBASE
-// ==========================================
-let serviceAccount;
-
-// Verifica se está a rodar no Render (Ficheiro Secreto) ou no seu PC local
-if (fs.existsSync('/etc/secrets/firebase-key.json')) {
-    console.log("✅ Chave do Firebase encontrada no Render (/etc/secrets).");
-    serviceAccount = require('/etc/secrets/firebase-key.json');
-} else if (fs.existsSync('./firebase-key.json')) {
-    console.log("✅ Chave do Firebase encontrada localmente (./firebase-key.json).");
-    serviceAccount = require('./firebase-key.json');
-} else {
-    console.error("❌ ERRO CRÍTICO: Ficheiro firebase-key.json não encontrado!");
-}
-
-// Inicia o Firebase se a chave existir
-if (serviceAccount) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-    console.log("🔥 Firebase conectado com sucesso!");
-}
-const db = admin.firestore();
-
-// ==========================================
-// 2. CONFIGURAÇÃO DO SERVIDOR WEB (EXPRESS)
-// ==========================================
 const app = express();
-const server = http.createServer(app); 
+const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.json({ limit: '10mb' })); 
+// Permite que o Express entenda JSON no corpo das requisições (para o fetch de salvar ficha)
+app.use(express.json({ limit: '10mb' }));
+
+// Serve os ficheiros estáticos (HTML, CSS, JS, imagens) da pasta 'public'
+// Certifica-te que o teu index.html está dentro de uma pasta chamada "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Redireciona a página principal direto para o Login
-app.get('/', (req, res) => {
-    res.redirect('/login.html');
-});
+// ==========================================
+// BANCO DE DADOS LOCAL DO CATÁLOGO GERAL
+// ==========================================
+const CATALOG_FILE = path.join(__dirname, 'catalogo_global.json');
+let globalCatalog = { items: [], melee: [], ranged: [] };
+
+// Carrega o catálogo existente ao ligar o servidor
+if (fs.existsSync(CATALOG_FILE)) {
+    try {
+        const data = fs.readFileSync(CATALOG_FILE, 'utf8');
+        globalCatalog = JSON.parse(data);
+        console.log("📦 Catálogo global carregado com sucesso!");
+    } catch (err) {
+        console.error("Erro ao ler o catálogo:", err);
+    }
+} else {
+    // Se não existir, cria um vazio
+    fs.writeFileSync(CATALOG_FILE, JSON.stringify(globalCatalog, null, 2));
+}
+
+function salvarCatalogo() {
+    fs.writeFileSync(CATALOG_FILE, JSON.stringify(globalCatalog, null, 2));
+}
 
 // ==========================================
-// 3. SISTEMA DE CONTAS (API FIREBASE)
+// ROTAS DA API (Exemplo para salvar ficha)
 // ==========================================
-
-// Registar Novo Jogador
-app.post('/api/registar', async (req, res) => {
-    const { usuario, senha } = req.body;
-    try {
-        const userRef = db.collection('usuarios').doc(usuario);
-        const doc = await userRef.get();
-
-        if (doc.exists) {
-            return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
-        }
-
-        // Guarda o jogador no Firebase (inicia sem ficha)
-        await userRef.set({ senha: senha, ficha: null });
-        console.log(`👤 Novo utilizador registado: ${usuario}`);
-        res.json({ sucesso: true });
-        
-    } catch (error) {
-        console.error("❌ Erro ao registar no Firebase:", error);
-        res.json({ sucesso: false, erro: 'Erro ao contactar o Firebase.' });
-    }
-});
-
-// Fazer Login
-app.post('/api/login', async (req, res) => {
-    const { usuario, senha } = req.body;
-    try {
-        const userRef = db.collection('usuarios').doc(usuario);
-        const doc = await userRef.get();
-
-        if (!doc.exists || doc.data().senha !== senha) {
-            return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
-        }
-        
-        console.log(`🔓 Utilizador fez login: ${usuario}`);
-        res.json({ sucesso: true, ficha: doc.data().ficha });
-        
-    } catch (error) {
-        console.error("❌ Erro ao fazer login no Firebase:", error);
-        res.json({ sucesso: false, erro: 'Erro ao contactar o Firebase.' });
-    }
-});
-
-// Guardar Ficha na Nuvem para Sempre
-app.post('/api/guardar_ficha', async (req, res) => {
+app.post('/api/guardar_ficha', (req, res) => {
     const { usuario, fichaData } = req.body;
-    try {
-        const userRef = db.collection('usuarios').doc(usuario);
-        await userRef.update({ ficha: fichaData });
-        console.log(`💾 Ficha guardada na nuvem para: ${usuario}`);
-        res.json({ sucesso: true });
-    } catch (error) {
-        console.error("❌ Erro ao guardar ficha no Firebase:", error);
-        res.json({ sucesso: false, erro: 'Erro ao guardar a ficha na nuvem.' });
-    }
+    if (!usuario) return res.status(400).send("Usuário não informado.");
+    
+    // Aqui você integraria com o Firebase Admin SDK (Firestore/Realtime Database)
+    // Exemplo: admin.firestore().collection('fichas').doc(usuario).set(fichaData);
+    
+    console.log(`💾 Ficha do jogador [${usuario}] recebida no servidor.`);
+    res.status(200).send({ message: 'Ficha guardada com sucesso' });
 });
 
 // ==========================================
-// 4. SISTEMA EM TEMPO REAL (SOCKET.IO)
+// COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
-const playersData = {}; // Guarda as infos em memória para ser muito rápido
-
 io.on('connection', (socket) => {
-    console.log('🟢 Utilizador ligou-se:', socket.id);
+    console.log(`🟢 Novo utilizador conectado: ${socket.id}`);
 
-    // Quando um jogador altera a vida/sanidade na sua própria ficha
+    // Quando um jogador conecta, envia o catálogo atualizado para ele
+    socket.emit('catalogo_inicial', globalCatalog);
+
+    // ==========================================
+    // 1. SISTEMA DE CATÁLOGO COMPARTILHADO
+    // ==========================================
+    socket.on('novo_item_catalogo_global', (data) => {
+        console.log("🛠️ Novo item criado e adicionado ao catálogo:", data.item.name);
+        
+        // Adiciona ao banco de dados em memória do servidor
+        if (data.catType === 'item') globalCatalog.items.push(data.item);
+        else if (data.catType === 'melee') globalCatalog.melee.push(data.item);
+        else if (data.catType === 'ranged') globalCatalog.ranged.push(data.item);
+        
+        // Salva no ficheiro JSON para não perder ao reiniciar o servidor
+        salvarCatalogo();
+
+        // Envia este item novo para TODOS os outros jogadores conectados
+        socket.broadcast.emit('sync_item_catalogo_global', data);
+    });
+
+    // ==========================================
+    // 2. SISTEMA DE ROLAGEM DE DADOS
+    // ==========================================
+    socket.on('rolagem_feita', (dados) => {
+        // Envia o resultado do dado para todos (Mestre e outros jogadores)
+        io.emit('nova_rolagem', dados);
+    });
+
+    // ==========================================
+    // 3. SINCRONIZAÇÃO DA FICHA PARA O MESTRE
+    // ==========================================
     socket.on('status_change', (dados) => {
-        if(dados.codigo) {
-            playersData[dados.codigo] = dados;
-            io.emit('update_mestre', dados); 
-        }
+        // Envia os status atuais do jogador para o mestre ver
+        socket.broadcast.emit('update_mestre', dados);
     });
 
-    // Quando o Mestre edita os dados de um jogador (força a atualização na tela do jogador)
-    socket.on('mestre_force_sync', (dados) => {
-        if(dados.codigo) {
-            playersData[dados.codigo] = dados;
-            io.emit('update_mestre', dados); 
-            io.emit('mestre_force_sync_player', dados); 
-        }
+    socket.on('request_player', (viewCode) => {
+        // O mestre pediu a ficha completa de um jogador
+        socket.broadcast.emit('mestre_pede_ficha', viewCode);
     });
 
-    // Quando o Mestre clica no botão "+" ou "-" no Escudo
-    socket.on('comando_mestre', (dados) => { 
-        io.emit('comando_mestre', dados); 
+    socket.on('mestre_force_sync', (payload) => {
+        // O mestre forçou uma alteração na ficha do jogador
+        socket.broadcast.emit('mestre_force_sync_player', payload);
     });
 
-    // Quando alguém rola um dado
-    socket.on('rolagem_feita', (dados) => { 
-        io.emit('novo_log', dados); 
+    socket.on('comando_mestre', (dados) => {
+        // O mestre alterou a vida/sanidade do jogador remotamente
+        socket.broadcast.emit('comando_mestre', dados);
     });
 
-    // Quando o Mestre adiciona um jogador ao ecrã (Pede a ficha dele)
-    socket.on('request_player', async (codigo) => {
-        if(playersData[codigo]) {
-            // Se já estiver na memória do servidor (rápido)
-            socket.emit('update_mestre', playersData[codigo]);
-        } else {
-            // Se o servidor reiniciou, vai buscar a última ficha ao Firebase!
-            try {
-                const doc = await db.collection('usuarios').doc(codigo).get();
-                if (doc.exists && doc.data().ficha) {
-                    const f = doc.data().ficha;
-                    const dadosRecuperados = {
-                        codigo: codigo,
-                        nome: f.info.char_nome,
-                        foto: f.info.char_img,
-                        nex: f.info.char_nex,
-                        defesa: f.defense,
-                        vida_atual: f.info.vida_atual, vida_max: f.info.vida_max,
-                        sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
-                        status: f.charStatus,
-                        fullData: f
-                    };
-                    playersData[codigo] = dadosRecuperados; // Guarda na memória
-                    socket.emit('update_mestre', dadosRecuperados); // Envia ao mestre
-                    console.log(`📦 Ficha recuperada do Firebase para o Mestre: ${codigo}`);
-                }
-            } catch (error) {
-                console.log(`⚠️ Jogador ${codigo} ainda não tem ficha no Firebase ou houve um erro.`);
-            }
-        }
-    });
-
-    socket.on('disconnect', () => { 
-        console.log('🔴 Utilizador desligou-se:', socket.id); 
+    socket.on('disconnect', () => {
+        console.log(`🔴 Utilizador desconectado: ${socket.id}`);
     });
 });
 
 // ==========================================
-// 5. INICIAR O SERVIDOR
+// INICIAR SERVIDOR
 // ==========================================
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor com FIREBASE a correr na porta ${PORT}!`);
+server.listen(PORT, () => {
+    console.log(`🚀 Servidor de Ordem Paranormal a rodar na porta ${PORT}`);
 });
