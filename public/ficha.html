@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Atributos e Inventário - V72.1 (Local / Offline)</title>
+    <title>Sistema de Atributos e Inventário - V72.1 (Nuvem / Firebase)</title>
     <style>
+        /* Importação da fonte do Ordem Paranormal para os Dados */
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
@@ -110,13 +113,57 @@
         .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
-        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
-        .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; }
-        .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
-        .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         
+        /* ESTILOS DO POPUP DE DADOS CENTRALIZADOS COM A FONTE DO ORDEM */
+        .popup-box-dice { 
+            position: relative; width: 600px; height: 400px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            overflow: hidden; text-align: center; 
+        }
+        .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
+        
+        /* POPUP CONTENT COM FLEXBOX PERFEITO PARA CENTRALIZAR */
+        .popup-content { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10; display: none; /* O JS vai mudar isto para 'flex' */
+            flex-direction: column; justify-content: center; align-items: center; 
+            animation: fadeInResult 0.5s forwards; text-align: center; 
+        }
+        
+        .popup-number { 
+            font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; 
+            text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; 
+            text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; 
+        }
+        
+        .popup-res { 
+            font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; 
+            margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; 
+            max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; 
+        }
+        
+        .popup-res::-webkit-scrollbar { width: 5px; }
+        .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
+
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+
+        /* Animação para tremer a caixa de dados no Crítico! */
+        @keyframes shakeCrit {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-2deg); }
+            20% { transform: translate(-3px, 0px) rotate(2deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(-1px, 2px) rotate(-2deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-2deg); }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-2deg); }
+        }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -145,13 +192,27 @@
         <button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button>
     </div>
     <div class="top-buttons" id="main-top-buttons">
-        <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px;">
-            CÓDIGO: <span id="display-player-code" style="color: white; letter-spacing: 2px; font-size: 1.1em;">----</span>
+        <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">
+            JOGADOR: <span id="display-player-code" style="color: white; letter-spacing: 2px; font-size: 1.1em; margin-left: 5px;">----</span>
+            <span id="save-status" style="font-size: 0.7em; color: var(--text-secondary); margin-left: 15px; font-style: italic;">A aguardar...</span>
         </div>
-        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Salvar / Exportar</button>
+        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button>
         <label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin: 0; display: flex; align-items: center;" title="Carregar ficheiro .json">
             📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)">
         </label>
+        <button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao login">Sair (Logout)</button>
+    </div>
+</div>
+
+<div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()" style="z-index: 4000;">
+    <div class="popup-box" onclick="event.stopPropagation()" style="width: 300px; text-align: center;">
+        <h3 style="color: var(--accent-blue); margin-top: 0; text-transform: uppercase;">Ataque Múltiplo</h3>
+        <p style="font-size: 0.85em; color: var(--text-secondary);">Esta arma permite até <span id="max-atk-display" style="color:white; font-weight:bold;">X</span> ataques. Quantos deseja usar agora?</p>
+        <input type="number" id="input-qtd-ataques" class="inv-input" style="font-size: 2em; text-align: center; margin-bottom: 20px;" min="1" value="1">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-add" style="flex:1; margin:0;" id="btn-confirm-ataques">ROLAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="fecharModalQtdAtaques()">CANCELAR</button>
+        </div>
     </div>
 </div>
 
@@ -508,23 +569,35 @@
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
-    let socket = null;
-    if (typeof io !== 'undefined') socket = io();
-
+    // ==========================================
+    // 1. CONFIGURAÇÃO INICIAL (FIREBASE E LOGIN)
+    // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const viewCode = urlParams.get('view'); 
+    let playerCode = localStorage.getItem('usuario_logado');
 
-    let playerCode = localStorage.getItem('player_sync_code');
     if (!playerCode && !viewCode) {
-        playerCode = Math.random().toString(36).substring(2, 6).toUpperCase();
-        localStorage.setItem('player_sync_code', playerCode);
+        window.location.href = '/login.html';
     }
     
-    document.getElementById('display-player-code').innerText = viewCode ? "VISÃO: " + viewCode : playerCode;
+    document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : playerCode;
+
+    function fazerLogout() {
+        localStorage.removeItem('usuario_logado');
+        localStorage.removeItem('ordem_save_local');
+        window.location.href = '/login.html';
+    }
+
+    let socket = null;
+    if (typeof io !== 'undefined') socket = io();
 
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
+
+    // Variáveis auxiliares para o modal de ataques
+    let pendingRollParams = null;
+    let pendingMaxAtaques = 1;
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
@@ -588,7 +661,6 @@
         return currentImg;
     }
 
-    // VERIFICA SE A PROTEÇÃO PESADA ESTÁ EQUIPADA
     function hasHeavyArmorEquipped() {
         let hasIt = false;
         document.querySelectorAll('.hidden-data-item').forEach(h => {
@@ -680,7 +752,6 @@
         document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%';
     }
 
-    // --- SKILL POPUP ---
     function openSkillPopup(sn, nome, attr, mod) {
         document.getElementById('popup-skill-name').innerText = nome;
         document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")";
@@ -716,7 +787,6 @@
     }
     function closeSkillPopup() { document.getElementById('popup-skill-info').style.display = 'none'; }
 
-    // --- HABILIDADES E ITENS ---
     function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
     function closeAbilityPopup() { document.getElementById('popup-new-ability').style.display='none'; }
     function confirmAddAbility() { const n = document.getElementById('new-ability-name').value, d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); closeAbilityPopup(); }
@@ -743,7 +813,7 @@
         }); 
         document.getElementById('wp-ammo').value='Nenhuma'; 
         selectItemType('item'); 
-        editingItemId = null; // Reseta o ID de edição se cancelar
+        editingItemId = null; 
     }
 
     function selectItemType(type) {
@@ -754,7 +824,6 @@
             if(btn) btn.classList.remove('active');
         });
         
-        // Seleciona a aba correta no topo com base na escolha
         if(type === 'item' || type === 'pers-item') document.getElementById('btn-type-item').classList.add('active');
         if(type === 'armacc' || type === 'pers-cc') document.getElementById('btn-type-armacc').classList.add('active');
         if(type === 'armadisp' || type === 'pers-disp') document.getElementById('btn-type-armadisp').classList.add('active');
@@ -768,7 +837,6 @@
         const btnAdd = document.getElementById('btn-confirm-add-item');
         const genericFields = document.getElementById('generic-item-fields');
 
-        // Mostrar catálogos
         if (type === 'item') {
             document.getElementById('fields-item-catalog').style.display = 'block'; 
             btnAdd.style.display = 'none';
@@ -781,9 +849,7 @@
             document.getElementById('fields-armadisp-catalog').style.display = 'block'; 
             btnAdd.style.display = 'none';
             genericFields.style.display = 'none'; 
-        } 
-        // Mostrar campos de personalização
-        else {
+        } else {
             btnAdd.style.display = 'block';
             genericFields.style.display = 'block';
             
@@ -806,7 +872,6 @@
     }
 
     function renderPremadeCatalogs() {
-        // CATÁLOGO ITENS
         const containerItem = document.getElementById('item-grid-container');
         if(containerItem) {
             containerItem.innerHTML = `
@@ -828,7 +893,6 @@
             });
         }
 
-        // CATÁLOGO CORPO A CORPO
         const containerCC = document.getElementById('armacc-grid-container');
         if(containerCC) {
             containerCC.innerHTML = `
@@ -852,7 +916,6 @@
             });
         }
 
-        // CATÁLOGO DISPARO
         const containerDisp = document.getElementById('armadisp-grid-container');
         if(containerDisp) {
             containerDisp.innerHTML = `
@@ -931,7 +994,6 @@
         closeItemPopup();
     }
 
-    // EDITA O ITEM SELECIONADO
     function openEditItemPopup() {
         if(!currentViewedItemId) return;
         const h = document.getElementById('item-data-' + currentViewedItemId);
@@ -965,7 +1027,7 @@
             document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0";
             document.getElementById('new-item-desc').value = "";
         } else {
-            selectItemType('pers-item'); // Vai para os inputs manuais de itens
+            selectItemType('pers-item'); 
             let desc = h.getAttribute('data-d');
             document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
         }
@@ -1003,7 +1065,6 @@
         let eqStatus = true;
         let idToUse = Date.now();
         
-        // SE FOR UMA EDIÇÃO, APAGA O ANTIGO E MANTÉM OS STATUS DE BALA/EQUIPADO
         if(editingItemId) {
             const oldH = document.getElementById('item-data-' + editingItemId);
             if(oldH) {
@@ -1076,42 +1137,26 @@
         document.getElementById('popup-item-info').style.display = 'none'; 
         currentViewedItemId = null;
     }
-    
-    function openWeaponInfo(id) { openItemInfo(id); } 
-    function closeWeaponInfo() { closeItemInfo(); } 
 
-    // LÓGICA DE CÁLCULO DE PESO / ESPAÇOS COM BÓNUS DA MOCHILA E TIPO DE CORPO
     function updateWeight() {
         const f = parseInt(document.getElementById('attr_for').value)||0; 
-        
         let lim = f * 5;
-        if (lim < 2) lim = 2; // Regra Padrão do Ordem: Força x 5 (Mínimo de 2)
+        if (lim < 2) lim = 2; 
         
-        // Verifica o tipo de corpo
         const bodyTypeEl = document.getElementById('char_tipo_corpo');
         const bodyType = bodyTypeEl ? bodyTypeEl.value : 'Médio';
-        
-        // Ajuste pelo Tipo de Corpo
-        if (bodyType === 'Pequeno') {
-            lim = Math.max(1, lim - 2); 
-        } else if (bodyType === 'Grande') {
-            lim += 2;
-        }
+        if (bodyType === 'Pequeno') { lim = Math.max(1, lim - 2); } 
+        else if (bodyType === 'Grande') { lim += 2; }
 
         let t = 0, bm = 0;
         document.querySelectorAll('.hidden-data-item').forEach(h => { 
             if(h.getAttribute('data-eq') === 'true') {
                 t += parseInt(h.getAttribute('data-w'))||0; 
-                
                 const n = h.getAttribute('data-n').toLowerCase();
-                if(n.includes('mochila militar')||n.includes('mochila tática')||n.includes('mochila tatica')) {
-                    bm = Math.max(bm, 5); 
-                } else if(n.includes('mochila')) {
-                    bm = Math.max(bm, 2);
-                }
+                if(n.includes('mochila militar')||n.includes('mochila tática')||n.includes('mochila tatica')) { bm = Math.max(bm, 5); } 
+                else if(n.includes('mochila')) { bm = Math.max(bm, 2); }
             }
         });
-        
         lim += bm; 
         
         ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => t += parseInt(document.getElementById(id).value)||0);
@@ -1166,19 +1211,15 @@
         } else { container.innerHTML = ''; }
     }
 
-    // --- FUNÇÕES DE TIRO E RECARGA ---
     function atirarArma(id) {
         const h = document.getElementById('item-data-' + id);
         if(!h) return;
         let current = parseInt(h.getAttribute('data-currentshots')) || 0;
         if(current > 0) {
             h.setAttribute('data-currentshots', current - 1);
-            save();
-            updateWeaponsDisplay();
+            save(); updateWeaponsDisplay();
             if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id);
-        } else {
-            alert("A arma está descarregada! Você precisa recarregar.");
-        }
+        } else { alert("A arma está descarregada! Você precisa recarregar."); }
     }
 
     function recarregarArma(id) {
@@ -1189,47 +1230,31 @@
 
         const ammoInputId = 'ammo_' + ammoType.toLowerCase();
         const ammoInput = document.getElementById(ammoInputId);
-
         let currentPackets = parseInt(ammoInput.value) || 0;
         if(currentPackets > 0) {
             ammoInput.value = currentPackets - 1;
             const cap = parseInt(h.getAttribute('data-capacity')) || 0;
             h.setAttribute('data-currentshots', cap);
-            updateWeight();
-            save();
-            updateWeaponsDisplay();
+            updateWeight(); save(); updateWeaponsDisplay();
             if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id);
-        } else {
-            alert("Você não tem pacotes de munição do tipo " + ammoType.toUpperCase() + " no seu inventário!");
-        }
+        } else { alert("Você não tem pacotes de munição do tipo " + ammoType.toUpperCase() + " no seu inventário!"); }
     }
 
-    // --- RITUAIS ---
     function openRitualPopup() { document.getElementById('popup-new-ritual').style.display='flex'; }
     function closeRitualPopup() { document.getElementById('popup-new-ritual').style.display='none'; }
     function confirmAddRitual() {
         const n = document.getElementById('rit-name').value, el = document.getElementById('rit-elem').value; if(!n) return;
-        
-        const circ = document.getElementById('rit-circ').value;
-        const ex = document.getElementById('rit-exec').value || "-";
-        const alc = document.getElementById('rit-range').value || "-";
-        const alv = document.getElementById('rit-target').value || "-";
-        const dur = document.getElementById('rit-dur').value || "-";
-        const res = document.getElementById('rit-res').value || "-";
+        const circ = document.getElementById('rit-circ').value, ex = document.getElementById('rit-exec').value || "-", alc = document.getElementById('rit-range').value || "-";
+        const alv = document.getElementById('rit-target').value || "-", dur = document.getElementById('rit-dur').value || "-", res = document.getElementById('rit-res').value || "-";
         const img = document.getElementById('rit-img').value || "";
-        
-        const descGeral = document.getElementById('rit-desc-geral').value || "Sem descrição.";
-        const descDisc = document.getElementById('rit-desc-discente').value || "-";
-        const descVerd = document.getElementById('rit-desc-verdadeiro').value || "-";
+        const descGeral = document.getElementById('rit-desc-geral').value || "Sem descrição.", descDisc = document.getElementById('rit-desc-discente').value || "-", descVerd = document.getElementById('rit-desc-verdadeiro').value || "-";
         
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`;
         if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`;
         if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-        
         const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         
-        addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); 
-        closeRitualPopup();
+        addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); closeRitualPopup();
     }
     
     function addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, eq = true, img = "") {
@@ -1257,64 +1282,100 @@
         document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
             has = true; 
             const hr = chk.closest('tr').querySelector('.hidden-ritual');
-            const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el');
-            const rid = hr.id.replace('rit-data-', '');
+            const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.id.replace('rit-data-', '');
             let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; 
             container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`;
         });
         if(!has) container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual.</div>`;
     }
 
-    // --- POPUP DE INFORMAÇÕES DE RITUAIS ---
     function openRitualInfo(id, color) {
-        const hr = document.getElementById('rit-data-' + id);
-        const htmlDiv = document.getElementById('rit-html-' + id);
+        const hr = document.getElementById('rit-data-' + id), htmlDiv = document.getElementById('rit-html-' + id);
         if(!hr || !htmlDiv) return;
-
         document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n');
         document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)';
-        
-        const imgUrl = hr.getAttribute('data-img');
-        const imgEl = document.getElementById('info-rit-img');
-        if(imgUrl && imgUrl.trim() !== '') { 
-            imgEl.src = imgUrl; 
-            imgEl.style.display = 'block'; 
-        } else {
-            imgEl.style.display = 'none';
-        }
-
+        const imgUrl = hr.getAttribute('data-img'), imgEl = document.getElementById('info-rit-img');
+        if(imgUrl && imgUrl.trim() !== '') { imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
         document.getElementById('info-rit-details').innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid ${color || 'rgba(51, 51, 51, 0.5)'}; border-radius: 8px; padding: 15px;">${htmlDiv.innerHTML}</div>`;
-        
         document.getElementById('popup-ritual-info').style.display = 'flex';
     }
+    function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
 
-    function closeRitualInfo() { 
-        document.getElementById('popup-ritual-info').style.display = 'none'; 
-    }
-
-    // --- DADOS E COMBATE ---
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+    
     function showPopup(n, r="TOTAL", st="color:white") {
-        const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+        const box = document.querySelector('.popup-box-dice'); 
+        box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+        
         let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
-        let resEl = document.getElementById('popup-res'); resEl.innerHTML = r; resEl.style = st;
+        let resEl = document.getElementById('popup-res'); 
+        
+        let textoFinal = r;
+        if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) {
+            textoFinal = r.replace(' (', '<br>(');
+        }
+        resEl.innerHTML = textoFinal; 
+        
+        resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
+        
+        box.style.animation = 'none';
+        box.style.boxShadow = 'none';
+        box.style.borderColor = 'var(--accent-yellow)';
+
         document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
-        setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
+        
+        // Só treme e pinta a caixa DEPOIS de aparecer o resultado (1.5s do GIF)
+        setTimeout(() => {
+            document.getElementById('popup-content').style.display = 'flex';
+            if (r.includes('CRÍTICO')) {
+                box.style.animation = 'shakeCrit 0.4s infinite'; 
+                box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
+                box.style.borderColor = '#ff0000';
+            }
+        }, 1500);
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
             socket.emit('rolagem_feita', {
-                codigo: playerCode,
-                jogador: jogadorNome,
-                acao: r,
+                codigo: viewCode || playerCode,
+                jogador: viewCode ? viewCode : jogadorNome,
+                acao: r.replace(/<br>/g, ' '), 
                 resultado: n,
                 cor: st
             });
         }
     }
+
+    function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) {
+        document.getElementById('max-atk-display').innerText = maxAtk;
+        const input = document.getElementById('input-qtd-ataques');
+        input.max = maxAtk;
+        input.value = maxAtk; 
+        
+        input.oninput = function() {
+            let val = parseInt(this.value);
+            if (val > maxAtk) this.value = maxAtk;
+            if (val < 1) this.value = 1;
+        };
+
+        document.getElementById('modal-qtd-ataques').style.display = 'flex';
+        
+        document.getElementById('btn-confirm-ataques').onclick = function() {
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > maxAtk) val = maxAtk; 
+            fecharModalQtdAtaques();
+            rolarTesteD20(n, id, ak, modPerc, true, val);
+        };
+    }
+
+    function fecharModalQtdAtaques() {
+        document.getElementById('modal-qtd-ataques').style.display = 'none';
+    }
     
-    function rolarTesteD20(n, id, ak, modPerc) {
+    // --- LÓGICA DE ROLAGEM REFATORADA (MÚLTIPLOS ATAQUES, CRÍTICOS E PERÍCIAS) ---
+    function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
         lastAttackWasCrit = false;
         let sn = id.replace("skill_","");
         let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0;
@@ -1327,60 +1388,91 @@
         }
 
         let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty);
-        let d = Math.floor(Math.random()*20)+1;
         let m = tabelaD20[f>20?20:f<1?1:f];
-        let isCrit = false;
-        
-        let numAttacks = 1;
 
-        if (n === "Luta" || n === "Pontaria") {
+        let numAttacks = 1;
+        let cMarg = 20;
+
+        if (eArma) {
             const sel = document.getElementById('active-weapon-select');
             if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) {
                 const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id;
                 const wp = equippedWeaponsData.find(w => w.id === wpId);
                 if (wp) {
                     if (wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
-                        let cMarg = parseInt(wp.crit.split('/')[0])||20; 
-                        if (d >= cMarg) isCrit = true; 
+                        cMarg = parseInt(wp.crit.split('/')[0])||20; 
                     }
-                    if (wp.atk) { numAttacks = parseInt(wp.atk) || 1; }
+                    if (wp.atk && parseInt(wp.atk) > 1) { 
+                        let maxAtaquesPossiveis = parseInt(wp.atk);
+                        if (qtdAtaquesForcado === null) {
+                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak, modPerc);
+                            return; 
+                        } else {
+                            numAttacks = qtdAtaquesForcado;
+                        }
+                    }
                 }
             }
-            lastAttackWasCrit = isCrit || d === 20;
         }
-        
-        if (numAttacks > 1 && (n === "Luta" || n === "Pontaria")) {
-            let results = []; let anyCrit = false;
-            for(let i=0; i<numAttacks; i++) {
-                let rd = Math.floor(Math.random()*20)+1; 
-                let isThisCrit = false;
-                
-                const sel = document.getElementById('active-weapon-select');
-                if (sel && sel.value) {
-                    const wp = equippedWeaponsData.find(w => w.id === sel.value);
-                    if (wp && wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
-                        let cMarg = parseInt(wp.crit.split('/')[0])||20; 
-                        if (rd >= cMarg) isThisCrit = true; 
-                    }
-                }
-                
-                if (isThisCrit || rd === 20) anyCrit = true;
-                let rm = tabelaD20[f>20?20:f<1?1:f];
-                if (isThisCrit || rd === 20) { results.push(`<span style="color:var(--accent-red)">${rd} (CRÍTICO)</span>`); } 
-                else {
-                    let st = rd >= rm.e && rm.e != 99 ? "var(--accent-yellow)" : rd >= rm.b && rm.b != 99 ? "var(--accent-blue)" : rd >= rm.n ? "var(--accent-green)" : "var(--accent-red)";
-                    let lbl = rd >= rm.e && rm.e != 99 ? "EXT" : rd >= rm.b && rm.b != 99 ? "BOM" : rd >= rm.n ? "NOR" : "FALHA";
-                    results.push(`<span style="color:${st}">${rd} (${lbl})</span>`);
+
+        let resultsArray = [];
+        let anyCrit = false;
+        let allDesastre = true;
+
+        for(let i=0; i<numAttacks; i++) {
+            let d = Math.floor(Math.random()*20)+1;
+            let isCrit = eArma ? (d >= cMarg) : (d === 20);
+            if (isCrit) anyCrit = true;
+
+            let textFormat = "";
+            let colorFormat = "";
+
+            if (d === 1) {
+                textFormat = "DESASTRE";
+                colorFormat = "color:#ff5252; text-shadow: 2px 2px 4px #000;";
+            } else {
+                allDesastre = false;
+                if (isCrit && eArma) {
+                    textFormat = "CRÍTICO";
+                    colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                } else if (d === 20 && !eArma) {
+                    textFormat = "CRÍTICO";
+                    colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
+                } else if (d >= m.e && m.e != 99) {
+                    textFormat = "EXTREMO";
+                    colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;";
+                } else if (d >= m.b && m.b != 99) {
+                    textFormat = "BOM";
+                    colorFormat = "color:var(--accent-blue); text-shadow: 2px 2px 4px #000;";
+                } else if (d >= m.n) {
+                    textFormat = "NORMAL";
+                    colorFormat = "color:var(--accent-green); text-shadow: 2px 2px 4px #000;";
+                } else {
+                    textFormat = "FALHA";
+                    colorFormat = "color:var(--accent-red); text-shadow: 2px 2px 4px #000;";
                 }
             }
-            lastAttackWasCrit = anyCrit;
-            let finalHtml = `<div style="font-size:0.6em; line-height:1.4; display:flex; flex-direction:column; gap:5px; text-shadow: 1px 1px 0 #000;">` + results.map((r, idx) => `<div><b>Atq ${idx+1}:</b> ${r}</div>`).join('') + `</div>`;
-            showPopup(numAttacks + "x", finalHtml, "color:white; margin-top:0;");
-        } else {
-            let res;
-            if (isCrit || d === 20) { res = ["CRÍTICO", "var(--accent-red)"]; } 
-            else { res = d >= m.e && m.e != 99 ? ["EXTREMO","var(--accent-yellow)"] : d >= m.b && m.b != 99 ? ["BOM","var(--accent-blue)"] : d >= m.n ? ["NORMAL","var(--accent-green)"] : ["FALHA","var(--accent-red)"]; }
-            showPopup(d, n + " (" + res[0] + ")", "color:" + res[1]);
+
+            if (numAttacks > 1) {
+                // A cor agora é herdada diretamente do colorFormat
+                let listColor = colorFormat.replace("color:", "").replace(";", "");
+                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size: 0.7em; line-height: 1.2;">ATQ ${i+1}: ${d} (${textFormat})</div>`);
+            } else {
+                showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
+            }
+        }
+
+        lastAttackWasCrit = anyCrit;
+
+        if (numAttacks > 1) {
+            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">` 
+                + resultsArray.join('') 
+                + `</div>`;
+            
+            let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO";
+            if (allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
+            
+            showPopup(numAttacks + "x", `${actionText}${finalHtml}`, "color:white; text-align:center;");
         }
     }
 
@@ -1392,7 +1484,7 @@
         let skillObj = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_") === sn);
         if(!skillObj) { skillObj = periciasBase.find(p => p.nome === "Luta"); } 
         
-        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod); 
+        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod, true); 
     }
 
     function rolarDanoArma(id) { 
@@ -1412,15 +1504,16 @@
         try {
             const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0;
             if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); }
-            let title = isCrit ? "DANO CRÍTICO (" + wp.name + ")" : "DANO (" + wp.name + ")"; 
-            let color = isCrit ? "color: var(--accent-yellow)" : "color: var(--accent-red)";
+            
+            let title = isCrit ? `DANO CRÍTICO<br>(${wp.name})` : `DANO<br>(${wp.name})`; 
+            let color = isCrit ? "color: #ffcf33; text-shadow: 0 0 15px #ff0000, 2px 2px 4px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
             showPopup(t, title, color);
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); }
         lastAttackWasCrit = false; 
     }
 
     function rolarDadoPersonalizado() {
-        document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "Personalizado", "color:white");
+        document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white");
     }
 
     function toggleTrained(sn) { document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); updateAllPericias(); }
@@ -1453,8 +1546,6 @@
     // --- FUNÇÕES DE SALVAR, EXPORTAR E CARREGAR ---
     function save() {
         if(isLoadingData) return; 
-
-        // 1. Calcula a foto atual
         let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
         if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo;
         else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente;
@@ -1465,8 +1556,7 @@
         const d = { attrs:{}, skills:{}, inv:[], ammo:{}, abilities:[], rituals:[], defense: document.getElementById('defense_val').value, info:{}, charImages: charImages, charStatus: charStatus };
         ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; });
         const activeWeaponSelect = document.getElementById('active-weapon-select');
-d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
-        // 2. Guarda a URL correta no objeto de dados
+        d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
         d.info['char_img'] = currentImgUrl;
 
         document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value);
@@ -1483,114 +1573,83 @@ d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
             d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); 
         });
         
-        // 3. O Mestre está editando na janela dele (Iframe)
         if (viewCode) {
             if (socket) {
                 const payload = {
-                    codigo: viewCode,
-                    origin: socket.id, // Envia a identificação para o Iframe não se auto-atualizar
-                    nome: document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido',
-                    foto: currentImgUrl,
-                    nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
+                    codigo: viewCode, origin: socket.id, nome: document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido',
+                    foto: currentImgUrl, nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
                     defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
-                    vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
-                    vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
-                    sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0,
-                    sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
-                    status: charStatus,
-                    fullData: d
+                    vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0, vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
+                    sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0, sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
+                    status: charStatus, fullData: d
                 };
                 socket.emit('mestre_force_sync', payload);
             }
-            return; // Cancela para não guardar no computador do mestre acidentalmente
+            return; 
         }
 
-        // 4. Jogador Normal a editar
         localStorage.setItem('ordem_save_local', JSON.stringify(d));
+        fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: playerCode, fichaData: d }) }).catch(e => console.error("Erro ao salvar no Firebase:", e));
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
             socket.emit('status_change', {
-                codigo: playerCode,
-                origin: socket.id,
-                id: playerCode,
-                nome: jogadorNome,
-                foto: currentImgUrl,
-                nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0,
-                defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
-                vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0,
-                vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
-                sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0,
-                sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
-                status: charStatus,
-                fullData: d
+                codigo: playerCode, origin: socket.id, id: playerCode, nome: jogadorNome, foto: currentImgUrl,
+                nex: document.getElementById('char_nex') ? document.getElementById('char_nex').value : 0, defesa: document.getElementById('defense_val') ? document.getElementById('defense_val').value : 10,
+                vida_atual: document.getElementById('vida_atual') ? document.getElementById('vida_atual').value : 0, vida_max: document.getElementById('vida_max') ? document.getElementById('vida_max').value : 0,
+                sani_atual: document.getElementById('sani_atual') ? document.getElementById('sani_atual').value : 0, sani_max: document.getElementById('sani_max') ? document.getElementById('sani_max').value : 0,
+                status: charStatus, fullData: d
             });
         }
     }
 
-    // --- FUNÇÕES DE EXPORTAR E IMPORTAR JSON OFFLINE ---
     function exportFicha() {
-        save(); // Garante que os dados mais recentes estão salvos
+        save(); 
         const dataStr = localStorage.getItem('ordem_save_local');
-        
-        if (!dataStr) {
-            alert("Nenhum dado encontrado para exportar!");
-            return;
-        }
-
-        // Cria o arquivo Blob com os dados em JSON
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        
-        // Define o nome do arquivo com base no nome do personagem
+        if (!dataStr) { alert("Nenhum dado encontrado para exportar!"); return; }
+        const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob);
         const charName = document.getElementById('char_nome').value || "Personagem_Desconhecido";
         const fileName = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`;
-
-        // Cria um link temporário para forçar o download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Limpa os dados criados
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 
     function importFicha(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
+        const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const importedData = JSON.parse(e.target.result);
-                
-                // Salva no localStorage para manter a persistência
                 localStorage.setItem('ordem_save_local', JSON.stringify(importedData));
-                
-                // Recarrega os dados na interface
-                isLoadingData = true; 
-                populateData(importedData);
-                
+                isLoadingData = true; populateData(importedData); save(); 
                 alert("Ficha carregada com sucesso!");
-            } catch (error) {
-                alert("Erro ao importar a ficha. Certifique-se de que é um arquivo JSON válido gerado por este sistema.");
-                console.error("Erro no Parse JSON:", error);
-            }
-            
-            // Limpa o input file para permitir importar o mesmo arquivo novamente se necessário
+            } catch (error) { alert("Erro ao importar a ficha."); }
             event.target.value = '';
         };
-        
         reader.readAsText(file);
     }
+
+    let timerAutoSave;
+    function ativarAutoSave() {
+        if (typeof viewCode !== 'undefined' && viewCode) return; 
+        const statusTxt = document.getElementById('save-status');
+        if(statusTxt) { statusTxt.innerText = "A guardar..."; statusTxt.style.color = "var(--accent-yellow)"; }
+        clearTimeout(timerAutoSave);
+        timerAutoSave = setTimeout(() => {
+            if(typeof save === 'function') save(); 
+            if(statusTxt) {
+                statusTxt.innerText = "Guardado ✔️"; statusTxt.style.color = "var(--accent-green)";
+                setTimeout(() => { statusTxt.innerText = "A aguardar alterações..."; statusTxt.style.color = "var(--text-secondary)"; }, 2000);
+            }
+        }, 3000);
+    }
+    document.addEventListener('input', ativarAutoSave); document.addEventListener('change', ativarAutoSave);
+    document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
 
     function init() {
         ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => {
             let id = "attr_" + a.toLowerCase().substring(0,3);
-            document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight(); save()"><div class="attr-targets" id="${id}_targets"></div></div>`;
+            document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight();"><div class="attr-targets" id="${id}_targets"></div></div>`;
         });
         periciasBase.forEach(p => {
             let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_");
@@ -1600,7 +1659,7 @@ d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
                     <span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span>
                 </div>
                 <div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;">
-                    <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod})" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;">
+                    <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;">
                         <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);">
                     </button>
                 </div>
@@ -1611,26 +1670,19 @@ d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
         });
 
         if (viewCode) {
-            const topBtns = document.getElementById('main-top-buttons');
-            if(topBtns) topBtns.style.display = 'none'; 
-            
+            const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; 
             if (socket) {
                 socket.on('update_mestre', (dados) => {
-                    // Apenas recarrega se for o código certo e se NÃO for o próprio Iframe que enviou a alteração
                     if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) {
-                        isLoadingData = true;
-                        populateData(dados.fullData);
+                        isLoadingData = true; populateData(dados.fullData);
                     }
                 });
                 socket.emit('request_player', viewCode); 
             }
-        } else {
-            load(); 
-        }
+        } else { load(); }
 
         if (socket && !viewCode) {
             socket.on('connect', () => save()); 
-
             socket.on('comando_mestre', (dados) => {
                 if (dados.codigo === playerCode) {
                     if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
@@ -1638,17 +1690,13 @@ d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null;
                     else if (dados.tipo === 'status') toggleStatus(dados.status);
                 }
             });
-
-            // Sincroniza a ficha caso o Mestre a edite no escudo
             socket.on('mestre_force_sync_player', (dados) => {
                 if (dados.codigo === playerCode && dados.fullData) {
-                    isLoadingData = true;
-                    populateData(dados.fullData);
+                    isLoadingData = true; populateData(dados.fullData);
                     localStorage.setItem('ordem_save_local', JSON.stringify(dados.fullData));
                 }
             });
         }
-
         renderPremadeCatalogs(); 
     }
 
