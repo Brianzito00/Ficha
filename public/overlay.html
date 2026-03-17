@@ -20,52 +20,57 @@
             overflow: hidden;
         }
 
+        /* GRADE 4x8 CONFIGURADA AQUI */
         #multi-overlay-container {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 colunas lado a lado */
+            grid-template-rows: repeat(8, auto);   /* 8 linhas */
+            gap: 20px 40px; /* Espaçamento vertical e horizontal */
             position: relative;
             z-index: 1;
+            width: 100%;
         }
 
         .player-card {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 15px; /* Ajustado para caber bem nas 4 colunas */
             animation: fadeIn 0.6s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .foto-container {
-            width: 120px;
-            height: 120px;
+            width: 105px; /* Ligeiramente menor para dar espaço às 4 colunas */
+            height: 105px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .foto {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
         }
 
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 5px; 
+            gap: 2px; 
             font-family: 'Gabriele Bad', sans-serif;
-            font-size: 2.8rem; 
+            font-size: 2.3rem; /* Ajustado para não quebrar a linha */
             font-weight: normal;
             line-height: 0.9;
             user-select: none;
             letter-spacing: 2px;
         }
 
+        /* EFEITOS GLOW (NEON) */
         .val-vida { 
             color: white; 
             text-shadow: 0 0 8px #ff0000, 0 0 15px #ff0000, 0 0 30px #ff0000; 
@@ -79,7 +84,7 @@
         .val-ammo { 
             color: white; 
             text-shadow: 0 0 8px #ffcf33, 0 0 15px #ffcf33, 0 0 30px #ffae00; 
-            font-size: 2rem;
+            font-size: 1.6rem;
             margin-top: 5px;
         }
     </style>
@@ -133,6 +138,7 @@
 
         window.onload = () => {
             atualizarOverlay();
+            // Pede atualizações regularmente para garantir que não perde pacotes
             setInterval(() => {
                 activePlayers.forEach(code => socket.emit('request_player', code));
             }, 10000);
@@ -146,7 +152,7 @@
             }
         });
 
-        // 2. Sincronização via Socket (Essencial para funcionar no OBS Studio)
+        // 2. Sincronização via Socket (Essencial para funcionar no OBS Studio perfeitamente)
         socket.on('connect', () => {
             // Pede ao mestre a lista de jogadores atual mal o OBS liga
             socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
