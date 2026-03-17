@@ -46,7 +46,6 @@
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* A ESCALA 3x6 EXIGIDA - 3 COLUNAS */
         .players-container, .monsters-grid {
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -96,17 +95,9 @@
 
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
-            padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
+        
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
         .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
         .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%;}
@@ -130,14 +121,9 @@
         .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
         
-        .ini-card {
-            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
-            padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap;
-        }
+        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap; }
         .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
         .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
-        
         .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
         .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
         .ini-info { flex: 1; min-width: 150px; }
@@ -147,17 +133,12 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
-        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO (PROFISSIONAL) */
-        #roteiro-board {
-            display: none; flex-direction: column; height: 100%; overflow: hidden;
-            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
-            padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-        }
+        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO */
+        #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
         
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
-        
         .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
@@ -165,32 +146,15 @@
         .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
         .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
 
-        .roteiro-titulo-input {
-            background: transparent; border: none; border-bottom: 2px solid var(--border-color);
-            color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px;
-            padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s;
-        }
+        .roteiro-titulo-input { background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px; padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s; }
         .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
 
-        .roteiro-textarea {
-            flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color);
-            color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif;
-            font-size: 1.1em; border-radius: 8px; resize: none; outline: none;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6;
-        }
+        .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
-        /* Scrollbars customizadas */
         .roteiro-textarea::-webkit-scrollbar, .roteiro-sidebar::-webkit-scrollbar, .roteiro-sidebar-right::-webkit-scrollbar { width: 6px; }
         .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        .roteiro-textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-        /* ======================================================== */
-        /* COMPATIBILIDADE PARA TELEMÓVEIS / CELULARES              */
-        /* ======================================================== */
-        @media (max-width: 900px) {
-            .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
+        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; padding: 10px; }
             .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
@@ -204,13 +168,10 @@
             .popup-res { font-size: 1.5em; }
             .attr-grid { grid-template-columns: 1fr; } 
 
-            /* Layout de Roteiro Mobile */
             #roteiro-board { height: auto; padding: 15px; }
             .roteiro-layout { flex-direction: column; height: auto; }
-            
             .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
             .roteiro-sidebar-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
-            
             #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
             .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
             .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
@@ -223,6 +184,9 @@
         <span style="font-weight: bold; color: var(--accent-blue);">Conectar Jogador:</span>
         <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Usuário (Login)" maxlength="30">
         <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR</button>
+        
+        <div style="flex: 1;"></div> <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html', '_blank')">📺 ABRIR OVERLAY</button>
+        <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR</button>
     </div>
 
     <div class="tabs-container">
@@ -359,6 +323,62 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
+        let playerCode = localStorage.getItem('usuario_logado');
+        if (!playerCode) { window.location.href = '/login.html'; }
+
+        function fazerLogout() {
+            localStorage.removeItem('usuario_logado');
+            localStorage.removeItem('mestre_save_nuvem');
+            window.location.href = '/login.html';
+        }
+
+        // ===============================================
+        // SISTEMA DE CLOUD SAVE DO MESTRE (NUVEM / FIREBASE)
+        // ===============================================
+        let cloudSaveStr = localStorage.getItem('mestre_save_nuvem');
+        if (cloudSaveStr) {
+            try {
+                let cloudSave = JSON.parse(cloudSaveStr);
+                if (cloudSave.roteiros) localStorage.setItem('mestre_roteiros', JSON.stringify(cloudSave.roteiros));
+                if (cloudSave.descricoes) localStorage.setItem('mestre_descricoes', JSON.stringify(cloudSave.descricoes));
+                if (cloudSave.monstros) localStorage.setItem('mestre_monstros', JSON.stringify(cloudSave.monstros));
+                if (cloudSave.iniciativa) localStorage.setItem('mestre_iniciativa', JSON.stringify(cloudSave.iniciativa));
+                if (cloudSave.allowedCodes) localStorage.setItem('mestre_allowed_codes', JSON.stringify(cloudSave.allowedCodes));
+            } catch(e) {}
+            localStorage.removeItem('mestre_save_nuvem'); // Limpa após carregar
+        }
+
+        let debounceTimer;
+        function salvarMestreNoFirebase() {
+            if (playerCode !== 'DUNGEONMASTER') return; // Apenas o DM salva
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const dataToSave = {
+                    roteiros: JSON.parse(localStorage.getItem('mestre_roteiros') || '[]'),
+                    descricoes: JSON.parse(localStorage.getItem('mestre_descricoes') || '[]'),
+                    monstros: JSON.parse(localStorage.getItem('mestre_monstros') || '[]'),
+                    iniciativa: JSON.parse(localStorage.getItem('mestre_iniciativa') || '[]'),
+                    allowedCodes: JSON.parse(localStorage.getItem('mestre_allowed_codes') || '[]')
+                };
+                fetch('/api/guardar_ficha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: playerCode, fichaData: dataToSave })
+                }).catch(e => console.error("Erro ao salvar o Mestre no Firebase:", e));
+            }, 1500); 
+        }
+
+        // Interceta sempre que algo do Mestre é guardado localmente para enviar para a Nuvem
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            if (['mestre_roteiros', 'mestre_descricoes', 'mestre_monstros', 'mestre_iniciativa', 'mestre_allowed_codes'].includes(key)) {
+                salvarMestreNoFirebase();
+            }
+        };
+
+        // ===============================================
+
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
@@ -369,7 +389,7 @@
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
 
         // ===============================================
-        // SISTEMA DE ROTEIROS / SESSÕES E DESCRIÇÕES
+        // SISTEMA DE ROTEIROS E DESCRIÇÕES DE MUNDO
         // ===============================================
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
@@ -436,14 +456,14 @@
             modoEdicaoAtual = 'roteiro';
             currentRoteiroId = id;
             renderRoteiros(); 
-            renderDescricoes(); // Atualiza cores
+            renderDescricoes(); 
             atualizarEditor();
         }
 
         function selecionarDescricao(id) {
             modoEdicaoAtual = 'descricao';
             currentDescricaoId = id;
-            renderRoteiros(); // Atualiza cores
+            renderRoteiros(); 
             renderDescricoes(); 
             atualizarEditor();
         }
@@ -473,12 +493,9 @@
             if(roteiros.length === 1) return alert("Precisas de ter pelo menos uma sessão criada!");
             if(confirm("Tem a certeza que deseja apagar esta sessão e todo o seu texto secreto?")) {
                 roteiros = roteiros.filter(r => r.id !== id);
+                if(currentRoteiroId === id) currentRoteiroId = roteiros[0].id;
                 salvarRoteiros();
-                if(currentRoteiroId === id) {
-                    selecionarRoteiro(roteiros[0].id);
-                } else {
-                    renderRoteiros();
-                }
+                selecionarRoteiro(currentRoteiroId);
             }
         }
 
@@ -488,7 +505,7 @@
                 salvarDescricoes();
                 if(currentDescricaoId === id) {
                     if (descricoes.length > 0) selecionarDescricao(descricoes[0].id);
-                    else selecionarRoteiro(currentRoteiroId); // Volta pro roteiro se acabar tudo
+                    else selecionarRoteiro(currentRoteiroId); 
                 } else {
                     renderDescricoes();
                 }
@@ -523,34 +540,23 @@
             dispararFeedbackEditor();
         });
 
-        let saveTimeout;
+        let saveTimeoutEditor;
         function dispararFeedbackEditor() {
             const status = document.getElementById('roteiro-status');
             status.innerText = "A guardar...";
             status.style.color = "var(--accent-yellow)";
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
+            clearTimeout(saveTimeoutEditor);
+            saveTimeoutEditor = setTimeout(() => {
                 status.innerText = "Guardado ✔️";
                 status.style.color = "var(--accent-green)";
                 setTimeout(() => { 
-                    status.innerText = "Sincronizado na memória local.";
+                    status.innerText = "Sincronizado na Nuvem";
                     status.style.color = "var(--text-secondary)"; 
                 }, 2000);
             }, 1000);
         }
 
         // ===============================================
-
-        // Tabela D20 e Perícias Base
-        const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
-        const periciasMonstroInfo = {
-            'luta': { attr: 'for', mod: 0.25, nome: 'Luta' },
-            'pontaria': { attr: 'agi', mod: 0.45, nome: 'Pontaria' },
-            'iniciativa': { attr: 'agi', mod: 0.50, nome: 'Iniciativa' },
-            'reflexos': { attr: 'agi', mod: 0.35, nome: 'Reflexos' },
-            'percepcao': { attr: 'pre', mod: 0.50, nome: 'Percepção' },
-            'vontade': { attr: 'pre', mod: 0.50, nome: 'Vontade' }
-        };
 
         socket.on('connect', () => { jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); });
 
@@ -730,27 +736,18 @@
         
         function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
             const box = document.querySelector('.popup-box-dice'); 
-            
             box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
-            
             let numEl = document.getElementById('popup-num'); 
             numEl.innerHTML = n; 
             if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
             let resEl = document.getElementById('popup-res'); 
             resEl.innerHTML = r; resEl.style = st;
-            
             document.getElementById('popup-content').style.display = 'none'; 
             document.getElementById('popup-dice').style.display = 'flex';
             setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
 
             if (socket) {
-                socket.emit('rolagem_feita', {
-                    codigo: null, 
-                    jogador: jogador,
-                    acao: r,
-                    resultado: n,
-                    cor: st
-                });
+                socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st });
             }
         }
 
@@ -770,26 +767,24 @@
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
                 document.getElementById('players-board').style.display = 'grid';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
             } else if (aba === 'monstros') {
                 document.getElementById('tab-monstros').classList.add('active');
                 document.getElementById('monsters-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
                 renderizarMonstros();
             } else if (aba === 'iniciativa') {
                 document.getElementById('tab-iniciativa').classList.add('active');
                 document.getElementById('iniciativa-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; // Volta a mostrar os logs
+                logContainer.style.display = 'flex'; 
                 renderizarIniciativa();
             } else if (aba === 'roteiro') {
                 document.getElementById('tab-roteiro').classList.add('active');
                 document.getElementById('roteiro-board').style.display = 'flex';
-                logContainer.style.display = 'none'; // Esconde os logs para o editor ser maior
-                
-                // Renders the sidebars and sets correct active states
+                logContainer.style.display = 'none'; 
                 renderRoteiros();
                 renderDescricoes();
-                atualizarEditorRoteiro();
+                atualizarEditor();
             }
         }
 
@@ -814,7 +809,6 @@
             iniciativaList.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = `ini-card ${item.isPlayer ? 'is-player' : 'is-monster'}`;
-                
                 card.innerHTML = `
                     <button class="btn-remove" style="top: -5px; right: -5px; z-index: 10;" onclick="removerIniciativa('${item.id}')">X</button>
                     <div class="ini-rank">#${index + 1}</div>
@@ -832,60 +826,31 @@
             });
         }
 
-        function removerIniciativa(id) {
-            iniciativaList = iniciativaList.filter(i => i.id !== id);
-            renderizarIniciativa();
-        }
-
-        function limparIniciativa() {
-            if(confirm("Tem a certeza que deseja limpar toda a Ordem de Iniciativa?")) {
-                iniciativaList = [];
-                renderizarIniciativa();
-            }
-        }
+        function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); renderizarIniciativa(); }
+        function limparIniciativa() { if(confirm("Tem a certeza que deseja limpar toda a Ordem de Iniciativa?")) { iniciativaList = []; renderizarIniciativa(); } }
 
         function rolarMonstrosIniciativa() {
             if(monstros.length === 0) return alert("Não existem monstros no ecrã para rolar iniciativa.");
             monstros.forEach(m => rolarPericiaMonstro(m.id, 'iniciativa'));
-            
-            if (!document.getElementById('tab-iniciativa').classList.contains('active')) {
-                mudarAba('iniciativa');
-            }
+            if (!document.getElementById('tab-iniciativa').classList.contains('active')) mudarAba('iniciativa');
         }
-
-        let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
 
         function abrirModalCriatura() {
             document.getElementById('modal-criatura').style.display = 'flex';
-            
             ['agi','for','pre'].forEach(a => document.getElementById(`c-${a}`).value = '1');
             ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
-                document.getElementById(`c-treino-${p}`).checked = false;
-                document.getElementById(`c-bonus-${p}`).value = '0';
+                document.getElementById(`c-treino-${p}`).checked = false; document.getElementById(`c-bonus-${p}`).value = '0';
             });
-
-            document.getElementById('c-ataques-list').innerHTML = '';
-            document.getElementById('c-poderes-list').innerHTML = '';
-            addCampoAtaque('c-ataques-list');
-            addCampoPoder('c-poderes-list');
+            document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = '';
+            addCampoAtaque('c-ataques-list'); addCampoPoder('c-poderes-list');
         }
 
-        function fecharModalCriatura() {
-            document.getElementById('modal-criatura').style.display = 'none';
-        }
+        function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
 
         function addCampoAtaque(containerId) {
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
-            div.className = 'dynamic-row';
-            div.style.flexDirection = 'column';
-            div.style.background = 'rgba(0,0,0,0.3)';
-            div.style.padding = '10px';
-            div.style.borderRadius = '8px';
-            div.style.position = 'relative';
-            div.style.border = '1px solid #333';
-            div.style.marginBottom = '10px';
-            
+            div.className = 'dynamic-row'; div.style.flexDirection = 'column'; div.style.background = 'rgba(0,0,0,0.3)'; div.style.padding = '10px'; div.style.borderRadius = '8px'; div.style.position = 'relative'; div.style.border = '1px solid #333'; div.style.marginBottom = '10px';
             div.innerHTML = `
                 <button class="btn-ctrl" onclick="this.parentElement.remove()" style="position: absolute; top: -10px; right: -10px; background:var(--accent-red); width: 24px; height: 24px; font-size: 0.8em; border-radius: 50%;">X</button>
                 <div style="display: flex; gap: 8px; margin-bottom: 8px;">
@@ -905,10 +870,7 @@
             const container = document.getElementById(containerId);
             const div = document.createElement('div');
             div.className = 'dynamic-row';
-            div.innerHTML = `
-                <input type="text" class="monster-input pow-nome" style="flex:1; width:100%;" placeholder="Poder (Ex: Regeneração 5 PV)">
-                <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
-            `;
+            div.innerHTML = `<input type="text" class="monster-input pow-nome" style="flex:1; width:100%;" placeholder="Poder (Ex: Regeneração 5 PV)"><button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>`;
             container.appendChild(div);
         }
 
@@ -919,52 +881,28 @@
             const defesa = document.getElementById('c-defesa').value || '0';
             const vida = parseInt(document.getElementById('c-vida').value) || 1;
 
-            const attrs = {
-                agi: parseInt(document.getElementById('c-agi').value) || 1,
-                for: parseInt(document.getElementById('c-for').value) || 1,
-                pre: parseInt(document.getElementById('c-pre').value) || 1
-            };
-
+            const attrs = { agi: parseInt(document.getElementById('c-agi').value) || 1, for: parseInt(document.getElementById('c-for').value) || 1, pre: parseInt(document.getElementById('c-pre').value) || 1 };
             const skills = {};
             ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => {
-                skills[p] = {
-                    treinado: document.getElementById(`c-treino-${p}`).checked,
-                    bonus: parseInt(document.getElementById(`c-bonus-${p}`).value) || 0
-                };
+                skills[p] = { treinado: document.getElementById(`c-treino-${p}`).checked, bonus: parseInt(document.getElementById(`c-bonus-${p}`).value) || 0 };
             });
 
             const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => {
                 return {
-                    nome: row.querySelector('.atq-nome').value.trim(),
-                    tipo: row.querySelector('.atq-tipo').value.trim(),
-                    qtd: parseInt(row.querySelector('.atq-qtd').value) || 1,
-                    dano: row.querySelector('.atq-dano').value.trim(),
-                    critico: row.querySelector('.atq-crit').value.trim()
+                    nome: row.querySelector('.atq-nome').value.trim(), tipo: row.querySelector('.atq-tipo').value.trim(),
+                    qtd: parseInt(row.querySelector('.atq-qtd').value) || 1, dano: row.querySelector('.atq-dano').value.trim(), critico: row.querySelector('.atq-crit').value.trim()
                 };
             }).filter(atq => atq.nome !== '' && atq.dano !== '');
 
             const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.pow-nome')).map(inp => inp.value).filter(val => val.trim() !== '');
 
-            const novaCriatura = {
-                id: Date.now().toString(),
-                nome, foto, presenca, defesa,
-                vida_max: vida, vida_atual: vida,
-                attrs, skills, ataques, poderes
-            };
-
-            monstros.push(novaCriatura);
+            monstros.push({ id: Date.now().toString(), nome, foto, presenca, defesa, vida_max: vida, vida_atual: vida, attrs, skills, ataques, poderes });
             localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
             
-            fecharModalCriatura();
-            renderizarMonstros();
+            fecharModalCriatura(); renderizarMonstros();
         }
 
-        function removerMonstro(id) {
-            monstros = monstros.filter(m => m.id !== id);
-            localStorage.setItem('mestre_monstros', JSON.stringify(monstros));
-            renderizarMonstros();
-            removerIniciativa(id); 
-        }
+        function removerMonstro(id) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); renderizarMonstros(); removerIniciativa(id); }
 
         function alterarVidaMonstro(id, delta) {
             const monstro = monstros.find(m => m.id === id);
@@ -980,7 +918,6 @@
         function rolarDanoMonstro(monstroNome, ataqueNome, formulaDano) {
             let formula = formulaDano.toLowerCase().replace(/\s+/g, ''); 
             let total = 0;
-            
             let pieces = formula.match(/[+\-]?[^+\-]+/g); 
             if(!pieces) return alert("Fórmula de dano inválida!");
 
@@ -990,15 +927,11 @@
                 else if(p.startsWith('-')) { sinal = -1; p = p.substring(1); }
                 
                 if(p.includes('d')) { 
-                    let parts = p.split('d');
-                    let qtd = parseInt(parts[0]) || 1;
-                    let faces = parseInt(parts[1]) || 1;
-                    let sum = 0;
-                    for(let i=0; i<qtd; i++) sum += Math.floor(Math.random() * faces) + 1;
+                    let parts = p.split('d'); let qtd = parseInt(parts[0]) || 1; let faces = parseInt(parts[1]) || 1;
+                    let sum = 0; for(let i=0; i<qtd; i++) sum += Math.floor(Math.random() * faces) + 1;
                     total += (sum * sinal);
                 } else { 
-                    let val = parseInt(p);
-                    if(!isNaN(val)) total += (val * sinal);
+                    let val = parseInt(p); if(!isNaN(val)) total += (val * sinal);
                 }
             });
 
@@ -1010,11 +943,6 @@
             const monstro = monstros.find(m => m.id === id);
             if (!monstro) return;
 
-            if (!monstro.attrs || !monstro.skills) {
-                alert("Esta criatura foi criada num formato antigo. Por favor recrie-a.");
-                return;
-            }
-
             const info = periciasMonstroInfo[keyPericia];
             const attrVal = monstro.attrs[info.attr] || 1;
             const skillData = monstro.skills[keyPericia] || { bonus: 0, treinado: false };
@@ -1025,27 +953,12 @@
             let fLimit = f > 20 ? 20 : (f < 1 ? 1 : f);
             let m = tabelaD20[fLimit];
 
-            let resultadoStr = "FALHA";
-            let cor = "color:var(--accent-red)";
-
-            if (d === 20) {
-                resultadoStr = "EXTREMO";
-                cor = "color:var(--accent-yellow)";
-            } else if (d >= m.e && m.e != 99) {
-                resultadoStr = "EXTREMO";
-                cor = "color:var(--accent-yellow)";
-            } else if (d >= m.b && m.b != 99) {
-                resultadoStr = "BOM";
-                cor = "color:var(--accent-blue)";
-            } else if (d >= m.n) {
-                resultadoStr = "NORMAL";
-                cor = "color:var(--accent-green)";
-            }
-
-            if (d === 1) {
-                resultadoStr = "DESASTRE";
-                cor = "color:#ff5252; font-weight:bold;";
-            }
+            let resultadoStr = "FALHA"; let cor = "color:var(--accent-red)";
+            if (d === 20) { resultadoStr = "EXTREMO"; cor = "color:var(--accent-yellow)"; } 
+            else if (d >= m.e && m.e != 99) { resultadoStr = "EXTREMO"; cor = "color:var(--accent-yellow)"; } 
+            else if (d >= m.b && m.b != 99) { resultadoStr = "BOM"; cor = "color:var(--accent-blue)"; } 
+            else if (d >= m.n) { resultadoStr = "NORMAL"; cor = "color:var(--accent-green)"; }
+            if (d === 1) { resultadoStr = "DESASTRE"; cor = "color:#ff5252; font-weight:bold;"; }
 
             showPopup(d, `${info.nome} (${resultadoStr})`, cor, monstro.nome);
         }
@@ -1071,7 +984,6 @@
                 if (monstro.ataques && monstro.ataques.length > 0) {
                     let linhasAtaque = monstro.ataques.map(a => {
                         if (typeof a === 'string') return `<li>${a}</li>`;
-                        
                         let nomeExibicao = a.qtd && a.qtd > 1 ? `${a.qtd}x ${a.nome}` : a.nome;
                         let tipoText = a.tipo ? ` (${a.tipo})` : '';
                         let critText = a.critico && a.critico !== '20/x2' ? ` | Crit: ${a.critico}` : '';
@@ -1082,9 +994,7 @@
                                 <span><strong style="color:white;">${nomeExibicao}</strong><span style="color:var(--text-secondary); font-size:0.85em;">${tipoText}</span></span>
                                 <button class="btn-ctrl" style="width: auto; padding: 4px 10px; font-size: 0.85em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Dano</button>
                             </div>
-                            <div style="font-size: 0.85em; color: var(--text-secondary);">
-                                Dano: <span style="color:var(--accent-yellow); font-weight:bold;">${a.dano}</span>${critText}
-                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary);">Dano: <span style="color:var(--accent-yellow); font-weight:bold;">${a.dano}</span>${critText}</div>
                         </li>`;
                     }).join('');
 
@@ -1106,28 +1016,20 @@
                         <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'luta')" style="border-color:var(--accent-blue); padding: 5px;">🗡️ Luta</button>
                         <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'pontaria')" style="border-color:var(--accent-blue); padding: 5px;">🔫 Pont</button>
                     </div>`;
-                } else {
-                    btnPericiasHTML = `<button class="btn-roll" style="width:100%; margin-top:10px;" onclick="alert('Criatura antiga. Por favor recrie para usar as perícias completas.')">🎲 Perícias (Desativado)</button>`;
                 }
 
                 const card = document.createElement('div');
                 card.className = 'monster-card';
                 card.innerHTML = `
                     <button class="btn-remove" onclick="removerMonstro('${monstro.id}')" title="Remover Monstro">X</button>
-                    
                     <div class="player-header" style="border-bottom-color: var(--accent-red);">
-                        <img src="${monstro.foto}" class="player-img monster-img" alt="Monster Icon">
+                        <img src="${monstro.foto}" class="player-img monster-img">
                         <div>
                             <h3 class="player-name monster-name">${monstro.nome}</h3>
-                            <div class="player-info">
-                                <strong>Defesa:</strong> ${monstro.defesa} <br>
-                                <strong>Presença:</strong> ${monstro.presenca}
-                            </div>
+                            <div class="player-info"><strong>Defesa:</strong> ${monstro.defesa} <br><strong>Presença:</strong> ${monstro.presenca}</div>
                         </div>
                     </div>
-                    
                     ${attrsHTML}
-
                     <div>
                         <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div>
                         <div style="display: flex; align-items: center; gap: 5px;">
@@ -1141,21 +1043,17 @@
                             <button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 1)">+</button>
                         </div>
                     </div>
-
-                    <div class="monster-details">
-                        ${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}
-                    </div>
-
+                    <div class="monster-details">${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}</div>
                     ${btnPericiasHTML}
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Run this on init
+        // INIT
         renderRoteiros();
         renderDescricoes();
-        atualizarEditorRoteiro();
+        atualizarEditor();
 
         if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
         if (document.getElementById('tab-iniciativa').classList.contains('active')) renderizarIniciativa();
