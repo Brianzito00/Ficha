@@ -8,31 +8,16 @@ const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
-// Permite que o servidor leia ficheiros JSON (usados no login/registo e ficha)
+// Permite leitura de JSON e define a pasta "public" onde estão os seus HTMLs
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==========================================
-// BANCO DE DADOS LOCAL (USUÁRIOS E FICHAS)
-// ==========================================
-const dbPath = path.join(__dirname, 'usuarios.json');
-
-function lerDB() {
-    if (!fs.existsSync(dbPath)) return {};
-    return JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-}
-
-function guardarDB(dados) {
-    fs.writeFileSync(dbPath, JSON.stringify(dados, null, 2));
-}
-
-// ==========================================
-// BANCO DE DADOS LOCAL (CATÁLOGO GERAL DE ITENS)
+// BANCO DE DADOS LOCAL (APENAS PARA O CATÁLOGO GERAL DE ITENS)
 // ==========================================
 const CATALOG_FILE = path.join(__dirname, 'catalogo_global.json');
 let globalCatalog = { items: [], melee: [], ranged: [] };
 
-// Carrega o catálogo existente ao ligar o servidor
 if (fs.existsSync(CATALOG_FILE)) {
     try {
         const data = fs.readFileSync(CATALOG_FILE, 'utf8');
@@ -50,55 +35,15 @@ function salvarCatalogo() {
 }
 
 // ==========================================
-// ROTAS DA API (SISTEMA DE CONTAS E FICHA)
+// ROTAS DA API (SISTEMA DE FICHA / FIREBASE)
 // ==========================================
 
-// Redireciona a página inicial para o LOGIN
-app.get('/', (req, res) => {
-    res.redirect('/login.html');
-});
-
-// Registar Novo Utilizador
-app.post('/api/registar', (req, res) => {
-    const { usuario, senha } = req.body;
-    const db = lerDB();
-
-    if (db[usuario]) {
-        return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
-    }
-
-    db[usuario] = { senha: senha, ficha: null }; 
-    guardarDB(db);
-    res.json({ sucesso: true });
-});
-
-// Login do Utilizador
-app.post('/api/login', (req, res) => {
-    const { usuario, senha } = req.body;
-    const db = lerDB();
-
-    if (!db[usuario] || db[usuario].senha !== senha) {
-        return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
-    }
-    
-    res.json({ sucesso: true, ficha: db[usuario].ficha });
-});
-
-// Guardar Ficha
+// Rota de salvamento. Se o seu Firebase guarda a ficha direto pelo HTML, 
+// esta rota apenas responde OK para não dar erro.
 app.post('/api/guardar_ficha', (req, res) => {
-    const { usuario, fichaData } = req.body;
-    const db = lerDB();
-
-    if (db[usuario]) {
-        db[usuario].ficha = fichaData;
-        guardarDB(db);
-        console.log(`💾 Ficha do jogador [${usuario}] salva no servidor.`);
-        res.json({ sucesso: true });
-    } else {
-        res.json({ sucesso: false, erro: 'Utilizador não encontrado.' });
-    }
+    // Caso precise de código backend do Firebase futuramente, entra aqui.
+    res.status(200).send({ sucesso: true, message: 'Ficha recebida no servidor.' });
 });
-
 
 // ==========================================
 // COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
@@ -115,7 +60,7 @@ io.on('connection', (socket) => {
     socket.on('novo_item_catalogo_global', (data) => {
         const cat = data.catType === 'item' ? 'items' : data.catType;
         
-        // Evita duplicatas
+        // Evita duplicatas no servidor
         if (!globalCatalog[cat].some(it => it.name.toLowerCase() === data.item.name.toLowerCase())) {
             globalCatalog[cat].push(data.item);
             salvarCatalogo();
@@ -124,7 +69,6 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Auto-Cura do Servidor: Se um jogador tiver itens que o servidor esqueceu
     socket.on('sync_catalogo_reverso', (clientItems) => {
         let mudou = false;
         const mesclar = (catName) => {
@@ -137,9 +81,7 @@ io.on('connection', (socket) => {
                 });
             }
         };
-
         mesclar('items'); mesclar('melee'); mesclar('ranged');
-
         if (mudou) {
             salvarCatalogo();
             console.log("🔄 Servidor auto-curado com itens dos jogadores!");
@@ -178,19 +120,7 @@ io.on('connection', (socket) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
         } else {
-            const db = lerDB();
-            if (db[codigo] && db[codigo].ficha) {
-                const f = db[codigo].ficha;
-                const dadosRecuperados = {
-                    codigo: codigo, nome: f.info.char_nome, foto: f.info.char_img, nex: f.info.char_nex, defesa: f.defense,
-                    vida_atual: f.info.vida_atual, vida_max: f.info.vida_max, sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
-                    status: f.charStatus, fullData: f
-                };
-                playersData[codigo] = dadosRecuperados;
-                socket.emit('update_mestre', dadosRecuperados);
-            } else {
-                socket.broadcast.emit('mestre_pede_ficha', codigo);
-            }
+            socket.broadcast.emit('mestre_pede_ficha', codigo);
         }
     });
 
