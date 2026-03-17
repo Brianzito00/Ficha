@@ -61,9 +61,9 @@
             gap: 5px; 
             font-family: 'Gabriele Bad', sans-serif;
             font-size: 2.8rem; 
+            font-weight: normal;
             line-height: 0.9;
             user-select: none;
-            transform: skewX(-15deg); 
             letter-spacing: 2px;
         }
 
@@ -111,7 +111,7 @@
 
         .setup-panel input {
             background: #111; border: 1px solid #555; color: white;
-            padding: 5px; width: 100px; text-align: center; border-radius: 4px; outline: none;
+            padding: 5px; width: 100px; text-align: center; border-radius: 4px; outline: none; text-transform: uppercase;
         }
 
         .setup-panel button {
@@ -125,7 +125,7 @@
     <div id="multi-overlay-container"></div>
 
     <div class="setup-panel">
-        <input type="text" id="codigo-input" placeholder="USUÁRIO">
+        <input type="text" id="codigo-input" placeholder="USUÁRIO" maxlength="30">
         <button onclick="addPlayer()">ADD</button>
         <button onclick="limparTudo()" style="color: #ff4d4d; border-color: #ff4d4d;">LIMPAR</button>
     </div>
@@ -179,7 +179,11 @@
             if (activePlayers.includes(dados.codigo)) {
                 const cod = dados.codigo;
                 const fotoEl = document.getElementById(`foto-${cod}`);
-                if (fotoEl) fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
+                if (fotoEl) {
+                    fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
+                    const percVida = (dados.vida_atual / dados.vida_max) * 100;
+                    fotoEl.classList.toggle('perigo', percVida <= 25);
+                }
 
                 document.getElementById(`vida-${cod}`).innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
                 document.getElementById(`sani-${cod}`).innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
