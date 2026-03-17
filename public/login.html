@@ -93,12 +93,7 @@
                     }
                 }
                 
-                // REDIRECIONAMENTO VIP PARA O MESTRE
-                if (u === 'DUNGEONMASTER') {
-                    window.location.href = '/mestre.html';
-                } else {
-                    window.location.href = '/ficha.html';
-                }
+                window.location.href = '/index.html';
             } else {
                 document.getElementById('msg-erro').style.color = '#e53935';
                 document.getElementById('msg-erro').innerText = data.erro;
