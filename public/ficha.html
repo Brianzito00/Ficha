@@ -301,13 +301,12 @@
         
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <button id="btn-type-ritual-catalog" class="tab-btn active" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('catalog')">Catálogo Geral</button>
-            <button id="btn-type-ritual-custom" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('custom')">Ritual Customizado</button>
+            <button id="btn-type-ritual-custom" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('custom')">Ritual Personalizado</button>
         </div>
 
-        <div id="fields-ritual-catalog" style="display:block;">
+        <div id="fields-ritual-catalog" style="display:none;">
             <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique num ritual para adicioná-lo ao seu grimório.</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="ritual-grid-container">
-            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="ritual-grid-container"></div>
         </div>
 
         <div id="fields-ritual-custom" style="display:none; flex-direction:column; gap:15px;">
@@ -931,7 +930,7 @@
             premadeItems.forEach((it, index) => {
                 containerItem.innerHTML += `
                     <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeItem(${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'">
-                        <img src="${it.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${it.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name}</div>
                         <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span>
@@ -944,7 +943,7 @@
                 containerItem.innerHTML += `
                     <div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('items', ${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'">
                         <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('items', '${safeName}')">X</button>
-                        <img src="${it.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${it.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name} <br><span style="font-size:0.7em; color:var(--accent-yellow)">(Criado)</span></div>
                         <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span>
@@ -965,7 +964,7 @@
             premadeMeleeWeapons.forEach((wp, index) => {
                 containerCC.innerHTML += `
                     <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'">
-                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div>
                         <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>
@@ -980,7 +979,7 @@
                 containerCC.innerHTML += `
                     <div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('melee', ${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'">
                         <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('melee', '${safeName}')">X</button>
-                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-blue)">(Criada)</span></div>
                         <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>
@@ -1003,7 +1002,7 @@
             premadeRangedWeapons.forEach((wp, index) => {
                 containerDisp.innerHTML += `
                     <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeRangedWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'">
-                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div>
                         <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>
@@ -1018,7 +1017,7 @@
                 containerDisp.innerHTML += `
                     <div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('ranged', ${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'">
                         <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('ranged', '${safeName}')">X</button>
-                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                         <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-green)">(Criada)</span></div>
                         <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>
@@ -1385,6 +1384,30 @@
         } else { alert("Você não tem pacotes de munição do tipo " + ammoType.toUpperCase() + " no seu inventário!"); }
     }
 
+    /* ============================================== */
+    /* SISTEMA DE CATÁLOGO DE RITUAIS                 */
+    /* ============================================== */
+    function selectRitualType(type) {
+        document.getElementById('btn-type-ritual-custom').classList.remove('active');
+        document.getElementById('btn-type-ritual-catalog').classList.remove('active');
+        
+        document.getElementById('fields-ritual-custom').style.display = 'none';
+        document.getElementById('fields-ritual-catalog').style.display = 'none';
+        
+        const btnAdd = document.getElementById('btn-confirm-add-ritual');
+        
+        if (type === 'custom') {
+            document.getElementById('btn-type-ritual-custom').classList.add('active');
+            document.getElementById('fields-ritual-custom').style.display = 'flex';
+            btnAdd.style.display = 'block';
+        } else {
+            document.getElementById('btn-type-ritual-catalog').classList.add('active');
+            document.getElementById('fields-ritual-catalog').style.display = 'block';
+            btnAdd.style.display = 'none';
+            renderRitualsCatalog();
+        }
+    }
+
     function openRitualPopup() { 
         ['rit-name','rit-exec','rit-range','rit-target','rit-dur','rit-res','rit-img','rit-desc-geral','rit-desc-discente','rit-desc-verdadeiro'].forEach(id => {
             let el = document.getElementById(id);
@@ -1410,6 +1433,7 @@
         
         let newCatRitual = { name: n, el: el, circ: circ, ex: ex, alc: alc, alv: alv, dur: dur, res: res, descGeral: descGeral, descDisc: descDisc, descVerd: descVerd, img: img };
 
+        // Adiciona ao catálogo partilhado se ainda não existir
         if (!customCatalog.rituals) customCatalog.rituals = [];
         if (!customCatalog.rituals.some(it => it.name.toLowerCase() === n.toLowerCase())) {
             customCatalog.rituals.push(newCatRitual);
@@ -1445,6 +1469,9 @@
             if(rit.el === 'Morte') color = "#71717a"; 
             if(rit.el === 'Medo') color = "#fff";
 
+            // Se não houver imagem, gera um icone padrão com as letras do elemento
+            let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${rit.el.substring(0,3).toUpperCase()}`;
+
             let safeRit = JSON.stringify(rit).replace(/"/g, '&quot;');
             let safeName = rit.name.replace(/'/g, "\\'");
             let btnRemove = isCustom ? `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('rituals', '${safeName}')">X</button>` : '';
@@ -1452,6 +1479,7 @@
             return `
                 <div class="skill-card" style="position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCatalogRitual('${safeRit}')" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${color}50'">
                     ${btnRemove}
+                    <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                     <div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name} ${isCustom ? `<br><span style="font-size:0.65em; color:var(--text-secondary)">(Criado)</span>` : ''}</div>
                     <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">
                         Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>
@@ -1478,6 +1506,7 @@
         addRitual(rit.name, rit.el, dHTML, rit.circ, rit.ex, rit.alc, rit.alv, rit.dur, rit.res, rit.descGeral, rit.descDisc, rit.descVerd, true, rit.img); 
         closeRitualPopup();
     }
+    /* ============================================== */
     
     function addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, eq = true, img = "") {
         const body = document.getElementById('rituals-body');
