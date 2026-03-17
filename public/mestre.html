@@ -9,6 +9,7 @@
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
             --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
+            --accent-purple: #b82bf2;
         }
 
         body {
@@ -146,22 +147,26 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
-        /* ABA DE ROTEIRO (PROFISSIONAL) */
+        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO (PROFISSIONAL) */
         #roteiro-board {
             display: none; flex-direction: column; height: 100%; overflow: hidden;
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
             padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
         }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
+        
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
+        .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
+        
         .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
         .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
         .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
         .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
 
         .roteiro-titulo-input {
-            background: transparent; border: none; border-bottom: 2px solid var(--accent-blue);
+            background: transparent; border: none; border-bottom: 2px solid var(--border-color);
             color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px;
             padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s;
         }
@@ -174,9 +179,9 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6;
         }
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
-        /* Scrollbar do Roteiro */
-        .roteiro-textarea::-webkit-scrollbar { width: 8px; }
-        .roteiro-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        /* Scrollbars customizadas */
+        .roteiro-textarea::-webkit-scrollbar, .roteiro-sidebar::-webkit-scrollbar, .roteiro-sidebar-right::-webkit-scrollbar { width: 6px; }
+        .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         .roteiro-textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
         /* ======================================================== */
@@ -200,12 +205,15 @@
             .attr-grid { grid-template-columns: 1fr; } 
 
             /* Layout de Roteiro Mobile */
-            #roteiro-board { height: 85vh; padding: 15px; }
-            .roteiro-layout { flex-direction: column; }
-            .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: wrap; }
-            #roteiro-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; }
-            .session-btn { flex: 0 0 auto; white-space: nowrap; }
-            .roteiro-editor { overflow-y: auto; }
+            #roteiro-board { height: auto; padding: 15px; }
+            .roteiro-layout { flex-direction: column; height: auto; }
+            
+            .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+            .roteiro-sidebar-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+            
+            #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
+            .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+            .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
         }
     </style>
 </head>
@@ -221,7 +229,7 @@
         <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
         <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros</button>
         <button class="tab-btn" id="tab-iniciativa" onclick="mudarAba('iniciativa')">⚔️ Iniciativa</button>
-        <button class="tab-btn" id="tab-roteiro" onclick="mudarAba('roteiro')">📜 Roteiro</button>
+        <button class="tab-btn" id="tab-roteiro" onclick="mudarAba('roteiro')">📜 Roteiro / Mundo</button>
     </div>
 
     <div class="content-wrapper">
@@ -245,17 +253,24 @@
 
             <div id="roteiro-board">
                 <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Roteiro e Anotações</h2>
+                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Gestão da Campanha</h2>
                     <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar...</span>
                 </div>
+                
                 <div class="roteiro-layout">
                     <div class="roteiro-sidebar">
-                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button>
+                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-blue); color: black;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button>
                         <div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
+                    
                     <div class="roteiro-editor">
-                        <input type="text" id="roteiro-titulo-atual" class="roteiro-titulo-input" placeholder="Nome da Sessão (Ex: Sessão 01 - O Começo)">
-                        <textarea id="roteiro-text" class="roteiro-textarea" placeholder="Escreve aqui as anotações secretas, a história da tua campanha, falas de NPCs, atributos rápidos... Este texto salva automaticamente."></textarea>
+                        <input type="text" id="roteiro-titulo-atual" class="roteiro-titulo-input" placeholder="Nomeie a sua anotação aqui...">
+                        <textarea id="roteiro-text" class="roteiro-textarea" placeholder="O editor selecionado aparecerá aqui. Podes escrever o roteiro da sessão ou a descrição de um objeto/cenário da tua campanha... Tudo salva automaticamente!"></textarea>
+                    </div>
+
+                    <div class="roteiro-sidebar-right">
+                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-purple); color: white;" onclick="adicionarDescricao()">+ NOVO OBJETO / CENÁRIO</button>
+                        <div id="descricao-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
                 </div>
             </div>
@@ -312,30 +327,12 @@
             <div class="form-group">
                 <label>Perícias Principais</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label>
-                        <input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label>
-                        <input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label>
-                        <input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label>
-                        <input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label>
-                        <input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
-                    <div class="skill-group">
-                        <label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label>
-                        <input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0">
-                    </div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" placeholder="Bônus Extra" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" placeholder="Bônus Extra" value="0"></div>
                 </div>
             </div>
 
@@ -372,27 +369,49 @@
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
 
         // ===============================================
-        // SISTEMA DE ROTEIROS / SESSÕES
+        // SISTEMA DE ROTEIROS / SESSÕES E DESCRIÇÕES
         // ===============================================
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
+        let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
         
+        let modoEdicaoAtual = 'roteiro'; // 'roteiro' ou 'descricao'
+        let currentRoteiroId = null;
+        let currentDescricaoId = null;
+
+        // Migração de segurança para quem tinha o roteiro antigo
         if (!roteiros || roteiros.length === 0) {
             let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
             roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: textoAntigo }];
             localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros));
         }
-        let currentRoteiroId = roteiros[0].id;
+        currentRoteiroId = roteiros[0].id;
+        if(descricoes.length > 0) currentDescricaoId = descricoes[0].id;
 
         function renderRoteiros() {
             const list = document.getElementById('roteiro-list');
             list.innerHTML = '';
             roteiros.forEach((r) => {
                 const btn = document.createElement('div');
-                btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`;
+                btn.className = `session-btn ${modoEdicaoAtual === 'roteiro' && r.id === currentRoteiroId ? 'active' : ''}`;
                 btn.onclick = () => selecionarRoteiro(r.id);
                 btn.innerHTML = `
                     <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.title}</span>
                     <button class="btn-del" style="padding: 2px 6px; font-size:0.7em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>
+                `;
+                list.appendChild(btn);
+            });
+        }
+
+        function renderDescricoes() {
+            const list = document.getElementById('descricao-list');
+            list.innerHTML = '';
+            descricoes.forEach((d) => {
+                const btn = document.createElement('div');
+                btn.className = `session-btn ${modoEdicaoAtual === 'descricao' && d.id === currentDescricaoId ? 'active-desc' : ''}`;
+                btn.onclick = () => selecionarDescricao(d.id);
+                btn.innerHTML = `
+                    <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${d.title}</span>
+                    <button class="btn-del" style="padding: 2px 6px; font-size:0.7em; background: #333;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>
                 `;
                 list.appendChild(btn);
             });
@@ -403,22 +422,50 @@
             const novoId = 's' + Date.now();
             roteiros.push({ id: novoId, title: 'Sessão ' + (num < 10 ? '0'+num : num), text: '' });
             salvarRoteiros();
-            currentRoteiroId = novoId;
-            renderRoteiros();
-            atualizarEditorRoteiro();
+            selecionarRoteiro(novoId);
+        }
+
+        function adicionarDescricao() {
+            const novoId = 'd' + Date.now();
+            descricoes.push({ id: novoId, title: 'Novo Objeto/Cenário', text: '' });
+            salvarDescricoes();
+            selecionarDescricao(novoId);
         }
 
         function selecionarRoteiro(id) {
+            modoEdicaoAtual = 'roteiro';
             currentRoteiroId = id;
             renderRoteiros(); 
-            atualizarEditorRoteiro();
+            renderDescricoes(); // Atualiza cores
+            atualizarEditor();
         }
 
-        function atualizarEditorRoteiro() {
-            const rot = roteiros.find(r => r.id === currentRoteiroId);
-            if(rot) {
-                document.getElementById('roteiro-titulo-atual').value = rot.title;
-                document.getElementById('roteiro-text').value = rot.text;
+        function selecionarDescricao(id) {
+            modoEdicaoAtual = 'descricao';
+            currentDescricaoId = id;
+            renderRoteiros(); // Atualiza cores
+            renderDescricoes(); 
+            atualizarEditor();
+        }
+
+        function atualizarEditor() {
+            const tituloInput = document.getElementById('roteiro-titulo-atual');
+            const textArea = document.getElementById('roteiro-text');
+
+            if (modoEdicaoAtual === 'roteiro') {
+                const rot = roteiros.find(r => r.id === currentRoteiroId);
+                if(rot) {
+                    tituloInput.value = rot.title;
+                    tituloInput.style.borderColor = "var(--accent-blue)";
+                    textArea.value = rot.text;
+                }
+            } else {
+                const desc = descricoes.find(d => d.id === currentDescricaoId);
+                if(desc) {
+                    tituloInput.value = desc.title;
+                    tituloInput.style.borderColor = "var(--accent-purple)";
+                    textArea.value = desc.text;
+                }
             }
         }
 
@@ -426,47 +473,61 @@
             if(roteiros.length === 1) return alert("Precisas de ter pelo menos uma sessão criada!");
             if(confirm("Tem a certeza que deseja apagar esta sessão e todo o seu texto secreto?")) {
                 roteiros = roteiros.filter(r => r.id !== id);
-                if(currentRoteiroId === id) currentRoteiroId = roteiros[0].id;
                 salvarRoteiros();
-                renderRoteiros();
-                atualizarEditorRoteiro();
+                if(currentRoteiroId === id) {
+                    selecionarRoteiro(roteiros[0].id);
+                } else {
+                    renderRoteiros();
+                }
             }
         }
 
-        function salvarRoteiros() {
-            localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros));
+        function apagarDescricao(id) {
+            if(confirm("Tem a certeza que deseja apagar esta anotação de mundo?")) {
+                descricoes = descricoes.filter(d => d.id !== id);
+                salvarDescricoes();
+                if(currentDescricaoId === id) {
+                    if (descricoes.length > 0) selecionarDescricao(descricoes[0].id);
+                    else selecionarRoteiro(currentRoteiroId); // Volta pro roteiro se acabar tudo
+                } else {
+                    renderDescricoes();
+                }
+            }
         }
+
+        function salvarRoteiros() { localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros)); }
+        function salvarDescricoes() { localStorage.setItem('mestre_descricoes', JSON.stringify(descricoes)); }
 
         const roteiroInput = document.getElementById('roteiro-text');
         const roteiroTituloInput = document.getElementById('roteiro-titulo-atual');
 
-        // Dispara o salvamento ao digitar no título
         roteiroTituloInput.addEventListener('input', function() {
-            const rot = roteiros.find(r => r.id === currentRoteiroId);
-            if(rot) {
-                rot.title = this.value || 'Sessão Sem Nome';
-                salvarRoteiros();
-                renderRoteiros(); // Atualiza a lista lateral imediatamente
-                dispararFeedbackRoteiro();
+            if (modoEdicaoAtual === 'roteiro') {
+                const rot = roteiros.find(r => r.id === currentRoteiroId);
+                if(rot) { rot.title = this.value || 'Sessão Sem Nome'; salvarRoteiros(); renderRoteiros(); }
+            } else {
+                const desc = descricoes.find(d => d.id === currentDescricaoId);
+                if(desc) { desc.title = this.value || 'Objeto/Cenário Sem Nome'; salvarDescricoes(); renderDescricoes(); }
             }
+            dispararFeedbackEditor();
         });
 
-        // Dispara o salvamento ao digitar no corpo do texto
         roteiroInput.addEventListener('input', function() {
-            const rot = roteiros.find(r => r.id === currentRoteiroId);
-            if(rot) {
-                rot.text = this.value;
-                salvarRoteiros();
-                dispararFeedbackRoteiro();
+            if (modoEdicaoAtual === 'roteiro') {
+                const rot = roteiros.find(r => r.id === currentRoteiroId);
+                if(rot) { rot.text = this.value; salvarRoteiros(); }
+            } else {
+                const desc = descricoes.find(d => d.id === currentDescricaoId);
+                if(desc) { desc.text = this.value; salvarDescricoes(); }
             }
+            dispararFeedbackEditor();
         });
 
         let saveTimeout;
-        function dispararFeedbackRoteiro() {
+        function dispararFeedbackEditor() {
             const status = document.getElementById('roteiro-status');
             status.innerText = "A guardar...";
             status.style.color = "var(--accent-yellow)";
-            
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
                 status.innerText = "Guardado ✔️";
@@ -709,22 +770,25 @@
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
                 document.getElementById('players-board').style.display = 'grid';
-                logContainer.style.display = 'flex'; 
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
             } else if (aba === 'monstros') {
                 document.getElementById('tab-monstros').classList.add('active');
                 document.getElementById('monsters-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; 
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
                 renderizarMonstros();
             } else if (aba === 'iniciativa') {
                 document.getElementById('tab-iniciativa').classList.add('active');
                 document.getElementById('iniciativa-board').style.display = 'flex';
-                logContainer.style.display = 'flex'; 
+                logContainer.style.display = 'flex'; // Volta a mostrar os logs
                 renderizarIniciativa();
             } else if (aba === 'roteiro') {
                 document.getElementById('tab-roteiro').classList.add('active');
                 document.getElementById('roteiro-board').style.display = 'flex';
-                logContainer.style.display = 'none'; 
+                logContainer.style.display = 'none'; // Esconde os logs para o editor ser maior
+                
+                // Renders the sidebars and sets correct active states
                 renderRoteiros();
+                renderDescricoes();
                 atualizarEditorRoteiro();
             }
         }
@@ -1090,6 +1154,7 @@
 
         // Run this on init
         renderRoteiros();
+        renderDescricoes();
         atualizarEditorRoteiro();
 
         if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
