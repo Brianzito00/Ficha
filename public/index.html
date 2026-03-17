@@ -5,47 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lobby - Ordem Paranormal</title>
     <style>
-        /* Reset e Base */
         body {
             margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
             background-color: #121214; color: white; font-family: 'Roboto', sans-serif;
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
             background-size: cover; background-position: center;
         }
-        
-        /* Adiciona um efeito de blur no fundo para o Lobby destacar mais */
-        body::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: -1;
-        }
-
-        .lobby-box {
-            background: rgba(20, 20, 24, 0.95); padding: 40px; border-radius: 12px;
-            border: 2px solid #b82bf2; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-            width: 100%; max-width: 450px; text-align: center; position: relative; z-index: 1;
-        }
+        body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: -1; }
+        .lobby-box { background: rgba(20, 20, 24, 0.95); padding: 40px; border-radius: 12px; border: 2px solid #b82bf2; box-shadow: 0 10px 40px rgba(0,0,0,0.9); width: 100%; max-width: 450px; text-align: center; position: relative; z-index: 1; }
         h1 { color: #b82bf2; text-transform: uppercase; margin-top: 0; margin-bottom: 5px; font-size: 2.2em; text-shadow: 0 0 15px rgba(184, 43, 242, 0.5); }
         p.subtitle { color: #a8a8b3; margin-bottom: 30px; font-size: 1.1em; }
-        
-        .btn-choice {
-            width: 100%; padding: 18px; margin-bottom: 15px; font-size: 1.1em; font-weight: bold; text-transform: uppercase;
-            border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        
+        .btn-choice { width: 100%; padding: 18px; margin-bottom: 15px; font-size: 1.1em; font-weight: bold; text-transform: uppercase; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-player { background: rgba(0, 176, 255, 0.1); color: #00b0ff; border: 2px solid #00b0ff; }
         .btn-player:hover { background: #00b0ff; color: black; box-shadow: 0 0 20px #00b0ff; transform: scale(1.02); }
-        
         .btn-master { background: rgba(229, 57, 53, 0.1); color: #e53935; border: 2px solid #e53935; }
         .btn-master:hover { background: #e53935; color: white; box-shadow: 0 0 20px #e53935; transform: scale(1.02); }
-
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 0.8em; color: #a8a8b3; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;}
         .inv-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 6px; color: white; box-sizing: border-box; font-size: 1em;}
         .inv-input:focus { border-color: #b82bf2; outline: none; }
-
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; }
         .modal-content { background: #121214; border: 2px solid #b82bf2; border-radius: 12px; padding: 30px; width: 90%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.9); }
-
         .btn-action { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; background: #b82bf2; color: white; }
         .btn-action:hover { filter: brightness(1.2); }
         .btn-cancel { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; background: transparent; color: #a8a8b3; border: 1px solid #444; }
@@ -58,13 +38,8 @@
         <h1>Lobby da Ordem</h1>
         <p class="subtitle">Bem-vindo(a), <span id="user-display" style="color: white; font-weight: bold;"></span></p>
 
-        <button class="btn-choice btn-player" onclick="abrirModalJogar()">
-            🕵️ Entrar em Campanha
-        </button>
-        
-        <button class="btn-choice btn-master" onclick="abrirModalCriar()">
-            👹 Criar Nova Campanha
-        </button>
+        <button class="btn-choice btn-player" onclick="abrirModalJogar()">🕵️ Entrar em Campanha</button>
+        <button class="btn-choice btn-master" onclick="abrirModalCriar()">👹 Entrar/Criar como Mestre</button>
 
         <button class="btn-cancel" style="margin-top: 30px;" onclick="fazerLogout()">Sair da Conta</button>
     </div>
@@ -76,29 +51,28 @@
                 <label>Nome / Código da Campanha</label>
                 <input type="text" id="join-code" class="inv-input" placeholder="Ex: OS-ESCOLHIDOS" style="text-transform: uppercase;">
             </div>
-            <button class="btn-action" style="background: #00b0ff; color: black;" onclick="entrarCampanha()">Juntar-se à Sessão</button>
+            <button class="btn-action" style="background: #00b0ff; color: black;" onclick="entrarCampanha(this)">Juntar-se à Sessão</button>
             <button class="btn-cancel" onclick="fecharModais()">Voltar</button>
         </div>
     </div>
 
     <div id="modal-criar" class="modal-overlay">
         <div class="modal-content" style="border-color: #e53935;">
-            <h2 style="color: #e53935; margin-top: 0; text-align: center; text-transform: uppercase;">Nova Campanha</h2>
+            <h2 style="color: #e53935; margin-top: 0; text-align: center; text-transform: uppercase;">Acesso do Mestre</h2>
             <div class="input-group">
                 <label>Nome da Campanha</label>
                 <input type="text" id="create-code" class="inv-input" placeholder="Ex: SEGREDO-NA-FLORESTA" style="text-transform: uppercase;">
             </div>
             <div class="input-group">
-                <label>Wallpaper da Ficha dos Jogadores (Opcional)</label>
+                <label>Novo Wallpaper (Só se quiser alterar)</label>
                 <input type="text" id="create-wp" class="inv-input" placeholder="Cole o link da imagem aqui...">
             </div>
-            <button class="btn-action" style="background: #e53935;" onclick="criarCampanha()">Abrir Escudo do Mestre</button>
+            <button class="btn-action" style="background: #e53935;" onclick="criarCampanha(this)">Abrir Escudo do Mestre</button>
             <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
         </div>
     </div>
 
     <script>
-        // Verifica se está logado
         const userLogado = localStorage.getItem('usuario_logado');
         if(!userLogado) window.location.href = '/login.html';
         document.getElementById('user-display').innerText = userLogado;
@@ -110,33 +84,47 @@
 
         function abrirModalJogar() { document.getElementById('modal-jogar').style.display = 'flex'; }
         function abrirModalCriar() { document.getElementById('modal-criar').style.display = 'flex'; }
-        function fecharModais() { 
-            document.getElementById('modal-jogar').style.display = 'none'; 
-            document.getElementById('modal-criar').style.display = 'none'; 
-        }
+        function fecharModais() { document.getElementById('modal-jogar').style.display = 'none'; document.getElementById('modal-criar').style.display = 'none'; }
 
-        function entrarCampanha() {
+        async function entrarCampanha(btn) {
             const code = document.getElementById('join-code').value.trim().toUpperCase().replace(/ /g, '-');
             if(!code) return alert('Digite o código da campanha!');
+            btn.innerText = "A Carregar..."; btn.disabled = true;
+
+            const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
+            const campData = await campRes.json();
+            if (campData.dados && campData.dados.wallpaper) localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+
+            const fichaRes = await fetch('/api/carregar_personagem', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: userLogado + '_' + code}) });
+            const fichaData = await fichaRes.json();
             
-            // Salva a campanha selecionada para a ficha saber carregar os dados corretos
             localStorage.setItem('campanha_atual', code);
+            if (fichaData.ficha) localStorage.setItem('ordem_save_local_' + code, JSON.stringify(fichaData.ficha));
+            
             window.location.href = '/ficha.html';
         }
 
-        function criarCampanha() {
+        async function criarCampanha(btn) {
             const code = document.getElementById('create-code').value.trim().toUpperCase().replace(/ /g, '-');
             const wp = document.getElementById('create-wp').value.trim();
-            
             if(!code) return alert('É obrigatório dar um nome à sua campanha!');
+            btn.innerText = "A Carregar..."; btn.disabled = true;
 
-            // Define este utilizador como estando ativamente nesta campanha
             localStorage.setItem('campanha_atual', code);
-            
-            // Salva o wallpaper escolhido pelo Mestre (para enviar à ficha dos jogadores)
-            if(wp) localStorage.setItem('campanha_wp_' + code, wp);
+            if(wp) {
+                localStorage.setItem('campanha_wp_' + code, wp);
+                await fetch('/api/salvar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code, dados: { wallpaper: wp }}) });
+            }
 
-            // Redireciona para o Escudo
+            const res = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code}) });
+            const data = await res.json();
+            
+            if (data.dados && data.dados.mestre) {
+                localStorage.setItem('mestre_save_nuvem_' + code, JSON.stringify(data.dados.mestre));
+            } else {
+                localStorage.removeItem('mestre_save_nuvem_' + code); // Força um reset se for campanha nova
+            }
+            
             window.location.href = '/mestre.html';
         }
     </script>
