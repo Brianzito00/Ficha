@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escudo do Mestre - Ordem Paranormal</title>
     <style>
         :root {
@@ -20,33 +20,35 @@
 
         .mestre-top-bar {
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; 
-            border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center;
+            border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
             box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
         }
         .code-input {
             padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
-            color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; width: 250px;
+            color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; flex: 1; min-width: 200px;
         }
         .btn-add {
             background: var(--accent-green); border: none; color: black; font-weight: bold; 
-            padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+            padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0;
         }
         .btn-add:hover { filter: brightness(1.2); }
 
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn {
             background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
             padding: 10px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold;
-            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none;
+            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center;
         }
         .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
         .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
-        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; }
+        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
+        /* A ESCALA 3x6 EXIGIDA - 3 COLUNAS */
         .players-container, .monsters-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
             gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
         }
 
@@ -57,15 +59,15 @@
         }
         .monster-card { border-color: var(--accent-red); }
 
-        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; }
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
         .monster-img { border-color: var(--accent-red); }
         .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
         .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
         
         .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; }
-        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
         .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
 
         .bar-container { background: rgba(0,0,0,0.8); height: 25px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; flex: 1; }
@@ -85,7 +87,7 @@
             flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
             display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px;
         }
-        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); }
+        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; }
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
@@ -102,51 +104,98 @@
         .modal-content {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.9);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box;
         }
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
         .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
-        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; }
-        .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; }
-        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px;}
+        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%;}
+        .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box;}
         .btn-roll:hover { filter: brightness(1.2); }
         .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto;}
 
-        /* ESTILOS DO POPUP DE DADOS IDÊNTICO AO DO JOGADOR */
         .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; }
-        .popup-number { font-size: 10em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
-        .popup-res { font-size: 2.5em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
+        .popup-content { position: relative; z-index: 10; display: none; animation: fadeInResult 0.5s forwards; text-align: center; width: 100%; padding: 10px; box-sizing: border-box; }
+        .popup-number { font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; }
+        .popup-res { font-size: 2em; font-weight: 900; margin-top: 10px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; }
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         
         .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
         .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
 
-        /* --- ESTILOS DA ABA DE INICIATIVA --- */
-        #iniciativa-board {
-            display: none; flex-direction: column; height: 100%; overflow: hidden;
-        }
-        .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        #iniciativa-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
         
         .ini-card {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap;
         }
         .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
         .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
         
         .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
         .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
-        .ini-info { flex: 1; }
+        .ini-info { flex: 1; min-width: 150px; }
         .ini-name { font-size: 1.3em; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; color: white; }
         .ini-details { font-size: 0.85em; color: var(--text-secondary); }
         .ini-total-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px; border: 1px solid #333; }
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
+
+        /* ======================================================== */
+        /* COMPATIBILIDADE PARA TELEMÓVEIS / CELULARES              */
+        /* ======================================================== */
+        @media (max-width: 900px) {
+            .players-container, .monsters-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 Colunas em Tablets */
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { 
+                height: auto; 
+                overflow-y: auto; 
+                padding: 10px;
+            }
+            .content-wrapper { 
+                flex-direction: column; /* Empilha os blocos */
+                height: auto; 
+                overflow: visible; 
+            }
+            .left-panel { overflow: visible; }
+            
+            /* No telemóvel os jogadores/monstros ficam em 1 coluna para legibilidade */
+            .players-container, .monsters-grid {
+                grid-template-columns: 1fr; 
+                overflow-y: visible;
+                padding-right: 0;
+            }
+
+            .log-container {
+                height: 400px; /* Dá uma altura fixa ao log no fundo da página */
+                margin-top: 10px;
+                min-width: 100%;
+            }
+
+            .tab-btn { 
+                border-radius: 8px; /* Arredonda todos os cantos */
+                margin-bottom: 5px; 
+            }
+
+            .ini-card {
+                gap: 10px;
+            }
+            
+            .popup-box-dice { height: 300px; }
+            .popup-number { font-size: 6em; }
+            .popup-res { font-size: 1.5em; }
+            
+            .attr-grid { grid-template-columns: 1fr; } /* Atributos de criar monstro em 1 coluna */
+        }
     </style>
 </head>
 <body>
@@ -154,12 +203,12 @@
     <div class="mestre-top-bar">
         <span style="font-weight: bold; color: var(--accent-blue);">Conectar Jogador:</span>
         <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Usuário (Login)" maxlength="30">
-        <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR JOGADOR</button>
+        <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR</button>
     </div>
 
     <div class="tabs-container">
         <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
-        <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros / Criaturas</button>
+        <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros</button>
         <button class="tab-btn" id="tab-iniciativa" onclick="mudarAba('iniciativa')">⚔️ Iniciativa</button>
     </div>
 
@@ -167,7 +216,7 @@
         <div class="left-panel">
             <div class="players-container" id="players-board"></div>
 
-            <div id="monsters-board">
+            <div id="monsters-board" style="display:none; flex-direction:column; height: 100%;">
                 <div style="margin-bottom: 20px;">
                     <button class="btn-add" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
                 </div>
@@ -176,8 +225,8 @@
 
             <div id="iniciativa-board">
                 <div class="ini-controls">
-                    <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white;" onclick="limparIniciativa()">🗑️ LIMPAR INICIATIVA</button>
-                    <button class="btn-add" style="flex: 2; font-size: 1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR INICIATIVA DOS MONSTROS</button>
+                    <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
+                    <button class="btn-add" style="flex: 2; font-size: 1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
                 </div>
                 <div class="ini-list-container" id="iniciativa-list-container">
                     </div>
@@ -215,9 +264,9 @@
             <div class="form-group"><label>Nome</label><input type="text" id="c-nome" class="monster-input" placeholder="Ex: Zumbi de Sangue"></div>
             <div class="form-group"><label>Foto URL</label><input type="text" id="c-foto" class="monster-input" placeholder="https://link-da-imagem.com/foto.png"></div>
             
-            <div style="display:flex; gap: 10px;">
-                <div class="form-group" style="flex:1;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: NEX 20% - DT 15"></div>
-                <div class="form-group" style="flex:1;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" placeholder="15"></div>
+            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                <div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: NEX 20% - DT 15"></div>
+                <div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" placeholder="15"></div>
             </div>
             
             <div class="form-group"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" placeholder="Ex: 50"></div>
@@ -225,15 +274,15 @@
             <div class="form-group">
                 <label>Atributos</label>
                 <div class="attr-grid">
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center; width:100%; box-sizing:border-box;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Perícias Principais</label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
                     <div class="skill-group">
                         <label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label>
                         <input type="number" id="c-bonus-luta" class="monster-input" placeholder="Bônus Extra" value="0">
@@ -262,22 +311,22 @@
             </div>
 
             <div class="form-group">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar Ataque</button>
+                <label style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; margin-top: 5px;">+ Adicionar Ataque</button>
                 </label>
                 <div id="c-ataques-list"></div>
             </div>
 
             <div class="form-group">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    Poderes Gerais <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar Poder</button>
+                <label style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    Poderes Gerais <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; margin-top: 5px;">+ Adicionar Poder</button>
                 </label>
                 <div id="c-poderes-list"></div>
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
-                <button class="btn-remove" style="position: static;" onclick="fecharModalCriatura()">Cancelar</button>
-                <button class="btn-add" style="background: var(--accent-green);" onclick="salvarCriatura()">Guardar Criatura</button>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; flex-wrap: wrap;">
+                <button class="btn-remove" style="position: static; flex: 1;" onclick="fecharModalCriatura()">Cancelar</button>
+                <button class="btn-add" style="background: var(--accent-green); flex: 2;" onclick="salvarCriatura()">Guardar Criatura</button>
             </div>
         </div>
     </div>
@@ -290,7 +339,7 @@
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
 
-        let playersDataMemoria = {}; // Guarda os atributos/stats completos dos jogadores em tempo real
+        let playersDataMemoria = {}; 
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
 
         // Tabela D20 e Perícias Base
@@ -342,7 +391,6 @@
         socket.on('update_mestre', (dados) => {
             if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
             
-            // Guarda as informações na memória local para sabermos os Bônus de Iniciativa deles!
             playersDataMemoria[dados.codigo] = dados;
 
             let card = document.getElementById(`player-${dados.codigo}`);
@@ -400,12 +448,10 @@
             `;
         });
 
-        // --- SISTEMA UNIFICADO DE LOG E INTERCEPTAÇÃO DE INICIATIVA ---
         socket.on('novo_log', (dados) => {
             if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
 
-            // INTERCEPTADOR AUTOMÁTICO DE INICIATIVA
             if (dados.acao.toLowerCase().includes('iniciativa')) {
                 processarIniciativa(dados);
             }
@@ -435,7 +481,6 @@
                         if (hasHeavy) penalty = -5;
                     }
                     
-                    // Cálculo igual à ficha principal
                     bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty);
                     foto = pData.foto || foto;
                 }
@@ -487,7 +532,6 @@
         function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
             const box = document.querySelector('.popup-box-dice'); 
             
-            // O TRUQUE DA ANIMAÇÃO: Adicionar um timestamp ao link do GIF faz o navegador recarregar a imagem e repetir a animação!
             box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
             
             let numEl = document.getElementById('popup-num'); 
@@ -511,7 +555,6 @@
             }
         }
 
-        // --- NAVEGAÇÃO DE ABAS ---
         function mudarAba(aba) {
             document.getElementById('tab-jogadores').classList.remove('active');
             document.getElementById('tab-monstros').classList.remove('active');
@@ -535,14 +578,12 @@
             }
         }
 
-        // --- LÓGICA DA ABA INICIATIVA ---
         function renderizarIniciativa() {
-            // A MÁGICA DA ORDENAÇÃO EXATA
             iniciativaList.sort((a, b) => {
-                if (b.total !== a.total) return b.total - a.total; // 1. Maior Total
-                if (b.dado !== a.dado) return b.dado - a.dado;     // 2. Maior Dado cru no d20
-                if (b.bonus !== a.bonus) return b.bonus - a.bonus; // 3. Maior Bônus de Iniciativa
-                return b.agi - a.agi;                              // 4. Maior Agilidade
+                if (b.total !== a.total) return b.total - a.total; 
+                if (b.dado !== a.dado) return b.dado - a.dado;     
+                if (b.bonus !== a.bonus) return b.bonus - a.bonus; 
+                return b.agi - a.agi;                              
             });
 
             localStorage.setItem('mestre_iniciativa', JSON.stringify(iniciativaList));
@@ -597,7 +638,6 @@
             }
         }
 
-        // --- LÓGICA DE MONSTROS ---
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
 
         function abrirModalCriatura() {
@@ -651,7 +691,7 @@
             const div = document.createElement('div');
             div.className = 'dynamic-row';
             div.innerHTML = `
-                <input type="text" class="monster-input pow-nome" style="flex:1;" placeholder="Poder (Ex: Regeneração 5 PV)">
+                <input type="text" class="monster-input pow-nome" style="flex:1; width:100%;" placeholder="Poder (Ex: Regeneração 5 PV)">
                 <button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>
             `;
             container.appendChild(div);
@@ -774,8 +814,9 @@
             let cor = "color:var(--accent-red)";
 
             if (d === 20) {
-                resultadoStr = "CRÍTICO";
-                cor = "color:var(--accent-red); text-shadow: 0 0 5px var(--accent-red);";
+                // Perícias agora não dão Crítico, apenas Extremo
+                resultadoStr = "EXTREMO";
+                cor = "color:var(--accent-yellow)";
             } else if (d >= m.e && m.e != 99) {
                 resultadoStr = "EXTREMO";
                 cor = "color:var(--accent-yellow)";
@@ -848,8 +889,8 @@
                         <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'percepcao')" style="background:var(--bg-card); color:white; border:1px solid #444;">Percepção</button>
                         <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'reflexos')" style="background:var(--bg-card); color:white; border:1px solid #444;">Reflexos</button>
                         <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'vontade')" style="background:var(--bg-card); color:white; border:1px solid #444;">Vontade</button>
-                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'luta')" style="border-color:var(--accent-blue);">🗡️ Luta</button>
-                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'pontaria')" style="border-color:var(--accent-blue);">🔫 Pontaria</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'luta')" style="border-color:var(--accent-blue); padding: 5px;">🗡️ Luta</button>
+                        <button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'pontaria')" style="border-color:var(--accent-blue); padding: 5px;">🔫 Pont</button>
                     </div>`;
                 } else {
                     btnPericiasHTML = `<button class="btn-roll" style="width:100%; margin-top:10px;" onclick="alert('Criatura antiga. Por favor recrie para usar as perícias completas.')">🎲 Perícias (Desativado)</button>`;
