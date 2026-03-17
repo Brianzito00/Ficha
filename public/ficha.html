@@ -800,11 +800,23 @@
     function removeAbility(id) { const el = document.getElementById('ability-'+id); if(el) { el.remove(); save(); } }
 
     function openItemPopup() { 
+        editingItemId = null; // Garante que estamos criando um item novo, e não editando
+        
+        // Limpa todos os campos para garantir que o formulário vem zerado quando for aberto
+        ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { 
+            let el = document.getElementById(i); 
+            if(el) el.value=(i==='new-item-weight'||i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); 
+        }); 
+        document.getElementById('wp-ammo').value='Nenhuma';
+
         document.getElementById('popup-new-item-title').innerText = "Adicionar ao Inventário";
         document.getElementById('btn-confirm-add-item').innerText = "ADICIONAR";
+        
+        // Esta é a linha mágica que força o catálogo a aparecer primeiro e esconde o formulário
+        selectItemType('item'); 
+        
         document.getElementById('popup-new-item').style.display='flex'; 
     }
-    
     function closeItemPopup() { 
         document.getElementById('popup-new-item').style.display='none'; 
         ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { 
