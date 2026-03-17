@@ -599,6 +599,9 @@
     let pendingRollParams = null;
     let pendingMaxAtaques = 1;
 
+    // CATÁLOGO CUSTOMIZADO GLOBAL (Salvo no Navegador para manter a lista de todos)
+    let customCatalog = JSON.parse(localStorage.getItem('ordem_custom_catalog')) || { items: [], melee: [], ranged: [] };
+
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
     let equippedWeaponsData = [];
@@ -812,19 +815,14 @@
         document.getElementById('popup-new-item-title').innerText = "Adicionar ao Inventário";
         document.getElementById('btn-confirm-add-item').innerText = "ADICIONAR";
         
-        // Esta é a linha mágica que força o catálogo a aparecer primeiro e esconde o formulário
+        // Força o catálogo a aparecer primeiro e esconde o formulário
         selectItemType('item'); 
         
         document.getElementById('popup-new-item').style.display='flex'; 
     }
+    
     function closeItemPopup() { 
         document.getElementById('popup-new-item').style.display='none'; 
-        ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { 
-            let el = document.getElementById(i); 
-            if(el) el.value=(i==='new-item-weight'||i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); 
-        }); 
-        document.getElementById('wp-ammo').value='Nenhuma'; 
-        selectItemType('item'); 
         editingItemId = null; 
     }
 
@@ -903,6 +901,18 @@
                     </div>
                 `;
             });
+            // Itens Customizados Globais
+            customCatalog.items.forEach((it, index) => {
+                containerItem.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('item', ${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'">
+                        <img src="${it.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name} <br><span style="font-size:0.7em; color:var(--accent-yellow)">(Criado)</span></div>
+                        <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         const containerCC = document.getElementById('armacc-grid-container');
@@ -926,6 +936,20 @@
                     </div>
                 `;
             });
+            // Armas Corpo a Corpo Customizadas
+            customCatalog.melee.forEach((wp, index) => {
+                containerCC.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('melee', ${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'">
+                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-blue)">(Criada)</span></div>
+                        <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>
+                            Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>
+                            Crítico: <span style="color:white; font-weight:bold;">${wp.crit}</span>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         const containerDisp = document.getElementById('armadisp-grid-container');
@@ -943,6 +967,20 @@
                         <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div>
                         <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
                             Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>
+                            Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>
+                            Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span>
+                        </div>
+                    </div>
+                `;
+            });
+            // Armas de Disparo Customizadas
+            customCatalog.ranged.forEach((wp, index) => {
+                containerDisp.innerHTML += `
+                    <div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('ranged', ${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'">
+                        <img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px;">
+                        <div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-green)">(Criada)</span></div>
+                        <div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">
+                            Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>
                             Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>
                             Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span>
                         </div>
@@ -1003,6 +1041,32 @@
         }
 
         addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Disparo", atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity });
+        closeItemPopup();
+    }
+
+    function addCustomCatalogItem(type, index) {
+        let idToUse = editingItemId ? editingItemId : Date.now();
+        let eqStatus = true;
+
+        if (editingItemId) {
+            const oldH = document.getElementById('item-data-' + editingItemId);
+            if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true';
+            const oldRow = document.getElementById('inv-row-' + editingItemId);
+            if(oldRow) oldRow.remove();
+        }
+
+        if (type === 'item') {
+            const it = customCatalog.items[index];
+            addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img });
+        } else if (type === 'melee') {
+            const wp = customCatalog.melee[index];
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`;
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity });
+        } else if (type === 'ranged') {
+            const wp = customCatalog.ranged[index];
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`;
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity });
+        }
         closeItemPopup();
     }
 
@@ -1076,6 +1140,39 @@
 
         let eqStatus = true;
         let idToUse = Date.now();
+        
+        // Se NÃO estivermos editando um item do inventário, significa que estamos criando um item novo.
+        // Adicionamos ele no catálogo global.
+        if (!editingItemId) {
+            let catType = '';
+            let newCatItem = {
+                name: n, weight: w, img: img, type: type,
+                atkType: atkType, atk: atk, dmg: dmg, crit: crit,
+                range: range, ammo: ammo, skill: skill, extra: extra, capacity: cap
+            };
+
+            if (type === 'comum') {
+                newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição.";
+                customCatalog.items.push(newCatItem);
+                catType = 'item';
+            } else if (atkType.toLowerCase().includes("disparo")) {
+                customCatalog.ranged.push(newCatItem);
+                catType = 'ranged';
+            } else {
+                customCatalog.melee.push(newCatItem);
+                catType = 'melee';
+            }
+
+            // Salva o catálogo na memória do navegador
+            localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
+            // Atualiza a visualização do catálogo
+            renderPremadeCatalogs();
+
+            // Envia para o servidor para sincronizar com outros computadores na hora
+            if (socket) {
+                socket.emit('novo_item_catalogo_global', { catType: catType, item: newCatItem });
+            }
+        }
         
         if(editingItemId) {
             const oldH = document.getElementById('item-data-' + editingItemId);
@@ -1708,6 +1805,16 @@
                     localStorage.setItem('ordem_save_local', JSON.stringify(dados.fullData));
                 }
             });
+            
+            // --- GATILHO PARA RECEBER ITENS DO CATÁLOGO EM TEMPO REAL ---
+            socket.on('sync_item_catalogo_global', (data) => {
+                if (data.catType === 'item') customCatalog.items.push(data.item);
+                else if (data.catType === 'melee') customCatalog.melee.push(data.item);
+                else if (data.catType === 'ranged') customCatalog.ranged.push(data.item);
+                
+                localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
+                renderPremadeCatalogs();
+            });
         }
         renderPremadeCatalogs(); 
     }
@@ -1749,7 +1856,6 @@
         
         updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay();
         
-        // --- FIX: Restaura a arma ativa ---
         if (d.arma_ativa_id) {
             const sel = document.getElementById('active-weapon-select');
             if (sel && equippedWeaponsData.some(wp => wp.id === d.arma_ativa_id)) {
@@ -1757,7 +1863,6 @@
                 renderActiveWeapon();
             }
         }
-        // -----------------------------------
 
         document.querySelectorAll('[id^="chk_"]').forEach(c => { if(c.checked) toggleTrained(c.id.replace('chk_','')); });
         isLoadingData = false; 
