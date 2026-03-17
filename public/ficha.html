@@ -1792,6 +1792,16 @@
 
         if (socket && !viewCode) {
             socket.on('connect', () => save()); 
+            
+            // --- OUVIR O CATÁLOGO QUANDO ENTRAR NA SESSÃO ---
+            socket.on('catalogo_inicial', (catalogoDoServidor) => {
+                // Atualiza a memória local com tudo que o servidor tem
+                customCatalog = catalogoDoServidor;
+                localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
+                renderPremadeCatalogs();
+            });
+            // ------------------------------------------------
+
             socket.on('comando_mestre', (dados) => {
                 if (dados.codigo === playerCode) {
                     if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
