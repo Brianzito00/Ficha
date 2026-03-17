@@ -8,12 +8,26 @@ const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
-// Permite que o servidor leia ficheiros JSON
+// Permite que o servidor leia ficheiros JSON (usados no login/registo e ficha)
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==========================================
-// BANCO DE DADOS LOCAL (APENAS PARA O CATÁLOGO GERAL)
+// BANCO DE DADOS LOCAL (USUÁRIOS E FICHAS)
+// ==========================================
+const dbPath = path.join(__dirname, 'usuarios.json');
+
+function lerDB() {
+    if (!fs.existsSync(dbPath)) return {};
+    return JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+}
+
+function guardarDB(dados) {
+    fs.writeFileSync(dbPath, JSON.stringify(dados, null, 2));
+}
+
+// ==========================================
+// BANCO DE DADOS LOCAL (CATÁLOGO GERAL DE ITENS)
 // ==========================================
 const CATALOG_FILE = path.join(__dirname, 'catalogo_global.json');
 let globalCatalog = { items: [], melee: [], ranged: [] };
@@ -28,7 +42,6 @@ if (fs.existsSync(CATALOG_FILE)) {
         console.error("Erro ao ler o catálogo:", err);
     }
 } else {
-    // Se não existir, cria um vazio
     fs.writeFileSync(CATALOG_FILE, JSON.stringify(globalCatalog, null, 2));
 }
 
@@ -37,21 +50,53 @@ function salvarCatalogo() {
 }
 
 // ==========================================
-// ROTAS DA API (MANTIDAS LIVRES PARA O SEU FIREBASE)
+// ROTAS DA API (SISTEMA DE CONTAS E FICHA)
 // ==========================================
 
-// Se você usa o Firebase no backend (Node.js) para salvar a ficha, 
-// o seu código antigo do Firebase deve ficar dentro desta rota abaixo:
+// Redireciona a página inicial para o LOGIN
+app.get('/', (req, res) => {
+    res.redirect('/login.html');
+});
+
+// Registar Novo Utilizador
+app.post('/api/registar', (req, res) => {
+    const { usuario, senha } = req.body;
+    const db = lerDB();
+
+    if (db[usuario]) {
+        return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
+    }
+
+    db[usuario] = { senha: senha, ficha: null }; 
+    guardarDB(db);
+    res.json({ sucesso: true });
+});
+
+// Login do Utilizador
+app.post('/api/login', (req, res) => {
+    const { usuario, senha } = req.body;
+    const db = lerDB();
+
+    if (!db[usuario] || db[usuario].senha !== senha) {
+        return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
+    }
+    
+    res.json({ sucesso: true, ficha: db[usuario].ficha });
+});
+
+// Guardar Ficha
 app.post('/api/guardar_ficha', (req, res) => {
     const { usuario, fichaData } = req.body;
-    if (!usuario) return res.status(400).send("Usuário não informado.");
-    
-    // --- COLE AQUI O SEU CÓDIGO ANTIGO DO FIREBASE ---
-    // Exemplo: admin.firestore().collection('fichas').doc(usuario).set(fichaData);
-    // -------------------------------------------------
-    
-    console.log(`💾 Pedido de save para [${usuario}] processado.`);
-    res.status(200).send({ message: 'Processado' });
+    const db = lerDB();
+
+    if (db[usuario]) {
+        db[usuario].ficha = fichaData;
+        guardarDB(db);
+        console.log(`💾 Ficha do jogador [${usuario}] salva no servidor.`);
+        res.json({ sucesso: true });
+    } else {
+        res.json({ sucesso: false, erro: 'Utilizador não encontrado.' });
+    }
 });
 
 
@@ -70,7 +115,7 @@ io.on('connection', (socket) => {
     socket.on('novo_item_catalogo_global', (data) => {
         const cat = data.catType === 'item' ? 'items' : data.catType;
         
-        // Evita duplicatas no servidor caso dois jogadores mandem ao mesmo tempo
+        // Evita duplicatas
         if (!globalCatalog[cat].some(it => it.name.toLowerCase() === data.item.name.toLowerCase())) {
             globalCatalog[cat].push(data.item);
             salvarCatalogo();
@@ -133,7 +178,19 @@ io.on('connection', (socket) => {
         if(playersData[codigo]) {
             socket.emit('update_mestre', playersData[codigo]);
         } else {
-            socket.broadcast.emit('mestre_pede_ficha', codigo);
+            const db = lerDB();
+            if (db[codigo] && db[codigo].ficha) {
+                const f = db[codigo].ficha;
+                const dadosRecuperados = {
+                    codigo: codigo, nome: f.info.char_nome, foto: f.info.char_img, nex: f.info.char_nex, defesa: f.defense,
+                    vida_atual: f.info.vida_atual, vida_max: f.info.vida_max, sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
+                    status: f.charStatus, fullData: f
+                };
+                playersData[codigo] = dadosRecuperados;
+                socket.emit('update_mestre', dadosRecuperados);
+            } else {
+                socket.broadcast.emit('mestre_pede_ficha', codigo);
+            }
         }
     });
 
