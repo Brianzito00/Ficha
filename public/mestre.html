@@ -146,6 +146,24 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
+        /* ABA DE ROTEIRO */
+        #roteiro-board {
+            display: none; flex-direction: column; height: 100%; overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+        }
+        .roteiro-textarea {
+            flex: 1; background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 15px; font-family: 'Roboto', sans-serif;
+            font-size: 1.1em; border-radius: 8px; resize: none; outline: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6;
+        }
+        .roteiro-textarea:focus { border-color: var(--accent-blue); }
+        /* Scrollbar do Roteiro */
+        .roteiro-textarea::-webkit-scrollbar { width: 8px; }
+        .roteiro-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .roteiro-textarea::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
         /* ======================================================== */
         /* COMPATIBILIDADE PARA TELEMÓVEIS / CELULARES              */
         /* ======================================================== */
@@ -195,6 +213,8 @@
             .popup-res { font-size: 1.5em; }
             
             .attr-grid { grid-template-columns: 1fr; } /* Atributos de criar monstro em 1 coluna */
+
+            #roteiro-board { height: 60vh; } /* Altura especifica para celular */
         }
     </style>
 </head>
@@ -210,6 +230,7 @@
         <button class="tab-btn active" id="tab-jogadores" onclick="mudarAba('jogadores')">🕵️ Jogadores</button>
         <button class="tab-btn" id="tab-monstros" onclick="mudarAba('monstros')">👹 Monstros</button>
         <button class="tab-btn" id="tab-iniciativa" onclick="mudarAba('iniciativa')">⚔️ Iniciativa</button>
+        <button class="tab-btn" id="tab-roteiro" onclick="mudarAba('roteiro')">📜 Roteiro</button>
     </div>
 
     <div class="content-wrapper">
@@ -231,6 +252,15 @@
                 <div class="ini-list-container" id="iniciativa-list-container">
                     </div>
             </div>
+
+            <div id="roteiro-board">
+                <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Roteiro da Campanha</h2>
+                    <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar digitação...</span>
+                </div>
+                <textarea id="roteiro-text" class="roteiro-textarea" placeholder="Escreve aqui as anotações secretas, a história da tua campanha, falas de NPCs, atributos rápidos... Este texto salva automaticamente e fica na memória do teu dispositivo."></textarea>
+            </div>
+
         </div>
 
         <div class="log-container">
@@ -341,6 +371,27 @@
 
         let playersDataMemoria = {}; 
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
+
+        // Roteiro Setup
+        const roteiroInput = document.getElementById('roteiro-text');
+        roteiroInput.value = localStorage.getItem('mestre_roteiro') || '';
+
+        roteiroInput.addEventListener('input', function() {
+            localStorage.setItem('mestre_roteiro', this.value);
+            const status = document.getElementById('roteiro-status');
+            status.innerText = "A guardar...";
+            status.style.color = "var(--accent-yellow)";
+            
+            clearTimeout(this.saveTimeout);
+            this.saveTimeout = setTimeout(() => {
+                status.innerText = "Guardado ✔️";
+                status.style.color = "var(--accent-green)";
+                setTimeout(() => { 
+                    status.innerText = "Sincronizado na memória local.";
+                    status.style.color = "var(--text-secondary)"; 
+                }, 2000);
+            }, 1000);
+        });
 
         // Tabela D20 e Perícias Base
         const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
@@ -559,10 +610,12 @@
             document.getElementById('tab-jogadores').classList.remove('active');
             document.getElementById('tab-monstros').classList.remove('active');
             document.getElementById('tab-iniciativa').classList.remove('active');
+            document.getElementById('tab-roteiro').classList.remove('active');
             
             document.getElementById('players-board').style.display = 'none';
             document.getElementById('monsters-board').style.display = 'none';
             document.getElementById('iniciativa-board').style.display = 'none';
+            document.getElementById('roteiro-board').style.display = 'none';
 
             if (aba === 'jogadores') {
                 document.getElementById('tab-jogadores').classList.add('active');
@@ -575,6 +628,9 @@
                 document.getElementById('tab-iniciativa').classList.add('active');
                 document.getElementById('iniciativa-board').style.display = 'flex';
                 renderizarIniciativa();
+            } else if (aba === 'roteiro') {
+                document.getElementById('tab-roteiro').classList.add('active');
+                document.getElementById('roteiro-board').style.display = 'flex';
             }
         }
 
@@ -814,7 +870,6 @@
             let cor = "color:var(--accent-red)";
 
             if (d === 20) {
-                // Perícias agora não dão Crítico, apenas Extremo
                 resultadoStr = "EXTREMO";
                 cor = "color:var(--accent-yellow)";
             } else if (d >= m.e && m.e != 99) {
