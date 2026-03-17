@@ -34,8 +34,16 @@
         .player-card {
             display: flex;
             align-items: center;
-            gap: 15px; /* Ajustado para caber bem nas 4 colunas */
+            gap: 15px; 
             animation: fadeIn 0.6s ease-out;
+            cursor: pointer; /* Cursor de "mãozinha" para indicar clique */
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        /* Efeito ao passar o rato no OBS/Browser para indicar que pode apagar */
+        .player-card:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
         }
 
         @keyframes fadeIn {
@@ -43,8 +51,14 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* Animação para quando clica em apagar */
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+
         .foto-container {
-            width: 105px; /* Ligeiramente menor para dar espaço às 4 colunas */
+            width: 105px; 
             height: 105px;
             position: relative;
             flex-shrink: 0;
@@ -63,7 +77,7 @@
             flex-direction: column;
             gap: 2px; 
             font-family: 'Gabriele Bad', sans-serif;
-            font-size: 2.3rem; /* Ajustado para não quebrar a linha */
+            font-size: 2.3rem; 
             font-weight: normal;
             line-height: 0.9;
             user-select: none;
@@ -125,6 +139,11 @@
             const div = document.createElement('div');
             div.className = 'player-card';
             div.id = `card-${code}`;
+            div.title = "Clique para remover do Overlay"; // Tooltip ao passar o rato
+            
+            // Função que remove ao clicar
+            div.onclick = () => removerDoOverlay(code);
+            
             div.innerHTML = `
                 <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
                 <div class="status-numbers">
@@ -136,6 +155,25 @@
             container.appendChild(div);
         }
 
+        // ==========================================
+        // REMOVER O JOGADOR AO CLICAR NA TELA (OBS)
+        // ==========================================
+        function removerDoOverlay(code) {
+            const el = document.getElementById(`card-${code}`);
+            if (el) {
+                el.style.animation = 'fadeOut 0.4s ease-in forwards'; // Faz a animação de saída
+                
+                setTimeout(() => {
+                    el.remove();
+                    activePlayers = activePlayers.filter(c => c !== code);
+                    localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
+                    
+                    // Avisa o Mestre para remover da lista principal também para não voltar a aparecer sozinho!
+                    socket.emit('comando_mestre', { tipo: 'remover_jogador_mestre', codigo: code });
+                }, 400); // 400ms = tempo da animação
+            }
+        }
+
         window.onload = () => {
             atualizarOverlay();
             // Pede atualizações regularmente para garantir que não perde pacotes
@@ -144,7 +182,7 @@
             }, 10000);
         };
 
-        // 1. Sincronização via Memória do Navegador (para quem usa Chrome)
+        // Sincronização via Memória do Navegador
         window.addEventListener('storage', (e) => {
             if (e.key === 'mestre_allowed_codes') {
                 activePlayers = JSON.parse(e.newValue) || [];
@@ -152,14 +190,12 @@
             }
         });
 
-        // 2. Sincronização via Socket (Essencial para funcionar no OBS Studio perfeitamente)
+        // Sincronização via Socket (Essencial para funcionar no OBS Studio)
         socket.on('connect', () => {
-            // Pede ao mestre a lista de jogadores atual mal o OBS liga
             socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
         });
 
         socket.on('comando_mestre', (dados) => {
-            // Recebeu a ordem do Mestre com a lista atualizada
             if (dados.tipo === 'sync_overlay' && dados.players) {
                 activePlayers = dados.players;
                 localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
