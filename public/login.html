@@ -34,8 +34,8 @@
         <h2>Acesso ao Sistema</h2>
         
         <div class="input-group">
-            <label>Utilizador (Será o seu Código de Jogador)</label>
-            <input type="text" id="user" placeholder="Ex: JOAO" style="text-transform: uppercase;">
+            <label>Utilizador (Seu Código de Jogador)</label>
+            <input type="text" id="user" placeholder="Ex: JOAO ou DUNGEONMASTER" style="text-transform: uppercase;">
         </div>
         
         <div class="input-group">
@@ -45,12 +45,11 @@
 
         <div id="msg-erro"></div>
 
-        <button class="btn btn-login" onclick="fazerLogin()">Entrar na Ficha</button>
+        <button class="btn btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
         <button class="btn btn-register" onclick="registar()">Criar Nova Conta</button>
     </div>
 
     <script>
-        // O utilizador será SEMPRE MAIÚSCULO, pois ele serve como o código de sincronização com o Mestre!
         async function registar() {
             const u = document.getElementById('user').value.toUpperCase().trim();
             const p = document.getElementById('pass').value.trim();
@@ -83,15 +82,23 @@
             const data = await res.json();
 
             if(data.sucesso) {
-                // Guarda o nome de utilizador para a ficha saber quem é
                 localStorage.setItem('usuario_logado', u);
                 
-                // Se o servidor devolveu a ficha salva na base de dados, guardamos localmente para a ficha carregar
                 if(data.ficha) {
-                    localStorage.setItem('ordem_save_local', JSON.stringify(data.ficha));
+                    // SE FOR O MESTRE, GUARDA OS DADOS NUMA ZONA SEPARADA
+                    if(u === 'DUNGEONMASTER') {
+                        localStorage.setItem('mestre_save_nuvem', JSON.stringify(data.ficha));
+                    } else {
+                        localStorage.setItem('ordem_save_local', JSON.stringify(data.ficha));
+                    }
                 }
                 
-                window.location.href = '/ficha.html';
+                // REDIRECIONAMENTO VIP PARA O MESTRE
+                if (u === 'DUNGEONMASTER') {
+                    window.location.href = '/mestre.html';
+                } else {
+                    window.location.href = '/ficha.html';
+                }
             } else {
                 document.getElementById('msg-erro').style.color = '#e53935';
                 document.getElementById('msg-erro').innerText = data.erro;
