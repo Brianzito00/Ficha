@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overlay RPG - Stream Minimalist</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        /* Importação da sua fonte personalizada Gabriele Bad */
+        @font-face {
+            font-family: 'Gabriele Bad';
+            src: url('gabriele-bad.ttf') format('truetype');
+        }
 
         body {
             margin: 0;
@@ -50,21 +54,20 @@
             mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
         }
 
-        /* CONFIGURAÇÃO DOS NÚMEROS */
+        /* CONFIGURAÇÃO DOS NÚMEROS COM A NOVA FONTE */
         .status-numbers {
             display: flex;
             flex-direction: column;
             gap: 5px; 
-            font-family: 'Permanent Marker', cursive;
-            font-size: 2.8rem; /* Tamanho reduzido conforme pedido */
+            font-family: 'Gabriele Bad', sans-serif;
+            font-size: 2.8rem; 
             line-height: 0.9;
             user-select: none;
-            /* Inclinação para a direita (estilo itálico da foto) */
             transform: skewX(-15deg); 
             letter-spacing: 2px;
         }
 
-        /* EFEITO GLOW (NEON) SEM ESCRITAS */
+        /* EFEITO GLOW (NEON) */
         .val-vida { 
             color: white; 
             text-shadow: 
