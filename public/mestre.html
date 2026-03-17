@@ -185,7 +185,9 @@
         <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Usuário (Login)" maxlength="30">
         <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR</button>
         
-        <div style="flex: 1;"></div> <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html', '_blank')">📺 ABRIR OVERLAY</button>
+        <div style="flex: 1;"></div>
+
+        <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html', '_blank')">📺 ABRIR OVERLAY</button>
         <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR</button>
     </div>
 
@@ -238,7 +240,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="log-container">
@@ -345,12 +346,12 @@
                 if (cloudSave.iniciativa) localStorage.setItem('mestre_iniciativa', JSON.stringify(cloudSave.iniciativa));
                 if (cloudSave.allowedCodes) localStorage.setItem('mestre_allowed_codes', JSON.stringify(cloudSave.allowedCodes));
             } catch(e) {}
-            localStorage.removeItem('mestre_save_nuvem'); // Limpa após carregar
+            localStorage.removeItem('mestre_save_nuvem'); 
         }
 
         let debounceTimer;
         function salvarMestreNoFirebase() {
-            if (playerCode !== 'DUNGEONMASTER') return; // Apenas o DM salva
+            if (playerCode !== 'DUNGEONMASTER') return; 
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const dataToSave = {
@@ -368,7 +369,6 @@
             }, 1500); 
         }
 
-        // Interceta sempre que algo do Mestre é guardado localmente para enviar para a Nuvem
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
@@ -394,11 +394,10 @@
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
         
-        let modoEdicaoAtual = 'roteiro'; // 'roteiro' ou 'descricao'
+        let modoEdicaoAtual = 'roteiro'; 
         let currentRoteiroId = null;
         let currentDescricaoId = null;
 
-        // Migração de segurança para quem tinha o roteiro antigo
         if (!roteiros || roteiros.length === 0) {
             let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
             roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: textoAntigo }];
@@ -558,7 +557,12 @@
 
         // ===============================================
 
-        socket.on('connect', () => { jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); });
+        socket.on('connect', () => { 
+            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); 
+            
+            // Avisa o Overlay (OBS) mal conecta
+            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
+        });
 
         function adicionarJogador() {
             const input = document.getElementById('add-code-input');
@@ -567,6 +571,9 @@
                 jogadoresPermitidos.push(codigo);
                 localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
                 socket.emit('request_player', codigo);
+                
+                // Avisa o Overlay que adicionou
+                socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
             }
             input.value = '';
         }
@@ -576,6 +583,9 @@
             localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos));
             const card = document.getElementById(`player-${codigo}`);
             if (card) card.remove();
+            
+            // Avisa o Overlay que removeu
+            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
         }
 
         function abrirFicha(codigo) {
@@ -651,6 +661,19 @@
                 <div class="status-tags">${tagsHtml}</div>
                 <button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>
             `;
+        });
+
+        socket.on('comando_mestre', (dados) => {
+            // O Overlay está a pedir atualização?
+            if (dados.tipo === 'request_overlay_sync') {
+                socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
+            }
+
+            if (dados.codigo === playerCode) {
+                if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
+                else if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
+                else if (dados.tipo === 'status') toggleStatus(dados.status);
+            }
         });
 
         socket.on('novo_log', (dados) => {
@@ -736,18 +759,27 @@
         
         function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
             const box = document.querySelector('.popup-box-dice'); 
+            
             box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+            
             let numEl = document.getElementById('popup-num'); 
             numEl.innerHTML = n; 
             if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
             let resEl = document.getElementById('popup-res'); 
             resEl.innerHTML = r; resEl.style = st;
+            
             document.getElementById('popup-content').style.display = 'none'; 
             document.getElementById('popup-dice').style.display = 'flex';
             setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
 
             if (socket) {
-                socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st });
+                socket.emit('rolagem_feita', {
+                    codigo: null, 
+                    jogador: jogador,
+                    acao: r,
+                    resultado: n,
+                    cor: st
+                });
             }
         }
 
