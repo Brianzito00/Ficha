@@ -135,13 +135,13 @@
         }
         
         .popup-number { 
-            font-family: 'Gabriele Bad', sans-serif; font-size: 8em; font-weight: 900; color: white; 
+            font-family: 'Gabriele Bad', sans-serif; font-size: 8em; font-weight: normal; color: white; 
             text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; 
             text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; 
         }
         
         .popup-res { 
-            font-family: 'Gabriele Bad', sans-serif; font-size: 2.2em; line-height: 1.1; 
+            font-family: 'Gabriele Bad', sans-serif; font-size: 2.2em; font-weight: normal; line-height: 1.1; 
             margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; 
             max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; 
@@ -152,6 +152,7 @@
 
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
+        /* Animação para tremer a caixa de dados no Crítico! */
         @keyframes shakeCrit {
             0% { transform: translate(2px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-2deg); }
@@ -1312,22 +1313,24 @@
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
         let resEl = document.getElementById('popup-res'); 
         
-        // Separa o Nome do Resultado com <br>
+        // Separa o Nome do Resultado com <br> se for um ataque/teste único
         let textoFinal = r;
         if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) {
             textoFinal = r.replace(' (', '<br>(');
         }
         resEl.innerHTML = textoFinal; 
         
-        // Mantemos tudo com a Gabriele Bad e flexbox centralizado
-        resEl.style.cssText = `font-family: 'Gabriele Bad', sans-serif; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
+        // Aplica o estilo centralizado com a fonte Gabriele Bad
+        resEl.style.cssText = `font-family: 'Gabriele Bad', sans-serif; font-size: 2.2em; font-weight: normal; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`;
         
         box.style.animation = 'none';
         box.style.boxShadow = 'none';
         box.style.borderColor = 'var(--accent-yellow)';
 
-        document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
+        document.getElementById('popup-content').style.display = 'none'; 
+        document.getElementById('popup-dice').style.display = 'flex';
         
+        // Só treme a caixa DEPOIS de aparecer o resultado (quando o GIF acaba ao fim de 1.5s)
         setTimeout(() => {
             document.getElementById('popup-content').style.display = 'flex';
             if (r.includes('CRÍTICO')) {
@@ -1457,8 +1460,7 @@
 
             if (numAttacks > 1) {
                 let listColor = colorFormat.replace("color:", "").replace(";", "");
-                // Aplicada a Gabriele Bad e centralização nos multiplos ataques
-                resultsArray.push(`<div style="${colorFormat} font-family: 'Gabriele Bad', sans-serif; font-size: 0.7em; line-height: 1.2;">ATQ ${i+1}: ${d} (${textFormat})</div>`);
+                resultsArray.push(`<div style="${colorFormat} width:100%; text-align:center;">ATQ ${i+1}: ${d} (${textFormat})</div>`);
             } else {
                 showPopup(d, `${n}<br>(${textFormat})`, colorFormat);
             }
@@ -1467,12 +1469,13 @@
         lastAttackWasCrit = anyCrit;
 
         if (numAttacks > 1) {
-            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">` 
+            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center; font-family: 'Gabriele Bad', sans-serif; font-size: 0.8em; line-height: 1.2;">` 
                 + resultsArray.join('') 
                 + `</div>`;
             
-            let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO";
-            if (allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>";
+            let actionText = `${n}<br>MÚLTIPLO`;
+            if (anyCrit) actionText += `<br><span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>`;
+            else if (allDesastre) actionText += `<br><span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>`;
             
             showPopup(numAttacks + "x", `${actionText}${finalHtml}`, "color:white; text-align:center;");
         }
