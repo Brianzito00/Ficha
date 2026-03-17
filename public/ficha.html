@@ -1141,8 +1141,7 @@
         let eqStatus = true;
         let idToUse = Date.now();
         
-        // Se NÃO estivermos editando um item do inventário, significa que estamos criando um item novo.
-        // Adicionamos ele no catálogo global.
+        // Se NÃO estivermos editando um item, criamos um novo e enviamos ao servidor
         if (!editingItemId) {
             let catType = '';
             let newCatItem = {
@@ -1153,22 +1152,19 @@
 
             if (type === 'comum') {
                 newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição.";
-                customCatalog.items.push(newCatItem);
+                if (!customCatalog.items.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem);
                 catType = 'item';
             } else if (atkType.toLowerCase().includes("disparo")) {
-                customCatalog.ranged.push(newCatItem);
+                if (!customCatalog.ranged.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem);
                 catType = 'ranged';
             } else {
-                customCatalog.melee.push(newCatItem);
+                if (!customCatalog.melee.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem);
                 catType = 'melee';
             }
 
-            // Salva o catálogo na memória do navegador
             localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
-            // Atualiza a visualização do catálogo
             renderPremadeCatalogs();
 
-            // Envia para o servidor para sincronizar com outros computadores na hora
             if (socket) {
                 socket.emit('novo_item_catalogo_global', { catType: catType, item: newCatItem });
             }
@@ -1530,7 +1526,10 @@
 
         for(let i=0; i<numAttacks; i++) {
             let d = Math.floor(Math.random()*20)+1;
-            let isCrit = eArma ? (d >= cMarg) : (d === 20);
+            
+            // MUDANÇA 1: Verifica se é um Crítico apenas se for UMA ARMA. Perícias nunca dão crítico (false).
+            let isCrit = eArma ? (d >= cMarg) : false;
+            
             if (isCrit) anyCrit = true;
 
             let textFormat = "";
@@ -1541,10 +1540,10 @@
                 colorFormat = "color:#ff5252; text-shadow: 2px 2px 4px #000;";
             } else {
                 allDesastre = false;
+                
+                // MUDANÇA 2: A lógica agora só dá "CRÍTICO" para as armas. Se for perícia, mesmo que caia 20,
+                // ele passa direto e vai analisar a tabela para ver se foi Extremo, Bom ou Normal.
                 if (isCrit && eArma) {
-                    textFormat = "CRÍTICO";
-                    colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
-                } else if (d === 20 && !eArma) {
                     textFormat = "CRÍTICO";
                     colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;";
                 } else if (d >= m.e && m.e != 99) {
@@ -1563,7 +1562,6 @@
             }
 
             if (numAttacks > 1) {
-                // A cor agora é herdada diretamente do colorFormat
                 let listColor = colorFormat.replace("color:", "").replace(";", "");
                 resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size: 0.7em; line-height: 1.2;">ATQ ${i+1}: ${d} (${textFormat})</div>`);
             } else {
@@ -1793,12 +1791,44 @@
         if (socket && !viewCode) {
             socket.on('connect', () => save()); 
             
-            // --- OUVIR O CATÁLOGO QUANDO ENTRAR NA SESSÃO ---
+            // --- OUVIR O CATÁLOGO INICIAL E MESCLAR (Auto-Cura) ---
             socket.on('catalogo_inicial', (catalogoDoServidor) => {
-                // Atualiza a memória local com tudo que o servidor tem
-                customCatalog = catalogoDoServidor;
-                localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
-                renderPremadeCatalogs();
+                let mudouLocal = false;
+                let precisaReenviar = false;
+                let itensParaMandarAoServidor = { items: [], melee: [], ranged: [] };
+
+                const mesclar = (cat) => {
+                    if (!customCatalog[cat]) customCatalog[cat] = [];
+                    if (!catalogoDoServidor[cat]) catalogoDoServidor[cat] = [];
+
+                    // Servidor -> Local (Adiciona o que não temos)
+                    catalogoDoServidor[cat].forEach(serverItem => {
+                        if (!customCatalog[cat].some(localItem => localItem.name.toLowerCase() === serverItem.name.toLowerCase())) {
+                            customCatalog[cat].push(serverItem);
+                            mudouLocal = true;
+                        }
+                    });
+
+                    // Local -> Servidor (Descobre se temos algo que o servidor esqueceu por reiniciar)
+                    customCatalog[cat].forEach(localItem => {
+                        if (!catalogoDoServidor[cat].some(serverItem => serverItem.name.toLowerCase() === localItem.name.toLowerCase())) {
+                            itensParaMandarAoServidor[cat].push(localItem);
+                            precisaReenviar = true;
+                        }
+                    });
+                };
+
+                mesclar('items'); mesclar('melee'); mesclar('ranged');
+
+                if (mudouLocal || !localStorage.getItem('ordem_custom_catalog')) {
+                    localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
+                    renderPremadeCatalogs();
+                }
+
+                // Devolve para o servidor para ele se recuperar caso tenha reiniciado sem salvar JSON
+                if (precisaReenviar) {
+                    socket.emit('sync_catalogo_reverso', itensParaMandarAoServidor);
+                }
             });
             // ------------------------------------------------
 
@@ -1816,14 +1846,17 @@
                 }
             });
             
-            // --- GATILHO PARA RECEBER ITENS DO CATÁLOGO EM TEMPO REAL ---
+            // --- GATILHO PARA RECEBER ITENS DO CATÁLOGO AO VIVO ---
             socket.on('sync_item_catalogo_global', (data) => {
-                if (data.catType === 'item') customCatalog.items.push(data.item);
-                else if (data.catType === 'melee') customCatalog.melee.push(data.item);
-                else if (data.catType === 'ranged') customCatalog.ranged.push(data.item);
+                const cat = data.catType === 'item' ? 'items' : data.catType;
+                if (!customCatalog[cat]) customCatalog[cat] = [];
                 
-                localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
-                renderPremadeCatalogs();
+                // Previne adicionar 2 vezes se receber a mensagem e já o tivermos criado
+                if (!customCatalog[cat].some(it => it.name.toLowerCase() === data.item.name.toLowerCase())) {
+                    customCatalog[cat].push(data.item);
+                    localStorage.setItem('ordem_custom_catalog', JSON.stringify(customCatalog));
+                    renderPremadeCatalogs();
+                }
             });
         }
         renderPremadeCatalogs(); 
