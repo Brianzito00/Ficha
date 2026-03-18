@@ -329,6 +329,36 @@
 
         if (!playerCode || !campanhaAtiva) { window.location.href = '/index.html'; }
 
+        // AS VARIÁVEIS QUE ESTAVAM A FALTAR! 
+        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
+        const URL_FICHA = "/ficha.html"; 
+        const socket = io();
+        const playersBoard = document.getElementById('players-board');
+        const logBox = document.getElementById('log-box');
+
+        let playersDataMemoria = {}; 
+        let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
+        
+        let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
+
+        let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
+        let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
+        
+        let modoEdicaoAtual = 'roteiro'; 
+        let currentRoteiroId = null;
+        let currentDescricaoId = null;
+
+        const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
+        
+        const periciasMonstroInfo = {
+            'luta': { attr: 'for', mod: 0.25, nome: 'Luta' },
+            'pontaria': { attr: 'agi', mod: 0.45, nome: 'Pontaria' },
+            'iniciativa': { attr: 'agi', mod: 0.50, nome: 'Iniciativa' },
+            'reflexos': { attr: 'agi', mod: 0.35, nome: 'Reflexos' },
+            'percepcao': { attr: 'pre', mod: 0.50, nome: 'Percepção' },
+            'vontade': { attr: 'pre', mod: 0.50, nome: 'Vontade' }
+        };
+
         function fazerLogout() {
             localStorage.removeItem('campanha_atual');
             window.location.href = '/index.html';
@@ -343,6 +373,8 @@
                 if (cloudSave.monstros) localStorage.setItem('mestre_monstros', JSON.stringify(cloudSave.monstros));
                 if (cloudSave.iniciativa) localStorage.setItem('mestre_iniciativa', JSON.stringify(cloudSave.iniciativa));
                 if (cloudSave.allowedCodes) localStorage.setItem('mestre_allowed_codes', JSON.stringify(cloudSave.allowedCodes));
+                
+                monstros = cloudSave.monstros || monstros;
             } catch(e) {}
             localStorage.removeItem('mestre_save_nuvem_' + campanhaAtiva); 
         }
@@ -373,22 +405,6 @@
                 salvarMestreNoFirebase();
             }
         };
-
-        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
-        const URL_FICHA = "/ficha.html"; 
-        const socket = io();
-        const playersBoard = document.getElementById('players-board');
-        const logBox = document.getElementById('log-box');
-
-        let playersDataMemoria = {}; 
-        let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
-
-        let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
-        let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
-        
-        let modoEdicaoAtual = 'roteiro'; 
-        let currentRoteiroId = null;
-        let currentDescricaoId = null;
 
         if (!roteiros || roteiros.length === 0) {
             let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
@@ -499,7 +515,7 @@
                 removerJogador(dados.codigo); 
             }
             
-            // A MÁGICA DO AUTO-CONNECT ACONTECE AQUI
+            // O MESTRE OUVE QUANDO O JOGADOR ENTRA E ADICIONA À LISTA
             if (dados.tipo === 'jogador_entrou' && dados.codigo) {
                 const c = dados.codigo.toUpperCase().trim();
                 if (!jogadoresPermitidos.includes(c)) { 
