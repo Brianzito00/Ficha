@@ -55,6 +55,11 @@
 
         .list-card { background: rgba(18,18,20,0.8); border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
         .list-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
     </style>
 </head>
 <body>
@@ -69,33 +74,33 @@
         <button class="btn-cancel" style="margin-top: 30px;" onclick="fazerLogout()">Sair da Conta</button>
     </div>
 
-    <div id="view-jogador" class="lobby-box" style="display:none; border-color: #00b0ff;">
+    <div id="view-jogador" class="lobby-box" style="display:none; border-color: #00b0ff; padding: 30px;">
         <h2 style="color: #00b0ff; margin-top: 0; text-transform: uppercase;">Área do Jogador</h2>
         
-        <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #00b0ff50;">
-            <h3 style="margin-top: 0; font-size: 1em; color: white; text-align: left;">Entrar em uma Mesa</h3>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="join-code" class="inv-input" placeholder="Código da Mesa..." style="text-transform: uppercase;">
-                <button class="btn-action" style="background: #00b0ff; color: black; margin: 0; width: 100px;" onclick="prepararEntradaMesa()">ENTRAR</button>
-            </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 1em; color: #a8a8b3;">O Meu Arquivo de Fichas</h3>
-            <button class="btn-action" style="background: transparent; border: 1px solid #00b0ff; color: #00b0ff; padding: 5px 10px; margin: 0; width: auto;" onclick="criarNovaFicha()">+ NOVA FICHA</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #00b0ff50; padding-bottom: 5px;">
+            <h3 style="margin: 0; font-size: 1.1em; color: white;">As Minhas Campanhas</h3>
+            <button class="btn-action" style="background: transparent; border: 1px solid #00b0ff; color: #00b0ff; padding: 5px 10px; margin: 0; width: auto; font-size: 0.8em;" onclick="abrirModalJoinCampanha()">+ ENTRAR EM NOVA</button>
         </div>
         
-        <div id="lista-fichas" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+        <div id="lista-campanhas-jogadas" style="display: flex; flex-direction: column; gap: 10px; max-height: 150px; overflow-y: auto; padding-right: 5px; margin-bottom: 30px;">
+            </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+            <h3 style="margin: 0; font-size: 1.1em; color: #a8a8b3;">Arquivo de Fichas</h3>
+            <button class="btn-action" style="background: transparent; border: 1px solid gray; color: white; padding: 5px 10px; margin: 0; width: auto; font-size: 0.8em;" onclick="criarNovaFicha()">+ CRIAR NOVA</button>
+        </div>
+        
+        <div id="lista-fichas" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
             </div>
 
         <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
     </div>
 
-    <div id="view-mestre" class="lobby-box" style="display:none; border-color: #e53935;">
+    <div id="view-mestre" class="lobby-box" style="display:none; border-color: #e53935; padding: 30px;">
         <h2 style="color: #e53935; margin-top: 0; text-transform: uppercase;">Área do Mestre</h2>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 1em; color: #a8a8b3;">As Minhas Campanhas</h3>
+            <h3 style="margin: 0; font-size: 1em; color: #a8a8b3;">As Minhas Mesas</h3>
             <button class="btn-action" style="background: transparent; border: 1px solid #e53935; color: #e53935; padding: 5px 10px; margin: 0; width: auto;" onclick="document.getElementById('modal-criar-mesa').style.display='flex'">+ CRIAR MESA</button>
         </div>
 
@@ -105,6 +110,34 @@
         <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
     </div>
 
+
+    <div id="modal-join-campanha" class="modal-overlay">
+        <div class="modal-content" style="border-color: #00b0ff;">
+            <h2 style="color: #00b0ff; margin-top: 0; text-align: center; text-transform: uppercase;">Acessar Campanha</h2>
+            <div class="input-group">
+                <label>Código da Campanha do Mestre</label>
+                <input type="text" id="novo-join-code" class="inv-input" placeholder="Ex: OS-ESCOLHIDOS-123" style="text-transform: uppercase;">
+            </div>
+            <button class="btn-action" style="background: #00b0ff; color: black;" onclick="adicionarCampanhaJogada()">ADICIONAR À LISTA</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-escolher-ficha" class="modal-overlay">
+        <div class="modal-content" style="border-color: #00b0ff;">
+            <h2 style="color: #00b0ff; margin-top: 0; text-align: center; text-transform: uppercase;">Juntar-se à Mesa</h2>
+            <p style="color: #a8a8b3; text-align: center; margin-bottom: 20px;">Campanha: <strong id="display-mesa-join" style="color: white;">---</strong></p>
+            
+            <div class="input-group">
+                <label>Qual das suas fichas deseja usar?</label>
+                <select id="select-ficha-join" class="inv-input" style="padding: 12px; color: white;">
+                    </select>
+            </div>
+            
+            <button id="btn-confirm-join" class="btn-action" style="background: #00b0ff; color: black;" onclick="confirmarEntradaMesa()">ENTRAR NA MESA</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+        </div>
+    </div>
 
     <div id="modal-criar-mesa" class="modal-overlay">
         <div class="modal-content" style="border-color: #e53935;">
@@ -118,23 +151,7 @@
                 <input type="text" id="create-wp" class="inv-input" placeholder="O fundo muda para todos os jogadores...">
             </div>
             <button class="btn-action" style="background: #e53935;" onclick="criarMesa()">GERAR MESA</button>
-            <button class="btn-cancel" onclick="document.getElementById('modal-criar-mesa').style.display='none'">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="modal-escolher-ficha" class="modal-overlay">
-        <div class="modal-content" style="border-color: #00b0ff;">
-            <h2 style="color: #00b0ff; margin-top: 0; text-align: center; text-transform: uppercase;">Juntar-se à Mesa</h2>
-            <p style="color: #a8a8b3; text-align: center; margin-bottom: 20px;">Vai entrar na mesa: <strong id="display-mesa-join" style="color: white;">---</strong></p>
-            
-            <div class="input-group">
-                <label>Qual ficha deseja usar?</label>
-                <select id="select-ficha-join" class="inv-input" style="padding: 12px; color: white;">
-                    </select>
-            </div>
-            
-            <button id="btn-confirm-join" class="btn-action" style="background: #00b0ff; color: black;" onclick="confirmarEntradaMesa()">ACESSAR FICHA</button>
-            <button class="btn-cancel" onclick="document.getElementById('modal-escolher-ficha').style.display='none'">Cancelar</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
         </div>
     </div>
 
@@ -147,15 +164,24 @@
         // Base de Dados Local do Lobby
         let minhasFichas = JSON.parse(localStorage.getItem('fichas_' + userLogado)) || [];
         let minhasMesas = JSON.parse(localStorage.getItem('mesas_' + userLogado)) || [];
+        let minhasCampanhasJogadas = JSON.parse(localStorage.getItem('campanhas_jogadas_' + userLogado)) || [];
         let mesaPendenteUrl = null;
 
         function salvarFichas() { localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); }
         function salvarMesas() { localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas)); }
+        function salvarCampanhasJogadas() { localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas)); }
 
         function fazerLogout() {
             localStorage.removeItem('usuario_logado');
             localStorage.removeItem('campanha_atual');
             window.location.href = '/login.html';
+        }
+
+        function fecharModais() {
+            document.getElementById('modal-jogar').style.display = 'none'; 
+            document.getElementById('modal-criar-mesa').style.display = 'none'; 
+            document.getElementById('modal-join-campanha').style.display = 'none'; 
+            document.getElementById('modal-escolher-ficha').style.display = 'none'; 
         }
 
         function showView(view) {
@@ -164,13 +190,64 @@
             document.getElementById('view-mestre').style.display = 'none';
             document.getElementById('view-' + view).style.display = 'block';
 
-            if(view === 'jogador') { syncFichas(); renderFichas(); }
+            if(view === 'jogador') { syncFichas(); renderFichas(); renderCampanhasJogadas(); }
             if(view === 'mestre') renderMesas();
         }
 
         // ==========================================
-        // ÁREA DO JOGADOR
+        // ÁREA DO JOGADOR (CAMPANHAS E FICHAS)
         // ==========================================
+        
+        function abrirModalJoinCampanha() {
+            document.getElementById('novo-join-code').value = '';
+            document.getElementById('modal-join-campanha').style.display = 'flex';
+        }
+
+        function adicionarCampanhaJogada() {
+            const code = document.getElementById('novo-join-code').value.trim().toUpperCase().replace(/ /g, '-');
+            if(!code) return alert('Digite o código da campanha!');
+            if(minhasCampanhasJogadas.includes(code)) {
+                alert('Você já tem esta campanha na sua lista!');
+                return;
+            }
+
+            minhasCampanhasJogadas.push(code);
+            salvarCampanhasJogadas();
+            renderCampanhasJogadas();
+            fecharModais();
+        }
+
+        function removerCampanhaJogada(codigo) {
+            if(confirm(`Tem certeza que deseja sair da campanha ${codigo}?\nA ficha criada para esta mesa continuará salva no seu Arquivo.`)) {
+                minhasCampanhasJogadas = minhasCampanhasJogadas.filter(c => c !== codigo);
+                salvarCampanhasJogadas();
+                renderCampanhasJogadas();
+            }
+        }
+
+        function renderCampanhasJogadas() {
+            const container = document.getElementById('lista-campanhas-jogadas');
+            container.innerHTML = '';
+            if(minhasCampanhasJogadas.length === 0) {
+                container.innerHTML = `<div style="color: gray; font-style: italic; text-align: center; padding: 10px 0;">Você não participa de nenhuma campanha ainda.</div>`;
+                return;
+            }
+            minhasCampanhasJogadas.forEach(c => {
+                container.innerHTML += `
+                    <div class="list-card" style="border-color: #00b0ff50; padding: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong style="color: white; font-size: 1.1em; text-transform: uppercase; word-break: break-all;">${c}</strong>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn-action" style="background: #00b0ff; color: black; padding: 8px 15px; margin:0;" onclick="prepararEntradaMesa('${c}')">▶ JOGAR</button>
+                                <button class="btn-cancel" style="color: #a8a8b3; border: none; padding: 8px; margin:0; width: auto;" onclick="removerCampanhaJogada('${c}')">X</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- GESTÃO DE FICHAS (RASCUNHOS) ---
         function syncFichas() {
             minhasFichas.forEach(f => {
                 let saved = localStorage.getItem('ordem_save_local_SOLO_' + f.id);
@@ -199,12 +276,12 @@
                 container.innerHTML += `
                     <div class="list-card">
                         <div class="list-card-header">
-                            <strong style="color: #00b0ff; font-size: 1.1em; text-transform: uppercase;">${f.nome}</strong>
+                            <strong style="color: #e1e1e6; font-size: 1.1em; text-transform: uppercase;">${f.nome}</strong>
                             <span style="font-size: 0.8em; color: gray;">NEX: ${f.nex}% | ${f.classe}</span>
                         </div>
                         <div style="display: flex; gap: 5px;">
-                            <button class="btn-action" style="background: #00b0ff; color: black; padding: 8px; margin:0;" onclick="editarFichaSolo('${f.id}')">✏️ ABRIR FICHA BASE</button>
-                            <button class="btn-cancel" style="color: #e53935; border-color: #e53935; padding: 8px; margin:0; width: auto;" onclick="apagarFicha('${f.id}')">X</button>
+                            <button class="btn-cancel" style="border-color: gray; color: white; padding: 8px; margin:0;" onclick="editarFichaSolo('${f.id}')">✏️ EDITAR BASE</button>
+                            <button class="btn-cancel" style="color: #e53935; border: none; padding: 8px; margin:0; width: auto;" onclick="apagarFicha('${f.id}')">X</button>
                         </div>
                     </div>
                 `;
@@ -224,7 +301,7 @@
         }
 
         function apagarFicha(id) {
-            if(confirm("Tem certeza que deseja apagar esta ficha do seu arquivo?")) {
+            if(confirm("Tem certeza que deseja apagar esta ficha do seu arquivo? (Não apagará a versão que já enviou para uma mesa)")) {
                 minhasFichas = minhasFichas.filter(f => f.id !== id);
                 localStorage.removeItem('ordem_save_local_SOLO_' + id);
                 salvarFichas(); renderFichas();
@@ -238,19 +315,16 @@
         }
 
         // ==========================================
-        // ENTRAR EM MESA COM LINK OU CÓDIGO
+        // FLUXO DE ENTRADA NA MESA
         // ==========================================
-        function prepararEntradaMesa(codigoViaLink = null) {
-            const code = codigoViaLink || document.getElementById('join-code').value.trim().toUpperCase().replace(/ /g, '-');
-            if(!code) return alert('Digite o código da mesa!');
-            
-            mesaPendenteUrl = code;
+        function prepararEntradaMesa(codigoMesa) {
+            mesaPendenteUrl = codigoMesa;
             syncFichas();
             
             const select = document.getElementById('select-ficha-join');
             select.innerHTML = '<option value="NOVA">✨ ENTRAR COM FICHA ZERADA</option>';
             minhasFichas.forEach(f => {
-                select.innerHTML += `<option value="${f.id}">➡️ USAR RASCUNHO: ${f.nome} (NEX ${f.nex}%)</option>`;
+                select.innerHTML += `<option value="${f.id}">➡️ USAR ARQUIVO: ${f.nome} (NEX ${f.nex}%)</option>`;
             });
 
             document.getElementById('display-mesa-join').innerText = mesaPendenteUrl;
@@ -268,13 +342,18 @@
             try {
                 const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
                 const campData = await campRes.json();
-                if (campData.dados && campData.dados.wallpaper) localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+                if (campData.dados && campData.dados.wallpaper) {
+                    localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+                }
             } catch(e) {}
 
-            // Se o jogador escolheu um Rascunho, copiamos os dados para a Mesa!
+            // Se o jogador escolheu uma Ficha do Arquivo, copiamos os dados para a Mesa Ativa!
             if (fichaId !== 'NOVA') {
                 let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
-                if (dataRaw) {
+                // ATENÇÃO: Só substitui os dados da campanha SE ELA AINDA NÃO TIVER SIDO SALVA LÁ (evita sobrepor progresso na mesa com o arquivo antigo)
+                let dataCampanhaExistente = localStorage.getItem('ordem_save_local_' + code);
+                
+                if (dataRaw && !dataCampanhaExistente) {
                     localStorage.setItem('ordem_save_local_' + code, dataRaw);
                 }
             }
@@ -302,9 +381,9 @@
                             <span style="font-size: 0.8em; color: gray;">MESA: ${m.id}</span>
                         </div>
                         <div style="display: flex; gap: 5px;">
-                            <button class="btn-action" style="flex:2; background: #e53935; color: white; margin:0;" onclick="entrarMestre('${m.id}')">🛡️ ESCUDO DO MESTRE</button>
+                            <button class="btn-action" style="flex:2; background: #e53935; color: white; margin:0;" onclick="entrarMestre('${m.id}')">🛡️ ABRIR ESCUDO</button>
                             <button class="btn-action" style="flex:1; background: transparent; border: 1px solid #00e676; color: #00e676; margin:0;" onclick="copiarLink('${m.id}')">🔗 LINK</button>
-                            <button class="btn-cancel" style="color: #e53935; border-color: #e53935; padding: 10px; margin:0; width: auto;" onclick="apagarMesa('${m.id}')">X</button>
+                            <button class="btn-cancel" style="color: #e53935; border: none; padding: 10px; margin:0; width: auto;" onclick="apagarMesa('${m.id}')">X</button>
                         </div>
                     </div>
                 `;
@@ -363,6 +442,11 @@
         const urlP = new URLSearchParams(window.location.search);
         const inviteMesa = urlP.get('mesa');
         if (inviteMesa) {
+            // Adiciona a campanha à lista do jogador se ele não a tiver
+            if(!minhasCampanhasJogadas.includes(inviteMesa)) {
+                minhasCampanhasJogadas.push(inviteMesa);
+                salvarCampanhasJogadas();
+            }
             showView('jogador');
             prepararEntradaMesa(inviteMesa);
         }
