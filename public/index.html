@@ -156,7 +156,7 @@
     </div>
 
     <script>
-        // Verificação de Segurança
+        // Verificação de Segurança e Inicialização
         const userLogado = localStorage.getItem('usuario_logado');
         if(!userLogado) window.location.href = '/login.html';
         document.getElementById('user-display').innerText = userLogado;
@@ -177,11 +177,18 @@
             window.location.href = '/login.html';
         }
 
+        // Esta função fecha e reseta os modais em segurança
         function fecharModais() {
-            document.getElementById('modal-jogar').style.display = 'none'; 
-            document.getElementById('modal-criar-mesa').style.display = 'none'; 
-            document.getElementById('modal-join-campanha').style.display = 'none'; 
-            document.getElementById('modal-escolher-ficha').style.display = 'none'; 
+            const ids = ['modal-criar-mesa', 'modal-join-campanha', 'modal-escolher-ficha'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            });
+
+            // Limpar os campos ao fechar para não manter texto antigo
+            if(document.getElementById('novo-join-code')) document.getElementById('novo-join-code').value = '';
+            if(document.getElementById('create-nome')) document.getElementById('create-nome').value = '';
+            if(document.getElementById('create-wp')) document.getElementById('create-wp').value = '';
         }
 
         function showView(view) {
@@ -199,7 +206,6 @@
         // ==========================================
         
         function abrirModalJoinCampanha() {
-            document.getElementById('novo-join-code').value = '';
             document.getElementById('modal-join-campanha').style.display = 'flex';
         }
 
@@ -318,6 +324,16 @@
         // FLUXO DE ENTRADA NA MESA
         // ==========================================
         function prepararEntradaMesa(codigoMesa) {
+            // 1º: Verifica se o jogador já escolheu uma ficha para esta mesa antes.
+            // Se sim, entra imediatamente sem mostrar o Pop-up!
+            const fichaVinculada = localStorage.getItem('ficha_vinculada_' + codigoMesa);
+            if (fichaVinculada === 'true') {
+                localStorage.setItem('campanha_atual', codigoMesa);
+                window.location.href = '/ficha.html';
+                return;
+            }
+
+            // Se não vinculou, mostra o Pop-up para escolher
             mesaPendenteUrl = codigoMesa;
             syncFichas();
             
@@ -357,6 +373,9 @@
                     localStorage.setItem('ordem_save_local_' + code, dataRaw);
                 }
             }
+            
+            // Marca na memória que este jogador já tomou a decisão para esta mesa
+            localStorage.setItem('ficha_vinculada_' + code, 'true');
             
             // Define a Mesa Ativa e entra
             localStorage.setItem('campanha_atual', code);
@@ -407,7 +426,7 @@
                 try { await fetch('/api/salvar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code, dados: { wallpaper: wp }}) }); } catch(e) {}
             }
 
-            document.getElementById('modal-criar-mesa').style.display = 'none';
+            fecharModais();
             renderMesas();
         }
 
@@ -442,7 +461,9 @@
         const urlP = new URLSearchParams(window.location.search);
         const inviteMesa = urlP.get('mesa');
         if (inviteMesa) {
-            // Adiciona a campanha à lista do jogador se ele não a tiver
+            // Remove o parâmetro ?mesa da URL visualmente para não chatear o utilizador nos próximos F5
+            window.history.replaceState({}, document.title, "/index.html");
+
             if(!minhasCampanhasJogadas.includes(inviteMesa)) {
                 minhasCampanhasJogadas.push(inviteMesa);
                 salvarCampanhasJogadas();
