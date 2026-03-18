@@ -13,19 +13,24 @@
         }
         .login-box {
             background: rgba(20, 20, 24, 0.95); padding: 40px; border-radius: 12px;
-            border: 2px solid #00b0ff; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 2px solid #b82bf2; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
             width: 100%; max-width: 350px; text-align: center; backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-out;
         }
-        h2 { color: #00b0ff; text-transform: uppercase; margin-top: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        h2 { color: #b82bf2; text-transform: uppercase; margin-top: 0; text-shadow: 0 0 10px rgba(184, 43, 242, 0.5);}
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 0.8em; color: #a8a8b3; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;}
-        .input-group input { width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 6px; color: white; box-sizing: border-box; font-size: 1.1em;}
-        .btn { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; }
-        .btn-login { background: #00b0ff; color: black; }
-        .btn-login:hover { filter: brightness(1.2); }
+        .input-group input { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 6px; color: white; box-sizing: border-box; font-size: 1.1em;}
+        .input-group input:focus { border-color: #b82bf2; outline: none; }
+        
+        .btn { width: 100%; padding: 14px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; }
+        .btn-login { background: #b82bf2; color: white; box-shadow: 0 0 15px rgba(184, 43, 242, 0.3); }
+        .btn-login:hover { filter: brightness(1.2); box-shadow: 0 0 25px rgba(184, 43, 242, 0.6); }
         .btn-register { background: transparent; border: 1px solid #00e676; color: #00e676; margin-top: 15px; }
         .btn-register:hover { background: rgba(0, 230, 118, 0.1); }
-        #msg-erro { color: #e53935; font-size: 0.9em; font-weight: bold; margin-top: 10px; min-height: 20px; }
+        #msg-erro { font-size: 0.9em; font-weight: bold; margin-top: 10px; min-height: 20px; transition: 0.3s;}
     </style>
 </head>
 <body>
@@ -34,8 +39,8 @@
         <h2>Acesso ao Sistema</h2>
         
         <div class="input-group">
-            <label>Utilizador (Seu Código de Jogador)</label>
-            <input type="text" id="user" placeholder="Ex: JOAO ou DUNGEONMASTER" style="text-transform: uppercase;">
+            <label>Utilizador (Seu Nickname)</label>
+            <input type="text" id="user" placeholder="Ex: JOAO" style="text-transform: uppercase;">
         </div>
         
         <div class="input-group">
@@ -45,15 +50,26 @@
 
         <div id="msg-erro"></div>
 
-        <button class="btn btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
+        <button class="btn btn-login" id="btn-entrar" onclick="fazerLogin()">Entrar no Lobby</button>
         <button class="btn btn-register" onclick="registar()">Criar Nova Conta</button>
     </div>
 
     <script>
+        // Se já estiver logado, não precisa de ver a tela de login de novo
+        if (localStorage.getItem('usuario_logado')) {
+            window.location.href = '/index.html';
+        }
+
         async function registar() {
             const u = document.getElementById('user').value.toUpperCase().trim();
             const p = document.getElementById('pass').value.trim();
-            if(!u || !p) return document.getElementById('msg-erro').innerText = "Preencha tudo!";
+            const msg = document.getElementById('msg-erro');
+            
+            if(!u || !p) {
+                msg.style.color = '#e53935';
+                msg.innerText = "Preencha todos os campos!";
+                return;
+            }
 
             const res = await fetch('/api/registar', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -62,43 +78,63 @@
             const data = await res.json();
 
             if(data.sucesso) {
-                document.getElementById('msg-erro').style.color = '#00e676';
-                document.getElementById('msg-erro').innerText = "Conta criada com sucesso! Pode entrar.";
+                msg.style.color = '#00e676';
+                msg.innerText = "Conta criada com sucesso! Pode entrar.";
             } else {
-                document.getElementById('msg-erro').style.color = '#e53935';
-                document.getElementById('msg-erro').innerText = data.erro;
+                msg.style.color = '#e53935';
+                msg.innerText = data.erro;
             }
         }
 
         async function fazerLogin() {
             const u = document.getElementById('user').value.toUpperCase().trim();
             const p = document.getElementById('pass').value.trim();
-            if(!u || !p) return document.getElementById('msg-erro').innerText = "Preencha tudo!";
+            const msg = document.getElementById('msg-erro');
+            const btn = document.getElementById('btn-entrar');
 
-            const res = await fetch('/api/login', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario: u, senha: p })
-            });
-            const data = await res.json();
+            if(!u || !p) {
+                msg.style.color = '#e53935';
+                msg.innerText = "Preencha todos os campos!";
+                return;
+            }
 
-            if(data.sucesso) {
-                localStorage.setItem('usuario_logado', u);
-                
-                if(data.ficha) {
-                    // SE FOR O MESTRE, GUARDA OS DADOS NUMA ZONA SEPARADA
-                    if(u === 'DUNGEONMASTER') {
-                        localStorage.setItem('mestre_save_nuvem', JSON.stringify(data.ficha));
-                    } else {
-                        localStorage.setItem('ordem_save_local', JSON.stringify(data.ficha));
-                    }
+            btn.innerText = "A autenticar...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: u, senha: p })
+                });
+                const data = await res.json();
+
+                if(data.sucesso) {
+                    // Guarda o utilizador no navegador (A FECHADURA DE SEGURANÇA)
+                    localStorage.setItem('usuario_logado', u);
+                    
+                    // Vai direto para o Lobby (index.html)
+                    window.location.href = '/index.html';
+                } else {
+                    msg.style.color = '#e53935';
+                    msg.innerText = data.erro;
+                    btn.innerText = "Entrar no Lobby";
+                    btn.disabled = false;
                 }
-                
-                window.location.href = '/index.html';
-            } else {
-                document.getElementById('msg-erro').style.color = '#e53935';
-                document.getElementById('msg-erro').innerText = data.erro;
+            } catch(e) {
+                msg.style.color = '#e53935';
+                msg.innerText = "Erro ao contactar o servidor.";
+                btn.innerText = "Entrar no Lobby";
+                btn.disabled = false;
             }
         }
+
+        // Permitir dar "Enter" no teclado para fazer login
+        document.getElementById("pass").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                fazerLogin();
+            }
+        });
     </script>
 </body>
 </html>
