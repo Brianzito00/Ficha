@@ -6,22 +6,13 @@
     <title>Ficha - Ordem Paranormal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-        
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
             --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
             --accent-purple: #b82bf2; --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
-        
-        body {
-            font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
         .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         .tabs-nav { display: flex; gap: 10px; width: auto; }
@@ -33,7 +24,6 @@
         .panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-card); margin-bottom: 20px; backdrop-filter: blur(8px); }
         .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
-
         .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
         .status-box { background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); padding: 10px; border-radius: 8px; text-align: center; }
         .status-header { margin-bottom: 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
@@ -50,7 +40,6 @@
         .status-input:focus { border-bottom: 2px solid white; }
         .status-input::-webkit-outer-spin-button, .status-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .status-input[type=number] { appearance: textfield; -moz-appearance: textfield; }
-
         .status-toggles-container { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
         .status-toggle { background: rgba(0,0,0,0.5); border: 1px solid #444; color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; font-size: 0.65em; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .status-toggle:hover { border-color: #888; color: white; }
@@ -58,13 +47,10 @@
         .status-toggle.active-inconsciente { background: rgba(150, 0, 0, 0.6); border-color: #ff5252; color: white; }
         .status-toggle.active-morrendo { background: var(--accent-red); border-color: #fff; color: white; animation: pulseRed 1.5s infinite; }
         .status-toggle.active-enlouquecendo { background: rgba(0, 176, 255, 0.6); border-color: #fff; color: white; animation: pulseBlue 1.5s infinite; }
-
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 12px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         @keyframes pulseBlue { 0% { box-shadow: 0 0 2px var(--accent-blue); } 50% { box-shadow: 0 0 12px var(--accent-blue); } 100% { box-shadow: 0 0 2px var(--accent-blue); } }
-
         .attr-box { background: var(--bg-input); padding: 12px; border-radius: 10px; border: 1px solid rgba(51, 51, 51, 0.5); margin-bottom: 15px; text-align: center; }
         .attr-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--accent-yellow); color: white; text-align: center; font-size: 1.5em; font-weight: 900; }
-        
         .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
         .skill-card { background: rgba(25, 25, 27, 0.7); border: 1px solid rgba(45, 45, 48, 0.8); border-radius: 8px; padding: 10px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .skill-card:hover { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.05); }
@@ -73,26 +59,21 @@
         .skill-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .skill-targets { display: flex; justify-content: center; gap: 10px; font-size: 0.68em; background: rgba(10, 10, 11, 0.7); padding: 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-weight: bold; margin-top: 8px; pointer-events: none; }
         .target-n { color: var(--accent-green); } .target-b { color: var(--accent-blue); } .target-e { color: var(--accent-yellow); }
-
         .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; }
         .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
         .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-
         .weight-container { background: rgba(18, 18, 20, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(51, 51, 51, 0.5); }
         .weight-bar-bg { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; overflow: hidden; margin-top: 8px; border: 1px solid #222; }
         .weight-bar-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: 0.5s; }
         .weight-bar-fill.overweight { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
-
         .ammo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center; }
         .ammo-box label { display: block; font-size: 0.7em; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
-
         .inv-table { width: 100%; border-collapse: collapse; }
         .inv-row-main { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(45, 45, 48, 0.8); }
         .inv-row-main:hover { background: rgba(42, 42, 46, 0.8); }
         .inv-table th { color: var(--text-secondary); font-size: 0.8em; text-align: left; padding: 10px; border-bottom: 1px solid var(--border-color); }
         .inv-table td { padding: 12px 10px; }
-        
         .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
         .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; transition: 0.2s; }
         .btn-add:hover { filter: brightness(1.2); }
@@ -103,74 +84,19 @@
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
         .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; }
         .ritual-btn:hover { filter: brightness(1.2); }
-
         .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
-        
-        .popup-box-dice { 
-            position: relative; width: 600px; height: 400px; 
-            background-size: contain; background-repeat: no-repeat; background-position: center; 
-            background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            overflow: hidden; text-align: center; 
-        }
+        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        
-        .popup-content { 
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 10; display: none; 
-            flex-direction: column; justify-content: center; align-items: center; 
-            animation: fadeInResult 0.5s forwards; text-align: center; 
-        }
-        
-        .popup-number { 
-            font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; 
-            text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; 
-            text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; 
-        }
-        
-        .popup-res { 
-            font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; 
-            margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; 
-            max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; 
-        }
-        
+        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
+        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
+        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
-
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit {
-            0% { transform: translate(2px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-2deg); }
-            20% { transform: translate(-3px, 0px) rotate(2deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(2deg); }
-            50% { transform: translate(-1px, 2px) rotate(-2deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-2deg); }
-            80% { transform: translate(-1px, -1px) rotate(2deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-2deg); }
-        }
-
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
-            .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; }
-            .columns-wrapper { flex-direction: column; }
-            .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; }
-            .char-info-wrapper { flex-direction: column; }
-            .status-grid { grid-template-columns: 1fr; gap: 10px; }
-            .ammo-grid { grid-template-columns: repeat(2, 1fr); }
-            .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
-            .popup-box-dice { width: 95%; height: 300px; }
-            .popup-grid { grid-template-columns: 1fr; }
-            .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; }
-            .inv-input { font-size: 16px; } 
-        }
+        @keyframes shakeCrit { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
+        @media (max-width: 768px) { body { padding: 10px; } .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; } .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; } .columns-wrapper { flex-direction: column; } .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; } .char-info-wrapper { flex-direction: column; } .status-grid { grid-template-columns: 1fr; gap: 10px; } .ammo-grid { grid-template-columns: repeat(2, 1fr); } .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); } .popup-box { width: 95%; padding: 15px; box-sizing: border-box; } .popup-box-dice { width: 95%; height: 300px; } .popup-grid { grid-template-columns: 1fr; } .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; } .inv-input { font-size: 16px; } }
     </style>
 </head>
 <body>
@@ -224,7 +150,10 @@
                 <div style="margin-top: 15px;"><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM (OPCIONAL)</label><input type="text" id="new-item-img" class="inv-input" placeholder="Cole o link da imagem aqui..."></div>
             </div>
 
-            <div id="fields-comum"><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label><textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea></div>
+            <div id="fields-comum">
+                <label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label>
+                <textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea>
+            </div>
             
             <div id="fields-arma" class="popup-grid" style="display:none;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">TIPO DE ATAQUE</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Corpo a corpo"></div>
@@ -456,6 +385,7 @@
     <div class="columns-wrapper">
         <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
         <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
+        
         <div class="panel" style="flex:0 0 250px;">
             <div class="panel-title">Ações</div>
             <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -518,7 +448,11 @@
 <div id="tab-rituais" class="main-container">
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
-        <div class="weight-container"><div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;"><span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span></div></div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
+        </div>
         <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
         <table class="inv-table">
             <thead>
@@ -536,7 +470,7 @@
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO INICIAL
+    // 1. CONFIGURAÇÃO INICIAL E AUTO-CONNECT
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const viewCode = urlParams.get('view'); 
@@ -581,7 +515,18 @@
     if(!customCatalog.rituals) customCatalog.rituals = [];
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
-    const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
+    const periciasBase = [
+        {nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},
+        {nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},
+        {nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},
+        {nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},
+        {nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},
+        {nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},
+        {nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},
+        {nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},
+        {nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},
+        {nome:"Vontade",attr:"PRE",mod:0.50}
+    ];
     
     let equippedWeaponsData = []; 
     let currentOccupation = "Nenhuma"; 
@@ -1101,6 +1046,7 @@
     }
 
     function atirarArma(id) { const h = document.getElementById('item-data-' + id); if(!h) return; let current = parseInt(h.getAttribute('data-currentshots')) || 0; if(current > 0) { h.setAttribute('data-currentshots', current - 1); save(); updateWeaponsDisplay(); if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id); } else { alert("A arma está descarregada! Você precisa recarregar."); } }
+    
     function recarregarArma(id) { const h = document.getElementById('item-data-' + id); if(!h) return; const ammoType = h.getAttribute('data-ammo'); if(ammoType === 'Nenhuma') return; const ammoInputId = 'ammo_' + ammoType.toLowerCase(); const ammoInput = document.getElementById(ammoInputId); let currentPackets = parseInt(ammoInput.value) || 0; if(currentPackets > 0) { ammoInput.value = currentPackets - 1; const cap = parseInt(h.getAttribute('data-capacity')) || 0; h.setAttribute('data-currentshots', cap); updateWeight(); save(); updateWeaponsDisplay(); if(document.getElementById('popup-item-info').style.display === 'flex') openItemInfo(id); } else { alert("Você não tem pacotes de munição do tipo " + ammoType.toUpperCase() + " no seu inventário!"); } }
 
     function selectRitualType(type) {
@@ -1114,6 +1060,7 @@
         document.getElementById('rit-circ').value = '1º'; document.getElementById('rit-elem').value = 'Conhecimento';
         document.getElementById('popup-new-ritual').style.display='flex'; selectRitualType('catalog'); 
     }
+    
     function closeRitualPopup() { document.getElementById('popup-new-ritual').style.display='none'; }
 
     function confirmAddRitual() {
@@ -1163,6 +1110,7 @@
     
     function removeRitual(id) { document.getElementById('rit-row-'+id).remove(); updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
     function updateRitualsCount() { document.getElementById('rituals-text').innerText = document.querySelectorAll('.rit-equipped:checked').length; }
+    
     function updateLearnedRitualsDisplay() {
         const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false;
         document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
@@ -1180,8 +1128,8 @@
         document.getElementById('info-rit-details').innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid ${color || 'rgba(51, 51, 51, 0.5)'}; border-radius: 8px; padding: 15px;">${htmlDiv.innerHTML}</div>`;
         document.getElementById('popup-ritual-info').style.display = 'flex';
     }
+    
     function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
-
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
     
     function showPopup(n, r="TOTAL", st="color:white") {
@@ -1270,15 +1218,25 @@
     function save() {
         if(isLoadingData) return; 
         let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
-        if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
+        if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
+        else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; 
+        else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
 
         const d = { attrs:{}, skills:{}, inv:[], ammo:{}, abilities:[], rituals:[], defense: document.getElementById('defense_val').value, info:{}, charImages: charImages, charStatus: charStatus };
+        
         ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max"].forEach(id => { if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; });
         const activeWeaponSelect = document.getElementById('active-weapon-select'); d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null; d.info['char_img'] = currentImgUrl;
 
-        document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value); document.querySelectorAll('[id^="skill_"]').forEach(i => d.skills[i.id] = i.value); document.querySelectorAll('[id^="chk_"]').forEach(i => d.skills[i.id] = i.checked);
+        document.querySelectorAll('.attr-input').forEach(i => d.attrs[i.id] = i.value); 
+        document.querySelectorAll('[id^="skill_"]').forEach(i => d.skills[i.id] = i.value); 
+        document.querySelectorAll('[id^="chk_"]').forEach(i => d.skills[i.id] = i.checked);
+        
         document.querySelectorAll('.hidden-data-item').forEach(h => { d.inv.push({ id: h.getAttribute('data-id'), n: h.getAttribute('data-n'), w: h.getAttribute('data-w'), d: h.getAttribute('data-d'), eq: h.getAttribute('data-eq') === 'true', type: h.getAttribute('data-type'), dmg: h.getAttribute('data-dmg'), extra: h.getAttribute('data-extra'), crit: h.getAttribute('data-crit'), skill: h.getAttribute('data-skill'), img: h.getAttribute('data-img'), atkType: h.getAttribute('data-atktype'), atk: h.getAttribute('data-atk'), range: h.getAttribute('data-range'), ammo: h.getAttribute('data-ammo'), capacity: h.getAttribute('data-capacity'), currentShots: h.getAttribute('data-currentshots') }); });
-        ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => d.ammo[id] = document.getElementById(id).value); document.querySelectorAll('.ability-item').forEach(ab => { d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); });
+        ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => d.ammo[id] = document.getElementById(id).value); 
+        document.querySelectorAll('.ability-item').forEach(ab => { d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); });
+        
         document.querySelectorAll('.hidden-ritual').forEach(hr => { const eq = hr.closest('tr').querySelector('.rit-equipped').checked; d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); });
         
         if (viewCode) {
@@ -1292,6 +1250,7 @@
     }
 
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if (!dataStr) { alert("Nenhum dado encontrado para exportar!"); return; } const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const fileName = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+    
     function importFicha(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha carregada com sucesso!"); } catch (error) { alert("Erro ao importar a ficha."); } event.target.value = ''; }; reader.readAsText(file); }
 
     let timerAutoSave;
@@ -1302,7 +1261,9 @@
         timerAutoSave = setTimeout(() => { if(typeof save === 'function') save(); if(statusTxt) { statusTxt.innerText = "Guardado ✔️"; statusTxt.style.color = "var(--accent-green)"; setTimeout(() => { statusTxt.innerText = "Sincronizado na Nuvem ✔️"; statusTxt.style.color = "var(--text-secondary)"; }, 2000); } }, 3000);
     }
     
-    document.addEventListener('input', ativarAutoSave); document.addEventListener('change', ativarAutoSave); document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
+    document.addEventListener('input', ativarAutoSave); 
+    document.addEventListener('change', ativarAutoSave); 
+    document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
 
     function init() {
         ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => { let id = "attr_" + a.toLowerCase().substring(0,3); document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight();"><div class="attr-targets" id="${id}_targets"></div></div>`; });
@@ -1321,6 +1282,7 @@
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
                 
+                // MÁGICA DE CONEXÃO: Avisar o Mestre e o Overlay que o jogador chegou!
                 setTimeout(() => {
                     if(!campanhaAtiva.includes("SOLO_")) {
                         socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: baseUser });
