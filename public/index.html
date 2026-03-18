@@ -11,121 +11,360 @@
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
             background-size: cover; background-position: center;
         }
-        body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: -1; }
-        .lobby-box { background: rgba(20, 20, 24, 0.95); padding: 40px; border-radius: 12px; border: 2px solid #b82bf2; box-shadow: 0 10px 40px rgba(0,0,0,0.9); width: 100%; max-width: 450px; text-align: center; position: relative; z-index: 1; }
+        
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: -1;
+        }
+
+        .lobby-box {
+            background: rgba(20, 20, 24, 0.95); padding: 40px; border-radius: 12px;
+            border: 2px solid #b82bf2; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            width: 100%; max-width: 550px; text-align: center; position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
         h1 { color: #b82bf2; text-transform: uppercase; margin-top: 0; margin-bottom: 5px; font-size: 2.2em; text-shadow: 0 0 15px rgba(184, 43, 242, 0.5); }
         p.subtitle { color: #a8a8b3; margin-bottom: 30px; font-size: 1.1em; }
-        .btn-choice { width: 100%; padding: 18px; margin-bottom: 15px; font-size: 1.1em; font-weight: bold; text-transform: uppercase; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .btn-choice {
+            width: 100%; padding: 18px; margin-bottom: 15px; font-size: 1.1em; font-weight: bold; text-transform: uppercase;
+            border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        
         .btn-player { background: rgba(0, 176, 255, 0.1); color: #00b0ff; border: 2px solid #00b0ff; }
         .btn-player:hover { background: #00b0ff; color: black; box-shadow: 0 0 20px #00b0ff; transform: scale(1.02); }
+        
         .btn-master { background: rgba(229, 57, 53, 0.1); color: #e53935; border: 2px solid #e53935; }
         .btn-master:hover { background: #e53935; color: white; box-shadow: 0 0 20px #e53935; transform: scale(1.02); }
+
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 0.8em; color: #a8a8b3; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;}
         .inv-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 6px; color: white; box-sizing: border-box; font-size: 1em;}
         .inv-input:focus { border-color: #b82bf2; outline: none; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-content { background: #121214; border: 2px solid #b82bf2; border-radius: 12px; padding: 30px; width: 90%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.9); }
+        .modal-content { background: #121214; border: 2px solid #b82bf2; border-radius: 12px; padding: 30px; width: 90%; max-width: 450px; box-shadow: 0 8px 32px rgba(0,0,0,0.9); }
+
         .btn-action { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; background: #b82bf2; color: white; }
         .btn-action:hover { filter: brightness(1.2); }
         .btn-cancel { width: 100%; padding: 12px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; background: transparent; color: #a8a8b3; border: 1px solid #444; }
         .btn-cancel:hover { background: #333; color: white; }
+
+        .list-card { background: rgba(18,18,20,0.8); border: 1px solid #333; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+        .list-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="lobby-box">
+    <div id="view-home" class="lobby-box">
         <h1>Lobby da Ordem</h1>
         <p class="subtitle">Bem-vindo(a), <span id="user-display" style="color: white; font-weight: bold;"></span></p>
 
-        <button class="btn-choice btn-player" onclick="abrirModalJogar()">🕵️ Entrar em Campanha</button>
-        <button class="btn-choice btn-master" onclick="abrirModalCriar()">👹 Entrar/Criar como Mestre</button>
+        <button class="btn-choice btn-player" onclick="showView('jogador')">🕵️ SOU JOGADOR</button>
+        <button class="btn-choice btn-master" onclick="showView('mestre')">👹 SOU MESTRE</button>
 
         <button class="btn-cancel" style="margin-top: 30px;" onclick="fazerLogout()">Sair da Conta</button>
     </div>
 
-    <div id="modal-jogar" class="modal-overlay">
-        <div class="modal-content" style="border-color: #00b0ff;">
-            <h2 style="color: #00b0ff; margin-top: 0; text-align: center; text-transform: uppercase;">Acessar Ficha</h2>
-            <div class="input-group">
-                <label>Nome / Código da Campanha</label>
-                <input type="text" id="join-code" class="inv-input" placeholder="Ex: OS-ESCOLHIDOS" style="text-transform: uppercase;">
+    <div id="view-jogador" class="lobby-box" style="display:none; border-color: #00b0ff;">
+        <h2 style="color: #00b0ff; margin-top: 0; text-transform: uppercase;">Área do Jogador</h2>
+        
+        <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #00b0ff50;">
+            <h3 style="margin-top: 0; font-size: 1em; color: white; text-align: left;">Entrar em uma Mesa</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="join-code" class="inv-input" placeholder="Código da Mesa..." style="text-transform: uppercase;">
+                <button class="btn-action" style="background: #00b0ff; color: black; margin: 0; width: 100px;" onclick="prepararEntradaMesa()">ENTRAR</button>
             </div>
-            <button class="btn-action" style="background: #00b0ff; color: black;" onclick="entrarCampanha(this)">Juntar-se à Sessão</button>
-            <button class="btn-cancel" onclick="fecharModais()">Voltar</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 1em; color: #a8a8b3;">O Meu Arquivo de Fichas</h3>
+            <button class="btn-action" style="background: transparent; border: 1px solid #00b0ff; color: #00b0ff; padding: 5px 10px; margin: 0; width: auto;" onclick="criarNovaFicha()">+ NOVA FICHA</button>
+        </div>
+        
+        <div id="lista-fichas" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+            </div>
+
+        <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
+    </div>
+
+    <div id="view-mestre" class="lobby-box" style="display:none; border-color: #e53935;">
+        <h2 style="color: #e53935; margin-top: 0; text-transform: uppercase;">Área do Mestre</h2>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 1em; color: #a8a8b3;">As Minhas Campanhas</h3>
+            <button class="btn-action" style="background: transparent; border: 1px solid #e53935; color: #e53935; padding: 5px 10px; margin: 0; width: auto;" onclick="document.getElementById('modal-criar-mesa').style.display='flex'">+ CRIAR MESA</button>
+        </div>
+
+        <div id="lista-mesas" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; margin-bottom: 20px;">
+            </div>
+
+        <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
+    </div>
+
+
+    <div id="modal-criar-mesa" class="modal-overlay">
+        <div class="modal-content" style="border-color: #e53935;">
+            <h2 style="color: #e53935; margin-top: 0; text-align: center; text-transform: uppercase;">Nova Mesa de RPG</h2>
+            <div class="input-group">
+                <label>Nome da Campanha</label>
+                <input type="text" id="create-nome" class="inv-input" placeholder="Ex: O Segredo na Floresta">
+            </div>
+            <div class="input-group">
+                <label>Wallpaper da Mesa (Link da Imagem)</label>
+                <input type="text" id="create-wp" class="inv-input" placeholder="O fundo muda para todos os jogadores...">
+            </div>
+            <button class="btn-action" style="background: #e53935;" onclick="criarMesa()">GERAR MESA</button>
+            <button class="btn-cancel" onclick="document.getElementById('modal-criar-mesa').style.display='none'">Cancelar</button>
         </div>
     </div>
 
-    <div id="modal-criar" class="modal-overlay">
-        <div class="modal-content" style="border-color: #e53935;">
-            <h2 style="color: #e53935; margin-top: 0; text-align: center; text-transform: uppercase;">Acesso do Mestre</h2>
+    <div id="modal-escolher-ficha" class="modal-overlay">
+        <div class="modal-content" style="border-color: #00b0ff;">
+            <h2 style="color: #00b0ff; margin-top: 0; text-align: center; text-transform: uppercase;">Juntar-se à Mesa</h2>
+            <p style="color: #a8a8b3; text-align: center; margin-bottom: 20px;">Vai entrar na mesa: <strong id="display-mesa-join" style="color: white;">---</strong></p>
+            
             <div class="input-group">
-                <label>Nome da Campanha</label>
-                <input type="text" id="create-code" class="inv-input" placeholder="Ex: SEGREDO-NA-FLORESTA" style="text-transform: uppercase;">
+                <label>Qual ficha deseja usar?</label>
+                <select id="select-ficha-join" class="inv-input" style="padding: 12px; color: white;">
+                    </select>
             </div>
-            <div class="input-group">
-                <label>Novo Wallpaper (Só se quiser alterar)</label>
-                <input type="text" id="create-wp" class="inv-input" placeholder="Cole o link da imagem aqui...">
-            </div>
-            <button class="btn-action" style="background: #e53935;" onclick="criarCampanha(this)">Abrir Escudo do Mestre</button>
-            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+            
+            <button id="btn-confirm-join" class="btn-action" style="background: #00b0ff; color: black;" onclick="confirmarEntradaMesa()">ACESSAR FICHA</button>
+            <button class="btn-cancel" onclick="document.getElementById('modal-escolher-ficha').style.display='none'">Cancelar</button>
         </div>
     </div>
 
     <script>
+        // Verificação de Segurança
         const userLogado = localStorage.getItem('usuario_logado');
         if(!userLogado) window.location.href = '/login.html';
         document.getElementById('user-display').innerText = userLogado;
 
+        // Base de Dados Local do Lobby
+        let minhasFichas = JSON.parse(localStorage.getItem('fichas_' + userLogado)) || [];
+        let minhasMesas = JSON.parse(localStorage.getItem('mesas_' + userLogado)) || [];
+        let mesaPendenteUrl = null;
+
+        function salvarFichas() { localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); }
+        function salvarMesas() { localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas)); }
+
         function fazerLogout() {
             localStorage.removeItem('usuario_logado');
+            localStorage.removeItem('campanha_atual');
             window.location.href = '/login.html';
         }
 
-        function abrirModalJogar() { document.getElementById('modal-jogar').style.display = 'flex'; }
-        function abrirModalCriar() { document.getElementById('modal-criar').style.display = 'flex'; }
-        function fecharModais() { document.getElementById('modal-jogar').style.display = 'none'; document.getElementById('modal-criar').style.display = 'none'; }
+        function showView(view) {
+            document.getElementById('view-home').style.display = 'none';
+            document.getElementById('view-jogador').style.display = 'none';
+            document.getElementById('view-mestre').style.display = 'none';
+            document.getElementById('view-' + view).style.display = 'block';
 
-        async function entrarCampanha(btn) {
-            const code = document.getElementById('join-code').value.trim().toUpperCase().replace(/ /g, '-');
-            if(!code) return alert('Digite o código da campanha!');
-            btn.innerText = "A Carregar..."; btn.disabled = true;
+            if(view === 'jogador') { syncFichas(); renderFichas(); }
+            if(view === 'mestre') renderMesas();
+        }
 
-            const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
-            const campData = await campRes.json();
-            if (campData.dados && campData.dados.wallpaper) localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+        // ==========================================
+        // ÁREA DO JOGADOR
+        // ==========================================
+        function syncFichas() {
+            minhasFichas.forEach(f => {
+                let saved = localStorage.getItem('ordem_save_local_SOLO_' + f.id);
+                if (saved) {
+                    try {
+                        let d = JSON.parse(saved);
+                        if (d.info) {
+                            f.nome = d.info.char_nome || f.nome;
+                            f.nex = d.info.char_nex || f.nex;
+                            f.classe = d.info.char_origem || f.classe;
+                        }
+                    } catch(e){}
+                }
+            });
+            salvarFichas();
+        }
 
-            const fichaRes = await fetch('/api/carregar_personagem', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: userLogado + '_' + code}) });
-            const fichaData = await fichaRes.json();
+        function renderFichas() {
+            const container = document.getElementById('lista-fichas');
+            container.innerHTML = '';
+            if(minhasFichas.length === 0) {
+                container.innerHTML = `<div style="color: gray; font-style: italic; text-align: center; padding: 20px 0;">O seu arquivo está vazio.<br>Crie um personagem primeiro!</div>`;
+                return;
+            }
+            minhasFichas.forEach(f => {
+                container.innerHTML += `
+                    <div class="list-card">
+                        <div class="list-card-header">
+                            <strong style="color: #00b0ff; font-size: 1.1em; text-transform: uppercase;">${f.nome}</strong>
+                            <span style="font-size: 0.8em; color: gray;">NEX: ${f.nex}% | ${f.classe}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-action" style="background: #00b0ff; color: black; padding: 8px; margin:0;" onclick="editarFichaSolo('${f.id}')">✏️ ABRIR FICHA BASE</button>
+                            <button class="btn-cancel" style="color: #e53935; border-color: #e53935; padding: 8px; margin:0; width: auto;" onclick="apagarFicha('${f.id}')">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function criarNovaFicha() {
+            let nome = prompt("Introduza o nome do seu novo personagem:");
+            if(!nome) return;
+            let idFicha = 'f_' + Date.now();
+            let novaFicha = { id: idFicha, nome: nome, nex: 5, classe: 'Nenhuma' };
+            minhasFichas.push(novaFicha);
+            salvarFichas();
             
-            localStorage.setItem('campanha_atual', code);
-            if (fichaData.ficha) localStorage.setItem('ordem_save_local_' + code, JSON.stringify(fichaData.ficha));
-            
+            // Abre diretamente a nova ficha para edição
+            editarFichaSolo(idFicha);
+        }
+
+        function apagarFicha(id) {
+            if(confirm("Tem certeza que deseja apagar esta ficha do seu arquivo?")) {
+                minhasFichas = minhasFichas.filter(f => f.id !== id);
+                localStorage.removeItem('ordem_save_local_SOLO_' + id);
+                salvarFichas(); renderFichas();
+            }
+        }
+
+        function editarFichaSolo(id) {
+            // Entra na ficha sem "Mesa/Campanha" ativa
+            localStorage.setItem('campanha_atual', 'SOLO_' + id);
             window.location.href = '/ficha.html';
         }
 
-        async function criarCampanha(btn) {
-            const code = document.getElementById('create-code').value.trim().toUpperCase().replace(/ /g, '-');
-            const wp = document.getElementById('create-wp').value.trim();
-            if(!code) return alert('É obrigatório dar um nome à sua campanha!');
-            btn.innerText = "A Carregar..."; btn.disabled = true;
+        // ==========================================
+        // ENTRAR EM MESA COM LINK OU CÓDIGO
+        // ==========================================
+        function prepararEntradaMesa(codigoViaLink = null) {
+            const code = codigoViaLink || document.getElementById('join-code').value.trim().toUpperCase().replace(/ /g, '-');
+            if(!code) return alert('Digite o código da mesa!');
+            
+            mesaPendenteUrl = code;
+            syncFichas();
+            
+            const select = document.getElementById('select-ficha-join');
+            select.innerHTML = '<option value="NOVA">✨ ENTRAR COM FICHA ZERADA</option>';
+            minhasFichas.forEach(f => {
+                select.innerHTML += `<option value="${f.id}">➡️ USAR RASCUNHO: ${f.nome} (NEX ${f.nex}%)</option>`;
+            });
 
+            document.getElementById('display-mesa-join').innerText = mesaPendenteUrl;
+            document.getElementById('modal-escolher-ficha').style.display = 'flex';
+        }
+
+        async function confirmarEntradaMesa() {
+            const btn = document.getElementById('btn-confirm-join');
+            btn.innerText = "A Conectar..."; btn.disabled = true;
+
+            const fichaId = document.getElementById('select-ficha-join').value;
+            const code = mesaPendenteUrl;
+
+            // Tenta puxar o Wallpaper do Servidor para a Mesa
+            try {
+                const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
+                const campData = await campRes.json();
+                if (campData.dados && campData.dados.wallpaper) localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+            } catch(e) {}
+
+            // Se o jogador escolheu um Rascunho, copiamos os dados para a Mesa!
+            if (fichaId !== 'NOVA') {
+                let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
+                if (dataRaw) {
+                    localStorage.setItem('ordem_save_local_' + code, dataRaw);
+                }
+            }
+            
+            // Define a Mesa Ativa e entra
             localStorage.setItem('campanha_atual', code);
+            window.location.href = '/ficha.html';
+        }
+
+        // ==========================================
+        // ÁREA DO MESTRE
+        // ==========================================
+        function renderMesas() {
+            const container = document.getElementById('lista-mesas');
+            container.innerHTML = '';
+            if(minhasMesas.length === 0) {
+                container.innerHTML = `<div style="color: gray; font-style: italic; text-align: center; padding: 20px 0;">Você não mestra nenhuma campanha no momento.</div>`;
+                return;
+            }
+            minhasMesas.forEach(m => {
+                container.innerHTML += `
+                    <div class="list-card">
+                        <div class="list-card-header" style="border-bottom-color: #e5393550;">
+                            <strong style="color: #e53935; font-size: 1.2em; text-transform: uppercase;">${m.nome}</strong>
+                            <span style="font-size: 0.8em; color: gray;">MESA: ${m.id}</span>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-action" style="flex:2; background: #e53935; color: white; margin:0;" onclick="entrarMestre('${m.id}')">🛡️ ESCUDO DO MESTRE</button>
+                            <button class="btn-action" style="flex:1; background: transparent; border: 1px solid #00e676; color: #00e676; margin:0;" onclick="copiarLink('${m.id}')">🔗 LINK</button>
+                            <button class="btn-cancel" style="color: #e53935; border-color: #e53935; padding: 10px; margin:0; width: auto;" onclick="apagarMesa('${m.id}')">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function criarMesa() {
+            const nome = document.getElementById('create-nome').value.trim();
+            const wp = document.getElementById('create-wp').value.trim();
+            if(!nome) return alert('Dê um nome à sua campanha!');
+            
+            // Gera um código único limpo
+            const code = nome.toUpperCase().replace(/[^A-Z0-9]/g, '-') + '-' + Math.floor(Math.random()*1000);
+            
+            minhasMesas.push({ id: code, nome: nome, wp: wp });
+            salvarMesas();
+            
+            // Guarda a info no Servidor para partilhar o WP com os jogadores
             if(wp) {
                 localStorage.setItem('campanha_wp_' + code, wp);
-                await fetch('/api/salvar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code, dados: { wallpaper: wp }}) });
+                try { await fetch('/api/salvar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code, dados: { wallpaper: wp }}) }); } catch(e) {}
             }
 
-            const res = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code}) });
-            const data = await res.json();
-            
-            if (data.dados && data.dados.mestre) {
-                localStorage.setItem('mestre_save_nuvem_' + code, JSON.stringify(data.dados.mestre));
-            } else {
-                localStorage.removeItem('mestre_save_nuvem_' + code); // Força um reset se for campanha nova
+            document.getElementById('modal-criar-mesa').style.display = 'none';
+            renderMesas();
+        }
+
+        function apagarMesa(id) {
+            if(confirm("Tem certeza que deseja apagar esta mesa? Os seus roteiros e monstros guardados sob ela serão perdidos.")) {
+                minhasMesas = minhasMesas.filter(m => m.id !== id);
+                salvarMesas(); renderMesas();
             }
-            
+        }
+
+        function copiarLink(id) {
+            const link = window.location.origin + '/index.html?mesa=' + id;
+            navigator.clipboard.writeText(link).then(() => alert("Link de convite copiado!\nCole no WhatsApp ou Discord dos seus jogadores para eles entrarem."));
+        }
+
+        async function entrarMestre(code) {
+            localStorage.setItem('campanha_atual', code);
+            // Puxa o backup da Nuvem se o mestre estiver num PC novo
+            try {
+                const res = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code}) });
+                const data = await res.json();
+                if (data.dados && data.dados.mestre) {
+                    localStorage.setItem('mestre_save_nuvem_' + code, JSON.stringify(data.dados.mestre));
+                }
+            } catch(e) {}
             window.location.href = '/mestre.html';
+        }
+
+        // ==========================================
+        // AUTO-INICIALIZAÇÃO PELO LINK DE CONVITE
+        // ==========================================
+        const urlP = new URLSearchParams(window.location.search);
+        const inviteMesa = urlP.get('mesa');
+        if (inviteMesa) {
+            showView('jogador');
+            prepararEntradaMesa(inviteMesa);
         }
     </script>
 </body>
