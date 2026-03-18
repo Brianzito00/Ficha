@@ -19,7 +19,6 @@
             background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
         }
-        /* ... O Restante do CSS Original ... */
         .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
         .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         .tabs-nav { display: flex; gap: 10px; width: auto; }
@@ -108,7 +107,24 @@
 </head>
 <body>
 
-<div class="top-bar"><div class="tabs-nav"><button class="tab-btn active" onclick="openTab('tab-personagem', this)">Personagem</button><button class="tab-btn" onclick="openTab('tab-inventario', this)">Inventário</button><button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button></div><div class="top-buttons" id="main-top-buttons"><div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">JOGADOR: <span id="display-player-code" style="color: white; letter-spacing: 2px; font-size: 1.1em; margin-left: 5px;">----</span><span id="save-status" style="font-size: 0.7em; color: var(--text-secondary); margin-left: 15px; font-style: italic;">A aguardar...</span></div><button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button><label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin: 0; display: flex; align-items: center;" title="Carregar ficheiro .json">📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)"></label><button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao lobby">Sair (Lobby)</button></div></div>
+<div class="top-bar">
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="openTab('tab-personagem', this)">Personagem</button>
+        <button class="tab-btn" onclick="openTab('tab-inventario', this)">Inventário</button>
+        <button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button>
+    </div>
+    <div class="top-buttons" id="main-top-buttons">
+        <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">
+            <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado na Nuvem ✔️</span>
+        </div>
+        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button>
+        <label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin: 0; display: flex; align-items: center;" title="Carregar ficheiro .json">
+            📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)">
+        </label>
+        <button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao lobby">Sair (Lobby)</button>
+    </div>
+</div>
+
 <div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()" style="z-index: 4000;"><div class="popup-box" onclick="event.stopPropagation()" style="width: 300px; text-align: center;"><h3 style="color: var(--accent-blue); margin-top: 0; text-transform: uppercase;">Ataque Múltiplo</h3><p style="font-size: 0.85em; color: var(--text-secondary);">Esta arma permite até <span id="max-atk-display" style="color:white; font-weight:bold;">X</span> ataques. Quantos deseja usar agora?</p><input type="number" id="input-qtd-ataques" class="inv-input" style="font-size: 2em; text-align: center; margin-bottom: 20px;" min="1" value="1"><div style="display:flex; gap:10px;"><button class="btn-add" style="flex:1; margin:0;" id="btn-confirm-ataques">ROLAR</button><button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="fecharModalQtdAtaques()">CANCELAR</button></div></div></div>
 <div id="popup-new-item" class="popup-overlay"><div class="popup-box" style="width: 550px;" onclick="event.stopPropagation()"><h3 id="popup-new-item-title" style="color: var(--accent-green); margin-top: 0; text-align: center;">Adicionar ao Inventário</h3><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-type-item" class="tab-btn active" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('item')">Item Comum</button><button id="btn-type-armacc" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('armacc')">Arma (Corpo)</button><button id="btn-type-armadisp" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectItemType('armadisp')">Arma (Disparo)</button></div><input type="hidden" id="new-item-type" value="item"><div style="display:flex; flex-direction:column; gap:15px;"><div id="generic-item-fields"><div style="display:flex; gap:10px;"><div style="flex:2;"><label style="font-size:0.8em; color:var(--text-secondary)">NOME DO ITEM/ARMA</label><input type="text" id="new-item-name" class="inv-input" placeholder="Ex: Espada Curta"></div><div style="flex:1;"><label style="font-size:0.8em; color:var(--text-secondary)">ESPAÇOS</label><input type="number" id="new-item-weight" class="inv-input" value="1" step="1" min="0"></div></div><div style="margin-top: 15px;"><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM (OPCIONAL)</label><input type="text" id="new-item-img" class="inv-input" placeholder="Cole o link da imagem aqui..."></div></div><div id="fields-comum"><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label><textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea></div><div id="fields-arma" class="popup-grid" style="display:none;"><div><label style="font-size:0.7em; color:var(--text-secondary)">TIPO DE ATAQUE</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Corpo a corpo"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">QTD. ATAQUES</label><input type="number" id="wp-atk" class="inv-input" value="1" min="1"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="1d8+2"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" placeholder="19/x2"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">ALCANCE</label><input type="text" id="wp-range" class="inv-input" placeholder="Curto"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">MUNIÇÃO</label><select id="wp-ammo" class="inv-input" style="padding: 7px; color: #fff;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div><label style="font-size:0.7em; color:var(--text-secondary)">CAPACIDADE (BALAS)</label><input type="number" id="wp-capacity" class="inv-input" value="6" min="1"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">PERÍCIA</label><input type="text" id="wp-skill" class="inv-input" placeholder="Luta..."></div><div style="grid-column: span 2;"><label style="font-size:0.7em; color:var(--text-secondary)">DANO EXTRA</label><input type="text" id="wp-extra" class="inv-input" placeholder="+1d6 Fogo"></div></div><div id="fields-item-catalog" style="display:none;"><p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique num item para adicioná-lo diretamente à sua mochila.</p><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="item-grid-container"></div></div><div id="fields-armacc-catalog" style="display:none;"><p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armacc-grid-container"></div></div><div id="fields-armadisp-catalog" style="display:none;"><p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armadisp-grid-container"></div></div><div style="display:flex; gap:10px; margin-top:5px;"><button class="btn-add" id="btn-confirm-add-item" style="flex:1; margin:0;" onclick="confirmAddItem()">ADICIONAR</button><button class="btn-del" style="flex:1;" onclick="closeItemPopup()">CANCELAR</button></div></div></div></div>
 <div id="popup-item-info" class="popup-overlay" onclick="closeItemInfo()"><div class="popup-box" onclick="event.stopPropagation()"><h3 id="info-general-name" style="margin-top: 0; text-align: center; text-transform: uppercase;">Nome Item</h3><img id="info-general-img" src="" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:8px; display:none; border: 1px solid var(--border-color);"><div id="info-general-details" style="color:var(--text-primary); font-size:0.95em; line-height: 1.5;"></div><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue); color: black;" onclick="openEditItemPopup()">✏️ EDITAR</button><button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeItemInfo()">FECHAR</button></div></div></div>
@@ -126,25 +142,19 @@
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO INICIAL (ISOLAMENTO DE CAMPANHAS)
+    // 1. CONFIGURAÇÃO INICIAL (ISOLAMENTO DE CAMPANHAS E AUTO-CONNECT)
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const viewCode = urlParams.get('view'); 
     
-    // Obtém o user do lobby e o nome da campanha
     let baseUser = localStorage.getItem('usuario_logado');
     let campanhaAtiva = localStorage.getItem('campanha_atual');
 
-    // Se não houver, expulsa
     if (!baseUser && !viewCode) { window.location.href = '/login.html'; }
     if (!campanhaAtiva && !viewCode) { window.location.href = '/index.html'; }
 
-    // Cria a Key isolada para o Jogador!
     let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
-    
-    document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : baseUser + " (" + campanhaAtiva + ")";
 
-    // Carrega Wallpaper Customizado da Campanha
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
     if(customWP && customWP.trim() !== '') {
         document.body.style.backgroundImage = `url('${customWP}')`;
@@ -161,11 +171,9 @@
     let isLoadingData = false;
     let currentViewedItemId = null; 
     let editingItemId = null; 
-
     let pendingRollParams = null;
     let pendingMaxAtaques = 1;
 
-    // CATÁLOGO ISOLADO PARA A CAMPANHA
     const keyCatalog = 'ordem_custom_catalog_' + campanhaAtiva;
     let customCatalog = JSON.parse(localStorage.getItem(keyCatalog)) || { items: [], melee: [], ranged: [], rituals: [] };
     if(!customCatalog.rituals) customCatalog.rituals = [];
@@ -200,7 +208,6 @@
     const premadeRangedWeapons = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDict['escopeta'], weight: 2 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 } ];
 
     function getAutoImage(n, currentImg) { if (currentImg && currentImg.trim() !== "") return currentImg; const nLower = n.toLowerCase(); for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; } return currentImg; }
-
     function hasHeavyArmorEquipped() { let hasIt = false; document.querySelectorAll('.hidden-data-item').forEach(h => { if(h.getAttribute('data-eq') === 'true') { const n = h.getAttribute('data-n').toLowerCase(); if(n.includes('proteção pesada') || n.includes('protecao pesada')) { hasIt = true; } } }); return hasIt; }
 
     function openCharImgPopup() { document.getElementById('img-normal').value = charImages.normal || ''; document.getElementById('img-lesionado').value = charImages.lesionado || ''; document.getElementById('img-inconsciente').value = charImages.inconsciente || ''; document.getElementById('img-morrendo').value = charImages.morrendo || ''; document.getElementById('img-enlouquecendo').value = charImages.enlouquecendo || ''; document.getElementById('img-les-enlouq').value = charImages.les_enlouq || ''; document.getElementById('popup-char-imgs').style.display = 'flex'; }
@@ -218,15 +225,8 @@
         else if (charStatus.lesionado && charImages.lesionado) imgUrl = charImages.lesionado;
 
         let imgEl = document.getElementById('char_img_display');
-        if(imgEl && imgEl.src !== imgUrl) {
-            imgEl.style.opacity = 0;
-            setTimeout(() => { imgEl.src = imgUrl; imgEl.onload = () => imgEl.style.opacity = 1; setTimeout(() => imgEl.style.opacity = 1, 100); }, 300);
-        }
-
-        ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => {
-            let btn = document.getElementById('btn-status-' + s);
-            if(btn) { if(charStatus[s]) btn.classList.add('active-' + s); else btn.classList.remove('active-' + s); }
-        });
+        if(imgEl && imgEl.src !== imgUrl) { imgEl.style.opacity = 0; setTimeout(() => { imgEl.src = imgUrl; imgEl.onload = () => imgEl.style.opacity = 1; setTimeout(() => imgEl.style.opacity = 1, 100); }, 300); }
+        ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => { let btn = document.getElementById('btn-status-' + s); if(btn) { if(charStatus[s]) btn.classList.add('active-' + s); else btn.classList.remove('active-' + s); } });
     }
 
     function applyOccupation(newOcc) {
@@ -242,17 +242,13 @@
     function updateStatusBars() {
         const vA = parseInt(document.getElementById('vida_atual').value) || 0, vM = parseInt(document.getElementById('vida_max').value) || 1;
         const sA = parseInt(document.getElementById('sani_atual').value) || 0, sM = parseInt(document.getElementById('sani_max').value) || 1;
-        document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%';
-        document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%';
+        document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%';
     }
 
     function openSkillPopup(sn, nome, attr, mod) {
         document.getElementById('popup-skill-name').innerText = nome; document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")";
         let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0;
-        document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod);
-        document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked;
-        document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value;
-        document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod;
+        document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod;
         updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display = 'flex';
     }
 
@@ -266,9 +262,7 @@
     }
 
     function saveSkillPopup() {
-        let sn = document.getElementById('popup-skill-sn').value;
-        document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked;
-        document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value;
+        let sn = document.getElementById('popup-skill-sn').value; document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value;
         toggleTrained(sn); save(); closeSkillPopup();
     }
     function closeSkillPopup() { document.getElementById('popup-skill-info').style.display = 'none'; }
@@ -290,10 +284,8 @@
             if (customCatalog[catType]) {
                 customCatalog[catType] = customCatalog[catType].filter(it => it.name.toLowerCase() !== itemName.toLowerCase());
                 localStorage.setItem(keyCatalog, JSON.stringify(customCatalog));
-                
                 if (catType === 'rituals') { if(document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); } 
                 else { renderPremadeCatalogs(); }
-
                 if (socket) socket.emit('remover_item_catalogo_global', { catType: catType, name: itemName });
             }
         }
@@ -536,7 +528,7 @@
             let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${rit.el.substring(0,3).toUpperCase()}`;
             let safeRit = JSON.stringify(rit).replace(/"/g, '&quot;'); let safeName = rit.name.replace(/'/g, "\\'");
             let btnRemove = isCustom ? `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('rituals', '${safeName}')">X</button>` : '';
-            return `<div class="skill-card" style="position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCatalogRitual('${safeRit}')" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${color}50'">${btnRemove}<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name} ${isCustom ? `<br><span style="font-size:0.65em; color:var(--text-secondary)">(Criado)</span>` : ''}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div></div>`;
+            return `<div class="skill-card" style="position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCatalogRitual('${safeRit}')" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${color}50'">${btnRemove}<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div></div>`;
         };
         premadeRituals.forEach(rit => { container.innerHTML += renderCard(rit, false); });
         if(customCatalog.rituals) { customCatalog.rituals.forEach(rit => { container.innerHTML += renderCard(rit, true); }); }
@@ -544,7 +536,7 @@
 
     function addCatalogRitual(ritStr) {
         const rit = JSON.parse(ritStr);
-        let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(rit.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`;
+        let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`;
         const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${rit.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         addRitual(rit.name, rit.el, dHTML, rit.circ, rit.ex, rit.alc, rit.alv, rit.dur, rit.res, rit.descGeral, rit.descDisc, rit.descVerd, true, rit.img); closeRitualPopup();
     }
@@ -659,7 +651,7 @@
         if (typeof viewCode !== 'undefined' && viewCode) return; 
         const statusTxt = document.getElementById('save-status'); if(statusTxt) { statusTxt.innerText = "A guardar..."; statusTxt.style.color = "var(--accent-yellow)"; }
         clearTimeout(timerAutoSave);
-        timerAutoSave = setTimeout(() => { if(typeof save === 'function') save(); if(statusTxt) { statusTxt.innerText = "Guardado ✔️"; statusTxt.style.color = "var(--accent-green)"; setTimeout(() => { statusTxt.innerText = "A aguardar alterações..."; statusTxt.style.color = "var(--text-secondary)"; }, 2000); } }, 3000);
+        timerAutoSave = setTimeout(() => { if(typeof save === 'function') save(); if(statusTxt) { statusTxt.innerText = "Guardado ✔️"; statusTxt.style.color = "var(--accent-green)"; setTimeout(() => { statusTxt.innerText = "Sincronizado na Nuvem ✔️"; statusTxt.style.color = "var(--text-secondary)"; }, 2000); } }, 3000);
     }
     document.addEventListener('input', ativarAutoSave); document.addEventListener('change', ativarAutoSave); document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
 
@@ -679,6 +671,11 @@
         if (socket && !viewCode) {
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
+                
+                // MÁGICA DE CONEXÃO: Avisar o Mestre e o Overlay que o jogador chegou!
+                if(!campanhaAtiva.includes("SOLO_")) {
+                    socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: baseUser });
+                }
                 save(); 
             }); 
             
