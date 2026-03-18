@@ -6,13 +6,22 @@
     <title>Ficha - Ordem Paranormal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
             --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
             --accent-purple: #b82bf2; --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        body {
+            font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
         .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
         .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
         .tabs-nav { display: flex; gap: 10px; width: auto; }
@@ -24,6 +33,7 @@
         .panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-card); margin-bottom: 20px; backdrop-filter: blur(8px); }
         .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
+
         .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
         .status-box { background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); padding: 10px; border-radius: 8px; text-align: center; }
         .status-header { margin-bottom: 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
@@ -40,6 +50,7 @@
         .status-input:focus { border-bottom: 2px solid white; }
         .status-input::-webkit-outer-spin-button, .status-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .status-input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+
         .status-toggles-container { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
         .status-toggle { background: rgba(0,0,0,0.5); border: 1px solid #444; color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; font-size: 0.65em; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         .status-toggle:hover { border-color: #888; color: white; }
@@ -47,10 +58,13 @@
         .status-toggle.active-inconsciente { background: rgba(150, 0, 0, 0.6); border-color: #ff5252; color: white; }
         .status-toggle.active-morrendo { background: var(--accent-red); border-color: #fff; color: white; animation: pulseRed 1.5s infinite; }
         .status-toggle.active-enlouquecendo { background: rgba(0, 176, 255, 0.6); border-color: #fff; color: white; animation: pulseBlue 1.5s infinite; }
+
         @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 12px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
         @keyframes pulseBlue { 0% { box-shadow: 0 0 2px var(--accent-blue); } 50% { box-shadow: 0 0 12px var(--accent-blue); } 100% { box-shadow: 0 0 2px var(--accent-blue); } }
+
         .attr-box { background: var(--bg-input); padding: 12px; border-radius: 10px; border: 1px solid rgba(51, 51, 51, 0.5); margin-bottom: 15px; text-align: center; }
         .attr-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--accent-yellow); color: white; text-align: center; font-size: 1.5em; font-weight: 900; }
+        
         .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
         .skill-card { background: rgba(25, 25, 27, 0.7); border: 1px solid rgba(45, 45, 48, 0.8); border-radius: 8px; padding: 10px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .skill-card:hover { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.05); }
@@ -59,21 +73,26 @@
         .skill-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .skill-targets { display: flex; justify-content: center; gap: 10px; font-size: 0.68em; background: rgba(10, 10, 11, 0.7); padding: 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-weight: bold; margin-top: 8px; pointer-events: none; }
         .target-n { color: var(--accent-green); } .target-b { color: var(--accent-blue); } .target-e { color: var(--accent-yellow); }
+
         .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; }
         .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
         .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+
         .weight-container { background: rgba(18, 18, 20, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(51, 51, 51, 0.5); }
         .weight-bar-bg { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; overflow: hidden; margin-top: 8px; border: 1px solid #222; }
         .weight-bar-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: 0.5s; }
         .weight-bar-fill.overweight { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+
         .ammo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center; }
         .ammo-box label { display: block; font-size: 0.7em; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+
         .inv-table { width: 100%; border-collapse: collapse; }
         .inv-row-main { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(45, 45, 48, 0.8); }
         .inv-row-main:hover { background: rgba(42, 42, 46, 0.8); }
         .inv-table th { color: var(--text-secondary); font-size: 0.8em; text-align: left; padding: 10px; border-bottom: 1px solid var(--border-color); }
         .inv-table td { padding: 12px 10px; }
+        
         .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
         .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; transition: 0.2s; }
         .btn-add:hover { filter: brightness(1.2); }
@@ -84,19 +103,74 @@
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
         .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; }
         .ritual-btn:hover { filter: brightness(1.2); }
+
         .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
         .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
-        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
+        
+        .popup-box-dice { 
+            position: relative; width: 600px; height: 400px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            overflow: hidden; text-align: center; 
+        }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
-        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
-        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
+        
+        .popup-content { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+            animation: fadeInResult 0.5s forwards; text-align: center; 
+        }
+        
+        .popup-number { 
+            font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; 
+            text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; 
+            text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; 
+        }
+        
+        .popup-res { 
+            font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; 
+            margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; 
+            max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; 
+        }
+        
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
+
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
-        @media (max-width: 768px) { body { padding: 10px; } .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; } .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; } .columns-wrapper { flex-direction: column; } .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; } .char-info-wrapper { flex-direction: column; } .status-grid { grid-template-columns: 1fr; gap: 10px; } .ammo-grid { grid-template-columns: repeat(2, 1fr); } .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); } .popup-box { width: 95%; padding: 15px; box-sizing: border-box; } .popup-box-dice { width: 95%; height: 300px; } .popup-grid { grid-template-columns: 1fr; } .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; } .inv-input { font-size: 16px; } }
+        @keyframes shakeCrit {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-2deg); }
+            20% { transform: translate(-3px, 0px) rotate(2deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(2deg); }
+            50% { transform: translate(-1px, 2px) rotate(-2deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-2deg); }
+            80% { transform: translate(-1px, -1px) rotate(2deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-2deg); }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
+            .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; }
+            .columns-wrapper { flex-direction: column; }
+            .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; }
+            .char-info-wrapper { flex-direction: column; }
+            .status-grid { grid-template-columns: 1fr; gap: 10px; }
+            .ammo-grid { grid-template-columns: repeat(2, 1fr); }
+            .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
+            .popup-box-dice { width: 95%; height: 300px; }
+            .popup-grid { grid-template-columns: 1fr; }
+            .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; }
+            .inv-input { font-size: 16px; } 
+        }
     </style>
 </head>
 <body>
@@ -150,10 +224,7 @@
                 <div style="margin-top: 15px;"><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM (OPCIONAL)</label><input type="text" id="new-item-img" class="inv-input" placeholder="Cole o link da imagem aqui..."></div>
             </div>
 
-            <div id="fields-comum">
-                <label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label>
-                <textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea>
-            </div>
+            <div id="fields-comum"><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO / NOTAS</label><textarea id="new-item-desc" class="inv-input" style="height:80px; resize:none;" placeholder="Descreva os detalhes..."></textarea></div>
             
             <div id="fields-arma" class="popup-grid" style="display:none;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">TIPO DE ATAQUE</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Corpo a corpo"></div>
@@ -1144,7 +1215,11 @@
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
-            socket.emit('rolagem_feita', { codigo: playerCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' '), resultado: n, cor: st });
+            
+            // O Segredo está AQUI: Manda o código base do user ("JOAO") para o mestre reconhecer e colocar no Log
+            const emissionCode = typeof viewCode !== 'undefined' && viewCode ? viewCode : baseUser;
+            
+            socket.emit('rolagem_feita', { codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' '), resultado: n, cor: st });
         }
     }
 
