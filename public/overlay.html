@@ -112,7 +112,10 @@
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
         
-        // Puxa da memória local caso estejas a abrir no mesmo browser
+        // Identifica qual é a Campanha Aberta pelo Mestre no Navegador
+        let campanhaAtiva = localStorage.getItem('campanha_atual');
+        
+        // Puxa os jogadores que o Mestre autorizou
         let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
 
         function atualizarOverlay() {
@@ -130,7 +133,9 @@
             activePlayers.forEach(code => {
                 if (!document.getElementById(`card-${code}`)) {
                     criarCardHTML(code);
-                    socket.emit('request_player', code);
+                    if (campanhaAtiva) {
+                        socket.emit('request_player', code);
+                    }
                 }
             });
         }
@@ -139,9 +144,8 @@
             const div = document.createElement('div');
             div.className = 'player-card';
             div.id = `card-${code}`;
-            div.title = "Clique para remover do Overlay"; // Tooltip ao passar o rato
+            div.title = "Clique para remover do Overlay"; 
             
-            // Função que remove ao clicar
             div.onclick = () => removerDoOverlay(code);
             
             div.innerHTML = `
@@ -155,30 +159,31 @@
             container.appendChild(div);
         }
 
-        // ==========================================
         // REMOVER O JOGADOR AO CLICAR NA TELA (OBS)
-        // ==========================================
         function removerDoOverlay(code) {
             const el = document.getElementById(`card-${code}`);
             if (el) {
-                el.style.animation = 'fadeOut 0.4s ease-in forwards'; // Faz a animação de saída
+                el.style.animation = 'fadeOut 0.4s ease-in forwards'; 
                 
                 setTimeout(() => {
                     el.remove();
                     activePlayers = activePlayers.filter(c => c !== code);
                     localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
                     
-                    // Avisa o Mestre para remover da lista principal também para não voltar a aparecer sozinho!
-                    socket.emit('comando_mestre', { tipo: 'remover_jogador_mestre', codigo: code });
-                }, 400); // 400ms = tempo da animação
+                    // Avisa a sala/campanha que apagou
+                    if (campanhaAtiva) {
+                        socket.emit('comando_mestre', { tipo: 'remover_jogador_mestre', codigo: code });
+                    }
+                }, 400); 
             }
         }
 
         window.onload = () => {
             atualizarOverlay();
-            // Pede atualizações regularmente para garantir que não perde pacotes
             setInterval(() => {
-                activePlayers.forEach(code => socket.emit('request_player', code));
+                if(campanhaAtiva) {
+                    activePlayers.forEach(code => socket.emit('request_player', code));
+                }
             }, 10000);
         };
 
@@ -188,11 +193,19 @@
                 activePlayers = JSON.parse(e.newValue) || [];
                 atualizarOverlay();
             }
+            if (e.key === 'campanha_atual') {
+                campanhaAtiva = e.newValue;
+                socket.emit('join_campaign', campanhaAtiva);
+                socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
+            }
         });
 
-        // Sincronização via Socket (Essencial para funcionar no OBS Studio)
+        // Sincronização via Socket
         socket.on('connect', () => {
-            socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
+            if (campanhaAtiva) {
+                socket.emit('join_campaign', campanhaAtiva);
+                socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
+            }
         });
 
         socket.on('comando_mestre', (dados) => {
@@ -204,20 +217,21 @@
         });
 
         socket.on('update_mestre', (dados) => {
-            if (activePlayers.includes(dados.codigo)) {
-                const cod = dados.codigo;
-                const fotoEl = document.getElementById(`foto-${cod}`);
+            const codPuro = dados.codigo; // O servidor já extrai o nome puro
+            
+            if (activePlayers.includes(codPuro)) {
+                const fotoEl = document.getElementById(`foto-${codPuro}`);
                 if (fotoEl) {
                     fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
                 }
 
-                const vidaEl = document.getElementById(`vida-${cod}`);
-                const saniEl = document.getElementById(`sani-${cod}`);
+                const vidaEl = document.getElementById(`vida-${codPuro}`);
+                const saniEl = document.getElementById(`sani-${codPuro}`);
                 
                 if(vidaEl) vidaEl.innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
                 if(saniEl) saniEl.innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
-                const ammoEl = document.getElementById(`ammo-${cod}`);
+                const ammoEl = document.getElementById(`ammo-${codPuro}`);
                 let muniTexto = "";
                 if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
                     const arma = dados.fullData.inv.find(item => item.id === dados.fullData.arma_ativa_id);
