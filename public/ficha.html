@@ -24,18 +24,14 @@
 
         .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
         .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
-        
         .tabs-nav { display: flex; gap: 10px; width: auto; }
         .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; transition: 0.3s; backdrop-filter: blur(8px); margin: 0; }
         .tab-btn.active { background: var(--accent-blue); color: #000; border-color: var(--accent-blue); }
-        
         .main-container { width: 100%; max-width: 1300px; display: none; }
         .main-container.active { display: block; }
-        
         .columns-wrapper { display: flex; gap: 20px; align-items: flex-start; }
         .panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-card); margin-bottom: 20px; backdrop-filter: blur(8px); }
         .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-
         .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
 
         .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px; }
@@ -289,7 +285,7 @@
         <h3 style="color: var(--accent-purple); margin-top: 0; text-align: center;">Aprender Ritual</h3>
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <button id="btn-type-ritual-catalog" class="tab-btn active" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('catalog')">Catálogo Geral</button>
-            <button id="btn-type-ritual-custom" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('custom')">Ritual Customizado</button>
+            <button id="btn-type-ritual-custom" class="tab-btn" style="flex:1; border-radius:6px; padding:10px; margin:0; font-size: 0.85em;" onclick="selectRitualType('custom')">Ritual Personalizado</button>
         </div>
         <div id="fields-ritual-catalog" style="display:none;">
             <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique num ritual para adicioná-lo ao seu grimório.</p>
@@ -369,7 +365,9 @@
             <span style="color: white; font-size: 1em; font-weight: bold;">TOTAL</span>
             <span id="popup-skill-total" style="color: var(--accent-blue); font-size: 1.8em; font-weight: 900;">0</span>
         </div>
-        <input type="hidden" id="popup-skill-sn"><input type="hidden" id="popup-skill-attr"><input type="hidden" id="popup-skill-mod">
+        <input type="hidden" id="popup-skill-sn">
+        <input type="hidden" id="popup-skill-attr">
+        <input type="hidden" id="popup-skill-mod">
         <div style="display:flex; gap:10px;">
             <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue);" onclick="saveSkillPopup()">SALVAR</button>
             <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeSkillPopup()">FECHAR</button>
@@ -511,10 +509,20 @@
 <div id="tab-rituais" class="main-container">
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
-        <div class="weight-container"><div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;"><span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span></div></div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
+        </div>
         <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
         <table class="inv-table">
-            <thead><tr><th style="width:75%;">Ritual (Clique para Detalhes)</th><th style="width:15%; text-align:center;">Elemento</th><th style="width:10%; text-align:center;">Ação</th></tr></thead>
+            <thead>
+                <tr>
+                    <th style="width:75%;">Ritual (Clique para Detalhes)</th>
+                    <th style="width:15%; text-align:center;">Elemento</th>
+                    <th style="width:10%; text-align:center;">Ação</th>
+                </tr>
+            </thead>
             <tbody id="rituals-body"></tbody>
         </table>
     </div>
@@ -523,7 +531,7 @@
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
     // ==========================================
-    // 1. CONFIGURAÇÃO INICIAL E AUTO-CONNECT
+    // 1. CONFIGURAÇÃO INICIAL
     // ==========================================
     const urlParams = new URLSearchParams(window.location.search);
     const viewCode = urlParams.get('view'); 
@@ -531,24 +539,38 @@
     let baseUser = localStorage.getItem('usuario_logado');
     let campanhaAtiva = localStorage.getItem('campanha_atual');
 
-    if (!baseUser && !viewCode) { window.location.href = '/login.html'; }
-    if (!campanhaAtiva && !viewCode) { window.location.href = '/index.html'; }
+    if (!baseUser && !viewCode) { 
+        window.location.href = '/login.html'; 
+    }
+    if (!campanhaAtiva && !viewCode) { 
+        window.location.href = '/index.html'; 
+    }
 
     let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
     
-    document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : baseUser;
+    // Atualiza nome na top bar para não mostrar código feio
+    if(document.getElementById('display-player-code')) {
+        document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : baseUser;
+    }
 
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
-    if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
+    if(customWP && customWP.trim() !== '') { 
+        document.body.style.backgroundImage = `url('${customWP}')`; 
+    }
 
-    function fazerLogout() { localStorage.removeItem('campanha_atual'); window.location.href = '/index.html'; }
+    function fazerLogout() { 
+        localStorage.removeItem('campanha_atual'); 
+        window.location.href = '/index.html'; 
+    }
 
     let socket = null;
     if (typeof io !== 'undefined') socket = io();
 
     let isLoadingData = false;
-    let currentViewedItemId = null; let editingItemId = null; 
-    let pendingRollParams = null; let pendingMaxAtaques = 1;
+    let currentViewedItemId = null; 
+    let editingItemId = null; 
+    let pendingRollParams = null; 
+    let pendingMaxAtaques = 1;
 
     const keyCatalog = 'ordem_custom_catalog_' + campanhaAtiva;
     let customCatalog = JSON.parse(localStorage.getItem(keyCatalog)) || { items: [], melee: [], ranged: [], rituals: [] };
@@ -556,7 +578,9 @@
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
     const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
-    let equippedWeaponsData = []; let currentOccupation = "Nenhuma"; let lastAttackWasCrit = false;
+    let equippedWeaponsData = []; 
+    let currentOccupation = "Nenhuma"; 
+    let lastAttackWasCrit = false;
 
     let charImages = { normal: '', lesionado: '', inconsciente: '', morrendo: '', enlouquecendo: '', les_enlouq: '' };
     let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
@@ -568,49 +592,209 @@
     const premadeRangedWeapons = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDict['escopeta'], weight: 2 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 } ];
     const premadeRituals = [ { name: "Decadência", el: "Morte", circ: "1º", ex: "Padrão", alc: "Toque", alv: "1 Ser", dur: "Instantânea", res: "Fortitude reduz à metade", descGeral: "Você apodrece a carne do alvo, causando 2d8+2 pontos de dano de Morte.", descDisc: "Muda a execução para 1 ação completa, e o dano para 4d8+4.", descVerd: "Muda o alvo para seres escolhidos em alcance curto.", img: "" }, { name: "Eletrocussão", el: "Energia", circ: "1º", ex: "Padrão", alc: "Curto", alv: "1 Ser", dur: "Instantânea", res: "Fortitude reduz à metade", descGeral: "Lança um arco de eletricidade, causando 3d6 de dano de Energia.", descDisc: "Muda o alvo para até 3 seres e o dano aumenta para 3d6.", descVerd: "-", img: "" } ];
 
-    function getAutoImage(n, currentImg) { if (currentImg && currentImg.trim() !== "") return currentImg; const nLower = n.toLowerCase(); for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; } return currentImg; }
-    function hasHeavyArmorEquipped() { let hasIt = false; document.querySelectorAll('.hidden-data-item').forEach(h => { if(h.getAttribute('data-eq') === 'true') { const n = h.getAttribute('data-n').toLowerCase(); if(n.includes('proteção pesada') || n.includes('protecao pesada')) { hasIt = true; } } }); return hasIt; }
-
-    function openCharImgPopup() { document.getElementById('img-normal').value = charImages.normal || ''; document.getElementById('img-lesionado').value = charImages.lesionado || ''; document.getElementById('img-inconsciente').value = charImages.inconsciente || ''; document.getElementById('img-morrendo').value = charImages.morrendo || ''; document.getElementById('img-enlouquecendo').value = charImages.enlouquecendo || ''; document.getElementById('img-les-enlouq').value = charImages.les_enlouq || ''; document.getElementById('popup-char-imgs').style.display = 'flex'; }
-    function closeCharImgPopup() { document.getElementById('popup-char-imgs').style.display = 'none'; }
-    function saveCharImgPopup() { charImages.normal = document.getElementById('img-normal').value; charImages.lesionado = document.getElementById('img-lesionado').value; charImages.inconsciente = document.getElementById('img-inconsciente').value; charImages.morrendo = document.getElementById('img-morrendo').value; charImages.enlouquecendo = document.getElementById('img-enlouquecendo').value; charImages.les_enlouq = document.getElementById('img-les-enlouq').value; updateProfilePicture(); save(); closeCharImgPopup(); }
-
-    function toggleStatus(type) { charStatus[type] = !charStatus[type]; updateProfilePicture(); save(); }
-    function updateProfilePicture() {
-        let imgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
-        if (charStatus.morrendo && charImages.morrendo) imgUrl = charImages.morrendo; else if (charStatus.inconsciente && charImages.inconsciente) imgUrl = charImages.inconsciente; else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) imgUrl = charImages.les_enlouq; else if (charStatus.enlouquecendo && charImages.enlouquecendo) imgUrl = charImages.enlouquecendo; else if (charStatus.lesionado && charImages.lesionado) imgUrl = charImages.lesionado;
-        let imgEl = document.getElementById('char_img_display');
-        if(imgEl && imgEl.src !== imgUrl) { imgEl.style.opacity = 0; setTimeout(() => { imgEl.src = imgUrl; imgEl.onload = () => imgEl.style.opacity = 1; setTimeout(() => imgEl.style.opacity = 1, 100); }, 300); }
-        ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => { let btn = document.getElementById('btn-status-' + s); if(btn) { if(charStatus[s]) btn.classList.add('active-' + s); else btn.classList.remove('active-' + s); } });
+    function getAutoImage(n, currentImg) { 
+        if (currentImg && currentImg.trim() !== "") return currentImg; 
+        const nLower = n.toLowerCase(); 
+        for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; } 
+        return currentImg; 
     }
 
-    function applyOccupation(newOcc) { const skillsMap = { "Academico": ["ciencias", "investigacao"], "AgenteSaude": ["intuicao", "medicina"], "Artista": ["artes", "enganacao"], "Atleta": ["acrobacia", "atletismo"], "Chef": ["fortitude", "profissao"], "Criminoso": ["crime", "furtividade"], "EntendedorOculto": ["ocultismo", "religiao"], "Engenheiro": ["profissao", "tecnologia"], "Desgarrado": ["fortitude", "sobrevivencia"], "Investigador": ["investigacao", "percepcao"], "Lutador": ["luta", "reflexos"], "Policial": ["pontaria", "percepcao"], "Religioso": ["religiao", "vontade"], "TI": ["investigacao", "tecnologia"], "Universitario": ["atualidades", "investigacao"], "Jornalista": ["atualidades", "investigacao"], "Revoltado": ["furtividade", "vontade"] }; if(currentOccupation !== "Nenhuma" && skillsMap[currentOccupation]) { skillsMap[currentOccupation].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = false; toggleTrained(s); } }); } if(newOcc !== "Nenhuma" && skillsMap[newOcc]) { skillsMap[newOcc].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = true; toggleTrained(s); } }); } currentOccupation = newOcc; }
-    function openTab(id, btn) { document.querySelectorAll('.main-container, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if(id === 'tab-inventario') updateWeight(); }
-    function changeStatus(type, amount) { let el = document.getElementById(type + '_atual'); if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } }
-    function updateStatusBars() { const vA = parseInt(document.getElementById('vida_atual').value) || 0, vM = parseInt(document.getElementById('vida_max').value) || 1; const sA = parseInt(document.getElementById('sani_atual').value) || 0, sM = parseInt(document.getElementById('sani_max').value) || 1; document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; }
+    function hasHeavyArmorEquipped() { 
+        let hasIt = false; 
+        document.querySelectorAll('.hidden-data-item').forEach(h => { 
+            if(h.getAttribute('data-eq') === 'true') { 
+                const n = h.getAttribute('data-n').toLowerCase(); 
+                if(n.includes('proteção pesada') || n.includes('protecao pesada')) { hasIt = true; } 
+            } 
+        }); 
+        return hasIt; 
+    }
 
-    function openSkillPopup(sn, nome, attr, mod) { document.getElementById('popup-skill-name').innerText = nome; document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")"; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod; updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display = 'flex'; }
-    function updateSkillPopupCalc() { let mod = parseFloat(document.getElementById('popup-skill-mod').value), attr = document.getElementById('popup-skill-attr').value; let sn = document.getElementById('popup-skill-sn').value; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let natural = Math.floor(at * mod), bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0; let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; document.getElementById('popup-skill-total').innerText = natural + bonus + trained + penalty; }
-    function saveSkillPopup() { let sn = document.getElementById('popup-skill-sn').value; document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value; toggleTrained(sn); save(); closeSkillPopup(); }
+    function openCharImgPopup() { 
+        document.getElementById('img-normal').value = charImages.normal || ''; 
+        document.getElementById('img-lesionado').value = charImages.lesionado || ''; 
+        document.getElementById('img-inconsciente').value = charImages.inconsciente || ''; 
+        document.getElementById('img-morrendo').value = charImages.morrendo || ''; 
+        document.getElementById('img-enlouquecendo').value = charImages.enlouquecendo || ''; 
+        document.getElementById('img-les-enlouq').value = charImages.les_enlouq || ''; 
+        document.getElementById('popup-char-imgs').style.display = 'flex'; 
+    }
+
+    function closeCharImgPopup() { document.getElementById('popup-char-imgs').style.display = 'none'; }
+
+    function saveCharImgPopup() { 
+        charImages.normal = document.getElementById('img-normal').value; 
+        charImages.lesionado = document.getElementById('img-lesionado').value; 
+        charImages.inconsciente = document.getElementById('img-inconsciente').value; 
+        charImages.morrendo = document.getElementById('img-morrendo').value; 
+        charImages.enlouquecendo = document.getElementById('img-enlouquecendo').value; 
+        charImages.les_enlouq = document.getElementById('img-les-enlouq').value; 
+        updateProfilePicture(); 
+        save(); 
+        closeCharImgPopup(); 
+    }
+
+    function toggleStatus(type) { 
+        charStatus[type] = !charStatus[type]; 
+        updateProfilePicture(); 
+        save(); 
+    }
+
+    function updateProfilePicture() {
+        let imgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
+        if (charStatus.morrendo && charImages.morrendo) imgUrl = charImages.morrendo; 
+        else if (charStatus.inconsciente && charImages.inconsciente) imgUrl = charImages.inconsciente; 
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) imgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) imgUrl = charImages.enlouquecendo; 
+        else if (charStatus.lesionado && charImages.lesionado) imgUrl = charImages.lesionado;
+        
+        let imgEl = document.getElementById('char_img_display');
+        if(imgEl && imgEl.src !== imgUrl) { 
+            imgEl.style.opacity = 0; 
+            setTimeout(() => { imgEl.src = imgUrl; imgEl.onload = () => imgEl.style.opacity = 1; setTimeout(() => imgEl.style.opacity = 1, 100); }, 300); 
+        }
+        ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => { 
+            let btn = document.getElementById('btn-status-' + s); 
+            if(btn) { if(charStatus[s]) btn.classList.add('active-' + s); else btn.classList.remove('active-' + s); } 
+        });
+    }
+
+    function applyOccupation(newOcc) { 
+        const skillsMap = { "Academico": ["ciencias", "investigacao"], "AgenteSaude": ["intuicao", "medicina"], "Artista": ["artes", "enganacao"], "Atleta": ["acrobacia", "atletismo"], "Chef": ["fortitude", "profissao"], "Criminoso": ["crime", "furtividade"], "EntendedorOculto": ["ocultismo", "religiao"], "Engenheiro": ["profissao", "tecnologia"], "Desgarrado": ["fortitude", "sobrevivencia"], "Investigador": ["investigacao", "percepcao"], "Lutador": ["luta", "reflexos"], "Policial": ["pontaria", "percepcao"], "Religioso": ["religiao", "vontade"], "TI": ["investigacao", "tecnologia"], "Universitario": ["atualidades", "investigacao"], "Jornalista": ["atualidades", "investigacao"], "Revoltado": ["furtividade", "vontade"] }; 
+        if(currentOccupation !== "Nenhuma" && skillsMap[currentOccupation]) { skillsMap[currentOccupation].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = false; toggleTrained(s); } }); } 
+        if(newOcc !== "Nenhuma" && skillsMap[newOcc]) { skillsMap[newOcc].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = true; toggleTrained(s); } }); } 
+        currentOccupation = newOcc; 
+    }
+
+    function openTab(id, btn) { 
+        document.querySelectorAll('.main-container, .tab-btn').forEach(el => el.classList.remove('active')); 
+        document.getElementById(id).classList.add('active'); 
+        btn.classList.add('active'); 
+        if(id === 'tab-inventario') updateWeight(); 
+    }
+    
+    function changeStatus(type, amount) { 
+        let el = document.getElementById(type + '_atual'); 
+        if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } 
+    }
+
+    function updateStatusBars() { 
+        const vA = parseInt(document.getElementById('vida_atual').value) || 0, vM = parseInt(document.getElementById('vida_max').value) || 1; 
+        const sA = parseInt(document.getElementById('sani_atual').value) || 0, sM = parseInt(document.getElementById('sani_max').value) || 1; 
+        document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; 
+        document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; 
+    }
+
+    function openSkillPopup(sn, nome, attr, mod) { 
+        document.getElementById('popup-skill-name').innerText = nome; 
+        document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")"; 
+        let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
+        let at = atEl ? parseInt(atEl.value)||0 : 0; 
+        document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); 
+        document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; 
+        document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; 
+        document.getElementById('popup-skill-sn').value = sn; 
+        document.getElementById('popup-skill-attr').value = attr; 
+        document.getElementById('popup-skill-mod').value = mod; 
+        updateSkillPopupCalc(); 
+        document.getElementById('popup-skill-info').style.display = 'flex'; 
+    }
+
+    function updateSkillPopupCalc() { 
+        let mod = parseFloat(document.getElementById('popup-skill-mod').value), attr = document.getElementById('popup-skill-attr').value; 
+        let sn = document.getElementById('popup-skill-sn').value; 
+        let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
+        let at = atEl ? parseInt(atEl.value)||0 : 0; 
+        let natural = Math.floor(at * mod), bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0; 
+        let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0; 
+        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
+        document.getElementById('popup-skill-total').innerText = natural + bonus + trained + penalty; 
+    }
+
+    function saveSkillPopup() { 
+        let sn = document.getElementById('popup-skill-sn').value; 
+        document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; 
+        document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value; 
+        toggleTrained(sn); 
+        save(); 
+        closeSkillPopup(); 
+    }
+
     function closeSkillPopup() { document.getElementById('popup-skill-info').style.display = 'none'; }
 
     function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
     function closeAbilityPopup() { document.getElementById('popup-new-ability').style.display='none'; }
-    function confirmAddAbility() { const n = document.getElementById('new-ability-name').value, d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); closeAbilityPopup(); }
-    function addAbility(n, d) { const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString(), safeD = (d||"").replace(/"/g, "'"); const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); div.style.background = 'rgba(18, 18, 20, 0.8)'; div.style.border = '1px solid rgba(51, 51, 51, 0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="removeAbility('${id}')">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase; padding-right:20px;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; document.getElementById('abilities-list').appendChild(div); save(); }
+    
+    function confirmAddAbility() { 
+        const n = document.getElementById('new-ability-name').value;
+        const d = document.getElementById('new-ability-desc').value; 
+        if(!n) return; 
+        addAbility(n, d); 
+        closeAbilityPopup(); 
+    }
+
+    function addAbility(n, d) { 
+        const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString(), safeD = (d||"").replace(/"/g, "'"); 
+        const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); 
+        div.style.background = 'rgba(18, 18, 20, 0.8)'; div.style.border = '1px solid rgba(51, 51, 51, 0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; 
+        div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="removeAbility('${id}')">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase; padding-right:20px;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; 
+        document.getElementById('abilities-list').appendChild(div); 
+        save(); 
+    }
+
     function removeAbility(id) { const el = document.getElementById('ability-'+id); if(el) { el.remove(); save(); } }
 
-    function removeCustomCatalogItem(catType, itemName) { if(confirm(`Tem a certeza que deseja apagar '${itemName}' do catálogo global?\nTodos perderão acesso a ele.`)) { if (customCatalog[catType]) { customCatalog[catType] = customCatalog[catType].filter(it => it.name.toLowerCase() !== itemName.toLowerCase()); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (catType === 'rituals') { if(document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); } else { renderPremadeCatalogs(); } if (socket) socket.emit('remover_item_catalogo_global', { catType: catType, name: itemName }); } } }
+    function removeCustomCatalogItem(catType, itemName) { 
+        if(confirm(`Tem a certeza que deseja apagar '${itemName}' do catálogo global?\nTodos perderão acesso a ele.`)) { 
+            if (customCatalog[catType]) { 
+                customCatalog[catType] = customCatalog[catType].filter(it => it.name.toLowerCase() !== itemName.toLowerCase()); 
+                localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); 
+                if (catType === 'rituals') { 
+                    if(document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); 
+                } 
+                else { renderPremadeCatalogs(); } 
+                if (socket) socket.emit('remover_item_catalogo_global', { catType: catType, name: itemName }); 
+            } 
+        } 
+    }
 
-    function openItemPopup() { editingItemId = null; ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { let el = document.getElementById(i); if(el) el.value=(i==='new-item-weight'||i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); }); document.getElementById('wp-ammo').value='Nenhuma'; document.getElementById('popup-new-item-title').innerText = "Adicionar ao Inventário"; document.getElementById('btn-confirm-add-item').innerText = "ADICIONAR"; selectItemType('item'); document.getElementById('popup-new-item').style.display='flex'; }
+    function openItemPopup() { 
+        editingItemId = null; 
+        ['new-item-name','new-item-weight','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { let el = document.getElementById(i); if(el) el.value=(i==='new-item-weight'||i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); }); 
+        document.getElementById('wp-ammo').value='Nenhuma'; 
+        document.getElementById('popup-new-item-title').innerText = "Adicionar ao Inventário"; 
+        document.getElementById('btn-confirm-add-item').innerText = "ADICIONAR"; 
+        selectItemType('item'); 
+        document.getElementById('popup-new-item').style.display='flex'; 
+    }
+
     function closeItemPopup() { document.getElementById('popup-new-item').style.display='none'; editingItemId = null; }
 
     function selectItemType(type) {
-        document.getElementById('new-item-type').value = type; ['item', 'armacc', 'armadisp'].forEach(t => { let btn = document.getElementById('btn-type-' + t); if(btn) btn.classList.remove('active'); });
-        if(type === 'item' || type === 'pers-item') document.getElementById('btn-type-item').classList.add('active'); if(type === 'armacc' || type === 'pers-cc') document.getElementById('btn-type-armacc').classList.add('active'); if(type === 'armadisp' || type === 'pers-disp') document.getElementById('btn-type-armadisp').classList.add('active');
-        document.getElementById('fields-comum').style.display = 'none'; document.getElementById('fields-arma').style.display = 'none'; document.getElementById('fields-item-catalog').style.display = 'none'; document.getElementById('fields-armacc-catalog').style.display = 'none'; document.getElementById('fields-armadisp-catalog').style.display = 'none';
+        document.getElementById('new-item-type').value = type; 
+        ['item', 'armacc', 'armadisp'].forEach(t => { let btn = document.getElementById('btn-type-' + t); if(btn) btn.classList.remove('active'); });
+        
+        if(type === 'item' || type === 'pers-item') document.getElementById('btn-type-item').classList.add('active'); 
+        if(type === 'armacc' || type === 'pers-cc') document.getElementById('btn-type-armacc').classList.add('active'); 
+        if(type === 'armadisp' || type === 'pers-disp') document.getElementById('btn-type-armadisp').classList.add('active');
+
+        document.getElementById('fields-comum').style.display = 'none'; 
+        document.getElementById('fields-arma').style.display = 'none'; 
+        document.getElementById('fields-item-catalog').style.display = 'none'; 
+        document.getElementById('fields-armacc-catalog').style.display = 'none'; 
+        document.getElementById('fields-armadisp-catalog').style.display = 'none';
+        
         const btnAdd = document.getElementById('btn-confirm-add-item'), genericFields = document.getElementById('generic-item-fields');
-        if (type === 'item') { document.getElementById('fields-item-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } else if (type === 'armacc') { document.getElementById('fields-armacc-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } else if (type === 'armadisp') { document.getElementById('fields-armadisp-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } else { btnAdd.style.display = 'block'; genericFields.style.display = 'block'; if(type === 'pers-item') { document.getElementById('fields-comum').style.display = 'block'; } else if (type === 'pers-disp') { document.getElementById('fields-arma').style.display = 'grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Disparo'; document.getElementById('wp-ammo').value = 'Curta'; } } else if (type === 'pers-cc') { document.getElementById('fields-arma').style.display = 'grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Corpo a corpo'; document.getElementById('wp-ammo').value = 'Nenhuma'; } } }
+        
+        if (type === 'item') { document.getElementById('fields-item-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } 
+        else if (type === 'armacc') { document.getElementById('fields-armacc-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } 
+        else if (type === 'armadisp') { document.getElementById('fields-armadisp-catalog').style.display = 'block'; btnAdd.style.display = 'none'; genericFields.style.display = 'none'; } 
+        else { 
+            btnAdd.style.display = 'block'; genericFields.style.display = 'block'; 
+            if(type === 'pers-item') { document.getElementById('fields-comum').style.display = 'block'; } 
+            else if (type === 'pers-disp') { document.getElementById('fields-arma').style.display = 'grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Disparo'; document.getElementById('wp-ammo').value = 'Curta'; } } 
+            else if (type === 'pers-cc') { document.getElementById('fields-arma').style.display = 'grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Corpo a corpo'; document.getElementById('wp-ammo').value = 'Nenhuma'; } } 
+        }
     }
 
     function renderPremadeCatalogs() {
@@ -618,34 +802,78 @@
         if(containerItem) {
             containerItem.innerHTML = `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-green); border-radius: 8px; text-align: center; background: rgba(0, 230, 118, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-item')" onmouseover="this.style.background='rgba(0, 230, 118, 0.2)'" onmouseout="this.style.background='rgba(0, 230, 118, 0.05)'"><div style="font-size: 2.5em; margin-bottom: 5px;">➕</div><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; text-transform: uppercase;">Item Personalizado</div></div>`;
             premadeItems.forEach((it, index) => { containerItem.innerHTML += `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeItem(${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'"><img src="${it.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span></div></div>`; });
-            customCatalog.items.forEach((it, index) => { let safeName = it.name.replace(/'/g, "\\'"); containerItem.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('items', ${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('items', '${safeName}')">X</button><img src="${it.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name} <br><span style="font-size:0.7em; color:var(--accent-yellow)">(Criado)</span></div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span></div></div>`; });
+            customCatalog.items.forEach((it, index) => { 
+                let safeName = it.name.replace(/'/g, "\\'"); 
+                containerItem.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('items', ${index})" onmouseover="this.style.borderColor='var(--accent-green)'" onmouseout="this.style.borderColor='rgba(0, 230, 118, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('items', '${safeName}')">X</button><img src="${it.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${it.name} <br><span style="font-size:0.7em; color:var(--accent-yellow)">(Criado)</span></div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${it.weight}</span></div></div>`; 
+            });
         }
 
         const containerCC = document.getElementById('armacc-grid-container');
         if(containerCC) {
             containerCC.innerHTML = `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-yellow); border-radius: 8px; text-align: center; background: rgba(255, 207, 51, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-cc')" onmouseover="this.style.background='rgba(255, 207, 51, 0.2)'" onmouseout="this.style.background='rgba(255, 207, 51, 0.05)'"><div style="font-size: 2.5em; margin-bottom: 5px;">➕</div><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; text-transform: uppercase;">Arma Personalizada</div></div>`;
             premadeMeleeWeapons.forEach((wp, index) => { containerCC.innerHTML += `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'"><img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${wp.crit}</span></div></div>`; });
-            customCatalog.melee.forEach((wp, index) => { let safeName = wp.name.replace(/'/g, "\\'"); containerCC.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('melee', ${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('melee', '${safeName}')">X</button><img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-blue)">(Criada)</span></div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${wp.crit}</span></div></div>`; });
+            customCatalog.melee.forEach((wp, index) => { 
+                let safeName = wp.name.replace(/'/g, "\\'"); 
+                containerCC.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(255, 207, 51, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('melee', ${index})" onmouseover="this.style.borderColor='var(--accent-yellow)'" onmouseout="this.style.borderColor='rgba(255, 207, 51, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('melee', '${safeName}')">X</button><img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-blue)">(Criada)</span></div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${wp.crit}</span></div></div>`; 
+            });
         }
 
         const containerDisp = document.getElementById('armadisp-grid-container');
         if(containerDisp) {
             containerDisp.innerHTML = `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-blue); border-radius: 8px; text-align: center; background: rgba(0, 176, 255, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectItemType('pers-disp')" onmouseover="this.style.background='rgba(0, 176, 255, 0.2)'" onmouseout="this.style.background='rgba(0, 176, 255, 0.05)'"><div style="font-size: 2.5em; margin-bottom: 5px;">➕</div><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; text-transform: uppercase;">Arma Personalizada</div></div>`;
             premadeRangedWeapons.forEach((wp, index) => { containerDisp.innerHTML += `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addPremadeRangedWeapon(${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'"><img src="${wp.img}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name}</div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight !== undefined ? wp.weight : 1}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span></div></div>`; });
-            customCatalog.ranged.forEach((wp, index) => { let safeName = wp.name.replace(/'/g, "\\'"); containerDisp.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('ranged', ${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('ranged', '${safeName}')">X</button><img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-green)">(Criada)</span></div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span></div></div>`; });
+            customCatalog.ranged.forEach((wp, index) => { 
+                let safeName = wp.name.replace(/'/g, "\\'"); 
+                containerDisp.innerHTML += `<div class="skill-card" style="position:relative; cursor: pointer; padding: 10px; border: 1px solid rgba(0, 176, 255, 0.3); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCustomCatalogItem('ranged', ${index})" onmouseover="this.style.borderColor='var(--accent-blue)'" onmouseout="this.style.borderColor='rgba(0, 176, 255, 0.3)'"><button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('ranged', '${safeName}')">X</button><img src="${wp.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ARMA'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${wp.name} <br><span style="font-size:0.7em; color:var(--accent-green)">(Criada)</span></div><div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${wp.weight}</span><br>Dano: <span style="color:white; font-weight:bold;">${wp.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${wp.capacity} (${wp.ammo})</span></div></div>`; 
+            });
         }
     }
 
-    function addPremadeItem(index) { const it = premadeItems[index]; let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true; if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); closeItemPopup(); }
-    function addPremadeWeapon(index) { const wp = premadeMeleeWeapons[index]; const w = wp.weight !== undefined ? wp.weight : 1; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true; if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Corpo a corpo", atk: wp.atk, range: wp.range, ammo: "Nenhuma", capacity: "0", currentShots: "0" }); closeItemPopup(); }
-    function addPremadeRangedWeapon(index) { const wp = premadeRangedWeapons[index]; const w = wp.weight !== undefined ? wp.weight : 1; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true; if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Disparo", atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); closeItemPopup(); }
+    function addPremadeItem(index) { 
+        const it = premadeItems[index]; 
+        let idToUse = editingItemId ? editingItemId : Date.now(); 
+        let eqStatus = true; 
+        if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } 
+        addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); 
+        closeItemPopup(); 
+    }
+
+    function addPremadeWeapon(index) { 
+        const wp = premadeMeleeWeapons[index]; const w = wp.weight !== undefined ? wp.weight : 1; 
+        const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; 
+        let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true; 
+        if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } 
+        addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Corpo a corpo", atk: wp.atk, range: wp.range, ammo: "Nenhuma", capacity: "0", currentShots: "0" }); 
+        closeItemPopup(); 
+    }
+
+    function addPremadeRangedWeapon(index) { 
+        const wp = premadeRangedWeapons[index]; const w = wp.weight !== undefined ? wp.weight : 1; 
+        const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; 
+        let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true; 
+        if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); } 
+        addItemObj({ id: idToUse, n: wp.name, w: w, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: "0", crit: wp.crit, skill: wp.skill, img: wp.img, atkType: "Disparo", atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); 
+        closeItemPopup(); 
+    }
 
     function addCustomCatalogItem(type, index) {
         let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true;
         if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); }
-        if (type === 'items') { const it = customCatalog.items[index]; addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); } 
-        else if (type === 'melee') { const wp = customCatalog.melee[index]; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); } 
-        else if (type === 'ranged') { const wp = customCatalog.ranged[index]; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); }
+        
+        if (type === 'items') { 
+            const it = customCatalog.items[index]; 
+            addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); 
+        } 
+        else if (type === 'melee') { 
+            const wp = customCatalog.melee[index]; 
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; 
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); 
+        } 
+        else if (type === 'ranged') { 
+            const wp = customCatalog.ranged[index]; 
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; 
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); 
+        }
         closeItemPopup();
     }
 
@@ -654,16 +882,31 @@
         const h = document.getElementById('item-data-' + currentViewedItemId); if(!h) return;
         editingItemId = currentViewedItemId; closeItemInfo(); 
         const type = h.getAttribute('data-type');
-        document.getElementById('new-item-name').value = h.getAttribute('data-n'); document.getElementById('new-item-weight').value = h.getAttribute('data-w'); document.getElementById('new-item-img').value = h.getAttribute('data-img') || "";
+        document.getElementById('new-item-name').value = h.getAttribute('data-n'); 
+        document.getElementById('new-item-weight').value = h.getAttribute('data-w'); 
+        document.getElementById('new-item-img').value = h.getAttribute('data-img') || "";
         
         if(type === 'arma') {
             let atkType = h.getAttribute('data-atktype') || "Corpo a corpo";
             if (atkType.toLowerCase().includes("disparo")) selectItemType('pers-disp'); else selectItemType('pers-cc');
-            document.getElementById('wp-atk-type').value = atkType; document.getElementById('wp-atk').value = h.getAttribute('data-atk') || "1"; document.getElementById('wp-dmg').value = h.getAttribute('data-dmg') || "0"; document.getElementById('wp-crit').value = h.getAttribute('data-crit') || "20/x2"; document.getElementById('wp-range').value = h.getAttribute('data-range') || "Curto"; document.getElementById('wp-ammo').value = h.getAttribute('data-ammo') || "Nenhuma"; document.getElementById('wp-capacity').value = h.getAttribute('data-capacity') || "6"; document.getElementById('wp-skill').value = h.getAttribute('data-skill') || "Luta"; document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0"; document.getElementById('new-item-desc').value = "";
+            document.getElementById('wp-atk-type').value = atkType; 
+            document.getElementById('wp-atk').value = h.getAttribute('data-atk') || "1"; 
+            document.getElementById('wp-dmg').value = h.getAttribute('data-dmg') || "0"; 
+            document.getElementById('wp-crit').value = h.getAttribute('data-crit') || "20/x2"; 
+            document.getElementById('wp-range').value = h.getAttribute('data-range') || "Curto"; 
+            document.getElementById('wp-ammo').value = h.getAttribute('data-ammo') || "Nenhuma"; 
+            document.getElementById('wp-capacity').value = h.getAttribute('data-capacity') || "6"; 
+            document.getElementById('wp-skill').value = h.getAttribute('data-skill') || "Luta"; 
+            document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0"; 
+            document.getElementById('new-item-desc').value = "";
         } else {
-            selectItemType('pers-item'); let desc = h.getAttribute('data-d'); document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
+            selectItemType('pers-item'); 
+            let desc = h.getAttribute('data-d'); 
+            document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
         }
-        document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma"; document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES"; document.getElementById('popup-new-item').style.display = 'flex';
+        document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma"; 
+        document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES"; 
+        document.getElementById('popup-new-item').style.display = 'flex';
     }
 
     function confirmAddItem() {
@@ -673,9 +916,20 @@
         if(!n) return alert("Dê um nome!");
         
         let d = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", curShots = "0";
-        if(type === 'comum') { d = document.getElementById('new-item-desc').value || "Sem descrição."; } 
+        if(type === 'comum') { 
+            d = document.getElementById('new-item-desc').value || "Sem descrição."; 
+        } 
         else {
-            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo"); atk = document.getElementById('wp-atk').value || "1"; dmg = document.getElementById('wp-dmg').value || "0"; crit = document.getElementById('wp-crit').value || "20/x2"; range = document.getElementById('wp-range').value || "Curto"; ammo = document.getElementById('wp-ammo').value || "Nenhuma"; skill = document.getElementById('wp-skill').value || "Luta"; extra = document.getElementById('wp-extra').value || "0"; cap = document.getElementById('wp-capacity').value || "0"; curShots = cap;
+            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo"); 
+            atk = document.getElementById('wp-atk').value || "1"; 
+            dmg = document.getElementById('wp-dmg').value || "0"; 
+            crit = document.getElementById('wp-crit').value || "20/x2"; 
+            range = document.getElementById('wp-range').value || "Curto"; 
+            ammo = document.getElementById('wp-ammo').value || "Nenhuma"; 
+            skill = document.getElementById('wp-skill').value || "Luta"; 
+            extra = document.getElementById('wp-extra').value || "0"; 
+            cap = document.getElementById('wp-capacity').value || "0"; 
+            curShots = cap;
             d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${extra}</div></div>`;
         }
 
@@ -683,9 +937,19 @@
         if (!editingItemId) {
             let catType = '';
             let newCatItem = { name: n, weight: w, img: img, type: type, atkType: atkType, atk: atk, dmg: dmg, crit: crit, range: range, ammo: ammo, skill: skill, extra: extra, capacity: cap };
-            if (type === 'comum') { newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição."; if (!customCatalog.items.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); catType = 'items'; } 
-            else if (atkType.toLowerCase().includes("disparo")) { if (!customCatalog.ranged.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); catType = 'ranged'; } 
-            else { if (!customCatalog.melee.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); catType = 'melee'; }
+            if (type === 'comum') { 
+                newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição."; 
+                if (!customCatalog.items.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); 
+                catType = 'items'; 
+            } 
+            else if (atkType.toLowerCase().includes("disparo")) { 
+                if (!customCatalog.ranged.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); 
+                catType = 'ranged'; 
+            } 
+            else { 
+                if (!customCatalog.melee.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); 
+                catType = 'melee'; 
+            }
             
             localStorage.setItem(keyCatalog, JSON.stringify(customCatalog));
             renderPremadeCatalogs();
@@ -694,7 +958,12 @@
         
         if(editingItemId) {
             const oldH = document.getElementById('item-data-' + editingItemId);
-            if(oldH) { eqStatus = oldH.getAttribute('data-eq') === 'true'; let oldCap = oldH.getAttribute('data-capacity'); if (oldCap === cap) { curShots = oldH.getAttribute('data-currentshots') !== undefined ? oldH.getAttribute('data-currentshots') : cap; } const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); }
+            if(oldH) { 
+                eqStatus = oldH.getAttribute('data-eq') === 'true'; 
+                let oldCap = oldH.getAttribute('data-capacity'); 
+                if (oldCap === cap) { curShots = oldH.getAttribute('data-currentshots') !== undefined ? oldH.getAttribute('data-currentshots') : cap; } 
+                const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); 
+            }
             idToUse = editingItemId;
         }
 
@@ -738,7 +1007,12 @@
 
         let t = 0, bm = 0;
         document.querySelectorAll('.hidden-data-item').forEach(h => { 
-            if(h.getAttribute('data-eq') === 'true') { t += parseInt(h.getAttribute('data-w'))||0; const n = h.getAttribute('data-n').toLowerCase(); if(n.includes('mochila militar')||n.includes('mochila tática')||n.includes('mochila tatica')) { bm = Math.max(bm, 5); } else if(n.includes('mochila')) { bm = Math.max(bm, 2); } }
+            if(h.getAttribute('data-eq') === 'true') { 
+                t += parseInt(h.getAttribute('data-w'))||0; 
+                const n = h.getAttribute('data-n').toLowerCase(); 
+                if(n.includes('mochila militar')||n.includes('mochila tática')||n.includes('mochila tatica')) { bm = Math.max(bm, 5); } 
+                else if(n.includes('mochila')) { bm = Math.max(bm, 2); } 
+            }
         });
         lim += bm; 
         ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => t += parseInt(document.getElementById(id).value)||0);
@@ -750,7 +1024,9 @@
     function updateWeaponsDisplay() {
         equippedWeaponsData = [];
         document.querySelectorAll('.hidden-data-item').forEach(h => {
-            if(h.getAttribute('data-eq') === 'true' && h.getAttribute('data-type') === 'arma') { equippedWeaponsData.push({ id: h.getAttribute('data-id'), name: h.getAttribute('data-n'), desc: h.getAttribute('data-d'), dmg: h.getAttribute('data-dmg'), extra: h.getAttribute('data-extra'), crit: h.getAttribute('data-crit'), skill: h.getAttribute('data-skill'), atk: h.getAttribute('data-atk'), ammo: h.getAttribute('data-ammo'), capacity: h.getAttribute('data-capacity'), currentShots: h.getAttribute('data-currentshots') }); }
+            if(h.getAttribute('data-eq') === 'true' && h.getAttribute('data-type') === 'arma') { 
+                equippedWeaponsData.push({ id: h.getAttribute('data-id'), name: h.getAttribute('data-n'), desc: h.getAttribute('data-d'), dmg: h.getAttribute('data-dmg'), extra: h.getAttribute('data-extra'), crit: h.getAttribute('data-crit'), skill: h.getAttribute('data-skill'), atk: h.getAttribute('data-atk'), ammo: h.getAttribute('data-ammo'), capacity: h.getAttribute('data-capacity'), currentShots: h.getAttribute('data-currentshots') }); 
+            }
         });
         const sel = document.getElementById('active-weapon-select'), cont = document.getElementById('equipped-weapons-list');
         if(equippedWeaponsData.length === 0) { sel.style.display = 'none'; cont.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>`; return; }
@@ -763,7 +1039,9 @@
         const id = document.getElementById('active-weapon-select').value, wp = equippedWeaponsData.find(w => w.id === id), container = document.getElementById('equipped-weapons-list');
         if (wp) {
             let ammoControl = "";
-            if(wp.ammo !== "Nenhuma") { ammoControl = `<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><span style="font-size: 0.8em; color: var(--text-secondary); text-transform:uppercase;">${wp.ammo}:</span><button onclick="atirarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding: 2px 10px; border-width: 2px;">-1</button><span style="font-weight:900; color:white; font-size: 1.2em;">${wp.currentShots}</span><button onclick="recarregarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width: 2px;">RECARREGAR</button></div>`; }
+            if(wp.ammo !== "Nenhuma") { 
+                ammoControl = `<div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);"><span style="font-size: 0.8em; color: var(--text-secondary); text-transform:uppercase;">${wp.ammo}:</span><button onclick="atirarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding: 2px 10px; border-width: 2px;">-1</button><span style="font-weight:900; color:white; font-size: 1.2em;">${wp.currentShots}</span><button onclick="recarregarArma('${wp.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width: 2px;">RECARREGAR</button></div>`; 
+            }
             container.innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px;"><button class="ritual-btn" style="border-color: var(--accent-yellow); color: var(--accent-yellow); width: 100%; margin-bottom: 8px;" onclick="openItemInfo('${wp.id}')">${wp.name}</button><div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;"><button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueArma('${wp.id}')">ATQ ${wp.atk > 1 ? '('+wp.atk+'x)' : ''}</button><button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoArma('${wp.id}')">DANO</button></div>${ammoControl}</div>`;
         } else { container.innerHTML = ''; }
     }
@@ -1070,6 +1348,7 @@
         if (d.arma_ativa_id) { const sel = document.getElementById('active-weapon-select'); if (sel && equippedWeaponsData.some(wp => wp.id === d.arma_ativa_id)) { sel.value = d.arma_ativa_id; renderActiveWeapon(); } }
         document.querySelectorAll('[id^="chk_"]').forEach(c => { if(c.checked) toggleTrained(c.id.replace('chk_','')); }); isLoadingData = false; 
     }
+    
     init();
 </script>
 </body>
