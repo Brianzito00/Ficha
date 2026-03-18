@@ -84,8 +84,6 @@
         .ini-total-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px; border: 1px solid #333; }
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
-
-        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO */
         #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
@@ -101,7 +99,6 @@
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
         .roteiro-textarea::-webkit-scrollbar, .roteiro-sidebar::-webkit-scrollbar, .roteiro-sidebar-right::-webkit-scrollbar { width: 6px; }
         .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-
         @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) { body { height: auto; overflow-y: auto; padding: 10px; } .content-wrapper { flex-direction: column; height: auto; overflow: visible; } .left-panel { overflow: visible; } .players-container, .monsters-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; } .log-container { height: 400px; margin-top: 10px; min-width: 100%; } .tab-btn { border-radius: 8px; margin-bottom: 5px; } .ini-card { gap: 10px; } .popup-box-dice { height: 300px; } .popup-number { font-size: 6em; } .popup-res { font-size: 1.5em; } .attr-grid { grid-template-columns: 1fr; } #roteiro-board { height: auto; padding: 15px; } .roteiro-layout { flex-direction: column; height: auto; } .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; } .roteiro-sidebar-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; } #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;} .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; } .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; } }
     </style>
@@ -382,11 +379,11 @@
 
         function adicionarJogador() {
             let input = document.getElementById('add-code-input'); let codigo = input.value.toUpperCase().trim();
-            if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { jogadoresPermitidos.push(codigo); localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', codigo); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); salvarMestreNoFirebase(); }
+            if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { jogadoresPermitidos.push(codigo); localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', codigo); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
             input.value = '';
         }
 
-        function removerJogador(codigo) { jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); const card = document.getElementById(`player-${codigo}`); if (card) card.remove(); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); salvarMestreNoFirebase(); }
+        function removerJogador(codigo) { jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); const card = document.getElementById(`player-${codigo}`); if (card) card.remove(); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
 
         function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo}`; document.getElementById('modal-ficha').style.display = 'flex'; }
         function fecharFicha() { document.getElementById('modal-ficha').style.display = 'none'; document.getElementById('iframe-ficha').src = ''; }
@@ -411,26 +408,11 @@
             if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo); }
             if (dados.tipo === 'jogador_entrou' && dados.codigo) {
                 const c = dados.codigo.toUpperCase().trim();
-                if (!jogadoresPermitidos.includes(c)) { 
-                    jogadoresPermitidos.push(c); 
-                    localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
-                    socket.emit('request_player', c); 
-                    socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-                    salvarMestreNoFirebase(); 
-                }
-            }
-            if (dados.codigo === playerCode) {
-                if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
-                else if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
-                else if (dados.tipo === 'status') toggleStatus(dados.status);
+                if (!jogadoresPermitidos.includes(c)) { jogadoresPermitidos.push(c); localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', c); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); salvarMestreNoFirebase(); }
             }
         });
 
-        socket.on('novo_log', (dados) => {
-            if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
-            adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
-            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados); }
-        });
+        socket.on('novo_log', (dados) => { if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return; adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor); if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados); } });
 
         function processarIniciativa(dados) {
             let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? dados.codigo : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
@@ -442,100 +424,4 @@
         }
 
         function adicionarAoLog(nome, acao, resultado, corStr = '') {
-            const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove();
-            const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)');
-            logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem); 
-        }
-
-        function closeDice() { document.getElementById('popup-dice').style.display='none'; }
-        
-        function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
-            const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
-            let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
-            let resEl = document.getElementById('popup-res'); resEl.innerHTML = r; resEl.style = st;
-            document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
-            setTimeout(() => document.getElementById('popup-content').style.display = 'block', 1500);
-            if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st }); }
-        }
-
-        function mudarAba(aba) {
-            document.getElementById('tab-jogadores').classList.remove('active'); document.getElementById('tab-monstros').classList.remove('active'); document.getElementById('tab-iniciativa').classList.remove('active'); document.getElementById('tab-roteiro').classList.remove('active');
-            document.getElementById('players-board').style.display = 'none'; document.getElementById('monsters-board').style.display = 'none'; document.getElementById('iniciativa-board').style.display = 'none'; document.getElementById('roteiro-board').style.display = 'none';
-            const logContainer = document.querySelector('.log-container');
-            if (aba === 'jogadores') { document.getElementById('tab-jogadores').classList.add('active'); document.getElementById('players-board').style.display = 'grid'; logContainer.style.display = 'flex'; } 
-            else if (aba === 'monstros') { document.getElementById('tab-monstros').classList.add('active'); document.getElementById('monsters-board').style.display = 'flex'; logContainer.style.display = 'flex'; renderizarMonstros(); } 
-            else if (aba === 'iniciativa') { document.getElementById('tab-iniciativa').classList.add('active'); document.getElementById('iniciativa-board').style.display = 'flex'; logContainer.style.display = 'flex'; renderizarIniciativa(); } 
-            else if (aba === 'roteiro') { document.getElementById('tab-roteiro').classList.add('active'); document.getElementById('roteiro-board').style.display = 'flex'; logContainer.style.display = 'none'; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
-        }
-
-        function renderizarIniciativa() {
-            iniciativaList.sort((a, b) => { if (b.total !== a.total) return b.total - a.total; if (b.dado !== a.dado) return b.dado - a.dado; if (b.bonus !== a.bonus) return b.bonus - a.bonus; return b.agi - a.agi; });
-            localStorage.setItem('mestre_iniciativa', JSON.stringify(iniciativaList));
-            const listContainer = document.getElementById('iniciativa-list-container'); listContainer.innerHTML = '';
-            if (iniciativaList.length === 0) { listContainer.innerHTML = `<div style="text-align:center; color:var(--text-secondary); margin-top:30px;">Peça aos jogadores para rolarem iniciativa na ficha ou clique em Rolar Monstros.</div>`; return; }
-            iniciativaList.forEach((item, index) => {
-                const card = document.createElement('div'); card.className = `ini-card ${item.isPlayer ? 'is-player' : 'is-monster'}`;
-                card.innerHTML = `<button class="btn-remove" style="top: -5px; right: -5px; z-index: 10;" onclick="removerIniciativa('${item.id}')">X</button><div class="ini-rank">#${index + 1}</div><img src="${item.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${item.nome}</h3><div class="ini-details">Dado: <b>${item.dado}</b> | Bônus: <b>+${item.bonus}</b> | AGI: <b>${item.agi}</b></div></div><div class="ini-total-box"><div class="ini-total">${item.total}</div><div class="ini-total-lbl">Total</div></div>`;
-                listContainer.appendChild(card);
-            });
-        }
-
-        function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); renderizarIniciativa(); }
-        function limparIniciativa() { if(confirm("Tem a certeza que deseja limpar toda a Ordem de Iniciativa?")) { iniciativaList = []; renderizarIniciativa(); } }
-        function rolarMonstrosIniciativa() { if(monstros.length === 0) return alert("Não existem monstros no ecrã para rolar iniciativa."); monstros.forEach(m => rolarPericiaMonstro(m.id, 'iniciativa')); if (!document.getElementById('tab-iniciativa').classList.contains('active')) mudarAba('iniciativa'); }
-
-        function abrirModalCriatura() { document.getElementById('modal-criatura').style.display = 'flex'; ['agi','for','pre'].forEach(a => document.getElementById(`c-${a}`).value = '1'); ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => { document.getElementById(`c-treino-${p}`).checked = false; document.getElementById(`c-bonus-${p}`).value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; addCampoAtaque('c-ataques-list'); addCampoPoder('c-poderes-list'); }
-        function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
-        function addCampoAtaque(containerId) { const container = document.getElementById(containerId); const div = document.createElement('div'); div.className = 'dynamic-row'; div.style.flexDirection = 'column'; div.style.background = 'rgba(0,0,0,0.3)'; div.style.padding = '10px'; div.style.borderRadius = '8px'; div.style.position = 'relative'; div.style.border = '1px solid #333'; div.style.marginBottom = '10px'; div.innerHTML = `<button class="btn-ctrl" onclick="this.parentElement.remove()" style="position: absolute; top: -10px; right: -10px; background:var(--accent-red); width: 24px; height: 24px; font-size: 0.8em; border-radius: 50%;">X</button><div style="display: flex; gap: 8px; margin-bottom: 8px;"><div style="flex:2;"><label style="font-size:0.7em; color:gray;">NOME DO ATAQUE</label><input type="text" class="monster-input atq-nome" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: Garras"></div><div style="flex:1;"><label style="font-size:0.7em; color:gray;">TIPO</label><input type="text" class="monster-input atq-tipo" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: Corte"></div></div><div style="display: flex; gap: 8px;"><div style="flex:1;"><label style="font-size:0.7em; color:gray;">QTD</label><input type="number" class="monster-input atq-qtd" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 2" value="1"></div><div style="flex:1.5;"><label style="font-size:0.7em; color:gray;">DANO</label><input type="text" class="monster-input atq-dano" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 1d6+2"></div><div style="flex:1;"><label style="font-size:0.7em; color:gray;">CRÍTICO</label><input type="text" class="monster-input atq-crit" style="width:100%; box-sizing:border-box; padding:6px;" placeholder="Ex: 19/x2" value="20/x2"></div></div>`; container.appendChild(div); }
-        function addCampoPoder(containerId) { const container = document.getElementById(containerId); const div = document.createElement('div'); div.className = 'dynamic-row'; div.innerHTML = `<input type="text" class="monster-input pow-nome" style="flex:1; width:100%;" placeholder="Poder (Ex: Regeneração 5 PV)"><button class="btn-ctrl" onclick="this.parentElement.remove()" style="background:var(--accent-red);">X</button>`; container.appendChild(div); }
-
-        function salvarCriatura() {
-            const nome = document.getElementById('c-nome').value || 'Criatura Desconhecida'; const foto = document.getElementById('c-foto').value || 'https://i.imgur.com/k2oT3L8.png'; const presenca = document.getElementById('c-presenca').value || 'N/A'; const defesa = document.getElementById('c-defesa').value || '0'; const vida = parseInt(document.getElementById('c-vida').value) || 1;
-            const attrs = { agi: parseInt(document.getElementById('c-agi').value) || 1, for: parseInt(document.getElementById('c-for').value) || 1, pre: parseInt(document.getElementById('c-pre').value) || 1 };
-            const skills = {}; ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(p => { skills[p] = { treinado: document.getElementById(`c-treino-${p}`).checked, bonus: parseInt(document.getElementById(`c-bonus-${p}`).value) || 0 }; });
-            const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => { return { nome: row.querySelector('.atq-nome').value.trim(), tipo: row.querySelector('.atq-tipo').value.trim(), qtd: parseInt(row.querySelector('.atq-qtd').value) || 1, dano: row.querySelector('.atq-dano').value.trim(), critico: row.querySelector('.atq-crit').value.trim() }; }).filter(atq => atq.nome !== '' && atq.dano !== '');
-            const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.pow-nome')).map(inp => inp.value).filter(val => val.trim() !== '');
-            monstros.push({ id: Date.now().toString(), nome, foto, presenca, defesa, vida_max: vida, vida_atual: vida, attrs, skills, ataques, poderes });
-            localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); fecharModalCriatura(); renderizarMonstros();
-        }
-
-        function removerMonstro(id) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); renderizarMonstros(); removerIniciativa(id); }
-        function alterarVidaMonstro(id, delta) { const monstro = monstros.find(m => m.id === id); if (monstro) { monstro.vida_atual += delta; if (monstro.vida_atual > monstro.vida_max) monstro.vida_atual = monstro.vida_max; if (monstro.vida_atual < 0) monstro.vida_atual = 0; localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); renderizarMonstros(); } }
-
-        function rolarDanoMonstro(monstroNome, ataqueNome, formulaDano) {
-            let formula = formulaDano.toLowerCase().replace(/\s+/g, ''); let total = 0; let pieces = formula.match(/[+\-]?[^+\-]+/g); if(!pieces) return alert("Fórmula de dano inválida!");
-            pieces.forEach(p => { let sinal = 1; if(p.startsWith('+')) { p = p.substring(1); } else if(p.startsWith('-')) { sinal = -1; p = p.substring(1); } if(p.includes('d')) { let parts = p.split('d'); let qtd = parseInt(parts[0]) || 1; let faces = parseInt(parts[1]) || 1; let sum = 0; for(let i=0; i<qtd; i++) sum += Math.floor(Math.random() * faces) + 1; total += (sum * sinal); } else { let val = parseInt(p); if(!isNaN(val)) total += (val * sinal); } });
-            if(total < 0) total = 0; showPopup(total, `DANO: ${ataqueNome}`, "color:var(--accent-red)", monstroNome);
-        }
-
-        function rolarPericiaMonstro(id, keyPericia) {
-            const monstro = monstros.find(m => m.id === id); if (!monstro) return;
-            const info = periciasMonstroInfo[keyPericia]; const attrVal = monstro.attrs[info.attr] || 1; const skillData = monstro.skills[keyPericia] || { bonus: 0, treinado: false };
-            let f = Math.floor(skillData.bonus + (attrVal * info.mod) + (skillData.treinado ? 10 : 0)); let d = Math.floor(Math.random() * 20) + 1; let fLimit = f > 20 ? 20 : (f < 1 ? 1 : f); let m = tabelaD20[fLimit];
-            let resultadoStr = "FALHA"; let cor = "color:var(--accent-red)";
-            if (d === 20) { resultadoStr = "EXTREMO"; cor = "color:var(--accent-yellow)"; } else if (d >= m.e && m.e != 99) { resultadoStr = "EXTREMO"; cor = "color:var(--accent-yellow)"; } else if (d >= m.b && m.b != 99) { resultadoStr = "BOM"; cor = "color:var(--accent-blue)"; } else if (d >= m.n) { resultadoStr = "NORMAL"; cor = "color:var(--accent-green)"; }
-            if (d === 1) { resultadoStr = "DESASTRE"; cor = "color:#ff5252; font-weight:bold;"; }
-            showPopup(d, `${info.nome} (${resultadoStr})`, cor, monstro.nome);
-        }
-
-        function renderizarMonstros() {
-            const grid = document.getElementById('monsters-grid'); grid.innerHTML = '';
-            monstros.forEach(monstro => {
-                const percVida = Math.min(Math.max((monstro.vida_atual / monstro.vida_max) * 100, 0), 100) || 0;
-                let attrsHTML = ''; if(monstro.attrs) { attrsHTML = `<div style="display:flex; justify-content:space-around; background: rgba(0,0,0,0.5); padding: 6px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; font-size: 0.85em;"><span title="Agilidade" style="color:var(--text-secondary)">AGI <span style="color:white">${monstro.attrs.agi}</span></span><span title="Força" style="color:var(--text-secondary)">FOR <span style="color:white">${monstro.attrs.for}</span></span><span title="Presença" style="color:var(--text-secondary)">PRE <span style="color:white">${monstro.attrs.pre}</span></span></div>`; }
-                let listasHTML = ''; if (monstro.ataques && monstro.ataques.length > 0) { let linhasAtaque = monstro.ataques.map(a => { if (typeof a === 'string') return `<li>${a}</li>`; let nomeExibicao = a.qtd && a.qtd > 1 ? `${a.qtd}x ${a.nome}` : a.nome; let tipoText = a.tipo ? ` (${a.tipo})` : ''; let critText = a.critico && a.critico !== '20/x2' ? ` | Crit: ${a.critico}` : ''; return `<li style="display: flex; flex-direction: column; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><span><strong style="color:white;">${nomeExibicao}</strong><span style="color:var(--text-secondary); font-size:0.85em;">${tipoText}</span></span><button class="btn-ctrl" style="width: auto; padding: 4px 10px; font-size: 0.85em; background: var(--accent-red); border: none; border-radius: 4px;" onclick="rolarDanoMonstro('${monstro.nome}', '${a.nome}', '${a.dano}')">🩸 Dano</button></div><div style="font-size: 0.85em; color: var(--text-secondary);">Dano: <span style="color:var(--accent-yellow); font-weight:bold;">${a.dano}</span>${critText}</div></li>`; }).join(''); listasHTML += `<div style="margin-bottom: 5px;"><strong style="color:var(--accent-red);">Ataques:</strong><ul style="margin: 5px 0 5px 0; padding:0; list-style:none;">${linhasAtaque}</ul></div>`; }
-                if (monstro.poderes && monstro.poderes.length > 0) { listasHTML += `<div><strong style="color:var(--accent-blue);">Poderes:</strong><ul style="margin: 2px 0 0 15px; padding:0;">` + monstro.poderes.map(p => `<li>${p}</li>`).join('') + `</ul></div>`; }
-                let btnPericiasHTML = ''; if(monstro.skills) { btnPericiasHTML = `<div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:10px;"><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'iniciativa')" style="background:var(--bg-card); color:white; border:1px solid #444;">Iniciativa</button><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'percepcao')" style="background:var(--bg-card); color:white; border:1px solid #444;">Percepção</button><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'reflexos')" style="background:var(--bg-card); color:white; border:1px solid #444;">Reflexos</button><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'vontade')" style="background:var(--bg-card); color:white; border:1px solid #444;">Vontade</button><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'luta')" style="border-color:var(--accent-blue); padding: 5px;">🗡️ Luta</button><button class="btn-roll" onclick="rolarPericiaMonstro('${monstro.id}', 'pontaria')" style="border-color:var(--accent-blue); padding: 5px;">🔫 Pont</button></div>`; }
-
-                const card = document.createElement('div'); card.className = 'monster-card';
-                card.innerHTML = `<button class="btn-remove" onclick="removerMonstro('${monstro.id}')" title="Remover Monstro">X</button><div class="player-header" style="border-bottom-color: var(--accent-red);"><img src="${monstro.foto}" class="player-img monster-img"><div><h3 class="player-name monster-name">${monstro.nome}</h3><div class="player-info"><strong>Defesa:</strong> ${monstro.defesa} <br><strong>Presença:</strong> ${monstro.presenca}</div></div></div>${attrsHTML}<div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', -1)">-</button><button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', -10)" style="font-size: 0.7em;">-10</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${monstro.vida_atual} / ${monstro.vida_max}</div></div><button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 10)" style="font-size: 0.7em;">+10</button><button class="btn-ctrl" onclick="alterarVidaMonstro('${monstro.id}', 1)">+</button></div></div><div class="monster-details">${listasHTML || '<em>Nenhum ataque ou poder registado.</em>'}</div>${btnPericiasHTML}`;
-                grid.appendChild(card);
-            });
-        }
-
-        renderRoteiros(); renderDescricoes(); atualizarEditor();
-        if (document.getElementById('tab-monstros').classList.contains('active')) renderizarMonstros();
-        if (document.getElementById('tab-iniciativa').classList.contains('active')) renderizarIniciativa();
-    </script>
-</body>
-</html>
+            const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg)
