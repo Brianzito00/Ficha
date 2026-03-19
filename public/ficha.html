@@ -1396,15 +1396,14 @@
                 }
             });
 
-            socket.on('comando_mestre', (dados) => {
-                // Caso o mestre mude vida/sanidade/status
+            ssocket.on('comando_mestre', (dados) => {
                 if (dados.codigo === baseUser) { 
                     if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
                     else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
                     else if (dados.tipo === 'status') toggleStatus(dados.status); 
                 }
                 
-                // NOVO: Caso o mestre expulse o jogador
+                // NOVO: Caso o mestre expulse o jogador em direto
                 if (dados.tipo === 'expulsar_jogador' && dados.codigo === baseUser) {
                     alert("Você foi removido da mesa pelo Mestre. Terá de escolher uma ficha novamente se for adicionado.");
                     
@@ -1412,8 +1411,12 @@
                     localStorage.removeItem('ficha_vinculada_' + campanhaAtiva);
                     localStorage.removeItem('ordem_save_local_' + campanhaAtiva);
                     
-                    // Força a saída pro Lobby
-                    fazerLogout();
+                    // Avisa a Base de Dados que a ficha antiga não pertence mais à mesa
+                    fetch('/api/sair_campanha', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario: baseUser, campanha: campanhaAtiva })
+                    }).then(() => fazerLogout()); // Volta para o Lobby
                 }
             });
             socket.on('mestre_force_sync_player', (dados) => {
