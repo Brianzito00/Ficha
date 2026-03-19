@@ -407,7 +407,7 @@
         <div class="panel-title">Informações do Personagem</div>
         <div class="char-info-wrapper">
             <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <img id="char_img_display" src="https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
             </div>
             <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
@@ -709,7 +709,7 @@
     }
 
     function updateProfilePicture() {
-        let imgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
+        let imgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg";
         if (charStatus.morrendo && charImages.morrendo) imgUrl = charImages.morrendo; 
         else if (charStatus.inconsciente && charImages.inconsciente) imgUrl = charImages.inconsciente; 
         else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) imgUrl = charImages.les_enlouq; 
@@ -1293,7 +1293,7 @@
 
     function save() {
         if(isLoadingData) return; 
-        let currentImgUrl = charImages.normal || "https://via.placeholder.com/150x150/202024/a8a8b3?text=FOTO";
+        let currentImgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg";
         if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
         else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
         else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
