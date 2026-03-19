@@ -493,16 +493,22 @@
         // ==========================================
         // NOVO: AVISAR O JOGADOR QUANDO ELE É REMOVIDO
         // ==========================================
-        function removerJogador(codigo) { 
+       function removerJogador(codigo, notificarJogador = true) { 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); 
             localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
+            
             const card = document.getElementById(`player-${codigo}`); 
             if (card) card.remove(); 
+            
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
             
-            // Avisa o jogador para limpar o vínculo no lado dele
-            socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo }); 
+            // Avisa o servidor para destruir a memória daquele personagem
+            socket.emit('limpar_cache_jogador', { codigo: codigo });
             
+            // Apenas manda o comando para expulsar a tela se o Mestre o tiver removido ativamente
+            if (notificarJogador) {
+                socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo });
+            }
             salvarMestreNoFirebase(); 
         }
 
@@ -524,12 +530,18 @@
             card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${dados.codigo}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${dados.codigo}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>`;
         });
 
-        socket.on('comando_mestre', (dados) => {
+       socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'request_overlay_sync') { 
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
             }
+            
             if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { 
                 removerJogador(dados.codigo); 
+            }
+
+            // NOVO: Se o jogador saiu voluntariamente da mesa pelo Lobby, o mestre atualiza o ecrã
+            if (dados.tipo === 'jogador_saiu' && dados.codigo) {
+                removerJogador(dados.codigo, false);
             }
             
             if (dados.tipo === 'jogador_entrou' && dados.codigo) {
