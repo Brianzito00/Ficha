@@ -348,11 +348,25 @@
         function criarNovaFicha() {
             let nome = prompt("Introduza o nome do seu novo personagem:");
             if(!nome) return;
+            
             let idFicha = 'f_' + Date.now();
             let novaFicha = { id: idFicha, nome: nome, nex: 5, classe: 'Nenhuma' };
             minhasFichas.push(novaFicha);
             salvarFichas();
             
+            // --- NOVA ADIÇÃO AQUI ---
+            // Injeta o nome diretamente no "save" do personagem antes de abrir a ficha, 
+            // para que a ficha já carregue os dados base.
+            let initialData = {
+                info: {
+                    char_nome: nome,
+                    char_nex: "5",
+                    char_origem: "Nenhuma"
+                }
+            };
+            localStorage.setItem('ordem_save_local_SOLO_' + idFicha, JSON.stringify(initialData));
+            // ------------------------
+
             editarFichaSolo(idFicha);
         }
 
