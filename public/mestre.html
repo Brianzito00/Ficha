@@ -490,12 +490,19 @@
             input.value = '';
         }
 
+        // ==========================================
+        // NOVO: AVISAR O JOGADOR QUANDO ELE É REMOVIDO
+        // ==========================================
         function removerJogador(codigo) { 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); 
             localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
             const card = document.getElementById(`player-${codigo}`); 
             if (card) card.remove(); 
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
+            
+            // Avisa o jogador para limpar o vínculo no lado dele
+            socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo }); 
+            
             salvarMestreNoFirebase(); 
         }
 
