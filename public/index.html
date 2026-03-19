@@ -274,21 +274,28 @@
             fecharModais();
         }
 
-       function removerCampanhaJogada(codigo) {
+      async function removerCampanhaJogada(codigo) {
             if(confirm(`Tem certeza que deseja sair da campanha ${codigo}?\nA ficha criada para esta mesa continuará salva no seu Arquivo.`)) {
+                // Remove visualmente da lista
                 minhasCampanhasJogadas = minhasCampanhasJogadas.filter(c => c !== codigo);
                 salvarCampanhasJogadas();
                 
-                // NOVO: Desvincular a ficha da mesa para que o sistema volte a pedir
+                // NOVO: Desvincula a ficha da mesa para que o sistema exija a seleção novamente ao voltar
                 localStorage.removeItem('ficha_vinculada_' + codigo);
-                
-                // Opcional: limpa os dados salvos exclusivamente na mesa para evitar conflitos ao entrar do zero
                 localStorage.removeItem('ordem_save_local_' + codigo);
+                
+                // NOVO: Avisar a Base de Dados e o Mestre para apagar os rastos da ficha velha
+                try {
+                    await fetch('/api/sair_campanha', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario: userLogado, campanha: codigo })
+                    });
+                } catch(e) {}
                 
                 renderCampanhasJogadas();
             }
         }
-
         function renderCampanhasJogadas() {
             const container = document.getElementById('lista-campanhas-jogadas');
             container.innerHTML = '';
