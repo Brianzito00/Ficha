@@ -274,10 +274,17 @@
             fecharModais();
         }
 
-        function removerCampanhaJogada(codigo) {
+       function removerCampanhaJogada(codigo) {
             if(confirm(`Tem certeza que deseja sair da campanha ${codigo}?\nA ficha criada para esta mesa continuará salva no seu Arquivo.`)) {
                 minhasCampanhasJogadas = minhasCampanhasJogadas.filter(c => c !== codigo);
                 salvarCampanhasJogadas();
+                
+                // NOVO: Desvincular a ficha da mesa para que o sistema volte a pedir
+                localStorage.removeItem('ficha_vinculada_' + codigo);
+                
+                // Opcional: limpa os dados salvos exclusivamente na mesa para evitar conflitos ao entrar do zero
+                localStorage.removeItem('ordem_save_local_' + codigo);
+                
                 renderCampanhasJogadas();
             }
         }
