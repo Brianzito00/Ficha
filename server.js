@@ -26,7 +26,7 @@ try {
 }
 
 // ==========================================
-// 2. ROTAS DA API (ISOLAMENTO DE CAMPANHAS)
+// 2. ROTAS DA API
 // ==========================================
 
 app.get('/', (req, res) => { res.redirect('/login.html'); });
@@ -52,9 +52,8 @@ app.post('/api/login', async (req, res) => {
     } catch (error) { res.json({ sucesso: false, erro: 'Erro interno.' }); }
 });
 
-// Puxar Ficha de uma Campanha Específica
 app.post('/api/carregar_personagem', async (req, res) => {
-    const { usuario } = req.body; // Vem no formato JOAO_NOME-DA-CAMPANHA
+    const { usuario } = req.body; 
     try {
         const doc = await db.collection('fichas_campanha').doc(usuario).get();
         if (doc.exists) res.json({ sucesso: true, ficha: doc.data().ficha });
@@ -62,7 +61,6 @@ app.post('/api/carregar_personagem', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// Guardar Ficha numa Campanha Específica
 app.post('/api/guardar_ficha', async (req, res) => {
     const { usuario, fichaData } = req.body;
     try {
@@ -72,7 +70,6 @@ app.post('/api/guardar_ficha', async (req, res) => {
     } catch (error) { res.json({ sucesso: false }); }
 });
 
-// Carregar Dados do Mestre e Wallpaper
 app.post('/api/carregar_campanha', async (req, res) => {
     const { campanha } = req.body;
     try {
@@ -82,7 +79,6 @@ app.post('/api/carregar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// Salvar Dados do Mestre e Wallpaper
 app.post('/api/salvar_campanha', async (req, res) => {
     const { campanha, dados } = req.body;
     try {
@@ -91,28 +87,43 @@ app.post('/api/salvar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
+// NOVA ROTA: Remover os dados de vínculo quando o jogador é expulso ou sai da mesa
+app.post('/api/sair_campanha', async (req, res) => {
+    const { usuario, campanha } = req.body;
+    const idUnico = usuario + '_' + campanha;
+    try {
+        await db.collection('fichas_campanha').doc(idUnico).delete(); // Apaga a ficha da DB
+        delete playersData[idUnico]; // Limpa a cache de memória
+        // Avisa o mestre (via socket) que o jogador saiu
+        io.to(campanha).emit('comando_mestre', { tipo: 'jogador_saiu', codigo: usuario });
+        res.json({ sucesso: true });
+    } catch(e) {
+        res.json({ sucesso: false });
+    }
+});
+
 
 // ==========================================
-// 3. COMUNICAÇÃO EM TEMPO REAL (SALAS ISOLADAS)
+// 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET)
 // ==========================================
 const playersData = {}; 
 
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
 
-    // Entra numa sala exclusiva da campanha para não vazar rolagens e itens
     socket.on('join_campaign', (campanha) => {
         socket.join(campanha);
         socket.campanha = campanha;
-        console.log(`📌 Utilizador entrou na campanha: ${campanha}`);
     });
 
-    socket.on('novo_item_catalogo_global', (data) => {
-        socket.broadcast.to(socket.campanha).emit('sync_item_catalogo_global', data);
-    });
+    socket.on('novo_item_catalogo_global', (data) => socket.broadcast.to(socket.campanha).emit('sync_item_catalogo_global', data));
+    socket.on('remover_item_catalogo_global', (data) => socket.broadcast.to(socket.campanha).emit('item_removido_catalogo_global', data));
 
-    socket.on('remover_item_catalogo_global', (data) => {
-        socket.broadcast.to(socket.campanha).emit('item_removido_catalogo_global', data);
+    // NOVO: Pedido manual do mestre para limpar o cache da memória RAM do servidor
+    socket.on('limpar_cache_jogador', (dados) => {
+        if(dados.codigo && socket.campanha) {
+            delete playersData[dados.codigo + '_' + socket.campanha];
+        }
     });
 
     socket.on('status_change', (dados) => {
