@@ -70,6 +70,9 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            /* ADICIONADA ANIMAÇÃO DE FADE AQUI */
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
         }
 
         .status-numbers {
@@ -217,20 +220,36 @@
         });
 
         socket.on('update_mestre', (dados) => {
-            const codPuro = dados.codigo; // O servidor já extrai o nome puro
+            const codPuro = dados.codigo; 
             
             if (activePlayers.includes(codPuro)) {
+                
+                // LÓGICA DE ATUALIZAÇÃO DA FOTO COM ANIMAÇÃO FADE
                 const fotoEl = document.getElementById(`foto-${codPuro}`);
-                if (fotoEl) {
-                    fotoEl.src = dados.foto || 'https://via.placeholder.com/140';
+                const novaFoto = dados.foto || 'https://via.placeholder.com/140';
+                
+                if (fotoEl && fotoEl.getAttribute('src') !== novaFoto) {
+                    fotoEl.style.opacity = 0; // Inicia o fade out
+                    setTimeout(() => {
+                        fotoEl.src = novaFoto; // Troca a imagem enquanto invisível
+                        fotoEl.setAttribute('src', novaFoto);
+                        
+                        // Faz fade in quando a imagem carregar
+                        fotoEl.onload = () => fotoEl.style.opacity = 1; 
+                        
+                        // Fallback de segurança se falhar o onload
+                        setTimeout(() => fotoEl.style.opacity = 1, 100);
+                    }, 300);
                 }
 
+                // ATUALIZAÇÃO DA VIDA E SANIDADE
                 const vidaEl = document.getElementById(`vida-${codPuro}`);
                 const saniEl = document.getElementById(`sani-${codPuro}`);
                 
                 if(vidaEl) vidaEl.innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
                 if(saniEl) saniEl.innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
+                // ATUALIZAÇÃO DAS BALAS (MUNIÇÃO DA ARMA ATIVA)
                 const ammoEl = document.getElementById(`ammo-${codPuro}`);
                 let muniTexto = "";
                 if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
