@@ -14,7 +14,6 @@
 
         body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
-            /* Imagem padrão, será substituída pelo JS se a campanha tiver um Wallpaper próprio */
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
             background-size: cover; background-attachment: fixed; background-position: center; color: var(--text-primary);
             margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
@@ -334,7 +333,6 @@
 
         if (!playerCode || !campanhaAtiva) { window.location.href = '/index.html'; }
 
-        // CARREGA O WALLPAPER TAMBÉM NO MESTRE!
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
         if(customWP && customWP.trim() !== '') { 
             document.body.style.backgroundImage = `url('${customWP}')`; 
@@ -348,7 +346,6 @@
 
         let playersDataMemoria = {}; 
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
-        
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
 
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
@@ -490,10 +487,16 @@
             input.value = '';
         }
 
-        // ==========================================
-        // NOVO: AVISAR O JOGADOR QUANDO ELE É REMOVIDO
-        // ==========================================
-       function removerJogador(codigo, notificarJogador = true) { 
+        // ========================================================
+        // ATUALIZADO: ALTERAR STATUS E REMOVER JOGADOR
+        // ========================================================
+        function alterarStatusMestre(codigo, tipo, valor) {
+            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
+            // ADICIONADO O "tipo: 'status'" para o código funcionar
+            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, tipo: 'status', status: valor });
+        }
+
+        function removerJogador(codigo, notificarJogador = true) { 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); 
             localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
             
@@ -509,16 +512,19 @@
             if (notificarJogador) {
                 socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo });
             }
+
+            // Limpa a ficha velha da Base de Dados
+            fetch('/api/sair_campanha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario: codigo, campanha: campanhaAtiva })
+            });
+
             salvarMestreNoFirebase(); 
         }
 
         function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo}`; document.getElementById('modal-ficha').style.display = 'flex'; }
         function fecharFicha() { document.getElementById('modal-ficha').style.display = 'none'; document.getElementById('iframe-ficha').src = ''; }
-
-        function alterarStatusMestre(codigo, tipo, valor) {
-            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
-            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, status: valor });
-        }
 
         socket.on('update_mestre', (dados) => {
             if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
@@ -530,7 +536,10 @@
             card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${dados.codigo}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${dados.codigo}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>`;
         });
 
-       socket.on('comando_mestre', (dados) => {
+        // ========================================================
+        // ATUALIZADO: LIDAR COM A SAÍDA VOLUNTÁRIA DO JOGADOR
+        // ========================================================
+        socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'request_overlay_sync') { 
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
             }
@@ -539,7 +548,7 @@
                 removerJogador(dados.codigo); 
             }
 
-            // NOVO: Se o jogador saiu voluntariamente da mesa pelo Lobby, o mestre atualiza o ecrã
+            // Se o jogador saiu voluntariamente da mesa pelo Lobby, o mestre atualiza o ecrã
             if (dados.tipo === 'jogador_saiu' && dados.codigo) {
                 removerJogador(dados.codigo, false);
             }
