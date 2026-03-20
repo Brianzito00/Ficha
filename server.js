@@ -8,6 +8,7 @@ const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
+// Aumenta o limite para suportar fichas com imagens em base64 ou textos grandes
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -21,12 +22,12 @@ try {
     db = admin.firestore();
     console.log("🔥 Ligado ao Firebase com sucesso!");
 } catch (error) {
-    console.error("❌ ERRO: Ficheiro 'firebase-key.json' não encontrado!");
+    console.error("❌ ERRO: Ficheiro 'firebase-key.json' não encontrado! Verifique se ele está na raiz do projeto.");
     process.exit(1);
 }
 
 // ==========================================
-// 2. ROTAS DA API
+// 2. ROTAS DA API (BANCO DE DADOS)
 // ==========================================
 
 app.get('/', (req, res) => { res.redirect('/login.html'); });
@@ -37,6 +38,7 @@ app.post('/api/registar', async (req, res) => {
         const docRef = db.collection('usuarios').doc(usuario);
         const doc = await docRef.get();
         if (doc.exists) return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
+        
         await docRef.set({ senha: senha });
         res.json({ sucesso: true });
     } catch (error) { res.json({ sucesso: false, erro: 'Erro no banco de dados.' }); }
@@ -48,12 +50,14 @@ app.post('/api/login', async (req, res) => {
         const docRef = db.collection('usuarios').doc(usuario);
         const doc = await docRef.get();
         if (!doc.exists || doc.data().senha !== senha) return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
+        
         res.json({ sucesso: true });
     } catch (error) { res.json({ sucesso: false, erro: 'Erro interno.' }); }
 });
 
+// Puxar Ficha de uma Campanha Específica
 app.post('/api/carregar_personagem', async (req, res) => {
-    const { usuario } = req.body; 
+    const { usuario } = req.body; // Vem no formato JOAO_NOME-DA-CAMPANHA
     try {
         const doc = await db.collection('fichas_campanha').doc(usuario).get();
         if (doc.exists) res.json({ sucesso: true, ficha: doc.data().ficha });
@@ -61,15 +65,17 @@ app.post('/api/carregar_personagem', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
+// Guardar Ficha numa Campanha Específica
 app.post('/api/guardar_ficha', async (req, res) => {
     const { usuario, fichaData } = req.body;
     try {
         await db.collection('fichas_campanha').doc(usuario).set({ ficha: fichaData }, { merge: true }); 
-        console.log(`💾 Ficha [${usuario}] salva.`);
+        console.log(`💾 Ficha [${usuario}] salva na nuvem.`);
         res.json({ sucesso: true });
     } catch (error) { res.json({ sucesso: false }); }
 });
 
+// Carregar Dados do Mestre e Wallpaper
 app.post('/api/carregar_campanha', async (req, res) => {
     const { campanha } = req.body;
     try {
@@ -79,6 +85,7 @@ app.post('/api/carregar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
+// Salvar Dados do Mestre e Wallpaper
 app.post('/api/salvar_campanha', async (req, res) => {
     const { campanha, dados } = req.body;
     try {
@@ -87,15 +94,24 @@ app.post('/api/salvar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// NOVA ROTA: Remover os dados de vínculo quando o jogador é expulso ou sai da mesa
+// Remover os dados de vínculo quando o jogador é expulso pelo mestre ou sai pelo lobby
 app.post('/api/sair_campanha', async (req, res) => {
     const { usuario, campanha } = req.body;
     const idUnico = usuario + '_' + campanha;
+    
     try {
-        await db.collection('fichas_campanha').doc(idUnico).delete(); // Apaga a ficha da DB
-        delete playersData[idUnico]; // Limpa a cache de memória
+        // Apaga a ficha associada à campanha na Base de Dados
+        await db.collection('fichas_campanha').doc(idUnico).delete(); 
+        
+        // Limpa a cache da memória RAM do servidor
+        if (typeof playersData !== 'undefined') {
+            delete playersData[idUnico]; 
+        }
+        
         // Avisa o mestre (via socket) que o jogador saiu
         io.to(campanha).emit('comando_mestre', { tipo: 'jogador_saiu', codigo: usuario });
+        
+        console.log(`🗑️ O jogador [${usuario}] saiu/foi expulso da campanha [${campanha}]. Dados limpos.`);
         res.json({ sucesso: true });
     } catch(e) {
         res.json({ sucesso: false });
@@ -104,75 +120,112 @@ app.post('/api/sair_campanha', async (req, res) => {
 
 
 // ==========================================
-// 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET)
+// 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
+
+// Memória RAM temporária para as fichas, para evitar ler a BD a toda a hora
 const playersData = {}; 
 
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
 
+    // Entra numa sala exclusiva da campanha para não vazar rolagens e itens
     socket.on('join_campaign', (campanha) => {
         socket.join(campanha);
         socket.campanha = campanha;
+        console.log(`📌 Utilizador entrou na campanha (Sala: ${campanha})`);
     });
 
-    socket.on('novo_item_catalogo_global', (data) => socket.broadcast.to(socket.campanha).emit('sync_item_catalogo_global', data));
-    socket.on('remover_item_catalogo_global', (data) => socket.broadcast.to(socket.campanha).emit('item_removido_catalogo_global', data));
+    // Sincronização de Itens e Rituais do Catálogo Customizado
+    socket.on('novo_item_catalogo_global', (data) => {
+        socket.broadcast.to(socket.campanha).emit('sync_item_catalogo_global', data);
+    });
 
-    // NOVO: Pedido manual do mestre para limpar o cache da memória RAM do servidor
+    socket.on('remover_item_catalogo_global', (data) => {
+        socket.broadcast.to(socket.campanha).emit('item_removido_catalogo_global', data);
+    });
+
+    // Limpeza manual da memória a pedido do Mestre
     socket.on('limpar_cache_jogador', (dados) => {
         if(dados.codigo && socket.campanha) {
             delete playersData[dados.codigo + '_' + socket.campanha];
         }
     });
 
+    // Quando o jogador atualiza vida, sanidade, status, etc.
     socket.on('status_change', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo + '_' + socket.campanha] = dados;
+            // Envia para o Mestre
             socket.broadcast.to(socket.campanha).emit('update_mestre', dados); 
         }
     });
 
+    // Sincronização forçada enviada pela ficha (quando o mestre clica no botão de recarregar)
     socket.on('mestre_force_sync', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo + '_' + socket.campanha] = dados;
             socket.broadcast.to(socket.campanha).emit('update_mestre', dados); 
+            // Envia de volta ao jogador para atualizar o ecrã dele se o mestre alterar algo na DB
             socket.broadcast.to(socket.campanha).emit('mestre_force_sync_player', dados); 
         }
     });
 
-    socket.on('comando_mestre', (dados) => socket.broadcast.to(socket.campanha).emit('comando_mestre', dados));
+    // Comandos genéricos enviados pelo mestre (dar dano, curar, expulsar, etc)
+    socket.on('comando_mestre', (dados) => {
+        socket.broadcast.to(socket.campanha).emit('comando_mestre', dados);
+    });
     
+    // Rolagem de dados e logs
     socket.on('rolagem_feita', (dados) => { 
         io.to(socket.campanha).emit('novo_log', dados); 
-        io.to(socket.campanha).emit('nova_rolagem', dados); 
+        io.to(socket.campanha).emit('nova_rolagem', dados); // Para o overlay
     });
 
+    // Mestre pede a ficha atualizada do jogador ao abrir o escudo ou adicionar o jogador
     socket.on('request_player', async (codigo) => {
         const idUnico = codigo + '_' + socket.campanha;
+        
+        // 1º Tenta puxar da memória rápida (RAM)
         if(playersData[idUnico]) {
             socket.emit('update_mestre', playersData[idUnico]);
         } else {
+            // 2º Tenta puxar do Firebase (se ele tiver recarregado a página e a RAM estiver limpa)
             try {
                 const doc = await db.collection('fichas_campanha').doc(idUnico).get();
                 if (doc.exists && doc.data().ficha) {
                     const f = doc.data().ficha;
                     const dadosRecuperados = {
-                        codigo: codigo, nome: f.info.char_nome, foto: f.info.char_img, nex: f.info.char_nex, defesa: f.defense,
-                        vida_atual: f.info.vida_atual, vida_max: f.info.vida_max, sani_atual: f.info.sani_atual, sani_max: f.info.sani_max,
-                        status: f.charStatus, fullData: f
+                        codigo: codigo, 
+                        nome: f.info.char_nome, 
+                        foto: f.info.char_img, 
+                        nex: f.info.char_nex, 
+                        defesa: f.defense,
+                        vida_atual: f.info.vida_atual, 
+                        vida_max: f.info.vida_max, 
+                        sani_atual: f.info.sani_atual, 
+                        sani_max: f.info.sani_max,
+                        status: f.charStatus, 
+                        fullData: f
                     };
                     playersData[idUnico] = dadosRecuperados;
                     socket.emit('update_mestre', dadosRecuperados);
                 } else {
+                    // 3º Se não houver nada na BD (novo vínculo), manda o ecrã do jogador forçar o envio
                     socket.broadcast.to(socket.campanha).emit('mestre_pede_ficha', codigo);
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error("Erro ao puxar dados do jogador:", e);
+            }
         }
     });
 
-    socket.on('disconnect', () => console.log(`🔴 Utilizador desligou-se: ${socket.id}`));
+    socket.on('disconnect', () => {
+        console.log(`🔴 Utilizador desligou-se: ${socket.id}`);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => { console.log(`🚀 Servidor a rodar na porta ${PORT}`); });
+server.listen(PORT, () => { 
+    console.log(`🚀 Servidor a rodar na porta ${PORT}`); 
+});
