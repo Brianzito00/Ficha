@@ -16,13 +16,11 @@
         
        body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKTXXlROZKTCRy58cJfdjVCw3XLueRPdoC5_Sfq6uErKvriHoomeeOGrnHTJ6LjmplkFSXfV1W-pS4pW1tU2CkNFO8PtUKlCzfO9qsPbY48iDU2wA2d0TGcUG-MA0e634RTWoUBdOpTVhz50k3nvxkXTdVYj1dfthCmp2Dpvw0rfSui-h3SDd-VB8jA2rH/w1322-h744/Fundo.jpg');
-            background-size: cover; background-position: center;
             background-size: cover; background-position: center; background-attachment: fixed;
             background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; /* Garante que ocupa pelo menos 100% da altura do ecrã */
-            box-sizing: border-box; /* Impede que o padding crie scroll invisível */
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
         .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap;}
@@ -1349,9 +1347,11 @@
         if (viewCode) {
             const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; 
             if (socket) {
-                socket.emit('join_campaign', campanhaAtiva);
+                socket.on('connect', () => {
+                    socket.emit('join_campaign', campanhaAtiva);
+                    socket.emit('request_player', viewCode); 
+                });
                 socket.on('update_mestre', (dados) => { if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { isLoadingData = true; populateData(dados.fullData); } });
-                socket.emit('request_player', viewCode); 
             }
         } else { load(); }
 
@@ -1396,29 +1396,22 @@
                 }
             });
 
-            ssocket.on('comando_mestre', (dados) => {
+            socket.on('comando_mestre', (dados) => {
                 if (dados.codigo === baseUser) { 
                     if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
                     else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
                     else if (dados.tipo === 'status') toggleStatus(dados.status); 
                 }
-                
-                // NOVO: Caso o mestre expulse o jogador em direto
+
+                // Quando o mestre carrega no "X" para o expulsar do escudo
                 if (dados.tipo === 'expulsar_jogador' && dados.codigo === baseUser) {
-                    alert("Você foi removido da mesa pelo Mestre. Terá de escolher uma ficha novamente se for adicionado.");
-                    
-                    // Remove o vínculo
+                    alert("Foi removido da mesa pelo Mestre.\nTerá de escolher uma ficha novamente se for adicionado.");
                     localStorage.removeItem('ficha_vinculada_' + campanhaAtiva);
                     localStorage.removeItem('ordem_save_local_' + campanhaAtiva);
-                    
-                    // Avisa a Base de Dados que a ficha antiga não pertence mais à mesa
-                    fetch('/api/sair_campanha', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ usuario: baseUser, campanha: campanhaAtiva })
-                    }).then(() => fazerLogout()); // Volta para o Lobby
+                    fazerLogout(); // Sai automaticamente para o Lobby
                 }
             });
+
             socket.on('mestre_force_sync_player', (dados) => {
                 if (dados.codigo === baseUser && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); }
             });
