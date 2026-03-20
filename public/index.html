@@ -10,7 +10,595 @@
             --primary: #b82bf2;
             --primary-hover: #d25aff;
             --player: #00b0ff;
+            --player-hover: #33bfff;<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby - Contos do Outro Lado</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #b82bf2;
+            --primary-hover: #d25aff;
+            --player: #00b0ff;
             --player-hover: #33bfff;
+            --master: #e53935;
+            --master-hover: #ef5350;
+            --success: #00e676;
+            --bg-card: rgba(20, 20, 24, 0.6);
+            --bg-input: rgba(255, 255, 255, 0.05);
+            --border-input: rgba(255, 255, 255, 0.1);
+            --text-muted: #a8a8b3;
+        }
+
+        body {
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #121214; color: white; font-family: 'Poppins', sans-serif;
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKTXXlROZKTCRy58cJfdjVCw3XLueRPdoC5_Sfq6uErKvriHoomeeOGrnHTJ6LjmplkFSXfV1W-pS4pW1tU2CkNFO8PtUKlCzfO9qsPbY48iDU2wA2d0TGcUG-MA0e634RTWoUBdOpTVhz50k3nvxkXTdVYj1dfthCmp2Dpvw0rfSui-h3SDd-VB8jA2rH/w1322-h744/Fundo.jpg');
+            background-size: cover; background-position: center;
+        }
+        
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(18,18,20,0.6) 100%); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: -1;
+        }
+
+        /* Glassmorphism base container */
+        .lobby-box {
+            background: var(--bg-card); padding: 40px; border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(184, 43, 242, 0.15);
+            width: 100%; max-width: 550px; text-align: center; position: relative; z-index: 1;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
+        }
+
+        /* Variações de cores das bordas do Box baseadas na visualização */
+        .lobby-box.theme-home { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(184, 43, 242, 0.15); }
+        .lobby-box.theme-player { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 176, 255, 0.15); }
+        .lobby-box.theme-master { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(229, 57, 53, 0.15); }
+
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--primary); text-transform: uppercase; margin-top: 0; margin-bottom: 5px; font-size: 2.2em; font-weight: 800; text-shadow: 0 0 15px rgba(184, 43, 242, 0.5); letter-spacing: 1px; }
+        h2 { font-weight: 700; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1em; font-weight: 400; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .section-header h3 { margin: 0; font-size: 1.1em; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Botões Escolha Home */
+        .btn-choice {
+            width: 100%; padding: 20px; margin-bottom: 15px; font-size: 1.1em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 12px;
+            font-family: 'Poppins', sans-serif; position: relative; overflow: hidden;
+        }
+        
+        .btn-player { background: rgba(0, 176, 255, 0.1); color: var(--player); border: 1px solid rgba(0, 176, 255, 0.3); }
+        .btn-player:hover { background: var(--player); color: black; box-shadow: 0 8px 25px rgba(0, 176, 255, 0.4); transform: translateY(-2px); border-color: var(--player); }
+        
+        .btn-master { background: rgba(229, 57, 53, 0.1); color: var(--master); border: 1px solid rgba(229, 57, 53, 0.3); }
+        .btn-master:hover { background: var(--master); color: white; box-shadow: 0 8px 25px rgba(229, 57, 53, 0.4); transform: translateY(-2px); border-color: var(--master); }
+
+        /* Inputs Modernos */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .inv-input { width: 100%; padding: 14px 16px; background: var(--bg-input); border: 1px solid var(--border-input); border-radius: 8px; color: white; box-sizing: border-box; font-size: 1em; font-family: 'Poppins', sans-serif; transition: all 0.3s ease; }
+        .inv-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(184, 43, 242, 0.15); background: rgba(255,255,255,0.08); }
+
+        /* Modais com Glassmorphism */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg-card); border-radius: 16px; padding: 40px; width: 90%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); animation: slideUpFade 0.4s ease; box-sizing: border-box; }
+        
+        /* Botões de Ação Gerais */
+        .btn-action { width: 100%; padding: 12px 20px; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-action:active { transform: translateY(1px); }
+        
+        .btn-cancel { width: 100%; padding: 12px 20px; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: all 0.2s; text-transform: uppercase; background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; border-color: rgba(255,255,255,0.3); }
+
+        .btn-outline { background: transparent; border: 1px solid currentColor; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif; text-transform: uppercase; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+        /* Cards das Listas (Campanhas, Fichas, Mesas) */
+        .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto; padding-right: 5px; margin-bottom: 25px; }
+        
+        .list-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s; }
+        .list-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
+        
+        .list-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .card-title { color: white; font-size: 1.1em; font-weight: 600; text-transform: uppercase; word-break: break-all; }
+        .card-subtitle { font-size: 0.8em; color: var(--text-muted); font-weight: 500; }
+        .card-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+        
+        /* Utilitários para os Cards JS */
+        .theme-border-player { border-left: 4px solid var(--player); }
+        .theme-border-master { border-left: 4px solid var(--master); }
+        .btn-sm { padding: 8px 12px; font-size: 0.85em; margin: 0; width: auto; flex: 1; }
+        .btn-icon { padding: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin: 0; flex: none; }
+        .text-danger { color: var(--master) !important; border-color: rgba(229,57,53,0.3) !important; }
+        .text-danger:hover { background: rgba(229,57,53,0.1) !important; border-color: var(--master) !important; color: white !important; }
+        .empty-state { color: var(--text-muted); font-style: italic; text-align: center; padding: 20px 0; font-size: 0.9em; }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+    </style>
+</head>
+<body>
+
+    <div id="view-home" class="lobby-box theme-home">
+        <h1>Contos do Outro Lado</h1>
+        <p class="subtitle">Bem-vindo(a), <span id="user-display" style="color: white; font-weight: 600;"></span></p>
+
+        <button class="btn-choice btn-player" onclick="showView('jogador')">🕵️ SOU JOGADOR</button>
+        <button class="btn-choice btn-master" onclick="showView('mestre')">👹 SOU MESTRE</button>
+
+        <button class="btn-cancel" style="margin-top: 25px;" onclick="fazerLogout()">Sair da Conta</button>
+    </div>
+
+    <div id="view-jogador" class="lobby-box theme-player" style="display:none;">
+        <h2 style="color: var(--player);">Área do Jogador</h2>
+        
+        <div class="section-header" style="border-bottom-color: rgba(0, 176, 255, 0.2);">
+            <h3>As Minhas Campanhas</h3>
+            <button class="btn-outline" style="color: var(--player); padding: 6px 12px; font-size: 0.8em; border-color: rgba(0, 176, 255, 0.5);" onclick="abrirModalJoinCampanha()">+ ENTRAR EM NOVA</button>
+        </div>
+        
+        <div id="lista-campanhas-jogadas" class="list-container"></div>
+
+        <div class="section-header">
+            <h3>Arquivo de Fichas</h3>
+            <button class="btn-outline" style="color: white; padding: 6px 12px; font-size: 0.8em; border-color: rgba(255,255,255,0.3);" onclick="criarNovaFicha()">+ CRIAR NOVA</button>
+        </div>
+        
+        <div id="lista-fichas" class="list-container" style="max-height: 200px; margin-bottom: 20px;"></div>
+
+        <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
+    </div>
+
+    <div id="view-mestre" class="lobby-box theme-master" style="display:none;">
+        <h2 style="color: var(--master);">Área do Mestre</h2>
+        
+        <div class="section-header" style="border-bottom-color: rgba(229, 57, 53, 0.2);">
+            <h3>As Minhas Mesas</h3>
+            <button class="btn-outline" style="color: var(--master); padding: 6px 12px; font-size: 0.8em; border-color: rgba(229, 57, 53, 0.5);" onclick="document.getElementById('modal-criar-mesa').style.display='flex'">+ CRIAR MESA</button>
+        </div>
+
+        <div id="lista-mesas" class="list-container" style="max-height: 350px; margin-bottom: 20px;"></div>
+
+        <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
+    </div>
+
+
+    <div id="modal-join-campanha" class="modal-overlay">
+        <div class="modal-content" style="box-shadow: 0 20px 50px rgba(0, 176, 255, 0.15);">
+            <h2 style="color: var(--player); margin-top: 0; text-align: center;">Acessar Campanha</h2>
+            <div class="input-group">
+                <label>Código da Campanha do Mestre</label>
+                <input type="text" id="novo-join-code" class="inv-input" placeholder="Ex: OS-ESCOLHIDOS-123" style="text-transform: uppercase; border-color: rgba(0, 176, 255, 0.2);">
+            </div>
+            <button id="btn-modal-add-campanha" class="btn-action" style="background: var(--player); color: black;" onclick="adicionarCampanhaJogada()">ADICIONAR À LISTA</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-escolher-ficha" class="modal-overlay">
+        <div class="modal-content" style="box-shadow: 0 20px 50px rgba(0, 176, 255, 0.15);">
+            <h2 style="color: var(--player); margin-top: 0; text-align: center;">Juntar-se à Mesa</h2>
+            <p style="color: var(--text-muted); text-align: center; margin-bottom: 20px;">Campanha: <strong id="display-mesa-join" style="color: white; font-weight: 600; text-transform: uppercase;">---</strong></p>
+            
+            <div class="input-group">
+                <label>Qual das suas fichas deseja usar?</label>
+                <select id="select-ficha-join" class="inv-input" style="padding: 14px; color: white; border-color: rgba(0, 176, 255, 0.2);">
+                </select>
+            </div>
+            
+            <button id="btn-confirm-join" class="btn-action" style="background: var(--player); color: black;" onclick="confirmarEntradaMesa()">ENTRAR NA MESA</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-criar-mesa" class="modal-overlay">
+        <div class="modal-content" style="box-shadow: 0 20px 50px rgba(229, 57, 53, 0.15);">
+            <h2 style="color: var(--master); margin-top: 0; text-align: center;">Nova Mesa de RPG</h2>
+            <div class="input-group">
+                <label>Nome da Campanha</label>
+                <input type="text" id="create-nome" class="inv-input" placeholder="Ex: O Segredo na Floresta" style="border-color: rgba(229, 57, 53, 0.2);">
+            </div>
+            <div class="input-group">
+                <label>Wallpaper da Mesa (Link da Imagem)</label>
+                <input type="text" id="create-wp" class="inv-input" placeholder="O fundo muda para todos os jogadores..." style="border-color: rgba(229, 57, 53, 0.2);">
+            </div>
+            <button class="btn-action" style="background: var(--master);" onclick="criarMesa()">GERAR MESA</button>
+            <button class="btn-cancel" onclick="fecharModais()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // Verificação de Segurança e Inicialização
+        const userLogado = localStorage.getItem('usuario_logado');
+        if(!userLogado) window.location.href = '/login.html';
+        document.getElementById('user-display').innerText = userLogado;
+
+        // Base de Dados Local do Lobby
+        let minhasFichas = JSON.parse(localStorage.getItem('fichas_' + userLogado)) || [];
+        let minhasMesas = JSON.parse(localStorage.getItem('mesas_' + userLogado)) || [];
+        
+        // NOVO: Migração automática de antigas "strings" de códigos para "objetos com nome e código"
+        let rawCampanhas = JSON.parse(localStorage.getItem('campanhas_jogadas_' + userLogado)) || [];
+        let minhasCampanhasJogadas = rawCampanhas.map(c => {
+            if (typeof c === 'string') {
+                // Tenta transformar "MESA-DO-JOAO-123" em "MESA DO JOAO" para legibilidade
+                let nomeBonito = c.replace(/-\d+$/, '').replace(/-/g, ' ');
+                return { id: c, nome: nomeBonito };
+            }
+            return c;
+        });
+
+        let mesaPendenteUrl = null;
+
+        function salvarFichas() { localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); }
+        function salvarMesas() { localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas)); }
+        function salvarCampanhasJogadas() { localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas)); }
+
+        function fazerLogout() {
+            localStorage.removeItem('usuario_logado');
+            localStorage.removeItem('campanha_atual');
+            window.location.href = '/login.html';
+        }
+
+        function fecharModais() {
+            const ids = ['modal-criar-mesa', 'modal-join-campanha', 'modal-escolher-ficha'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            });
+
+            if(document.getElementById('novo-join-code')) document.getElementById('novo-join-code').value = '';
+            if(document.getElementById('create-nome')) document.getElementById('create-nome').value = '';
+            if(document.getElementById('create-wp')) document.getElementById('create-wp').value = '';
+        }
+
+        function showView(view) {
+            document.getElementById('view-home').style.display = 'none';
+            document.getElementById('view-jogador').style.display = 'none';
+            document.getElementById('view-mestre').style.display = 'none';
+            document.getElementById('view-' + view).style.display = 'block';
+
+            if(view === 'jogador') { syncFichas(); renderFichas(); renderCampanhasJogadas(); }
+            if(view === 'mestre') renderMesas();
+        }
+
+        // ==========================================
+        // ÁREA DO JOGADOR (CAMPANHAS E FICHAS)
+        // ==========================================
+        
+        function abrirModalJoinCampanha() {
+            document.getElementById('modal-join-campanha').style.display = 'flex';
+        }
+
+        // ATUALIZADO: Buscar o Nome verdadeiro da Mesa no Banco de Dados ao adicionar
+        async function adicionarCampanhaJogada() {
+            const code = document.getElementById('novo-join-code').value.trim().toUpperCase().replace(/ /g, '-');
+            if(!code) return alert('Digite o código da campanha!');
+            if(minhasCampanhasJogadas.some(c => c.id === code)) {
+                alert('Você já tem esta campanha na sua lista!');
+                return;
+            }
+
+            const btn = document.getElementById('btn-modal-add-campanha');
+            btn.innerText = "A PROCURAR..."; btn.disabled = true;
+
+            // Formatação padrão caso falhe a busca
+            let nomeCampanha = code.replace(/-\d+$/, '').replace(/-/g, ' ');
+
+            try {
+                const res = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
+                const data = await res.json();
+                if (data.sucesso && data.dados && data.dados.nome) {
+                    nomeCampanha = data.dados.nome;
+                }
+            } catch(e) {}
+
+            btn.innerText = "ADICIONAR À LISTA"; btn.disabled = false;
+
+            minhasCampanhasJogadas.push({ id: code, nome: nomeCampanha });
+            salvarCampanhasJogadas();
+            renderCampanhasJogadas();
+            fecharModais();
+        }
+
+        async function removerCampanhaJogada(codigo) {
+            if(confirm(`Tem certeza que deseja sair da campanha?\nA ficha criada para esta mesa continuará salva no seu Arquivo.`)) {
+                minhasCampanhasJogadas = minhasCampanhasJogadas.filter(c => c.id !== codigo);
+                salvarCampanhasJogadas();
+                
+                localStorage.removeItem('ficha_vinculada_' + codigo);
+                localStorage.removeItem('ordem_save_local_' + codigo);
+                
+                try {
+                    await fetch('/api/sair_campanha', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario: userLogado, campanha: codigo })
+                    });
+                } catch(e) {}
+                
+                renderCampanhasJogadas();
+            }
+        }
+
+        function renderCampanhasJogadas() {
+            const container = document.getElementById('lista-campanhas-jogadas');
+            container.innerHTML = '';
+            if(minhasCampanhasJogadas.length === 0) {
+                container.innerHTML = `<div class="empty-state">Você não participa de nenhuma campanha ainda.</div>`;
+                return;
+            }
+            minhasCampanhasJogadas.forEach(c => {
+                container.innerHTML += `
+                    <div class="list-card theme-border-player">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="text-align: left; max-width: 60%;">
+                                <strong class="card-title">${c.nome}</strong>
+                                <div style="font-size: 0.7em; color: var(--text-muted); margin-top: 4px; word-break: break-all;">Cód: ${c.id}</div>
+                            </div>
+                            <div class="card-actions">
+                                <button class="btn-action btn-sm" style="background: var(--player); color: black;" onclick="prepararEntradaMesa('${c.id}')">▶ JOGAR</button>
+                                <button class="btn-cancel btn-icon text-danger" onclick="removerCampanhaJogada('${c.id}')">X</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- GESTÃO DE FICHAS (RASCUNHOS) ---
+        function syncFichas() {
+            minhasFichas.forEach(f => {
+                let saved = localStorage.getItem('ordem_save_local_SOLO_' + f.id);
+                if (saved) {
+                    try {
+                        let d = JSON.parse(saved);
+                        if (d.info) {
+                            f.nome = d.info.char_nome || f.nome;
+                            f.nex = d.info.char_nex || f.nex;
+                            f.classe = d.info.char_origem || f.classe;
+                        }
+                    } catch(e){}
+                }
+            });
+            salvarFichas();
+        }
+
+        function renderFichas() {
+            const container = document.getElementById('lista-fichas');
+            container.innerHTML = '';
+            if(minhasFichas.length === 0) {
+                container.innerHTML = `<div class="empty-state">O seu arquivo está vazio.<br>Crie um personagem primeiro!</div>`;
+                return;
+            }
+            minhasFichas.forEach(f => {
+                container.innerHTML += `
+                    <div class="list-card">
+                        <div class="list-card-header">
+                            <strong class="card-title">${f.nome}</strong>
+                            <span class="card-subtitle">NEX: ${f.nex}% | ${f.classe}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-cancel btn-sm" style="border-color: rgba(255,255,255,0.2); color: white;" onclick="editarFichaSolo('${f.id}')">✏️ EDITAR BASE</button>
+                            <button class="btn-cancel btn-icon text-danger" onclick="apagarFicha('${f.id}')">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function criarNovaFicha() {
+            let nome = prompt("Introduza o nome do seu novo personagem:");
+            if(!nome) return;
+            
+            let idFicha = 'f_' + Date.now();
+            let novaFicha = { id: idFicha, nome: nome, nex: 5, classe: 'Nenhuma' };
+            minhasFichas.push(novaFicha);
+            salvarFichas();
+            
+            let initialData = {
+                info: { char_nome: nome, char_nex: "5", char_origem: "Nenhuma" }
+            };
+            localStorage.setItem('ordem_save_local_SOLO_' + idFicha, JSON.stringify(initialData));
+
+            editarFichaSolo(idFicha);
+        }
+
+        function apagarFicha(id) {
+            if(confirm("Tem certeza que deseja apagar esta ficha do seu arquivo? (Não apagará a versão que já enviou para uma mesa)")) {
+                minhasFichas = minhasFichas.filter(f => f.id !== id);
+                localStorage.removeItem('ordem_save_local_SOLO_' + id);
+                salvarFichas(); renderFichas();
+            }
+        }
+
+        function editarFichaSolo(id) {
+            localStorage.setItem('campanha_atual', 'SOLO_' + id);
+            window.location.href = '/ficha.html';
+        }
+
+        // ==========================================
+        // FLUXO DE ENTRADA NA MESA
+        // ==========================================
+        function prepararEntradaMesa(codigoMesa) {
+            const fichaVinculada = localStorage.getItem('ficha_vinculada_' + codigoMesa);
+            if (fichaVinculada === 'true') {
+                localStorage.setItem('campanha_atual', codigoMesa);
+                window.location.href = '/ficha.html';
+                return;
+            }
+
+            mesaPendenteUrl = codigoMesa;
+            syncFichas();
+            
+            const select = document.getElementById('select-ficha-join');
+            select.innerHTML = '<option value="NOVA">✨ ENTRAR COM FICHA ZERADA</option>';
+            minhasFichas.forEach(f => {
+                select.innerHTML += `<option value="${f.id}">➡️ USAR ARQUIVO: ${f.nome} (NEX ${f.nex}%)</option>`;
+            });
+
+            // Mostra o Nome bonito no painel de seleção
+            const mesaData = minhasCampanhasJogadas.find(c => c.id === codigoMesa) || { nome: codigoMesa };
+            document.getElementById('display-mesa-join').innerText = mesaData.nome;
+            
+            document.getElementById('modal-escolher-ficha').style.display = 'flex';
+        }
+
+        async function confirmarEntradaMesa() {
+            const btn = document.getElementById('btn-confirm-join');
+            btn.innerText = "A Conectar..."; btn.disabled = true;
+
+            const fichaId = document.getElementById('select-ficha-join').value;
+            const code = mesaPendenteUrl;
+
+            try {
+                const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
+                const campData = await campRes.json();
+                if (campData.dados && campData.dados.wallpaper) {
+                    localStorage.setItem('campanha_wp_' + code, campData.dados.wallpaper);
+                }
+            } catch(e) {}
+
+            if (fichaId !== 'NOVA') {
+                let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
+                if (dataRaw) {
+                    localStorage.setItem('ordem_save_local_' + code, dataRaw);
+                }
+            } else {
+                localStorage.removeItem('ordem_save_local_' + code);
+            }
+            
+            localStorage.setItem('ficha_vinculada_' + code, 'true');
+            localStorage.setItem('campanha_atual', code);
+            window.location.href = '/ficha.html';
+        }
+
+        // ==========================================
+        // ÁREA DO MESTRE
+        // ==========================================
+        function renderMesas() {
+            const container = document.getElementById('lista-mesas');
+            container.innerHTML = '';
+            if(minhasMesas.length === 0) {
+                container.innerHTML = `<div class="empty-state">Você não mestra nenhuma campanha no momento.</div>`;
+                return;
+            }
+            minhasMesas.forEach(m => {
+                container.innerHTML += `
+                    <div class="list-card theme-border-master">
+                        <div class="list-card-header">
+                            <strong class="card-title" style="color: var(--master);">${m.nome}</strong>
+                            <span class="card-subtitle">MESA: ${m.id}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-action btn-sm" style="flex:2; background: var(--master);" onclick="entrarMestre('${m.id}')">🛡️ ABRIR ESCUDO</button>
+                            <button class="btn-outline btn-sm" style="flex:1; color: var(--success); border-color: rgba(0, 230, 118, 0.4);" onclick="copiarLink('${m.id}')">🔗 LINK</button>
+                            <button class="btn-cancel btn-icon text-danger" onclick="apagarMesa('${m.id}')">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ATUALIZADO: Salva o nome da mesa no Banco de Dados para os jogadores conseguirem ver
+        async function criarMesa() {
+            const nome = document.getElementById('create-nome').value.trim();
+            const wp = document.getElementById('create-wp').value.trim();
+            if(!nome) return alert('Dê um nome à sua campanha!');
+            
+            const code = nome.toUpperCase().replace(/[^A-Z0-9]/g, '-') + '-' + Math.floor(Math.random()*1000);
+            
+            minhasMesas.push({ id: code, nome: nome, wp: wp });
+            salvarMesas();
+            
+            // Grava sempre na Base de Dados para que os jogadores saibam o Nome verdadeiro
+            localStorage.setItem('campanha_wp_' + code, wp || '');
+            try { 
+                await fetch('/api/salvar_campanha', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({
+                        campanha: code, 
+                        dados: { wallpaper: wp || '', nome: nome }
+                    }) 
+                }); 
+            } catch(e) {}
+
+            fecharModais();
+            renderMesas();
+        }
+
+        function apagarMesa(id) {
+            if(confirm("Tem certeza que deseja apagar esta mesa? Os seus roteiros e monstros guardados sob ela serão perdidos.")) {
+                minhasMesas = minhasMesas.filter(m => m.id !== id);
+                salvarMesas(); renderMesas();
+            }
+        }
+
+        function copiarLink(id) {
+            const link = window.location.origin + '/index.html?mesa=' + id;
+            navigator.clipboard.writeText(link).then(() => alert("Link de convite copiado!\nCole no WhatsApp ou Discord dos seus jogadores para eles entrarem."));
+        }
+
+        async function entrarMestre(code) {
+            localStorage.setItem('campanha_atual', code);
+            try {
+                const res = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha: code}) });
+                const data = await res.json();
+                if (data.dados && data.dados.mestre) {
+                    localStorage.setItem('mestre_save_nuvem_' + code, JSON.stringify(data.dados.mestre));
+                }
+            } catch(e) {}
+            window.location.href = '/mestre.html';
+        }
+
+        // ==========================================
+        // AUTO-INICIALIZAÇÃO PELO LINK DE CONVITE
+        // ==========================================
+        const urlP = new URLSearchParams(window.location.search);
+        const inviteMesa = urlP.get('mesa');
+        if (inviteMesa) {
+            window.history.replaceState({}, document.title, "/index.html");
+
+            if(!minhasCampanhasJogadas.some(c => c.id === inviteMesa)) {
+                let nomeCampanha = inviteMesa.replace(/-\d+$/, '').replace(/-/g, ' ');
+                minhasCampanhasJogadas.push({ id: inviteMesa, nome: nomeCampanha });
+                salvarCampanhasJogadas();
+                
+                // Tenta procurar o Nome verdadeiro no banco em segundo plano
+                fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:inviteMesa}) })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.sucesso && data.dados && data.dados.nome) {
+                        let objMesa = minhasCampanhasJogadas.find(x => x.id === inviteMesa);
+                        if (objMesa) { 
+                            objMesa.nome = data.dados.nome; 
+                            salvarCampanhasJogadas(); 
+                            if(document.getElementById('view-jogador').style.display !== 'none') {
+                                renderCampanhasJogadas(); 
+                            }
+                        }
+                    }
+                });
+            }
+            showView('jogador');
+            prepararEntradaMesa(inviteMesa);
+        }
+    </script>
+</body>
+</html>
             --master: #e53935;
             --master-hover: #ef5350;
             --success: #00e676;
