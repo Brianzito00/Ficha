@@ -274,17 +274,17 @@
             fecharModais();
         }
 
-      async function removerCampanhaJogada(codigo) {
+        // ATUALIZADO: Remove do navegador e desvincula do servidor
+        async function removerCampanhaJogada(codigo) {
             if(confirm(`Tem certeza que deseja sair da campanha ${codigo}?\nA ficha criada para esta mesa continuará salva no seu Arquivo.`)) {
-                // Remove visualmente da lista
                 minhasCampanhasJogadas = minhasCampanhasJogadas.filter(c => c !== codigo);
                 salvarCampanhasJogadas();
                 
-                // NOVO: Desvincula a ficha da mesa para que o sistema exija a seleção novamente ao voltar
+                // Desvincular ficha do Navegador
                 localStorage.removeItem('ficha_vinculada_' + codigo);
                 localStorage.removeItem('ordem_save_local_' + codigo);
                 
-                // NOVO: Avisar a Base de Dados e o Mestre para apagar os rastos da ficha velha
+                // Avisar Base de Dados para limpar memória
                 try {
                     await fetch('/api/sair_campanha', {
                         method: 'POST',
@@ -296,6 +296,7 @@
                 renderCampanhasJogadas();
             }
         }
+
         function renderCampanhasJogadas() {
             const container = document.getElementById('lista-campanhas-jogadas');
             container.innerHTML = '';
@@ -368,7 +369,6 @@
             minhasFichas.push(novaFicha);
             salvarFichas();
             
-            // --- NOVA ADIÇÃO AQUI ---
             // Injeta o nome diretamente no "save" do personagem antes de abrir a ficha, 
             // para que a ficha já carregue os dados base.
             let initialData = {
@@ -379,7 +379,6 @@
                 }
             };
             localStorage.setItem('ordem_save_local_SOLO_' + idFicha, JSON.stringify(initialData));
-            // ------------------------
 
             editarFichaSolo(idFicha);
         }
@@ -421,6 +420,7 @@
             document.getElementById('modal-escolher-ficha').style.display = 'flex';
         }
 
+        // ATUALIZADO: Para forçar sempre a sobreposição da ficha quando o jogador a escolhe
         async function confirmarEntradaMesa() {
             const btn = document.getElementById('btn-confirm-join');
             btn.innerText = "A Conectar..."; btn.disabled = true;
@@ -438,11 +438,13 @@
 
             if (fichaId !== 'NOVA') {
                 let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
-                let dataCampanhaExistente = localStorage.getItem('ordem_save_local_' + code);
-                
-                if (dataRaw && !dataCampanhaExistente) {
+                if (dataRaw) {
+                    // SUBSTITUI SEMPRE! Assim a ficha no ecrã do mestre atualiza corretamente.
                     localStorage.setItem('ordem_save_local_' + code, dataRaw);
                 }
+            } else {
+                // Se for ficha ZERADA, apaga qualquer resquício antigo
+                localStorage.removeItem('ordem_save_local_' + code);
             }
             
             localStorage.setItem('ficha_vinculada_' + code, 'true');
