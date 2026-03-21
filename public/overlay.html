@@ -70,7 +70,7 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            /* ADICIONADA ANIMAÇÃO DE FADE AQUI */
+            /* ANIMAÇÃO DE FADE NA TROCA DE FOTO */
             transition: opacity 0.3s ease-in-out;
             opacity: 1;
         }
@@ -118,8 +118,8 @@
         // Identifica qual é a Campanha Aberta pelo Mestre no Navegador
         let campanhaAtiva = localStorage.getItem('campanha_atual');
         
-        // Puxa os jogadores que o Mestre autorizou
-        let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
+        // PUXA OS JOGADORES ISOLADOS DA MESA ATUAL
+        let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
 
         function atualizarOverlay() {
             const cardsAtuais = Array.from(container.children).map(c => c.id.replace('card-', ''));
@@ -171,7 +171,9 @@
                 setTimeout(() => {
                     el.remove();
                     activePlayers = activePlayers.filter(c => c !== code);
-                    localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
+                    
+                    // ATUALIZA A CHAVE DA MESA ATUAL
+                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(activePlayers));
                     
                     // Avisa a sala/campanha que apagou
                     if (campanhaAtiva) {
@@ -192,14 +194,17 @@
 
         // Sincronização via Memória do Navegador
         window.addEventListener('storage', (e) => {
-            if (e.key === 'mestre_allowed_codes') {
+            // VERIFICA APENAS A CHAVE DA MESA ATUAL
+            if (e.key === 'mestre_allowed_codes_' + campanhaAtiva) {
                 activePlayers = JSON.parse(e.newValue) || [];
                 atualizarOverlay();
             }
             if (e.key === 'campanha_atual') {
                 campanhaAtiva = e.newValue;
+                activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
                 socket.emit('join_campaign', campanhaAtiva);
                 socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
+                atualizarOverlay();
             }
         });
 
@@ -214,7 +219,8 @@
         socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'sync_overlay' && dados.players) {
                 activePlayers = dados.players;
-                localStorage.setItem('mestre_allowed_codes', JSON.stringify(activePlayers));
+                // SALVA EXCLUSIVAMENTE PARA A MESA ATUAL
+                localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(activePlayers));
                 atualizarOverlay();
             }
         });
