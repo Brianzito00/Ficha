@@ -333,24 +333,28 @@
 
         if (!playerCode || !campanhaAtiva) { window.location.href = '/index.html'; }
 
+        // CARREGA O WALLPAPER TAMBÉM NO MESTRE!
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
         if(customWP && customWP.trim() !== '') { 
             document.body.style.backgroundImage = `url('${customWP}')`; 
         }
 
-        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes')) || [];
+        // ====== CORREÇÃO CHAVE AQUI ======
+        // Agora as variáveis puxam os dados da memória COM O CÓDIGO DA CAMPANHA (ex: mestre_roteiros_MESA-123)
+        // Dessa forma as mesas do mestre nunca mais se misturam.
+
+        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
+        let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
+        let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
+        let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva));
+        let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
+        
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
 
         let playersDataMemoria = {}; 
-        let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa')) || [];
-        let monstros = JSON.parse(localStorage.getItem('mestre_monstros')) || [];
-
-        let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros'));
-        let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes')) || [];
-        
         let modoEdicaoAtual = 'roteiro'; 
         let currentRoteiroId = null;
         let currentDescricaoId = null;
@@ -371,17 +375,18 @@
             window.location.href = '/index.html';
         }
 
+        // Tentar baixar os dados do Firebase (se for uma sessão noutro PC ou primeira vez)
         let cloudSaveStr = localStorage.getItem('mestre_save_nuvem_' + campanhaAtiva);
         if (cloudSaveStr) {
             try {
                 let cloudSave = JSON.parse(cloudSaveStr);
-                if (cloudSave.roteiros) localStorage.setItem('mestre_roteiros', JSON.stringify(cloudSave.roteiros));
-                if (cloudSave.descricoes) localStorage.setItem('mestre_descricoes', JSON.stringify(cloudSave.descricoes));
-                if (cloudSave.monstros) localStorage.setItem('mestre_monstros', JSON.stringify(cloudSave.monstros));
-                if (cloudSave.iniciativa) localStorage.setItem('mestre_iniciativa', JSON.stringify(cloudSave.iniciativa));
-                if (cloudSave.allowedCodes) localStorage.setItem('mestre_allowed_codes', JSON.stringify(cloudSave.allowedCodes));
                 
-                monstros = cloudSave.monstros || monstros;
+                if (cloudSave.roteiros) { roteiros = cloudSave.roteiros; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+                if (cloudSave.descricoes) { descricoes = cloudSave.descricoes; localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); }
+                if (cloudSave.monstros) { monstros = cloudSave.monstros; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); }
+                if (cloudSave.iniciativa) { iniciativaList = cloudSave.iniciativa; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); }
+                if (cloudSave.allowedCodes) { jogadoresPermitidos = cloudSave.allowedCodes; localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); }
+                
             } catch(e) {}
             localStorage.removeItem('mestre_save_nuvem_' + campanhaAtiva); 
         }
@@ -391,11 +396,11 @@
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const dataToSave = {
-                    roteiros: JSON.parse(localStorage.getItem('mestre_roteiros') || '[]'),
-                    descricoes: JSON.parse(localStorage.getItem('mestre_descricoes') || '[]'),
-                    monstros: JSON.parse(localStorage.getItem('mestre_monstros') || '[]'),
-                    iniciativa: JSON.parse(localStorage.getItem('mestre_iniciativa') || '[]'),
-                    allowedCodes: JSON.parse(localStorage.getItem('mestre_allowed_codes') || '[]')
+                    roteiros: JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva) || '[]'),
+                    descricoes: JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva) || '[]'),
+                    monstros: JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva) || '[]'),
+                    iniciativa: JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva) || '[]'),
+                    allowedCodes: JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva) || '[]')
                 };
                 fetch('/api/salvar_campanha', {
                     method: 'POST',
@@ -405,18 +410,19 @@
             }, 1500); 
         }
 
+        // Deteta sempre que o LocalStorage desta campanha muda e envia para a nuvem
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
-            if (['mestre_roteiros', 'mestre_descricoes', 'mestre_monstros', 'mestre_iniciativa', 'mestre_allowed_codes'].includes(key)) {
+            if (key.startsWith('mestre_') && key.includes(campanhaAtiva)) {
                 salvarMestreNoFirebase();
             }
         };
 
+        // Roteiro por predefinição caso esteja vazio
         if (!roteiros || roteiros.length === 0) {
-            let textoAntigo = localStorage.getItem('mestre_roteiro') || '';
-            roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: textoAntigo }];
-            localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros));
+            roteiros = [{ id: 's' + Date.now(), title: 'Sessão 01', text: '' }];
+            localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros));
         }
         currentRoteiroId = roteiros[0].id;
         if(descricoes.length > 0) currentDescricaoId = descricoes[0].id;
@@ -459,8 +465,8 @@
         function apagarRoteiro(id) { if(roteiros.length === 1) return alert("Precisas de ter pelo menos uma sessão criada!"); if(confirm("Tem a certeza que deseja apagar esta sessão e todo o seu texto secreto?")) { roteiros = roteiros.filter(r => r.id !== id); if(currentRoteiroId === id) currentRoteiroId = roteiros[0].id; salvarRoteiros(); selecionarRoteiro(currentRoteiroId); } }
         function apagarDescricao(id) { if(confirm("Tem a certeza que deseja apagar esta anotação de mundo?")) { descricoes = descricoes.filter(d => d.id !== id); salvarDescricoes(); if(currentDescricaoId === id) { if (descricoes.length > 0) selecionarDescricao(descricoes[0].id); else selecionarRoteiro(currentRoteiroId); } else { renderDescricoes(); } } }
 
-        function salvarRoteiros() { localStorage.setItem('mestre_roteiros', JSON.stringify(roteiros)); }
-        function salvarDescricoes() { localStorage.setItem('mestre_descricoes', JSON.stringify(descricoes)); }
+        function salvarRoteiros() { localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+        function salvarDescricoes() { localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); }
 
         const roteiroInput = document.getElementById('roteiro-text'); const roteiroTituloInput = document.getElementById('roteiro-titulo-atual');
         roteiroTituloInput.addEventListener('input', function() { if (modoEdicaoAtual === 'roteiro') { const rot = roteiros.find(r => r.id === currentRoteiroId); if(rot) { rot.title = this.value || 'Sessão Sem Nome'; salvarRoteiros(); renderRoteiros(); } } else { const desc = descricoes.find(d => d.id === currentDescricaoId); if(desc) { desc.title = this.value || 'Objeto/Cenário Sem Nome'; salvarDescricoes(); renderDescricoes(); } } dispararFeedbackEditor(); });
@@ -479,48 +485,38 @@
             let input = document.getElementById('add-code-input'); let codigo = input.value.toUpperCase().trim();
             if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { 
                 jogadoresPermitidos.push(codigo); 
-                localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
+                localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
                 socket.emit('request_player', codigo); 
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-                salvarMestreNoFirebase(); 
             }
             input.value = '';
         }
 
-        // ========================================================
-        // ATUALIZADO: ALTERAR STATUS E REMOVER JOGADOR
-        // ========================================================
         function alterarStatusMestre(codigo, tipo, valor) {
             if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
-            // ADICIONADO O "tipo: 'status'" para o código funcionar
             else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, tipo: 'status', status: valor });
         }
 
         function removerJogador(codigo, notificarJogador = true) { 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); 
-            localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
+            localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
             
             const card = document.getElementById(`player-${codigo}`); 
             if (card) card.remove(); 
             
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
             
-            // Avisa o servidor para destruir a memória daquele personagem
             socket.emit('limpar_cache_jogador', { codigo: codigo });
             
-            // Apenas manda o comando para expulsar a tela se o Mestre o tiver removido ativamente
             if (notificarJogador) {
                 socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo });
             }
 
-            // Limpa a ficha velha da Base de Dados
             fetch('/api/sair_campanha', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario: codigo, campanha: campanhaAtiva })
             });
-
-            salvarMestreNoFirebase(); 
         }
 
         function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo}`; document.getElementById('modal-ficha').style.display = 'flex'; }
@@ -536,9 +532,6 @@
             card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${dados.codigo}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${dados.codigo}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>`;
         });
 
-        // ========================================================
-        // ATUALIZADO: LIDAR COM A SAÍDA VOLUNTÁRIA DO JOGADOR
-        // ========================================================
         socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'request_overlay_sync') { 
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
@@ -548,7 +541,6 @@
                 removerJogador(dados.codigo); 
             }
 
-            // Se o jogador saiu voluntariamente da mesa pelo Lobby, o mestre atualiza o ecrã
             if (dados.tipo === 'jogador_saiu' && dados.codigo) {
                 removerJogador(dados.codigo, false);
             }
@@ -557,10 +549,9 @@
                 const c = dados.codigo.toUpperCase().trim();
                 if (!jogadoresPermitidos.includes(c)) { 
                     jogadoresPermitidos.push(c); 
-                    localStorage.setItem('mestre_allowed_codes', JSON.stringify(jogadoresPermitidos)); 
+                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
                     socket.emit('request_player', c); 
                     socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-                    salvarMestreNoFirebase(); 
                 } else {
                     socket.emit('request_player', c);
                 }
@@ -613,7 +604,7 @@
 
         function renderizarIniciativa() {
             iniciativaList.sort((a, b) => { if (b.total !== a.total) return b.total - a.total; if (b.dado !== a.dado) return b.dado - a.dado; if (b.bonus !== a.bonus) return b.bonus - a.bonus; return b.agi - a.agi; });
-            localStorage.setItem('mestre_iniciativa', JSON.stringify(iniciativaList));
+            localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList));
             const listContainer = document.getElementById('iniciativa-list-container'); listContainer.innerHTML = '';
             if (iniciativaList.length === 0) { listContainer.innerHTML = `<div style="text-align:center; color:var(--text-secondary); margin-top:30px;">Peça aos jogadores para rolarem iniciativa na ficha ou clique em Rolar Monstros.</div>`; return; }
             iniciativaList.forEach((item, index) => {
@@ -639,11 +630,11 @@
             const ataques = Array.from(document.getElementById('c-ataques-list').querySelectorAll('.dynamic-row')).map(row => { return { nome: row.querySelector('.atq-nome').value.trim(), tipo: row.querySelector('.atq-tipo').value.trim(), qtd: parseInt(row.querySelector('.atq-qtd').value) || 1, dano: row.querySelector('.atq-dano').value.trim(), critico: row.querySelector('.atq-crit').value.trim() }; }).filter(atq => atq.nome !== '' && atq.dano !== '');
             const poderes = Array.from(document.getElementById('c-poderes-list').querySelectorAll('.pow-nome')).map(inp => inp.value).filter(val => val.trim() !== '');
             monstros.push({ id: Date.now().toString(), nome, foto, presenca, defesa, vida_max: vida, vida_atual: vida, attrs, skills, ataques, poderes });
-            localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); fecharModalCriatura(); renderizarMonstros();
+            localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); fecharModalCriatura(); renderizarMonstros();
         }
 
-        function removerMonstro(id) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); renderizarMonstros(); removerIniciativa(id); }
-        function alterarVidaMonstro(id, delta) { const monstro = monstros.find(m => m.id === id); if (monstro) { monstro.vida_atual += delta; if (monstro.vida_atual > monstro.vida_max) monstro.vida_atual = monstro.vida_max; if (monstro.vida_atual < 0) monstro.vida_atual = 0; localStorage.setItem('mestre_monstros', JSON.stringify(monstros)); renderizarMonstros(); } }
+        function removerMonstro(id) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); renderizarMonstros(); removerIniciativa(id); }
+        function alterarVidaMonstro(id, delta) { const monstro = monstros.find(m => m.id === id); if (monstro) { monstro.vida_atual += delta; if (monstro.vida_atual > monstro.vida_max) monstro.vida_atual = monstro.vida_max; if (monstro.vida_atual < 0) monstro.vida_atual = 0; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); renderizarMonstros(); } }
 
         function rolarDanoMonstro(monstroNome, ataqueNome, formulaDano) {
             let formula = formulaDano.toLowerCase().replace(/\s+/g, ''); let total = 0; let pieces = formula.match(/[+\-]?[^+\-]+/g); if(!pieces) return alert("Fórmula de dano inválida!");
