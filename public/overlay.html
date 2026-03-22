@@ -75,6 +75,13 @@
             opacity: 1;
         }
 
+        /* NOVO: Contentor para alinhar a Vida/Sani ao lado da Munição */
+        .info-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Espaçamento entre as barras e a munição */
+        }
+
         .status-numbers {
             display: flex;
             flex-direction: column;
@@ -98,11 +105,14 @@
             text-shadow: 0 0 8px #00aaff, 0 0 15px #00aaff, 0 0 30px #0088ff; 
         }
         
+        /* ATUALIZADO: Munição adaptada para ficar ao lado e com o mesmo tamanho */
         .val-ammo { 
             color: white; 
+            font-family: 'Gabriele Bad', sans-serif;
+            font-size: 2.3rem; 
             text-shadow: 0 0 8px #ffcf33, 0 0 15px #ffcf33, 0 0 30px #ffae00; 
-            font-size: 1.6rem;
-            margin-top: 5px;
+            user-select: none;
+            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -152,11 +162,14 @@
             
             div.onclick = () => removerDoOverlay(code);
             
+            // ATUALIZADO: Adicionado o .info-wrapper
             div.innerHTML = `
                 <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
-                <div class="status-numbers">
-                    <div class="val-vida" id="vida-${code}">00/00</div>
-                    <div class="val-sani" id="sani-${code}">00/00</div>
+                <div class="info-wrapper">
+                    <div class="status-numbers">
+                        <div class="val-vida" id="vida-${code}">00/00</div>
+                        <div class="val-sani" id="sani-${code}">00/00</div>
+                    </div>
                     <div class="val-ammo" id="ammo-${code}"></div>
                 </div>
             `;
