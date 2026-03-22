@@ -115,10 +115,11 @@
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
         
-        // Identifica qual é a Campanha Aberta pelo Mestre no Navegador
-        let campanhaAtiva = localStorage.getItem('campanha_atual');
+        // LÊ O CÓDIGO DA MESA DIRETAMENTE DO LINK DO STREAMLABS (?mesa=MESA-123)
+        const urlParams = new URLSearchParams(window.location.search);
+        let campanhaAtiva = urlParams.get('mesa') || localStorage.getItem('campanha_atual');
         
-        // PUXA OS JOGADORES ISOLADOS DA MESA ATUAL
+        // Puxa os jogadores ISOLADOS desta mesa específica
         let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
 
         function atualizarOverlay() {
@@ -199,7 +200,8 @@
                 activePlayers = JSON.parse(e.newValue) || [];
                 atualizarOverlay();
             }
-            if (e.key === 'campanha_atual') {
+            // Se o Mestre mudar de mesa no Chrome, o Overlay acompanha se não tiver URL fixo
+            if (e.key === 'campanha_atual' && !urlParams.get('mesa')) {
                 campanhaAtiva = e.newValue;
                 activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
                 socket.emit('join_campaign', campanhaAtiva);
@@ -208,14 +210,16 @@
             }
         });
 
-        // Sincronização via Socket
+        // Sincronização via Socket (Pede os jogadores ao Chrome do Mestre)
         socket.on('connect', () => {
             if (campanhaAtiva) {
                 socket.emit('join_campaign', campanhaAtiva);
+                // Quando o OBS conecta, ele "grita" para o Chrome do Mestre pedindo os jogadores da mesa
                 socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
             }
         });
 
+        // O Chrome do Mestre responde e o OBS/Overlay atualiza a tela
         socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'sync_overlay' && dados.players) {
                 activePlayers = dados.players;
