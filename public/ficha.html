@@ -16,6 +16,7 @@
         
        body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-repeat: no-repeat; color: var(--text-primary); margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
@@ -95,19 +96,12 @@
             align-content: flex-start; 
             padding-right: 5px; 
         }
-
-        .inv-table { width: 100%; border-collapse: collapse; }
-        .inv-row-main { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(45, 45, 48, 0.8); }
-        .inv-row-main:hover { background: rgba(42, 42, 46, 0.8); }
-        .inv-table th { color: var(--text-secondary); font-size: 0.8em; text-align: left; padding: 10px; border-bottom: 1px solid var(--border-color); }
-        .inv-table td { padding: 12px 10px; }
         
         .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
         .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; transition: 0.2s; }
         .btn-add:hover { filter: brightness(1.2); }
         .btn-del { background: var(--accent-red); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-weight: bold; transition: 0.2s; }
         .btn-del:hover { filter: brightness(1.2); }
-        .item-equipped { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-yellow); margin-right: 8px; }
         .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
         .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; }
@@ -177,7 +171,6 @@
             .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
             .popup-box-dice { width: 95%; height: 300px; }
             .popup-grid { grid-template-columns: 1fr; }
-            .inv-table th, .inv-table td { padding: 8px 5px; font-size: 0.85em; }
             .inv-input { font-size: 16px; } 
         }
     </style>
@@ -418,7 +411,7 @@
             </div>
             <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><script>for(let i=0; i<=95; i+=5) document.write(`<option value="${i}">${i}</option>`); document.write(`<option value="99">99</option>`);</script></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
@@ -526,16 +519,7 @@
             </div>
         </div>
         <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
-        <table class="inv-table">
-            <thead>
-                <tr>
-                    <th style="width:75%;">Ritual (Clique para Detalhes)</th>
-                    <th style="width:15%; text-align:center;">Elemento</th>
-                    <th style="width:10%; text-align:center;">Ação</th>
-                </tr>
-            </thead>
-            <tbody id="rituals-body"></tbody>
-        </table>
+        <div class="catalogo-grid-view" id="rituals-body"></div>
     </div>
 </div>
 
@@ -1042,7 +1026,6 @@
         closeItemPopup();
     }
 
-    // ATUALIZADO: Cria uma carta no estilo da grelha em vez de uma linha de tabela
     function addItemObj(o) {
         const body = document.getElementById('inventory-body'); 
         const card = document.createElement('div'); 
@@ -1199,7 +1182,7 @@
     function addCatalogRitual(ritStr) {
         const rit = JSON.parse(ritStr);
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(rit.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`;
-        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${rit.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         addRitual(rit.name, rit.el, dHTML, rit.circ, rit.ex, rit.alc, rit.alv, rit.dur, rit.res, rit.descGeral, rit.descDisc, rit.descVerd, true, rit.img); closeRitualPopup();
     }
     
@@ -1207,9 +1190,29 @@
         const body = document.getElementById('rituals-body'); const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString();
         const safeDescGeral = (descGeral||"").replace(/"/g, "'"), safeDescDisc = (descDisc||"").replace(/"/g, "'"), safeDescVerd = (descVerd||"").replace(/"/g, "'"), safeImg = (img||"").replace(/"/g, "'");
         let color = "var(--text-primary)"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff";
-        const r1 = document.createElement('tr'); r1.className = 'inv-row-main'; r1.id = 'rit-row-' + id; r1.onclick = () => openRitualInfo(id, color);
-        r1.innerHTML = `<td><div style="display:flex; align-items:center;"><input type="checkbox" class="rit-equipped item-equipped" ${eq?'checked':''} onclick="event.stopPropagation()" onchange="updateRitualsCount(); updateLearnedRitualsDisplay(); save()"><b style="margin-left:8px;">${n}</b></div></td><td style="color:${color}; font-weight:bold; text-align:center;">${el}</td><td style="text-align:center;"><button class="btn-del" onclick="removeRitual('${id}'); event.stopPropagation()">X</button></td><td style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></td>`;
-        body.appendChild(r1); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+        
+        const card = document.createElement('div'); 
+        card.id = 'rit-row-' + id; 
+        card.onclick = () => openRitualInfo(id, color);
+        
+        card.style.cssText = `position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;`;
+        card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
+        card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+
+        let imgSrc = safeImg && safeImg.trim() !== "" ? safeImg : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${el.substring(0,3).toUpperCase()}`;
+
+        card.innerHTML = `
+            <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeRitual('${id}')">X</button>
+            <div style="position: absolute; top: 5px; left: 5px; z-index: 10; display:flex; align-items:center; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);" title="Equipar/Preparar Ritual">
+                <input type="checkbox" class="rit-equipped item-equipped" ${eq?'checked':''} onclick="event.stopPropagation()" onchange="updateRitualsCount(); updateLearnedRitualsDisplay(); save()" style="margin:0; width: 14px; height: 14px; cursor: pointer; accent-color: ${color};">
+                <span style="font-size: 0.6em; color: white; margin-left: 4px; text-transform: uppercase; font-weight: bold;">Eqp</span>
+            </div>
+            <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px; margin-top: 15px;">
+            <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${n}</div>
+            <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${circ}</span></div>
+            <div style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></div>
+        `;
+        body.appendChild(card); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
     }
     
     function removeRitual(id) { document.getElementById('rit-row-'+id).remove(); updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
@@ -1218,7 +1221,7 @@
     function updateLearnedRitualsDisplay() {
         const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false;
         document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
-            has = true; const hr = chk.closest('tr').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.id.replace('rit-data-', '');
+            has = true; const hr = chk.closest('div[id^="rit-row-"]').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.id.replace('rit-data-', '');
             let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; 
             container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`;
         });
@@ -1342,7 +1345,7 @@
         ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => d.ammo[id] = document.getElementById(id).value); 
         document.querySelectorAll('.ability-item').forEach(ab => { d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); });
         
-        document.querySelectorAll('.hidden-ritual').forEach(hr => { const eq = hr.closest('tr').querySelector('.rit-equipped').checked; d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); });
+        document.querySelectorAll('.hidden-ritual').forEach(hr => { const eq = hr.closest('div[id^="rit-row-"]').querySelector('.rit-equipped').checked; d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); });
         
         if (viewCode) {
             if (socket) { socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, status: charStatus, fullData: d }); } return; 
@@ -1371,6 +1374,15 @@
     document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
 
     function init() {
+        // Correção crítica: Preencher os selects de forma segura (sem usar document.write)
+        const nexSel = document.getElementById('char_nex');
+        if (nexSel) {
+            let nexHtml = '';
+            for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}">${i}</option>`;
+            nexHtml += `<option value="99">99</option>`;
+            nexSel.innerHTML = nexHtml;
+        }
+
         ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => { let id = "attr_" + a.toLowerCase().substring(0,3); document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight();"><div class="attr-targets" id="${id}_targets"></div></div>`; });
         periciasBase.forEach(p => { let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"); document.getElementById('pericias-container').innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}', ${p.mod})" style="cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;"><div class="skill-header" style="margin-bottom: 8px;"><span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span></div><div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets" style="pointer-events: none;"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; });
 
