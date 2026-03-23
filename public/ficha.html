@@ -14,7 +14,7 @@
             --accent-purple: #b82bf2; --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
         
-       body {
+        body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
             background-size: cover; background-position: center; background-attachment: fixed;
@@ -88,7 +88,6 @@
         .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center; }
         .ammo-box label { display: block; font-size: 0.7em; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
 
-        /* Nova classe da grelha de Inventário/Catálogo */
         .catalogo-grid-view {
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
@@ -102,6 +101,7 @@
         .btn-add:hover { filter: brightness(1.2); }
         .btn-del { background: var(--accent-red); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-weight: bold; transition: 0.2s; }
         .btn-del:hover { filter: brightness(1.2); }
+        .item-equipped { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-yellow); margin-right: 8px; }
         .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
         .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; }
@@ -1170,7 +1170,8 @@
         container.innerHTML = `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-purple); border-radius: 8px; text-align: center; background: rgba(184, 43, 242, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectRitualType('custom')" onmouseover="this.style.background='rgba(184, 43, 242, 0.2)'" onmouseout="this.style.background='rgba(184, 43, 242, 0.05)'"><div style="font-size: 2.5em; margin-bottom: 5px;">➕</div><div style="font-weight: bold; color: var(--accent-purple); font-size: 0.85em; text-transform: uppercase;">Ritual Personalizado</div></div>`;
         const renderCard = (rit, isCustom) => {
             let color = "var(--text-primary)"; if(rit.el === 'Conhecimento') color = "#ffcf33"; if(rit.el === 'Sangue') color = "#e53935"; if(rit.el === 'Energia') color = "#b82bf2"; if(rit.el === 'Morte') color = "#71717a"; if(rit.el === 'Medo') color = "#fff";
-            let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${rit.el.substring(0,3).toUpperCase()}`;
+            let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
+            let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${rit.el.substring(0,3).toUpperCase()}`;
             let safeRit = JSON.stringify(rit).replace(/"/g, '&quot;'); let safeName = rit.name.replace(/'/g, "\\'");
             let btnRemove = isCustom ? `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('rituals', '${safeName}')">X</button>` : '';
             return `<div class="skill-card" style="position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCatalogRitual('${safeRit}')" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${color}50'">${btnRemove}<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div></div>`;
@@ -1199,7 +1200,8 @@
         card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
         card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
 
-        let imgSrc = safeImg && safeImg.trim() !== "" ? safeImg : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${el.substring(0,3).toUpperCase()}`;
+        let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
+        let imgSrc = safeImg && safeImg.trim() !== "" ? safeImg : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${el.substring(0,3).toUpperCase()}`;
 
         card.innerHTML = `
             <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeRitual('${id}')">X</button>
@@ -1374,7 +1376,6 @@
     document.addEventListener('click', (e) => { if(e.target.tagName === 'BUTTON' || e.target.closest('button')) ativarAutoSave(); });
 
     function init() {
-        // Correção crítica: Preencher os selects de forma segura (sem usar document.write)
         const nexSel = document.getElementById('char_nex');
         if (nexSel) {
             let nexHtml = '';
@@ -1454,6 +1455,16 @@
                     save(); 
                     alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
                 }
+
+                if (dados.tipo === 'dar_ritual' && dados.codigo === baseUser) {
+                    let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; 
+                    if(dados.ritual.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; 
+                    if(dados.ritual.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`;
+                    const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+                    addRitual(dados.ritual.n, dados.ritual.el, dHTML, dados.ritual.circ, dados.ritual.ex, dados.ritual.alc, dados.ritual.alv, dados.ritual.dur, dados.ritual.res, dados.ritual.descGeral, dados.ritual.descDisc, dados.ritual.descVerd, true, dados.ritual.img);
+                    save(); 
+                    alert(`🔮 O Mestre ensinou-lhe um novo ritual: ${dados.ritual.n}! Foi adicionado ao seu Grimório.`);
+                }
             });
 
             socket.on('mestre_force_sync_player', (dados) => {
@@ -1472,7 +1483,18 @@
         renderPremadeCatalogs(); 
     }
 
-    function load() { isLoadingData = true; let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!s) { isLoadingData = false; return updateAllPericias(); } populateData(JSON.parse(s)); }
+   function load() { 
+        isLoadingData = true; 
+        let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
+        if(!s) { isLoadingData = false; return updateAllPericias(); } 
+        try {
+            populateData(JSON.parse(s)); 
+        } catch(e) {
+            console.error("Erro ao carregar ficheiro local. Carregando em branco.", e);
+            isLoadingData = false;
+            updateAllPericias();
+        }
+    }
 
     function populateData(d) {
         if(d.charImages) charImages = { ...charImages, ...d.charImages }; else if (d.info && d.info.char_img) charImages.normal = d.info.char_img;
