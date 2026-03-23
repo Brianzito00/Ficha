@@ -6,12 +6,14 @@
     <title>Ficha de Jogador</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --bg-input: rgba(18, 18, 20, 0.8);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
             --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
             --accent-purple: #b82bf2; --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
+        
         body {
             font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
@@ -65,9 +67,9 @@
         .skill-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .skill-targets { display: flex; justify-content: center; gap: 10px; font-size: 0.68em; background: rgba(10, 10, 11, 0.7); padding: 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-weight: bold; margin-top: 8px; pointer-events: none; }
         .target-n { color: var(--accent-green); } .target-b { color: var(--accent-blue); } .target-e { color: var(--accent-yellow); }
-        .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; }
+        .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; margin-bottom: 20px; }
         .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
-        .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 20px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 10px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         .weight-container { background: rgba(18, 18, 20, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(51, 51, 51, 0.5); }
         .weight-bar-bg { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; overflow: hidden; margin-top: 8px; border: 1px solid #222; }
         .weight-bar-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: 0.5s; }
@@ -205,9 +207,29 @@
         <h3 id="info-general-name" style="margin-top: 0; text-align: center; text-transform: uppercase;">Nome Item</h3>
         <img id="info-general-img" src="" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:8px; display:none; border: 1px solid var(--border-color);">
         <div id="info-general-details" style="color:var(--text-primary); font-size:0.95em; line-height: 1.5;"></div>
+        
         <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-add" style="flex:1; margin:0; background: var(--accent-purple); color: white;" onclick="abrirModalTransferirJogador()">📤 ENVIAR</button>
             <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue); color: black;" onclick="openEditItemPopup()">✏️ EDITAR</button>
             <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeItemInfo()">FECHAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-transfer-player" class="popup-overlay" style="z-index: 4000;">
+    <div class="popup-box" style="width: 400px; text-align: center;">
+        <h2 style="color: var(--accent-purple); margin-top: 0;">Enviar Item</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9em;">Para quem deseja enviar <b id="transfer-player-item-name" style="color: var(--accent-yellow);"></b>?</p>
+        
+        <div style="text-align: left; margin-bottom: 20px;">
+            <label style="display: block; font-size: 0.85em; color: var(--text-secondary); margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Código do Jogador Alvo:</label>
+            <input type="text" id="transfer-target-code" class="inv-input" placeholder="Ex: JOAO" style="text-transform: uppercase; font-size: 1.2em; text-align: center; font-weight: bold; border-color: var(--accent-purple);">
+            <div style="font-size: 0.75em; color: var(--text-secondary); margin-top: 5px; text-align: center; font-style: italic;">Pergunte ao seu colega qual é o nome de utilizador (Login) dele. Estão ambos a jogar na mesma mesa, certo?</div>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-remove" style="position: static; flex: 1; background: #333; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; color: white;" onclick="fecharModalTransferirJogador()">Cancelar</button>
+            <button class="btn-add" style="background: var(--accent-purple); color: white; flex: 1; margin: 0;" onclick="confirmarEnvioJogador()">ENVIAR 📤</button>
         </div>
     </div>
 </div>
@@ -352,7 +374,7 @@
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
             </div>
         </div>
     </div>
@@ -404,6 +426,17 @@
                 <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
                 <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
             </div>
+
+            <div class="equipped-weapons-header">Ataque Corporal</div>
+            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                <button class="ritual-btn" style="border-color: var(--text-secondary); color: var(--text-primary); width: 100%; margin-bottom: 8px; cursor: default; pointer-events: none;">Ataque Desarmado</button>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
+                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
+                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
+                </div>
+                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8 + FOR</span></div>
+            </div>
+            
             <div class="equipped-weapons-header">Arma Ativa</div>
             <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
             <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -524,7 +557,6 @@
     function openSkillPopup(sn, nome, attr, mod) { document.getElementById('popup-skill-name').innerText = nome; document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")"; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod; updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display = 'flex'; }
     function updateSkillPopupCalc() { let mod = parseFloat(document.getElementById('popup-skill-mod').value), attr = document.getElementById('popup-skill-attr').value; let sn = document.getElementById('popup-skill-sn').value; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let natural = Math.floor(at * mod), bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0; let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; document.getElementById('popup-skill-total').innerText = natural + bonus + trained + penalty; }
     
-    // NOVA: Atualiza também a carga quando fecha o popup da perícia se for Atletismo
     function saveSkillPopup() { 
         let sn = document.getElementById('popup-skill-sn').value; 
         document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; 
@@ -692,6 +724,64 @@
     
     function closeItemInfo() { document.getElementById('popup-item-info').style.display = 'none'; currentViewedItemId = null; }
 
+    function abrirModalTransferirJogador() {
+        if(!currentViewedItemId) return;
+        const h = document.getElementById('item-data-' + currentViewedItemId); 
+        if(!h) return;
+        
+        document.getElementById('transfer-player-item-name').innerText = h.getAttribute('data-n');
+        document.getElementById('transfer-target-code').value = '';
+        document.getElementById('modal-transfer-player').style.display = 'flex';
+    }
+
+    function fecharModalTransferirJogador() {
+        document.getElementById('modal-transfer-player').style.display = 'none';
+    }
+
+    function confirmarEnvioJogador() {
+        const targetCode = document.getElementById('transfer-target-code').value.trim().toUpperCase();
+        if(!targetCode) return alert("Digite o código do jogador alvo!");
+        if(targetCode === (baseUser || "").toUpperCase()) return alert("Não pode enviar um item para si mesmo!");
+        
+        if(!currentViewedItemId) return;
+        const h = document.getElementById('item-data-' + currentViewedItemId); 
+        if(!h) return;
+
+        const itemParaEnviar = {
+            id: 'inv_' + Date.now() + Math.floor(Math.random() * 1000),
+            n: h.getAttribute('data-n'),
+            w: h.getAttribute('data-w'),
+            d: h.getAttribute('data-d'),
+            eq: false, 
+            type: h.getAttribute('data-type'),
+            dmg: h.getAttribute('data-dmg') || "0",
+            extra: h.getAttribute('data-extra') || "0",
+            crit: h.getAttribute('data-crit') || "20/x2",
+            skill: h.getAttribute('data-skill') || "Luta",
+            img: h.getAttribute('data-img') || "",
+            atkType: h.getAttribute('data-atktype') || "Corpo a corpo",
+            atk: h.getAttribute('data-atk') || "1",
+            range: h.getAttribute('data-range') || "Curto",
+            ammo: h.getAttribute('data-ammo') || "Nenhuma",
+            capacity: h.getAttribute('data-capacity') || "0",
+            currentShots: h.getAttribute('data-currentshots') || h.getAttribute('data-capacity') || "0"
+        };
+
+        if (socket) {
+            socket.emit('comando_mestre', {
+                tipo: 'dar_item',
+                codigo: targetCode,
+                item: itemParaEnviar
+            });
+        }
+
+        removeItem(currentViewedItemId);
+        
+        alert(`O item '${itemParaEnviar.n}' foi enviado para ${targetCode}! (Certifique-se de que o jogador está online na mesa)`);
+        fecharModalTransferirJogador();
+        closeItemInfo();
+    }
+
     function updateDanoDesarmado() {
         const tipo = document.getElementById('char_tipo_corpo').value;
         const display = document.getElementById('display-dano-corpo');
@@ -732,12 +822,10 @@
         lastAttackWasCrit = false;
     }
 
-    // AQUI ESTÁ A NOVA LÓGICA DE CAPACIDADE DE CARGA
     function updateWeight() {
         const forca = parseInt(document.getElementById('attr_for').value) || 0;
         const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false;
         
-        // Carga = 5 + (Metade da Força) + (10 se tiver Atletismo treinado)
         let lim = 5 + Math.floor(forca / 2) + (treinadoAtletismo ? 10 : 0);
 
         let t = 0, bm = 0;
@@ -811,7 +899,7 @@
         if (!customCatalog.rituals.some(it => it.name.toLowerCase() === n.toLowerCase())) { customCatalog.rituals.push(newCatRitual); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (socket) socket.emit('novo_item_catalogo_global', { catType: 'rituals', item: newCatRitual }); }
 
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         
         addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); closeRitualPopup();
     }
@@ -972,18 +1060,6 @@
         } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); } 
         lastAttackWasCrit = false; 
     }
-    
-    function rolarDadoPersonalizado() { document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white"); }
-    
-    // NOVA: Atualiza a carga quando o Atletismo é treinado
-    function toggleTrained(sn) { 
-        document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); 
-        updateAllPericias(); 
-        if (sn === "atletismo") updateWeight(); 
-    }
-    
-    function updateTargetsPericia(id, ak, modPerc) { let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let sn = id.replace("skill_",""); let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); let m = tabelaD20[f>20?20:f<1?1:f]; let d = document.getElementById(id+"_targets"); if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }
-    function updateAllPericias() { ["agi","for","int","pre","vig"].forEach(a => { let v = parseInt(document.getElementById("attr_"+a).value)||1, m = tabelaD20[v>20?20:v]; if(document.getElementById("attr_"+a+"_targets")) document.getElementById("attr_"+a+"_targets").innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }); periciasBase.forEach(p => updateTargetsPericia("skill_"+p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), p.attr, p.mod)); }
 
     function save() {
         if(isLoadingData) return; 
@@ -1109,7 +1185,7 @@
                     if (dados.tipo === 'dar_item' && incCode === myCode) {
                         addItemObj(dados.item); 
                         save(); 
-                        alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
+                        alert(`🎁 Um novo item: ${dados.item.n} foi recebido e adicionado à sua Mochila!`);
                     }
 
                     if (dados.tipo === 'dar_ritual' && incCode === myCode) {
@@ -1119,7 +1195,7 @@
                         const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
                         addRitual(dados.ritual.n, dados.ritual.el, dHTML, dados.ritual.circ, dados.ritual.ex, dados.ritual.alc, dados.ritual.alv, dados.ritual.dur, dados.ritual.res, dados.ritual.descGeral, dados.ritual.descDisc, dados.ritual.descVerd, true, dados.ritual.img);
                         save(); 
-                        alert(`🔮 O Mestre ensinou-lhe um novo ritual: ${dados.ritual.n}! Foi adicionado ao seu Grimório.`);
+                        alert(`🔮 Um novo ritual: ${dados.ritual.n} foi recebido e adicionado ao seu Grimório!`);
                     }
                 });
 
@@ -1174,9 +1250,6 @@
     }
     
     init();
-</script>
-</body>
-</html>
 </script>
 </body>
 </html>
