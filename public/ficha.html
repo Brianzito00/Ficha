@@ -523,7 +523,17 @@
 
     function openSkillPopup(sn, nome, attr, mod) { document.getElementById('popup-skill-name').innerText = nome; document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")"; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value = sn; document.getElementById('popup-skill-attr').value = attr; document.getElementById('popup-skill-mod').value = mod; updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display = 'flex'; }
     function updateSkillPopupCalc() { let mod = parseFloat(document.getElementById('popup-skill-mod').value), attr = document.getElementById('popup-skill-attr').value; let sn = document.getElementById('popup-skill-sn').value; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let natural = Math.floor(at * mod), bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0; let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; document.getElementById('popup-skill-total').innerText = natural + bonus + trained + penalty; }
-    function saveSkillPopup() { let sn = document.getElementById('popup-skill-sn').value; document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value; toggleTrained(sn); save(); closeSkillPopup(); }
+    
+    // NOVA: Atualiza também a carga quando fecha o popup da perícia se for Atletismo
+    function saveSkillPopup() { 
+        let sn = document.getElementById('popup-skill-sn').value; 
+        document.getElementById('chk_'+sn).checked = document.getElementById('popup-skill-trained').checked; 
+        document.getElementById('skill_'+sn).value = document.getElementById('popup-skill-bonus').value; 
+        toggleTrained(sn); 
+        save(); 
+        closeSkillPopup(); 
+    }
+    
     function closeSkillPopup() { document.getElementById('popup-skill-info').style.display = 'none'; }
 
     function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
@@ -682,10 +692,53 @@
     
     function closeItemInfo() { document.getElementById('popup-item-info').style.display = 'none'; currentViewedItemId = null; }
 
+    function updateDanoDesarmado() {
+        const tipo = document.getElementById('char_tipo_corpo').value;
+        const display = document.getElementById('display-dano-corpo');
+        if (display) {
+            if (tipo === 'Pequeno') display.innerText = '1d6 + FOR';
+            else if (tipo === 'Grande') display.innerText = '1d10 + FOR';
+            else display.innerText = '1d8 + FOR';
+        }
+    }
+
+    function rolarAtaqueDesarmado() {
+        let skillObj = periciasBase.find(p => p.nome === "Luta");
+        if(!skillObj) return;
+        rolarTesteD20(skillObj.nome, "skill_luta", skillObj.attr, skillObj.mod, true);
+    }
+
+    function rolarDanoDesarmado() {
+        const tipo = document.getElementById('char_tipo_corpo').value;
+        let faces = 8;
+        if (tipo === 'Pequeno') faces = 6;
+        if (tipo === 'Grande') faces = 10;
+        
+        let forca = parseInt(document.getElementById('attr_for').value) || 0;
+        let roll = Math.floor(Math.random() * faces) + 1;
+        let isCrit = lastAttackWasCrit;
+        
+        let total = roll;
+        if(isCrit) {
+            let roll2 = Math.floor(Math.random() * faces) + 1;
+            total += roll2; 
+        }
+        total += forca;
+        if(total < 0) total = 0;
+        
+        let title = isCrit ? `DANO CRÍTICO<br>(DESARMADO)` : `DANO<br>(DESARMADO)`;
+        let color = isCrit ? "color: #ffcf33; text-shadow: 0 0 15px #ff0000, 2px 2px 4px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
+        showPopup(total, title, color);
+        lastAttackWasCrit = false;
+    }
+
+    // AQUI ESTÁ A NOVA LÓGICA DE CAPACIDADE DE CARGA
     function updateWeight() {
-        const f = parseInt(document.getElementById('attr_for').value)||0; let lim = f * 5; if (lim < 2) lim = 2; 
-        const bodyTypeEl = document.getElementById('char_tipo_corpo'); const bodyType = bodyTypeEl ? bodyTypeEl.value : 'Médio';
-        if (bodyType === 'Pequeno') { lim = Math.max(1, lim - 2); } else if (bodyType === 'Grande') { lim += 2; }
+        const forca = parseInt(document.getElementById('attr_for').value) || 0;
+        const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false;
+        
+        // Carga = 5 + (Metade da Força) + (10 se tiver Atletismo treinado)
+        let lim = 5 + Math.floor(forca / 2) + (treinadoAtletismo ? 10 : 0);
 
         let t = 0, bm = 0;
         document.querySelectorAll('.hidden-data-item').forEach(h => { 
@@ -697,10 +750,13 @@
             }
         });
         lim += bm; 
+        
         ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => t += parseInt(document.getElementById(id).value)||0);
         
-        const fill = document.getElementById('weight-bar-fill'); fill.style.width = lim>0 ? Math.min((t/lim)*100, 100)+"%" : "0%";
-        document.getElementById('weight-text').innerText = `${t} / ${lim}`; t > lim ? fill.classList.add('overweight') : fill.classList.remove('overweight');
+        const fill = document.getElementById('weight-bar-fill'); 
+        fill.style.width = lim>0 ? Math.min((t/lim)*100, 100)+"%" : "0%";
+        document.getElementById('weight-text').innerText = `${t} / ${lim}`; 
+        t > lim ? fill.classList.add('overweight') : fill.classList.remove('overweight');
     }
 
     function updateWeaponsDisplay() {
@@ -755,7 +811,7 @@
         if (!customCatalog.rituals.some(it => it.name.toLowerCase() === n.toLowerCase())) { customCatalog.rituals.push(newCatRitual); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (socket) socket.emit('novo_item_catalogo_global', { catType: 'rituals', item: newCatRitual }); }
 
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         
         addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); closeRitualPopup();
     }
@@ -811,7 +867,7 @@
             <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${circ}</span></div>
             <div style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></div>
         `;
-        body.appendChild(card); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+        document.getElementById('rituals-body').appendChild(card); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
     }
     
     function removeRitual(id) { document.getElementById('rit-row-'+id).remove(); updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
@@ -820,7 +876,7 @@
     function updateLearnedRitualsDisplay() {
         const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false;
         document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
-            has = true; const hr = chk.closest('div[id^="rit-row-"]').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.id.replace('rit-data-', '');
+            has = true; const hr = chk.closest('div[id^="rit-row-"]').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.closest('div[id^="rit-row-"]').id.replace('rit-row-', '');
             let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; 
             container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`;
         });
@@ -828,7 +884,8 @@
     }
 
     function openRitualInfo(id, color) {
-        const hr = document.getElementById('rit-data-' + id), htmlDiv = document.getElementById('rit-html-' + id); if(!hr || !htmlDiv) return;
+        const row = document.getElementById('rit-row-' + id); if (!row) return;
+        const hr = row.querySelector('.hidden-ritual'), htmlDiv = row.querySelector('div[id^="rit-html-"]'); if(!hr || !htmlDiv) return;
         document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n'); document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)';
         const imgUrl = hr.getAttribute('data-img'), imgEl = document.getElementById('info-rit-img'); if(imgUrl && imgUrl.trim() !== '') { imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
         document.getElementById('info-rit-details').innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid ${color || 'rgba(51, 51, 51, 0.5)'}; border-radius: 8px; padding: 15px;">${htmlDiv.innerHTML}</div>`;
@@ -917,7 +974,13 @@
     }
     
     function rolarDadoPersonalizado() { document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white"); }
-    function toggleTrained(sn) { document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); updateAllPericias(); }
+    
+    // NOVA: Atualiza a carga quando o Atletismo é treinado
+    function toggleTrained(sn) { 
+        document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); 
+        updateAllPericias(); 
+        if (sn === "atletismo") updateWeight(); 
+    }
     
     function updateTargetsPericia(id, ak, modPerc) { let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let sn = id.replace("skill_",""); let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); let m = tabelaD20[f>20?20:f<1?1:f]; let d = document.getElementById(id+"_targets"); if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }
     function updateAllPericias() { ["agi","for","int","pre","vig"].forEach(a => { let v = parseInt(document.getElementById("attr_"+a).value)||1, m = tabelaD20[v>20?20:v]; if(document.getElementById("attr_"+a+"_targets")) document.getElementById("attr_"+a+"_targets").innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }); periciasBase.forEach(p => updateTargetsPericia("skill_"+p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), p.attr, p.mod)); }
@@ -953,7 +1016,7 @@
         localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d));
         fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: playerCode, fichaData: d }) }).catch(e => console.error(e));
 
-        if (socket) { socket.emit('status_change', { codigo: playerCode.split('_')[0], origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, status: charStatus, fullData: d }); }
+        if (socket) { socket.emit('status_change', { codigo: (baseUser || "").toUpperCase(), origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, status: charStatus, fullData: d }); }
     }
 
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if (!dataStr) { alert("Nenhum dado encontrado para exportar!"); return; } const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const fileName = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
@@ -999,10 +1062,10 @@
             if (socket && !viewCode) {
                 socket.on('connect', () => {
                     socket.emit('join_campaign', campanhaAtiva);
-                    setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")) { socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: baseUser }); } save(); }, 500);
+                    setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")) { socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: (baseUser || "").toUpperCase() }); } save(); }, 500);
                 }); 
                 
-                socket.on('mestre_pede_ficha', (codigoPedido) => { if (codigoPedido === baseUser) { save(); } });
+                socket.on('mestre_pede_ficha', (codigoPedido) => { if ((codigoPedido || "").toUpperCase() === (baseUser || "").toUpperCase()) { save(); } });
 
                 socket.on('catalogo_inicial', (catalogoDoServidor) => {
                     let mudouLocal = false; let precisaReenviar = false; let itensParaMandarAoServidor = { items: [], melee: [], ranged: [], rituals: [] };
@@ -1027,26 +1090,29 @@
                 });
 
                 socket.on('comando_mestre', (dados) => {
-                    if (dados.codigo === baseUser) { 
+                    const myCode = (baseUser || "").toUpperCase();
+                    const incCode = (dados.codigo || "").toUpperCase();
+
+                    if (incCode === myCode) { 
                         if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
                         else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
                         else if (dados.tipo === 'status') toggleStatus(dados.status); 
                     }
 
-                    if (dados.tipo === 'expulsar_jogador' && dados.codigo === baseUser) {
+                    if (dados.tipo === 'expulsar_jogador' && incCode === myCode) {
                         alert("Foi removido da mesa pelo Mestre.\nTerá de escolher uma ficha novamente se for adicionado.");
                         localStorage.removeItem('ficha_vinculada_' + campanhaAtiva);
                         localStorage.removeItem('ordem_save_local_' + campanhaAtiva);
                         fazerLogout(); 
                     }
 
-                    if (dados.tipo === 'dar_item' && dados.codigo === baseUser) {
+                    if (dados.tipo === 'dar_item' && incCode === myCode) {
                         addItemObj(dados.item); 
                         save(); 
                         alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
                     }
 
-                    if (dados.tipo === 'dar_ritual' && dados.codigo === baseUser) {
+                    if (dados.tipo === 'dar_ritual' && incCode === myCode) {
                         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; 
                         if(dados.ritual.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; 
                         if(dados.ritual.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`;
@@ -1058,7 +1124,9 @@
                 });
 
                 socket.on('mestre_force_sync_player', (dados) => {
-                    if (dados.codigo === baseUser && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); }
+                    const myCode = (baseUser || "").toUpperCase();
+                    const incCode = (dados.codigo || "").toUpperCase();
+                    if (incCode === myCode && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); }
                 });
                 
                 socket.on('sync_item_catalogo_global', (data) => {
@@ -1077,8 +1145,8 @@
     function load() { 
         isLoadingData = true; 
         let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
-        if(!s) { isLoadingData = false; return updateAllPericias(); } 
-        try { populateData(JSON.parse(s)); } catch(e) { console.error("Erro ao carregar ficheiro local. Carregando em branco.", e); isLoadingData = false; updateAllPericias(); }
+        if(!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
+        try { populateData(JSON.parse(s)); } catch(e) { console.error("Erro ao carregar ficheiro local. Carregando em branco.", e); isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); }
     }
 
     function populateData(d) {
@@ -1099,13 +1167,16 @@
         document.getElementById('rituals-body').innerHTML = '';
         if(d.rituals) d.rituals.forEach(r => { const descGeral = r.descGeral || r.desc || "Sem descrição.", descDisc = r.descDisc || "-", descVerd = r.descVerd || "-"; let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`; const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || ""); });
         
-        updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay();
+        updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay(); updateDanoDesarmado();
         
         if (d.arma_ativa_id) { const sel = document.getElementById('active-weapon-select'); if (sel && equippedWeaponsData.some(wp => wp.id === d.arma_ativa_id)) { sel.value = d.arma_ativa_id; renderActiveWeapon(); } }
         document.querySelectorAll('[id^="chk_"]').forEach(c => { if(c.checked) toggleTrained(c.id.replace('chk_','')); }); isLoadingData = false; 
     }
     
     init();
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
