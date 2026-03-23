@@ -75,7 +75,7 @@
             opacity: 1;
         }
 
-        /* NOVO: Contentor para alinhar a Vida/Sani ao lado da Munição */
+        /* Contentor para alinhar a Vida/Sani ao lado da Munição */
         .info-wrapper {
             display: flex;
             align-items: center;
@@ -85,34 +85,34 @@
         .status-numbers {
             display: flex;
             flex-direction: column;
-            gap: 2px; 
+            gap: 4px; 
             font-family: 'Gabriele Bad', sans-serif;
-            font-size: 2.3rem; 
+            font-size: 2rem; /* Um pouco mais suave que os 2.3rem anteriores */
             font-weight: normal;
-            line-height: 0.9;
+            line-height: 1;
             user-select: none;
-            letter-spacing: 2px;
+            letter-spacing: 1px; /* Espaçamento mais natural */
         }
 
-        /* EFEITOS GLOW (NEON) */
+        /* EFEITOS GLOW (NEON) SUAVIZADOS */
         .val-vida { 
             color: white; 
-            text-shadow: 0 0 8px #ff0000, 0 0 15px #ff0000, 0 0 30px #ff0000; 
+            /* Sombra preta base + brilho suave */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.4); 
         }
         
         .val-sani { 
             color: white; 
-            text-shadow: 0 0 8px #00aaff, 0 0 15px #00aaff, 0 0 30px #0088ff; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(0, 170, 255, 0.8), 0 0 15px rgba(0, 170, 255, 0.4); 
         }
         
-        /* ATUALIZADO: Munição adaptada para ficar ao lado e com o mesmo tamanho */
         .val-ammo { 
             color: white; 
             font-family: 'Gabriele Bad', sans-serif;
-            font-size: 2.3rem; 
-            text-shadow: 0 0 8px #ffcf33, 0 0 15px #ffcf33, 0 0 30px #ffae00; 
+            font-size: 2rem; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(255, 207, 51, 0.8), 0 0 15px rgba(255, 207, 51, 0.4); 
             user-select: none;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -162,7 +162,6 @@
             
             div.onclick = () => removerDoOverlay(code);
             
-            // ATUALIZADO: Adicionado o .info-wrapper
             div.innerHTML = `
                 <div class="foto-container"><img src="" id="foto-${code}" class="foto"></div>
                 <div class="info-wrapper">
