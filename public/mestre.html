@@ -52,6 +52,17 @@
             gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
         }
 
+        /* Grelha do Catálogo de Itens do Mestre com aparência das cartas de Perícia/Itens */
+        .catalogo-grid-view {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 10px; 
+            align-content: flex-start; 
+            overflow-y: auto; 
+            padding-right: 5px; 
+            flex: 1;
+        }
+
         .player-card, .monster-card {
             background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
             padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
@@ -174,8 +185,22 @@
             body { height: auto; overflow-y: auto; padding: 10px; }
             .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
             .left-panel { overflow: visible; }
-            .players-container, .monsters-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
+            .players-container, .monsters-grid, .catalogo-grid-view { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
             .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
+            .tab-btn { border-radius: 8px; margin-bottom: 5px; }
+            .ini-card { gap: 10px; }
+            .popup-box-dice { height: 300px; }
+            .popup-number { font-size: 6em; }
+            .popup-res { font-size: 1.5em; }
+            .attr-grid { grid-template-columns: 1fr; } 
+
+            #roteiro-board { height: auto; padding: 15px; }
+            .roteiro-layout { flex-direction: column; height: auto; }
+            .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+            .roteiro-sidebar-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+            #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
+            .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+            .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
         }
     </style>
 </head>
@@ -216,7 +241,7 @@
                 <div style="margin-bottom: 20px;">
                     <button class="btn-add" style="background: var(--accent-yellow); color: black; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalItemMestre()">+ CRIAR NOVO ITEM NO CATÁLOGO</button>
                 </div>
-                <div class="monsters-grid" id="catalogo-grid"></div>
+                <div class="catalogo-grid-view" id="catalogo-grid"></div>
             </div>
 
             <div id="iniciativa-board">
@@ -462,8 +487,6 @@
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
-        
-        // NOVA VARIÁVEL: CATÁLOGO DE ITENS DO MESTRE
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
 
         const URL_FICHA = "/ficha.html"; 
@@ -502,7 +525,7 @@
         };
 
         // ==========================================
-        // SISTEMA DE CATÁLOGO DE ITENS DO MESTRE
+        // SISTEMA DE CATÁLOGO DE ITENS (ATUALIZADO VISUAL)
         // ==========================================
 
         function abrirModalItemMestre() {
@@ -579,31 +602,40 @@
             }
         }
 
+        // Função de Renderizar Catálogo Atualizada para o Layout Grelha da Ficha
         function renderizarCatalogo() {
             const grid = document.getElementById('catalogo-grid');
             grid.innerHTML = '';
+            
             if (catalogoMestre.length === 0) {
                 grid.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">O seu catálogo está vazio.</span>`;
                 return;
             }
+            
             catalogoMestre.forEach((item, index) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
                 
+                let detailsHtml = `<div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span></div>`;
+                
+                if (item.type !== 'comum') {
+                     if(item.atkType === 'Disparo') {
+                         detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`;
+                     } else {
+                         detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`;
+                     }
+                }
+
                 const card = document.createElement('div');
-                card.className = 'monster-card';
-                card.style.borderColor = color;
+                card.style.cssText = `position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between;`;
+                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
+                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
                 
                 card.innerHTML = `
-                    <button class="btn-remove" onclick="apagarItemCatalogo(${index})">X</button>
-                    <div class="player-header" style="border-bottom-color: ${color}50;">
-                        <img src="${item.img || 'https://via.placeholder.com/60'}" class="player-img" style="border-color: ${color};">
-                        <div>
-                            <h3 class="player-name" style="color: ${color};">${item.n}</h3>
-                            <div class="player-info">Espaços: ${item.w} | Tipo: ${item.type === 'comum' ? 'Comum' : 'Arma'}</div>
-                        </div>
-                    </div>
-                    <div style="flex:1;"></div>
-                    <button class="btn-roll" style="background: ${color}; color: black; width: 100%; padding: 10px;" onclick="abrirModalTransferirItem(${index})">🎁 ENVIAR A JOGADOR</button>
+                    <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); apagarItemCatalogo(${index})">X</button>
+                    <img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
+                    <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${item.n}</div>
+                    ${detailsHtml}
+                    <button class="btn-roll" style="background: ${color}; color: black; width: 100%; padding: 8px; margin-top: 10px; font-size: 0.75em;" onclick="event.stopPropagation(); abrirModalTransferirItem(${index})">🎁 ENVIAR</button>
                 `;
                 grid.appendChild(card);
             });
@@ -641,11 +673,9 @@
 
             if (!itemOriginal || !codeAlvo) return;
 
-            // Clona o item e gera um novo ID único para não haver conflitos na ficha do jogador
             let itemParaEnviar = JSON.parse(JSON.stringify(itemOriginal));
             itemParaEnviar.id = 'inv_' + Date.now() + Math.floor(Math.random() * 1000);
 
-            // Manda o sinal via Socket
             socket.emit('comando_mestre', {
                 tipo: 'dar_item',
                 codigo: codeAlvo,
@@ -738,23 +768,152 @@
             if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados); }
         });
 
+        function processarIniciativa(dados) {
+            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? dados.codigo : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
+            if (isPlayer) { let pData = playersDataMemoria[dados.codigo]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } 
+            else { let monstro = monstros.find(m => m.nome === dados.jogador); if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 0.50) + (sData.treinado ? 10 : 0)); } foto = monstro.foto || foto; } }
+            let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
+            if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
+            if (document.getElementById('tab-iniciativa').classList.contains('active')) { renderizarIniciativa(); }
+        }
+
         function adicionarAoLog(nome, acao, resultado, corStr = '') {
             const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove();
             const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)');
             logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem); 
         }
 
-        // ... MANTIVE TODA A LÓGICA DE PAN E ZOOM DE MAPAS, MONSTROS E INICIATIVA EXATAMENTE IGUAL ...
-        // (Omiti as repetições de monstros e pan/zoom aqui para caber, mas o ficheiro acima contem tudo!)
+        function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+        
+        function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
+            const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
+            let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
+            let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); }
+            resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
+            box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)';
+            document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
+            setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500);
+            if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st }); }
+        }
 
-        // Zoom e Drag
+        // ==========================================
+        // MAPAS - LÓGICA DE PAN E ZOOM
+        // ==========================================
+        let mapasInfo = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let mapScale = 1; let mapTranslateX = 0; let mapTranslateY = 0; let isDraggingMap = false; let startDragX = 0; let startDragY = 0; let hasMovedMap = false;
-        const mapView = document.getElementById('map-view'); const mapTransform = document.getElementById('map-transform-wrapper');
-        function applyMapTransform() { mapTransform.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`; }
+        let mapaBase64TempMap = null;
+        let currentMapaIdMap = null;
+
+        function carregarMapaPC(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width; let h = img.height; const MAX_DIM = 1920; 
+                    if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+                    mapaBase64TempMap = canvas.toDataURL('image/jpeg', 0.8); 
+                    document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC";
+                    document.getElementById('novo-mapa-url').disabled = true;
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function adicionarMapa() {
+            const nome = document.getElementById('novo-mapa-nome').value.trim();
+            let url = document.getElementById('novo-mapa-url').value.trim();
+            if(!nome) return alert("Por favor, preencha o Nome do mapa.");
+            if(!url && !mapaBase64TempMap) return alert("Forneça uma URL ou carregue uma imagem do seu PC.");
+            if (mapaBase64TempMap) url = mapaBase64TempMap;
+            const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] };
+            mapasInfo.push(novoMapa); currentMapaIdMap = novoMapa.id;
+            localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo));
+            document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; document.getElementById('novo-mapa-url').disabled = false; document.getElementById('novo-mapa-file').value = ''; mapaBase64TempMap = null;
+            renderizarMapasList(); renderizarMapaAtual();
+        }
+
+        function apagarMapaAtual() {
+            if (!currentMapaIdMap) return;
+            if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins? Esta ação é irreversível.")) {
+                mapasInfo = mapasInfo.filter(m => m.id !== currentMapaIdMap);
+                currentMapaIdMap = mapasInfo.length > 0 ? mapasInfo[0].id : null;
+                localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo));
+                renderizarMapasList(); renderizarMapaAtual();
+            }
+        }
+
+        function renderizarMapasList() {
+            const list = document.getElementById('map-list-container'); list.innerHTML = '';
+            if (mapasInfo.length === 0) { list.innerHTML = `<span style="color:var(--text-secondary); font-style:italic; padding: 10px;">Nenhum mapa criado.</span>`; return; }
+            mapasInfo.forEach(m => {
+                const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`;
+                btn.onclick = () => { currentMapaIdMap = m.id; resetarMapaZoom(); renderizarMapasList(); renderizarMapaAtual(); };
+                btn.innerHTML = `🗺️ ${m.nome}`; list.appendChild(btn);
+            });
+        }
+
+        function renderizarMapaAtual() {
+            const imgDisplay = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); pinsContainer.innerHTML = '';
+            if (!currentMapaIdMap) { imgDisplay.style.display = 'none'; return; }
+            const mapa = mapasInfo.find(m => m.id === currentMapaIdMap);
+            if (mapa) {
+                imgDisplay.src = mapa.url; imgDisplay.style.display = 'block';
+                if (mapa.pins) {
+                    mapa.pins.forEach(pin => {
+                        const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = `${pin.x}%`; pinEl.style.top = `${pin.y}%`; pinEl.style.background = pin.color || 'var(--accent-red)';
+                        pinEl.onmouseover = () => mostrarTooltip(pin); pinEl.onmouseout = esconderTooltip;
+                        pinEl.onclick = (e) => { e.stopPropagation(); esconderTooltip(); abrirModalPinEdit(pin); };
+                        pinsContainer.appendChild(pinEl);
+                    });
+                }
+            }
+        }
+
+        function mostrarTooltip(pin) {
+            const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = pin.title;
+            document.getElementById('tooltip-desc').innerHTML = (pin.desc || 'Sem detalhes.').replace(/\n/g, '<br>'); tooltip.style.left = `${pin.x}%`; tooltip.style.top = `${pin.y}%`; tooltip.style.display = 'block';
+        }
+        function esconderTooltip() { document.getElementById('map-tooltip').style.display = 'none'; }
+        
+        function abrirModalPinNovo(x, y) {
+            document.getElementById('pin-id-edit').value = ''; document.getElementById('pin-temp-x').value = x; document.getElementById('pin-temp-y').value = y;
+            document.getElementById('pin-title').value = ''; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; 
+            document.getElementById('btn-delete-pin').style.display = 'none'; document.getElementById('modal-pin').style.display = 'flex';
+        }
+
+        function abrirModalPinEdit(pin) {
+            document.getElementById('pin-id-edit').value = pin.id; document.getElementById('pin-title').value = pin.title;
+            document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.color;
+            document.getElementById('btn-delete-pin').style.display = 'block'; document.getElementById('modal-pin').style.display = 'flex';
+        }
+        function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
+
+        function salvarPin() {
+            if (!currentMapaIdMap) return; const mapa = mapasInfo.find(m => m.id === currentMapaIdMap); if (!mapa) return;
+            const title = document.getElementById('pin-title').value.trim(); const desc = document.getElementById('pin-desc').value.trim(); const color = document.getElementById('pin-color').value; const idEdit = document.getElementById('pin-id-edit').value;
+            if (!title) return alert("Dê um título ao local.");
+            if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.title = title; pin.desc = desc; pin.color = color; } } 
+            else { const x = parseFloat(document.getElementById('pin-temp-x').value); const y = parseFloat(document.getElementById('pin-temp-y').value); mapa.pins.push({ id: 'pin_' + Date.now(), x: x, y: y, title: title, desc: desc, color: color }); }
+            localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo)); renderizarMapaAtual(); fecharModalPin();
+        }
+
+        function apagarPin() {
+            if (!currentMapaIdMap) return; const mapa = mapasInfo.find(m => m.id === currentMapaIdMap); const idEdit = document.getElementById('pin-id-edit').value;
+            if (mapa && idEdit) { if(confirm("Deseja apagar este Pin?")) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo)); renderizarMapaAtual(); fecharModalPin(); } }
+        }
+
+        function applyMapTransform() { document.getElementById('map-transform-wrapper').style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`; }
         function resetarMapaZoom() { mapScale = 1; mapTranslateX = 0; mapTranslateY = 0; applyMapTransform(); }
         
+        const mapView = document.getElementById('map-view');
         mapView.addEventListener('wheel', (e) => {
-            if (!currentMapaId) return; e.preventDefault();
+            if (!currentMapaIdMap) return; e.preventDefault();
             const zoomFactor = 1 + (e.deltaY < 0 ? 1 : -1) * 0.1;
             const rect = mapView.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
             let newScale = mapScale * zoomFactor; if (newScale < 0.1) newScale = 0.1; if (newScale > 10) newScale = 10;
@@ -762,7 +921,7 @@
             mapScale = newScale; applyMapTransform();
         });
         mapView.addEventListener('mousedown', (e) => {
-            if (!currentMapaId || e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return;
+            if (!currentMapaIdMap || e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return;
             isDraggingMap = true; hasMovedMap = false; startDragX = e.clientX - mapTranslateX; startDragY = e.clientY - mapTranslateY;
         });
         window.addEventListener('mousemove', (e) => {
@@ -776,6 +935,11 @@
                 if(percentX >= 0 && percentX <= 100 && percentY >= 0 && percentY <= 100) abrirModalPinNovo(percentX, percentY);
             }
         });
+
+        // ==========================================
+        // ROTEIROS E MUNDO
+        // ==========================================
+        if (mapasInfo.length > 0) { renderizarMapasList(); renderizarMapaAtual(); }
     </script>
 </body>
 </html>
