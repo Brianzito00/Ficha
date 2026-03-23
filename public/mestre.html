@@ -281,8 +281,15 @@
                     <h2 style="color: var(--accent-blue); margin: 0;">🗺️ Mapas Interativos</h2>
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <input type="text" id="novo-mapa-nome" class="monster-input" placeholder="Nome do Mapa" style="width: 150px; padding: 8px;">
-                        <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width: 200px; padding: 8px;">
+                        <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width: 150px; padding: 8px;">
+                        
+                        <label class="btn-add" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">
+                            📂 DO PC
+                            <input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)">
+                        </label>
+
                         <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
+                        <button class="btn-remove" style="position: static; padding: 8px 15px; margin: 0;" onclick="apagarMapaAtual()">🗑️ APAGAR ATUAL</button>
                     </div>
                 </div>
 
@@ -430,9 +437,10 @@
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
         
-        // NOVA VARIÁVEL: MAPAS
+        // VARIÁVEL: MAPAS
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let currentMapaId = null;
+        let mapaBase64Temp = null; // Guarda temporariamente a imagem carregada do PC
 
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
@@ -470,7 +478,6 @@
                 if (cloudSave.monstros) { monstros = cloudSave.monstros; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); }
                 if (cloudSave.iniciativa) { iniciativaList = cloudSave.iniciativa; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); }
                 if (cloudSave.allowedCodes) { jogadoresPermitidos = cloudSave.allowedCodes; localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); }
-                // CARREGA OS MAPAS DA NUVEM
                 if (cloudSave.mapas) { mapas = cloudSave.mapas; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); }
                 
             } catch(e) {}
@@ -487,7 +494,7 @@
                     monstros: JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva) || '[]'),
                     iniciativa: JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva) || '[]'),
                     allowedCodes: JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva) || '[]'),
-                    mapas: JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva) || '[]') // SALVA OS MAPAS NA NUVEM
+                    mapas: JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva) || '[]') 
                 };
                 fetch('/api/salvar_campanha', {
                     method: 'POST',
@@ -515,25 +522,74 @@
             localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas));
         }
 
+        // NOVO: Função que lê a imagem do PC e converte para Base64 comprimido
+        function carregarMapaPC(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // Compressão para evitar que a Base de Dados crash
+                    const canvas = document.createElement('canvas');
+                    let w = img.width;
+                    let h = img.height;
+                    const MAX_DIM = 1920; 
+                    
+                    if (w > MAX_DIM || h > MAX_DIM) {
+                        if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } 
+                        else { w *= MAX_DIM / h; h = MAX_DIM; }
+                    }
+                    
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    
+                    // Converte para JPG com 80% de qualidade
+                    mapaBase64Temp = canvas.toDataURL('image/jpeg', 0.8); 
+                    
+                    document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC";
+                    document.getElementById('novo-mapa-url').disabled = true;
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function adicionarMapa() {
             const nome = document.getElementById('novo-mapa-nome').value.trim();
-            const url = document.getElementById('novo-mapa-url').value.trim();
-            if(!nome || !url) return alert("Por favor, preencha o Nome e a URL da Imagem do mapa.");
+            let url = document.getElementById('novo-mapa-url').value.trim();
+            
+            if(!nome) return alert("Por favor, preencha o Nome do mapa.");
+            if(!url && !mapaBase64Temp) return alert("Forneça uma URL ou carregue uma imagem do seu PC.");
+
+            // Se o Mestre fez upload, a URL passa a ser o código Base64 da imagem
+            if (mapaBase64Temp) {
+                url = mapaBase64Temp;
+            }
             
             const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] };
             mapas.push(novoMapa);
             currentMapaId = novoMapa.id;
             
             salvarMapasLocal();
+            
+            // Reset aos inputs
             document.getElementById('novo-mapa-nome').value = '';
             document.getElementById('novo-mapa-url').value = '';
+            document.getElementById('novo-mapa-url').disabled = false;
+            document.getElementById('novo-mapa-file').value = '';
+            mapaBase64Temp = null;
+            
             renderizarMapasList();
             renderizarMapaAtual();
         }
 
+        // NOVO: Função ativada pelo botão "Apagar Atual"
         function apagarMapaAtual() {
             if (!currentMapaId) return;
-            if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins?")) {
+            if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins? Esta ação é irreversível.")) {
                 mapas = mapas.filter(m => m.id !== currentMapaId);
                 currentMapaId = mapas.length > 0 ? mapas[0].id : null;
                 salvarMapasLocal();
@@ -582,13 +638,11 @@
                         pinEl.style.top = `${pin.y}%`;
                         pinEl.style.background = pin.color || 'var(--accent-red)';
                         
-                        // Sistema de Tooltip (Hover)
                         pinEl.onmouseover = () => mostrarTooltip(pin);
                         pinEl.onmouseout = esconderTooltip;
                         
-                        // Clique no pin abre a edição
                         pinEl.onclick = (e) => {
-                            e.stopPropagation(); // Evita criar um pin novo por baixo
+                            e.stopPropagation(); 
                             esconderTooltip();
                             abrirModalPinEdit(pin);
                         };
@@ -602,10 +656,8 @@
         function mostrarTooltip(pin) {
             const tooltip = document.getElementById('map-tooltip');
             document.getElementById('tooltip-title').innerText = pin.title;
-            // Preserva as quebras de linha na descrição
             document.getElementById('tooltip-desc').innerHTML = (pin.desc || 'Sem detalhes.').replace(/\n/g, '<br>');
             
-            // Posiciona o tooltip exatamente em cima do pin
             tooltip.style.left = `${pin.x}%`;
             tooltip.style.top = `${pin.y}%`;
             tooltip.style.display = 'block';
@@ -617,13 +669,11 @@
 
         function mapaClicado(e) {
             if (!currentMapaId) return;
-            // Se clicar na img, cria um pin novo
             if (e.target.id === 'map-image-display' || e.target.id === 'map-content') {
                 const rect = document.getElementById('map-image-display').getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
                 
-                // Converte para percentagem (para o pin ficar na posição certa mesmo se a janela mudar de tamanho)
                 const percentX = (clickX / rect.width) * 100;
                 const percentY = (clickY / rect.height) * 100;
 
@@ -637,7 +687,7 @@
             document.getElementById('pin-temp-y').value = y;
             document.getElementById('pin-title').value = '';
             document.getElementById('pin-desc').value = '';
-            document.getElementById('pin-color').value = '#e53935'; // Default Vermelho
+            document.getElementById('pin-color').value = '#e53935'; 
             
             document.getElementById('btn-delete-pin').style.display = 'none';
             document.getElementById('modal-pin').style.display = 'flex';
@@ -670,7 +720,6 @@
             if (!title) return alert("Dê um título ao local.");
 
             if (idEdit) {
-                // Editando Pin Existente
                 const pin = mapa.pins.find(p => p.id === idEdit);
                 if (pin) {
                     pin.title = title;
@@ -678,7 +727,6 @@
                     pin.color = color;
                 }
             } else {
-                // Novo Pin
                 const x = parseFloat(document.getElementById('pin-temp-x').value);
                 const y = parseFloat(document.getElementById('pin-temp-y').value);
                 mapa.pins.push({
