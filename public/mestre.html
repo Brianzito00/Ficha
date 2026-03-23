@@ -159,14 +159,25 @@
         .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
         /* ================================== */
-        /* ABA DE MAPAS (NOVA)                */
+        /* ABA DE MAPAS (ATUALIZADA)          */
         /* ================================== */
         #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .map-list { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
         .map-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; display: flex; gap: 10px; align-items: center; }
         .map-btn.active { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.15); color: var(--accent-blue); }
-        .map-view-container { flex: 1; position: relative; overflow: auto; border: 2px solid var(--border-color); border-radius: 8px; background: #000; cursor: crosshair; display: flex; align-items: flex-start; justify-content: flex-start; }
-        .map-image { display: block; max-width: none; transition: transform 0.2s; }
+        
+        /* Modificações para Pan e Zoom estilo Roll20 */
+        .map-view-container { 
+            flex: 1; position: relative; overflow: hidden; /* Overflow hidden para esconder fora da borda */
+            border: 2px solid var(--border-color); border-radius: 8px; background: #0b0b0e; cursor: grab; display: block; 
+        }
+        .map-view-container:active { cursor: grabbing; }
+        
+        #map-transform-wrapper {
+            transform-origin: 0 0; width: 100%; height: 100%; position: absolute; top:0; left:0; will-change: transform;
+        }
+
+        .map-image { display: block; max-width: none; user-select: none; pointer-events: none; }
         
         .map-pin-marker {
             position: absolute; width: 26px; height: 26px; border-radius: 50% 50% 50% 0;
@@ -289,6 +300,7 @@
                         </label>
 
                         <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
+                        <button class="btn-outline" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); border-color: var(--accent-blue);" onclick="resetarMapaZoom()">🔍 CENTRAR MAPA</button>
                         <button class="btn-remove" style="position: static; padding: 8px 15px; margin: 0;" onclick="apagarMapaAtual()">🗑️ APAGAR ATUAL</button>
                     </div>
                 </div>
@@ -296,16 +308,18 @@
                 <div class="map-list" id="map-list-container"></div>
                 
                 <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">
-                    💡 Clique em qualquer lugar do mapa para adicionar um <b>Pin</b>. Clique num Pin já existente para editá-lo ou apagá-lo.
+                    💡 Use o <b>Scroll do rato</b> para dar zoom e <b>clique/arraste</b> para se mover. Um clique rápido adiciona um Pin!
                 </div>
 
-                <div class="map-view-container" id="map-view" onclick="mapaClicado(event)">
-                    <div id="map-content" style="position: relative; display: inline-block;">
-                        <img id="map-image-display" class="map-image" src="" style="display: none;">
-                        <div id="pins-container"></div>
-                        <div class="map-tooltip" id="map-tooltip">
-                            <h4 id="tooltip-title"></h4>
-                            <p id="tooltip-desc"></p>
+                <div class="map-view-container" id="map-view">
+                    <div id="map-transform-wrapper">
+                        <div id="map-content" style="position: relative; display: inline-block;">
+                            <img id="map-image-display" class="map-image" src="" style="display: none;">
+                            <div id="pins-container"></div>
+                            <div class="map-tooltip" id="map-tooltip">
+                                <h4 id="tooltip-title"></h4>
+                                <p id="tooltip-desc"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -430,17 +444,15 @@
             document.body.style.backgroundImage = `url('${customWP}')`; 
         }
 
-        // Variáveis com os dados separados por campanha
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva));
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
         
-        // VARIÁVEL: MAPAS
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let currentMapaId = null;
-        let mapaBase64Temp = null; // Guarda temporariamente a imagem carregada do PC
+        let mapaBase64Temp = null;
 
         const URL_FICHA = "/ficha.html"; 
         const socket = io();
@@ -513,7 +525,7 @@
         };
 
         // ==========================================
-        // SISTEMA DE MAPAS E PINS
+        // SISTEMA DE MAPAS E PINS (COM PAN E ZOOM)
         // ==========================================
         
         if (mapas.length > 0) currentMapaId = mapas[0].id;
@@ -522,7 +534,6 @@
             localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas));
         }
 
-        // NOVO: Função que lê a imagem do PC e converte para Base64 comprimido
         function carregarMapaPC(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -531,7 +542,6 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Compressão para evitar que a Base de Dados crash
                     const canvas = document.createElement('canvas');
                     let w = img.width;
                     let h = img.height;
@@ -546,9 +556,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
                     
-                    // Converte para JPG com 80% de qualidade
                     mapaBase64Temp = canvas.toDataURL('image/jpeg', 0.8); 
-                    
                     document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC";
                     document.getElementById('novo-mapa-url').disabled = true;
                 }
@@ -564,18 +572,13 @@
             if(!nome) return alert("Por favor, preencha o Nome do mapa.");
             if(!url && !mapaBase64Temp) return alert("Forneça uma URL ou carregue uma imagem do seu PC.");
 
-            // Se o Mestre fez upload, a URL passa a ser o código Base64 da imagem
-            if (mapaBase64Temp) {
-                url = mapaBase64Temp;
-            }
+            if (mapaBase64Temp) url = mapaBase64Temp;
             
             const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] };
             mapas.push(novoMapa);
             currentMapaId = novoMapa.id;
             
             salvarMapasLocal();
-            
-            // Reset aos inputs
             document.getElementById('novo-mapa-nome').value = '';
             document.getElementById('novo-mapa-url').value = '';
             document.getElementById('novo-mapa-url').disabled = false;
@@ -586,7 +589,6 @@
             renderizarMapaAtual();
         }
 
-        // NOVO: Função ativada pelo botão "Apagar Atual"
         function apagarMapaAtual() {
             if (!currentMapaId) return;
             if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins? Esta ação é irreversível.")) {
@@ -608,7 +610,12 @@
             mapas.forEach(m => {
                 const btn = document.createElement('div');
                 btn.className = `map-btn ${m.id === currentMapaId ? 'active' : ''}`;
-                btn.onclick = () => { currentMapaId = m.id; renderizarMapasList(); renderizarMapaAtual(); };
+                btn.onclick = () => { 
+                    currentMapaId = m.id; 
+                    resetarMapaZoom();
+                    renderizarMapasList(); 
+                    renderizarMapaAtual(); 
+                };
                 btn.innerHTML = `🗺️ ${m.nome}`;
                 list.appendChild(btn);
             });
@@ -629,7 +636,6 @@
                 imgDisplay.src = mapa.url;
                 imgDisplay.style.display = 'block';
                 
-                // Renderizar Pins
                 if (mapa.pins) {
                     mapa.pins.forEach(pin => {
                         const pinEl = document.createElement('div');
@@ -665,20 +671,6 @@
 
         function esconderTooltip() {
             document.getElementById('map-tooltip').style.display = 'none';
-        }
-
-        function mapaClicado(e) {
-            if (!currentMapaId) return;
-            if (e.target.id === 'map-image-display' || e.target.id === 'map-content') {
-                const rect = document.getElementById('map-image-display').getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-                
-                const percentX = (clickX / rect.width) * 100;
-                const percentY = (clickY / rect.height) * 100;
-
-                abrirModalPinNovo(percentX, percentY);
-            }
         }
 
         function abrirModalPinNovo(x, y) {
@@ -753,6 +745,105 @@
                 }
             }
         }
+
+        // ==========================================
+        // LÓGICA DE PAN E ZOOM (ROLL20 STYLE)
+        // ==========================================
+        let mapScale = 1;
+        let mapTranslateX = 0;
+        let mapTranslateY = 0;
+        let isDraggingMap = false;
+        let startDragX = 0;
+        let startDragY = 0;
+        let hasMovedMap = false;
+
+        const mapView = document.getElementById('map-view');
+        const mapTransform = document.getElementById('map-transform-wrapper');
+
+        function applyMapTransform() {
+            mapTransform.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+        }
+
+        function resetarMapaZoom() {
+            mapScale = 1;
+            mapTranslateX = 0;
+            mapTranslateY = 0;
+            applyMapTransform();
+        }
+
+        // Zoom com a Roda do Rato
+        mapView.addEventListener('wheel', (e) => {
+            if (!currentMapaId) return;
+            e.preventDefault();
+            
+            const zoomIntensity = 0.1;
+            const delta = e.deltaY < 0 ? 1 : -1;
+            
+            // Descobre o ponto do rato relativo à janela da div
+            const rect = mapView.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const zoomFactor = 1 + delta * zoomIntensity;
+            let newScale = mapScale * zoomFactor;
+            
+            // Limites de Zoom
+            if (newScale < 0.1) newScale = 0.1;
+            if (newScale > 10) newScale = 10;
+
+            // Mantém a posição de translação baseada onde o rato estava
+            mapTranslateX = mouseX - (mouseX - mapTranslateX) * (newScale / mapScale);
+            mapTranslateY = mouseY - (mouseY - mapTranslateY) * (newScale / mapScale);
+            
+            mapScale = newScale;
+            applyMapTransform();
+        });
+
+        // Inicia o Drag (Arrasto)
+        mapView.addEventListener('mousedown', (e) => {
+            if (!currentMapaId) return;
+            // Se clicar num Pin, não arrasta
+            if (e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return;
+
+            isDraggingMap = true;
+            hasMovedMap = false;
+            startDragX = e.clientX - mapTranslateX;
+            startDragY = e.clientY - mapTranslateY;
+        });
+
+        // Arrastando
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingMap) return;
+            hasMovedMap = true;
+            mapTranslateX = e.clientX - startDragX;
+            mapTranslateY = e.clientY - startDragY;
+            applyMapTransform();
+        });
+
+        // Larga o rato - Finaliza o Drag OU Deteta que foi um Clique normal
+        window.addEventListener('mouseup', (e) => {
+            if (!isDraggingMap) return;
+            isDraggingMap = false;
+            
+            // Se NÃO se mexeu enquanto segurava o rato, conta como CLIQUE (Criar Pin)
+            if (!hasMovedMap) {
+                if (e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return;
+                
+                const imgRect = document.getElementById('map-image-display').getBoundingClientRect();
+                
+                // Converte as coordenadas do clique em percentagem da imagem dimensionada
+                const clickX = e.clientX - imgRect.left;
+                const clickY = e.clientY - imgRect.top;
+                
+                const percentX = (clickX / imgRect.width) * 100;
+                const percentY = (clickY / imgRect.height) * 100;
+
+                // Garante que clicou DENTRO dos limites visíveis da imagem
+                if(percentX >= 0 && percentX <= 100 && percentY >= 0 && percentY <= 100) {
+                    abrirModalPinNovo(percentX, percentY);
+                }
+            }
+        });
 
 
         // ==========================================
