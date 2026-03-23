@@ -87,6 +87,15 @@
         .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center; }
         .ammo-box label { display: block; font-size: 0.7em; color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
 
+        /* Nova classe da grelha de Inventário/Catálogo */
+        .catalogo-grid-view {
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 10px; 
+            align-content: flex-start; 
+            padding-right: 5px; 
+        }
+
         .inv-table { width: 100%; border-collapse: collapse; }
         .inv-row-main { cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(45, 45, 48, 0.8); }
         .inv-row-main:hover { background: rgba(42, 42, 46, 0.8); }
@@ -164,7 +173,7 @@
             .char-info-wrapper { flex-direction: column; }
             .status-grid { grid-template-columns: 1fr; gap: 10px; }
             .ammo-grid { grid-template-columns: repeat(2, 1fr); }
-            .skill-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .skill-grid, .catalogo-grid-view { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
             .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
             .popup-box-dice { width: 95%; height: 300px; }
             .popup-grid { grid-template-columns: 1fr; }
@@ -257,7 +266,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <div id="popup-item-info" class="popup-overlay" onclick="closeItemInfo()">
     <div class="popup-box" onclick="event.stopPropagation()">
@@ -494,17 +502,10 @@
             <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
         </div>
         <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
-        <table class="inv-table">
-            <thead>
-                <tr>
-                    <th style="width:65%;">Inventário (Clique para Detalhes)</th>
-                    <th style="width:15%; text-align:center;">Espaços</th>
-                    <th style="width:20%; text-align:center;">Ação</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-body"></tbody>
-        </table>
+        
+        <div class="catalogo-grid-view" id="inventory-body"></div>
     </div>
+
     <div class="panel">
         <div class="panel-title">Munições</div>
         <div class="ammo-grid">
@@ -1041,12 +1042,44 @@
         closeItemPopup();
     }
 
+    // ATUALIZADO: Cria uma carta no estilo da grelha em vez de uma linha de tabela
     function addItemObj(o) {
-        const body = document.getElementById('inventory-body'); const r1 = document.createElement('tr'); r1.className = 'inv-row-main'; r1.id = 'inv-row-' + o.id; 
-        r1.onclick = () => openItemInfo(o.id);
+        const body = document.getElementById('inventory-body'); 
+        const card = document.createElement('div'); 
+        card.id = 'inv-row-' + o.id; 
+        card.onclick = () => openItemInfo(o.id);
         const safeD = (o.d||"").replace(/"/g, "&quot;");
-        r1.innerHTML = `<td><div style="display:flex; align-items:center;"><input type="checkbox" class="item-equipped" ${o.eq?'checked':''} onclick="event.stopPropagation()" onchange="syncItemEquip('${o.id}', this.checked); updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save()"> <b style="margin-left:8px;">${o.n}</b></div></td><td style="text-align:center;">${o.w}</td><td style="text-align:center;"><button class="btn-del" onclick="removeItem('${o.id}'); event.stopPropagation()">X</button><input type="hidden" class="hidden-data-item" id="item-data-${o.id}" data-id="${o.id}" data-n="${o.n}" data-w="${o.w}" data-d="${safeD}" data-eq="${o.eq}" data-type="${o.type}" data-dmg="${o.dmg||'0'}" data-extra="${o.extra||'0'}" data-crit="${o.crit||'20/x2'}" data-skill="${o.skill||'Luta'}" data-img="${o.img||''}" data-atktype="${o.atkType||'Corpo a corpo'}" data-atk="${o.atk||'1'}" data-range="${o.range||'Curto'}" data-ammo="${o.ammo||'Nenhuma'}" data-capacity="${o.capacity||'0'}" data-currentshots="${o.currentShots!==undefined?o.currentShots:o.capacity}"></td>`;
-        body.appendChild(r1); 
+        
+        let color = o.type === 'comum' ? 'var(--accent-green)' : (o.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
+        
+        card.style.cssText = `position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;`;
+        
+        card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
+        card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+
+        let detailsHtml = `<div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span></div>`;
+        if (o.type !== 'comum') {
+             if(o.atkType === 'Disparo') {
+                 detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${o.capacity} (${o.ammo})</span></div>`;
+             } else {
+                 detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${o.crit}</span></div>`;
+             }
+        }
+
+        card.innerHTML = `
+            <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeItem('${o.id}')">X</button>
+            
+            <div style="position: absolute; top: 5px; left: 5px; z-index: 10; display:flex; align-items:center; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);" title="Equipar Item">
+                <input type="checkbox" class="item-equipped" ${o.eq?'checked':''} onclick="event.stopPropagation()" onchange="syncItemEquip('${o.id}', this.checked); updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save()" style="margin:0; width: 14px; height: 14px; cursor: pointer; accent-color: ${color};">
+                <span style="font-size: 0.6em; color: white; margin-left: 4px; text-transform: uppercase; font-weight: bold;">Eqp</span>
+            </div>
+            
+            <img src="${o.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px; margin-top: 15px;">
+            <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${o.n}</div>
+            ${detailsHtml}
+            <input type="hidden" class="hidden-data-item" id="item-data-${o.id}" data-id="${o.id}" data-n="${o.n}" data-w="${o.w}" data-d="${safeD}" data-eq="${o.eq}" data-type="${o.type}" data-dmg="${o.dmg||'0'}" data-extra="${o.extra||'0'}" data-crit="${o.crit||'20/x2'}" data-skill="${o.skill||'Luta'}" data-img="${o.img||''}" data-atktype="${o.atkType||'Corpo a corpo'}" data-atk="${o.atk||'1'}" data-range="${o.range||'Curto'}" data-ammo="${o.ammo||'Nenhuma'}" data-capacity="${o.capacity||'0'}" data-currentshots="${o.currentShots!==undefined?o.currentShots:o.capacity}">
+        `;
+        body.appendChild(card); 
         if(!isLoadingData) { updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
     }
     
@@ -1215,10 +1248,7 @@
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
-            
-            // O Segredo está AQUI: Manda o código base do user ("JOAO") para o mestre reconhecer e colocar no Log
             const emissionCode = typeof viewCode !== 'undefined' && viewCode ? viewCode : baseUser;
-            
             socket.emit('rolagem_feita', { codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' '), resultado: n, cor: st });
         }
     }
@@ -1359,7 +1389,6 @@
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
                 
-                // MÁGICA DE CONEXÃO: Avisar o Mestre e o Overlay que o jogador chegou!
                 setTimeout(() => {
                     if(!campanhaAtiva.includes("SOLO_")) {
                         socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: baseUser });
@@ -1369,9 +1398,7 @@
             }); 
             
             socket.on('mestre_pede_ficha', (codigoPedido) => {
-                if (codigoPedido === baseUser) {
-                    save(); 
-                }
+                if (codigoPedido === baseUser) { save(); }
             });
 
             socket.on('catalogo_inicial', (catalogoDoServidor) => {
@@ -1403,12 +1430,17 @@
                     else if (dados.tipo === 'status') toggleStatus(dados.status); 
                 }
 
-                // Quando o mestre carrega no "X" para o expulsar do escudo
                 if (dados.tipo === 'expulsar_jogador' && dados.codigo === baseUser) {
                     alert("Foi removido da mesa pelo Mestre.\nTerá de escolher uma ficha novamente se for adicionado.");
                     localStorage.removeItem('ficha_vinculada_' + campanhaAtiva);
                     localStorage.removeItem('ordem_save_local_' + campanhaAtiva);
-                    fazerLogout(); // Sai automaticamente para o Lobby
+                    fazerLogout(); 
+                }
+
+                if (dados.tipo === 'dar_item' && dados.codigo === baseUser) {
+                    addItemObj(dados.item); 
+                    save(); 
+                    alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
                 }
             });
 
