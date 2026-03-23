@@ -145,6 +145,7 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
+        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO */
         #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
         
@@ -420,14 +421,14 @@
 
     <div id="modal-transfer-obj" class="modal-overlay" style="z-index: 10001;">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir</h2>
+            <h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir para UM Jogador</h2>
             <p style="color: var(--text-secondary);">Deseja enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b> para quem?</p>
             <input type="hidden" id="transfer-obj-idx">
             <input type="hidden" id="transfer-obj-type"> <select id="transfer-player-select" class="monster-input" style="margin-bottom: 20px; font-size: 1.1em; color: white; padding: 12px; text-align: center;"></select>
             
             <div style="display: flex; gap: 10px;">
                 <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button>
-                <button class="btn-add" style="background: var(--accent-blue); flex: 1;" onclick="confirmarTransferencia()">ENVIAR 🎁</button>
+                <button class="btn-add" style="background: var(--accent-blue); flex: 1;" onclick="confirmarTransferenciaUm()">ENVIAR 🎁</button>
             </div>
         </div>
     </div>
@@ -646,9 +647,12 @@
                 card.innerHTML = `
                     <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${index})">X</button>
                     <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
-                    <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${rit.n}</div>
-                    <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span></div>
-                    <button class="btn-roll" style="background: ${color}; color: ${rit.el === 'Morte' || rit.el === 'Medo' ? 'black' : 'black'}; width: 100%; padding: 8px; margin-top: 10px; font-size: 0.75em;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'ritual')">🎁 ENVIAR</button>
+                    <div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.n}</div>
+                    <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo: <span style="color:white; font-weight:bold;">${rit.alv}</span></div>
+                    <div style="display: flex; gap: 5px; margin-top: 10px; width: 100%;">
+                        <button class="btn-roll" style="background: ${color}; color: ${rit.el === 'Morte' || rit.el === 'Medo' ? 'white' : 'black'}; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'ritual')">👤 UM</button>
+                        <button class="btn-roll" style="background: var(--accent-yellow); color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'ritual')">🌟 TODOS</button>
+                    </div>
                 `;
                 grid.appendChild(card);
             });
@@ -728,7 +732,10 @@
                     <img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
                     <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${item.n}</div>
                     ${detailsHtml}
-                    <button class="btn-roll" style="background: ${color}; color: black; width: 100%; padding: 8px; margin-top: 10px; font-size: 0.75em;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'item')">🎁 ENVIAR</button>
+                    <div style="display: flex; gap: 5px; margin-top: 10px; width: 100%;">
+                        <button class="btn-roll" style="background: ${color}; color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'item')">👤 UM</button>
+                        <button class="btn-roll" style="background: var(--accent-yellow); color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'item')">🌟 TODOS</button>
+                    </div>
                 `;
                 
                 if (item.type === 'comum') { gridComum.appendChild(card); countComum++; } 
@@ -736,14 +743,39 @@
                 else { gridArmaCC.appendChild(card); countCC++; }
             });
             
-            if (countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
-            if (countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma de corpo a corpo.</span>`;
-            if (countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma de disparo.</span>`;
+            if (countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum criado.</span>`;
+            if (countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma corpo a corpo criada.</span>`;
+            if (countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma de disparo criada.</span>`;
         }
 
         // ==========================================
-        // TRANSFERÊNCIA (AGORA SUPORTA ITENS, RITUAIS E "TODOS")
+        // TRANSFERÊNCIA
         // ==========================================
+
+        function enviarParaTodos(idx, tipo) {
+            if (jogadoresPermitidos.length === 0) {
+                alert("Não há jogadores conectados na mesa para receber este presente!");
+                return;
+            }
+
+            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
+            if (!objOriginal) return;
+
+            if (!confirm(`Deseja realmente enviar '${objOriginal.n}' para TODOS os ${jogadoresPermitidos.length} jogadores?`)) return;
+
+            jogadoresPermitidos.forEach(alvo => {
+                let objParaEnviar = JSON.parse(JSON.stringify(objOriginal));
+                objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
+
+                if (tipo === 'item') {
+                    socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo, item: objParaEnviar });
+                } else {
+                    socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo, ritual: objParaEnviar });
+                }
+            });
+
+            alert(`🌟 O ${tipo === 'item' ? 'item' : 'ritual'} '${objOriginal.n}' foi enviado com sucesso para TODOS os jogadores!`);
+        }
 
         function abrirModalTransferir(idx, tipo) {
             const obj = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
@@ -753,8 +785,7 @@
             document.getElementById('transfer-obj-type').value = tipo;
 
             const select = document.getElementById('transfer-player-select');
-            // Opção para enviar para todos ao mesmo tempo!
-            select.innerHTML = '<option value="TODOS" style="color: var(--accent-yellow); font-weight: bold;">🌟 TODOS OS JOGADORES 🌟</option>';
+            select.innerHTML = '';
 
             if (jogadoresPermitidos.length === 0) {
                 alert("Não tem nenhum jogador ligado à sua mesa no momento!");
@@ -773,7 +804,7 @@
             document.getElementById('modal-transfer-obj').style.display = 'flex';
         }
 
-        function confirmarTransferencia() {
+        function confirmarTransferenciaUm() {
             const idx = document.getElementById('transfer-obj-idx').value;
             const tipo = document.getElementById('transfer-obj-type').value;
             const codeAlvo = document.getElementById('transfer-player-select').value;
@@ -781,19 +812,14 @@
             const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
             if (!objOriginal || !codeAlvo) return;
 
-            // Se escolheu 'TODOS', mapeia por todos os códigos autorizados, senão manda só para o alvo
-            const alvos = codeAlvo === 'TODOS' ? jogadoresPermitidos : [codeAlvo];
+            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal));
+            objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
 
-            alvos.forEach(alvo => {
-                let objParaEnviar = JSON.parse(JSON.stringify(objOriginal));
-                objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
-
-                if (tipo === 'item') {
-                    socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo, item: objParaEnviar });
-                } else {
-                    socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo, ritual: objParaEnviar });
-                }
-            });
+            if (tipo === 'item') {
+                socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeAlvo, item: objParaEnviar });
+            } else {
+                socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeAlvo, ritual: objParaEnviar });
+            }
 
             document.getElementById('modal-transfer-obj').style.display = 'none';
             alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
@@ -991,7 +1017,8 @@
         }
 
         function abrirModalPinEdit(pin) {
-            document.getElementById('pin-id-edit').value = pin.id; document.getElementById('pin-title').value = pin.title; document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.color;
+            document.getElementById('pin-id-edit').value = pin.id; document.getElementById('pin-title').value = pin.title;
+            document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.color;
             document.getElementById('btn-delete-pin').style.display = 'block'; document.getElementById('modal-pin').style.display = 'flex';
         }
         function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
