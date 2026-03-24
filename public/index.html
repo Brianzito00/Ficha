@@ -7,16 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #b82bf2;
-            --primary-hover: #d25aff;
-            --player: #00b0ff;
-            --player-hover: #33bfff;
-            --master: #e53935;
-            --master-hover: #ef5350;
-            --success: #00e676;
-            --bg-card: rgba(20, 20, 24, 0.6);
-            --bg-input: rgba(255, 255, 255, 0.05);
-            --border-input: rgba(255, 255, 255, 0.1);
+            --primary: #b82bf2; --primary-hover: #d25aff;
+            --player: #00b0ff; --player-hover: #33bfff;
+            --master: #e53935; --master-hover: #ef5350;
+            --success: #00e676; --bg-card: rgba(20, 20, 24, 0.6);
+            --bg-input: rgba(255, 255, 255, 0.05); --border-input: rgba(255, 255, 255, 0.1);
             --text-muted: #a8a8b3;
         }
 
@@ -33,7 +28,6 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: -1;
         }
 
-        /* Glassmorphism base container */
         .lobby-box {
             background: var(--bg-card); padding: 40px; border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.2);
@@ -44,7 +38,6 @@
             box-sizing: border-box;
         }
 
-        /* Variações de cores das bordas do Box baseadas na visualização */
         .lobby-box.theme-home { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(184, 43, 242, 0.15); }
         .lobby-box.theme-player { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 176, 255, 0.15); }
         .lobby-box.theme-master { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(229, 57, 53, 0.15); }
@@ -58,7 +51,6 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
         .section-header h3 { margin: 0; font-size: 1.1em; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Botões Escolha Home */
         .btn-choice {
             width: 100%; padding: 20px; margin-bottom: 15px; font-size: 1.1em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
             border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -71,17 +63,14 @@
         .btn-master { background: rgba(229, 57, 53, 0.1); color: var(--master); border: 1px solid rgba(229, 57, 53, 0.3); }
         .btn-master:hover { background: var(--master); color: white; box-shadow: 0 8px 25px rgba(229, 57, 53, 0.4); transform: translateY(-2px); border-color: var(--master); }
 
-        /* Inputs Modernos */
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .inv-input { width: 100%; padding: 14px 16px; background: var(--bg-input); border: 1px solid var(--border-input); border-radius: 8px; color: white; box-sizing: border-box; font-size: 1em; font-family: 'Poppins', sans-serif; transition: all 0.3s ease; }
         .inv-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(184, 43, 242, 0.15); background: rgba(255,255,255,0.08); }
 
-        /* Modais com Glassmorphism */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
         .modal-content { background: var(--bg-card); border-radius: 16px; padding: 40px; width: 90%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-top: 1px solid rgba(255,255,255,0.2); animation: slideUpFade 0.4s ease; box-sizing: border-box; }
         
-        /* Botões de Ação Gerais */
         .btn-action { width: 100%; padding: 12px 20px; font-weight: 600; font-family: 'Poppins', sans-serif; letter-spacing: 0.5px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-action:active { transform: translateY(1px); }
@@ -92,18 +81,14 @@
         .btn-outline { background: transparent; border: 1px solid currentColor; font-weight: 600; border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif; text-transform: uppercase; }
         .btn-outline:hover { background: rgba(255,255,255,0.05); }
 
-        /* Cards das Listas (Campanhas, Fichas, Mesas) */
         .list-container { display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto; padding-right: 5px; margin-bottom: 25px; }
-        
         .list-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s; }
         .list-card:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); }
-        
         .list-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
         .card-title { color: white; font-size: 1.1em; font-weight: 600; text-transform: uppercase; word-break: break-all; }
         .card-subtitle { font-size: 0.8em; color: var(--text-muted); font-weight: 500; }
         .card-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
         
-        /* Utilitários para os Cards JS */
         .theme-border-player { border-left: 4px solid var(--player); }
         .theme-border-master { border-left: 4px solid var(--master); }
         .btn-sm { padding: 8px 12px; font-size: 0.85em; margin: 0; width: auto; flex: 1; }
@@ -112,7 +97,6 @@
         .text-danger:hover { background: rgba(229,57,53,0.1) !important; border-color: var(--master) !important; color: white !important; }
         .empty-state { color: var(--text-muted); font-style: italic; text-align: center; padding: 20px 0; font-size: 0.9em; }
 
-        /* Scrollbars */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
@@ -137,14 +121,12 @@
             <h3>As Minhas Campanhas</h3>
             <button class="btn-outline" style="color: var(--player); padding: 6px 12px; font-size: 0.8em; border-color: rgba(0, 176, 255, 0.5);" onclick="abrirModalJoinCampanha()">+ ENTRAR EM NOVA</button>
         </div>
-        
         <div id="lista-campanhas-jogadas" class="list-container"></div>
 
         <div class="section-header">
             <h3>Arquivo de Fichas</h3>
             <button class="btn-outline" style="color: white; padding: 6px 12px; font-size: 0.8em; border-color: rgba(255,255,255,0.3);" onclick="criarNovaFicha()">+ CRIAR NOVA</button>
         </div>
-        
         <div id="lista-fichas" class="list-container" style="max-height: 200px; margin-bottom: 20px;"></div>
 
         <button class="btn-cancel" onclick="showView('home')">Voltar ao Início</button>
@@ -209,16 +191,13 @@
     </div>
 
     <script>
-        // Verificação de Segurança e Inicialização
         const userLogado = localStorage.getItem('usuario_logado');
         if(!userLogado) window.location.href = '/login.html';
         document.getElementById('user-display').innerText = userLogado;
 
-        // Base de Dados Local do Lobby
         let minhasFichas = JSON.parse(localStorage.getItem('fichas_' + userLogado)) || [];
         let minhasMesas = JSON.parse(localStorage.getItem('mesas_' + userLogado)) || [];
         
-        // Migração automática de antigas "strings" de códigos para "objetos com nome e código"
         let rawCampanhas = JSON.parse(localStorage.getItem('campanhas_jogadas_' + userLogado)) || [];
         let minhasCampanhasJogadas = rawCampanhas.map(c => {
             if (typeof c === 'string') {
@@ -230,9 +209,67 @@
 
         let mesaPendenteUrl = null;
 
-        function salvarFichas() { localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); }
-        function salvarMesas() { localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas)); }
-        function salvarCampanhasJogadas() { localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas)); }
+        // FUNÇÃO QUE PUXA OS DADOS DO LOBBY DA NUVEM ASSIM QUE ENTRA!
+        async function syncLobbyComNuvem() {
+            try {
+                const res = await fetch('/api/carregar_lobby', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: userLogado })
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    if (data.fichas && data.fichas.length > 0) minhasFichas = data.fichas;
+                    if (data.mesas && data.mesas.length > 0) minhasMesas = data.mesas;
+                    if (data.campanhas_jogadas && data.campanhas_jogadas.length > 0) minhasCampanhasJogadas = data.campanhas_jogadas;
+
+                    localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas));
+                    localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas));
+                    localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas));
+                    
+                    if(document.getElementById('view-jogador').style.display !== 'none') {
+                        renderFichas(); renderCampanhasJogadas();
+                    }
+                    if(document.getElementById('view-mestre').style.display !== 'none') {
+                        renderMesas();
+                    }
+                }
+            } catch(e) { console.error("Erro ao puxar da nuvem", e); }
+        }
+        
+        // Puxa da nuvem automaticamente!
+        syncLobbyComNuvem();
+
+        let debounceLobbyTimer;
+        function salvarLobbyNaNuvem() {
+            clearTimeout(debounceLobbyTimer);
+            debounceLobbyTimer = setTimeout(() => {
+                fetch('/api/salvar_lobby', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario: userLogado,
+                        fichas: minhasFichas,
+                        mesas: minhasMesas,
+                        campanhas_jogadas: minhasCampanhasJogadas
+                    })
+                });
+            }, 1000);
+        }
+
+        // Alterado para salvar na nuvem automaticamente também!
+        function salvarFichas() { 
+            localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); 
+            salvarLobbyNaNuvem();
+        }
+        function salvarMesas() { 
+            localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas)); 
+            salvarLobbyNaNuvem();
+        }
+        function salvarCampanhasJogadas() { 
+            localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas)); 
+            salvarLobbyNaNuvem();
+        }
 
         function fazerLogout() {
             localStorage.removeItem('usuario_logado');
@@ -240,7 +277,6 @@
             window.location.href = '/login.html';
         }
 
-        // Esta função fecha e reseta os modais em segurança
         function fecharModais() {
             const ids = ['modal-criar-mesa', 'modal-join-campanha', 'modal-escolher-ficha'];
             ids.forEach(id => {
@@ -264,14 +300,13 @@
         }
 
         // ==========================================
-        // ÁREA DO JOGADOR (CAMPANHAS E FICHAS)
+        // ÁREA DO JOGADOR
         // ==========================================
         
         function abrirModalJoinCampanha() {
             document.getElementById('modal-join-campanha').style.display = 'flex';
         }
 
-        // Buscar o Nome verdadeiro da Mesa no Banco de Dados ao adicionar
         async function adicionarCampanhaJogada() {
             const code = document.getElementById('novo-join-code').value.trim().toUpperCase().replace(/ /g, '-');
             if(!code) return alert('Digite o código da campanha!');
@@ -283,7 +318,6 @@
             const btn = document.getElementById('btn-modal-add-campanha');
             btn.innerText = "A PROCURAR..."; btn.disabled = true;
 
-            // Formatação padrão caso falhe a busca
             let nomeCampanha = code.replace(/-\d+$/, '').replace(/-/g, ' ');
 
             try {
@@ -346,7 +380,6 @@
             });
         }
 
-        // --- GESTÃO DE FICHAS (RASCUNHOS) ---
         function syncFichas() {
             minhasFichas.forEach(f => {
                 let saved = localStorage.getItem('ordem_save_local_SOLO_' + f.id);
@@ -416,9 +449,6 @@
             window.location.href = '/ficha.html';
         }
 
-        // ==========================================
-        // FLUXO DE ENTRADA NA MESA
-        // ==========================================
         function prepararEntradaMesa(codigoMesa) {
             const fichaVinculada = localStorage.getItem('ficha_vinculada_' + codigoMesa);
             if (fichaVinculada === 'true') {
@@ -548,9 +578,6 @@
             window.location.href = '/mestre.html';
         }
 
-        // ==========================================
-        // AUTO-INICIALIZAÇÃO PELO LINK DE CONVITE
-        // ==========================================
         const urlP = new URLSearchParams(window.location.search);
         const inviteMesa = urlP.get('mesa');
         if (inviteMesa) {
