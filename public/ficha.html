@@ -150,136 +150,6 @@
     </div>
 </div>
 
-<div id="tab-personagem" class="main-container active">
-    <div class="panel" style="margin-bottom: 20px;">
-        <div class="panel-title">Informações do Personagem</div>
-        <div class="char-info-wrapper">
-            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            </div>
-            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="status-grid">
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
-                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
-                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
-                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
-            </div>
-        </div>
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
-                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="columns-wrapper">
-        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
-        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
-        
-        <div class="panel" style="flex:0 0 250px;">
-            <div class="panel-title">Ações</div>
-            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
-                PERSONALIZAR DADO
-            </button>
-            <div class="defense-box">
-                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
-                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
-            </div>
-
-            <div class="equipped-weapons-header">Ataque Corporal</div>
-            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                <button class="ritual-btn" style="border-color: var(--text-secondary); color: var(--text-primary); width: 100%; margin-bottom: 8px; cursor: default; pointer-events: none;">Ataque Desarmado</button>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
-                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
-                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
-                </div>
-                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8 + FOR</span></div>
-            </div>
-            
-            <div class="equipped-weapons-header">Arma Ativa</div>
-            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
-            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
-            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
-            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-            
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
-            <div id="learned-rituals-list" style="display:flex; flex-wrap:wrap; gap:5px;">
-                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual aprendido.</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="tab-inventario" class="main-container">
-    <div class="panel">
-        <div class="panel-title">Mochila e Carga</div>
-        <div class="weight-container">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
-                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
-            </div>
-            <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
-        </div>
-        <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
-        <div class="catalogo-grid-view" id="inventory-body"></div>
-    </div>
-
-    <div class="panel">
-        <div class="panel-title">Munições</div>
-        <div class="ammo-grid">
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Leve / Curta</label><input type="number" id="ammo_curta" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Longa</label><input type="number" id="ammo_longa" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Pesada</label><input type="number" id="ammo_pesada" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><div style="width:100%; height:50px; display:flex; align-items:center; justify-content:center; color:var(--accent-yellow); font-size:2em; margin-bottom:5px;">★</div><label>Especial</label><input type="number" id="ammo_especial" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-        </div>
-    </div>
-</div>
-
-<div id="tab-rituais" class="main-container">
-    <div class="panel">
-        <div class="panel-title">Grimório e Conhecimento</div>
-        <div class="weight-container">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
-                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
-            </div>
-        </div>
-        <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
-        <div class="catalogo-grid-view" id="rituals-body"></div>
-    </div>
-</div>
-
 <div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()" style="z-index: 4000;">
     <div class="popup-box" onclick="event.stopPropagation()" style="width: 300px; text-align: center;">
         <h3 style="color: var(--accent-blue); margin-top: 0; text-transform: uppercase;">Ataque Múltiplo</h3>
@@ -350,6 +220,7 @@
         <h3 id="info-general-name" style="margin-top: 0; text-align: center; text-transform: uppercase;">Nome Item</h3>
         <img id="info-general-img" src="" style="width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:8px; display:none; border: 1px solid var(--border-color);">
         <div id="info-general-details" style="color:var(--text-primary); font-size:0.95em; line-height: 1.5;"></div>
+        
         <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn-add" style="flex:1; margin:0; background: var(--accent-purple); color: white;" onclick="abrirModalTransferirJogador()">📤 ENVIAR</button>
             <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue); color: black;" onclick="openEditItemPopup()">✏️ EDITAR</button>
@@ -362,11 +233,13 @@
     <div class="popup-box" style="width: 400px; text-align: center;">
         <h2 style="color: var(--accent-purple); margin-top: 0;">Enviar Item</h2>
         <p style="color: var(--text-secondary); font-size: 0.9em;">Para quem deseja enviar <b id="transfer-player-item-name" style="color: var(--accent-yellow);"></b>?</p>
+        
         <div style="text-align: left; margin-bottom: 20px;">
             <label style="display: block; font-size: 0.85em; color: var(--text-secondary); margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Código do Jogador Alvo:</label>
             <input type="text" id="transfer-target-code" class="inv-input" placeholder="Ex: JOAO" style="text-transform: uppercase; font-size: 1.2em; text-align: center; font-weight: bold; border-color: var(--accent-purple);">
             <div style="font-size: 0.75em; color: var(--text-secondary); margin-top: 5px; text-align: center; font-style: italic;">Pergunte ao seu colega qual é o nome de utilizador (Login) dele.</div>
         </div>
+        
         <div style="display: flex; gap: 10px;">
             <button class="btn-remove" style="position: static; flex: 1; background: #333; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; color: white;" onclick="fecharModalTransferirJogador()">Cancelar</button>
             <button class="btn-add" style="background: var(--accent-purple); color: white; flex: 1; margin: 0;" onclick="confirmarEnvioJogador()">ENVIAR 📤</button>
@@ -500,6 +373,136 @@
     </div>
 </div>
 
+<div id="tab-personagem" class="main-container active">
+    <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-title">Informações do Personagem</div>
+        <div class="char-info-wrapper">
+            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            </div>
+            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-box">
+            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
+                </div>
+                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
+                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
+                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
+            </div>
+        </div>
+        <div class="status-box">
+            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
+                </div>
+                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns-wrapper">
+        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
+        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
+        
+        <div class="panel" style="flex:0 0 250px;">
+            <div class="panel-title">Ações</div>
+            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
+                PERSONALIZAR DADO
+            </button>
+            <div class="defense-box">
+                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
+                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
+            </div>
+
+            <div class="equipped-weapons-header">Ataque Corporal</div>
+            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                <button class="ritual-btn" style="border-color: var(--text-secondary); color: var(--text-primary); width: 100%; margin-bottom: 8px; cursor: default; pointer-events: none;">Ataque Desarmado</button>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
+                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
+                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
+                </div>
+                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8 + FOR</span></div>
+            </div>
+            
+            <div class="equipped-weapons-header">Arma Ativa</div>
+            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
+            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
+            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
+            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+            
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
+            <div id="learned-rituals-list" style="display:flex; flex-wrap:wrap; gap:5px;">
+                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual aprendido.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-inventario" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Mochila e Carga</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
+            </div>
+            <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
+        </div>
+        <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
+        <div class="catalogo-grid-view" id="inventory-body"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Munições</div>
+        <div class="ammo-grid">
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Leve / Curta</label><input type="number" id="ammo_curta" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Longa</label><input type="number" id="ammo_longa" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Pesada</label><input type="number" id="ammo_pesada" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><div style="width:100%; height:50px; display:flex; align-items:center; justify-content:center; color:var(--accent-yellow); font-size:2em; margin-bottom:5px;">★</div><label>Especial</label><input type="number" id="ammo_especial" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-rituais" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Grimório e Conhecimento</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
+        </div>
+        <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
+        <div class="catalogo-grid-view" id="rituals-body"></div>
+    </div>
+</div>
+
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -514,7 +517,9 @@
     if (!campanhaAtiva && !viewCode) { window.location.href = '/index.html'; }
 
     let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
-    if(document.getElementById('display-player-code')) { document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : baseUser; }
+    if(document.getElementById('display-player-code')) { 
+        document.getElementById('display-player-code').innerText = viewCode ? "VISÃO DO MESTRE: " + viewCode : baseUser; 
+    }
 
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
     if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
@@ -537,7 +542,13 @@
         if (loadedCat) customCatalog = { ...customCatalog, ...loadedCat };
     } catch(e) {}
 
-    const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
+    // A matriz da tabela não pode ter números falhados ou o JS morre nas rolagens
+    const tabelaD20 = {
+        1:{n:20,b:99,e:99}, 2:{n:19,b:20,e:99}, 3:{n:18,b:20,e:99}, 4:{n:17,b:19,e:99}, 5:{n:16,b:19,e:20},
+        6:{n:15,b:18,e:20}, 7:{n:14,b:18,e:20}, 8:{n:13,b:17,e:20}, 9:{n:12,b:17,e:20}, 10:{n:11,b:16,e:19},
+        11:{n:10,b:16,e:19}, 12:{n:9,b:15,e:19}, 13:{n:8,b:15,e:19}, 14:{n:7,b:14,e:19}, 15:{n:6,b:14,e:18},
+        16:{n:5,b:13,e:18}, 17:{n:4,b:13,e:18}, 18:{n:3,b:12,e:18}, 19:{n:2,b:12,e:18}, 20:{n:1,b:11,e:18}
+    };
     
     const periciasBase = [
         {nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},
@@ -577,7 +588,12 @@
     const premadeRangedWeapons = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 }, { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1 }, { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDict['escopeta'], weight: 2 }, { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1 }, { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2 }, { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 }, { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2 } ];
     const premadeRituals = [ { name: "Decadência", el: "Morte", circ: "1º", ex: "Padrão", alc: "Toque", alv: "1 Ser", dur: "Instantânea", res: "Fortitude reduz à metade", descGeral: "Você apodrece a carne do alvo, causando 2d8+2 pontos de dano de Morte.", descDisc: "Muda a execução para 1 ação completa, e o dano para 4d8+4.", descVerd: "Muda o alvo para seres escolhidos em alcance curto.", img: "" }, { name: "Eletrocussão", el: "Energia", circ: "1º", ex: "Padrão", alc: "Curto", alv: "1 Ser", dur: "Instantânea", res: "Fortitude reduz à metade", descGeral: "Lança um arco de eletricidade, causando 3d6 de dano de Energia.", descDisc: "Muda o alvo para até 3 seres e o dano aumenta para 3d6.", descVerd: "-", img: "" }, { name: "Cicatrização", el: "Sangue", circ: "1º", ex: "Padrão", alc: "Toque", alv: "1 Ser", dur: "Instantânea", res: "-", descGeral: "Acelera a cura do alvo, restaurando 3d8+3 PV. O alvo envelhece 1 ano.", descDisc: "Restaura 5d8+5 PV.", descVerd: "-", img: "" }, { name: "Compreensão Paranormal", el: "Conhecimento", circ: "1º", ex: "Padrão", alc: "Toque", alv: "Você", dur: "Cena", res: "-", descGeral: "Você passa a entender qualquer língua falada ou escrita.", descDisc: "-", descVerd: "-", img: "" } ];
 
-    function getAutoImage(n, currentImg) { if (currentImg && currentImg.trim() !== "") return currentImg; const nLower = n.toLowerCase(); for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; } return currentImg; }
+    function getAutoImage(n, currentImg) { 
+        if (currentImg && currentImg.trim() !== "") return currentImg; 
+        const nLower = n.toLowerCase(); 
+        for (let key in imgDict) { if (nLower.includes(key)) return imgDict[key]; } 
+        return currentImg; 
+    }
     
     function hasHeavyArmorEquipped() { 
         let hasIt = false; 
@@ -808,9 +824,21 @@
     function addCustomCatalogItem(type, index) {
         let idToUse = editingItemId ? editingItemId : Date.now(); let eqStatus = true;
         if (editingItemId) { const oldH = document.getElementById('item-data-' + editingItemId); if(oldH) eqStatus = oldH.getAttribute('data-eq') === 'true'; const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); }
-        if (type === 'items') { const it = customCatalog.items[index]; addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); } 
-        else if (type === 'melee') { const wp = customCatalog.melee[index]; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); } 
-        else if (type === 'ranged') { const wp = customCatalog.ranged[index]; const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); }
+        
+        if (type === 'items') { 
+            const it = customCatalog.items[index]; 
+            addItemObj({ id: idToUse, n: it.name, w: it.weight, d: it.desc, eq: eqStatus, type: 'comum', img: it.img }); 
+        } 
+        else if (type === 'melee') { 
+            const wp = customCatalog.melee[index]; 
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; 
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); 
+        } 
+        else if (type === 'ranged') { 
+            const wp = customCatalog.ranged[index]; 
+            const d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${wp.atkType} (${wp.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${wp.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${wp.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${wp.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${wp.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${wp.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${wp.extra}</div></div>`; 
+            addItemObj({ id: idToUse, n: wp.name, w: wp.weight, d: d, eq: eqStatus, type: 'arma', dmg: wp.dmg, extra: wp.extra, crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity, currentShots: wp.capacity }); 
+        }
         closeItemPopup();
     }
 
@@ -822,14 +850,28 @@
         document.getElementById('new-item-name').value = h.getAttribute('data-n'); 
         document.getElementById('new-item-weight').value = h.getAttribute('data-w'); 
         document.getElementById('new-item-img').value = h.getAttribute('data-img') || "";
+        
         if(type === 'arma') {
             let atkType = h.getAttribute('data-atktype') || "Corpo a corpo";
             if (atkType.toLowerCase().includes("disparo")) selectItemType('pers-disp'); else selectItemType('pers-cc');
-            document.getElementById('wp-atk-type').value = atkType; document.getElementById('wp-atk').value = h.getAttribute('data-atk') || "1"; document.getElementById('wp-dmg').value = h.getAttribute('data-dmg') || "0"; document.getElementById('wp-crit').value = h.getAttribute('data-crit') || "20/x2"; document.getElementById('wp-range').value = h.getAttribute('data-range') || "Curto"; document.getElementById('wp-ammo').value = h.getAttribute('data-ammo') || "Nenhuma"; document.getElementById('wp-capacity').value = h.getAttribute('data-capacity') || "6"; document.getElementById('wp-skill').value = h.getAttribute('data-skill') || "Luta"; document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0"; document.getElementById('new-item-desc').value = "";
+            document.getElementById('wp-atk-type').value = atkType; 
+            document.getElementById('wp-atk').value = h.getAttribute('data-atk') || "1"; 
+            document.getElementById('wp-dmg').value = h.getAttribute('data-dmg') || "0"; 
+            document.getElementById('wp-crit').value = h.getAttribute('data-crit') || "20/x2"; 
+            document.getElementById('wp-range').value = h.getAttribute('data-range') || "Curto"; 
+            document.getElementById('wp-ammo').value = h.getAttribute('data-ammo') || "Nenhuma"; 
+            document.getElementById('wp-capacity').value = h.getAttribute('data-capacity') || "6"; 
+            document.getElementById('wp-skill').value = h.getAttribute('data-skill') || "Luta"; 
+            document.getElementById('wp-extra').value = h.getAttribute('data-extra') || "0"; 
+            document.getElementById('new-item-desc').value = "";
         } else {
-            selectItemType('pers-item'); let desc = h.getAttribute('data-d'); document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
+            selectItemType('pers-item'); 
+            let desc = h.getAttribute('data-d'); 
+            document.getElementById('new-item-desc').value = desc.replace(/&quot;/g, '"');
         }
-        document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma"; document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES"; document.getElementById('popup-new-item').style.display = 'flex';
+        document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma"; 
+        document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES"; 
+        document.getElementById('popup-new-item').style.display = 'flex';
     }
 
     function confirmAddItem() {
@@ -839,35 +881,68 @@
         if(!n) return alert("Dê um nome!");
         
         let d = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", curShots = "0";
-        if(type === 'comum') { d = document.getElementById('new-item-desc').value || "Sem descrição."; } 
+        if(type === 'comum') { 
+            d = document.getElementById('new-item-desc').value || "Sem descrição."; 
+        } 
         else {
-            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo"); atk = document.getElementById('wp-atk').value || "1"; dmg = document.getElementById('wp-dmg').value || "0"; crit = document.getElementById('wp-crit').value || "20/x2"; range = document.getElementById('wp-range').value || "Curto"; ammo = document.getElementById('wp-ammo').value || "Nenhuma"; skill = document.getElementById('wp-skill').value || "Luta"; extra = document.getElementById('wp-extra').value || "0"; cap = document.getElementById('wp-capacity').value || "0"; curShots = cap;
+            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo"); 
+            atk = document.getElementById('wp-atk').value || "1"; 
+            dmg = document.getElementById('wp-dmg').value || "0"; 
+            crit = document.getElementById('wp-crit').value || "20/x2"; 
+            range = document.getElementById('wp-range').value || "Curto"; 
+            ammo = document.getElementById('wp-ammo').value || "Nenhuma"; 
+            skill = document.getElementById('wp-skill').value || "Luta"; 
+            extra = document.getElementById('wp-extra').value || "0"; 
+            cap = document.getElementById('wp-capacity').value || "0"; 
+            curShots = cap;
             d = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${extra}</div></div>`;
         }
 
         let eqStatus = true; let idToUse = Date.now();
         if (!editingItemId) {
-            let catType = ''; let newCatItem = { name: n, weight: w, img: img, type: type, atkType: atkType, atk: atk, dmg: dmg, crit: crit, range: range, ammo: ammo, skill: skill, extra: extra, capacity: cap };
-            if (type === 'comum') { newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição."; if (!customCatalog.items.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); catType = 'items'; } 
-            else if (atkType.toLowerCase().includes("disparo")) { if (!customCatalog.ranged.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); catType = 'ranged'; } 
-            else { if (!customCatalog.melee.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); catType = 'melee'; }
-            localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); renderPremadeCatalogs();
+            let catType = '';
+            let newCatItem = { name: n, weight: w, img: img, type: type, atkType: atkType, atk: atk, dmg: dmg, crit: crit, range: range, ammo: ammo, skill: skill, extra: extra, capacity: cap };
+            if (type === 'comum') { 
+                newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição."; 
+                if (!customCatalog.items.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); 
+                catType = 'items'; 
+            } 
+            else if (atkType.toLowerCase().includes("disparo")) { 
+                if (!customCatalog.ranged.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); 
+                catType = 'ranged'; 
+            } 
+            else { 
+                if (!customCatalog.melee.some(it => it.name.toLowerCase() === newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); 
+                catType = 'melee'; 
+            }
+            
+            localStorage.setItem(keyCatalog, JSON.stringify(customCatalog));
+            renderPremadeCatalogs();
             if (socket) socket.emit('novo_item_catalogo_global', { catType: catType, item: newCatItem });
         }
         
         if(editingItemId) {
             const oldH = document.getElementById('item-data-' + editingItemId);
-            if(oldH) { eqStatus = oldH.getAttribute('data-eq') === 'true'; let oldCap = oldH.getAttribute('data-capacity'); if (oldCap === cap) { curShots = oldH.getAttribute('data-currentshots') !== undefined ? oldH.getAttribute('data-currentshots') : cap; } const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); }
+            if(oldH) { 
+                eqStatus = oldH.getAttribute('data-eq') === 'true'; 
+                let oldCap = oldH.getAttribute('data-capacity'); 
+                if (oldCap === cap) { curShots = oldH.getAttribute('data-currentshots') !== undefined ? oldH.getAttribute('data-currentshots') : cap; } 
+                const oldRow = document.getElementById('inv-row-' + editingItemId); if(oldRow) oldRow.remove(); 
+            }
             idToUse = editingItemId;
         }
 
-        addItemObj({ id: idToUse, n, w, d, eq: eqStatus, type, dmg, extra, crit, skill, img, atkType, atk, range, ammo, capacity: cap, currentShots: curShots }); closeItemPopup();
+        addItemObj({ id: idToUse, n, w, d, eq: eqStatus, type, dmg, extra, crit, skill, img, atkType, atk, range, ammo, capacity: cap, currentShots: curShots }); 
+        closeItemPopup();
     }
 
     function addItemObj(o) {
         const body = document.getElementById('inventory-body'); 
-        const card = document.createElement('div'); card.id = 'inv-row-' + o.id; card.onclick = () => openItemInfo(o.id);
+        const card = document.createElement('div'); 
+        card.id = 'inv-row-' + o.id; 
+        card.onclick = () => openItemInfo(o.id);
         const safeD = (o.d||"").replace(/"/g, "&quot;");
+        
         let color = o.type === 'comum' ? 'var(--accent-green)' : (o.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
         
         card.style.cssText = `position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;`;
@@ -876,8 +951,11 @@
 
         let detailsHtml = `<div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span></div>`;
         if (o.type !== 'comum') {
-             if(o.atkType === 'Disparo') { detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${o.capacity} (${o.ammo})</span></div>`; } 
-             else { detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${o.crit}</span></div>`; }
+             if(o.atkType === 'Disparo') {
+                 detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${o.capacity} (${o.ammo})</span></div>`;
+             } else {
+                 detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${o.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${o.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${o.crit}</span></div>`;
+             }
         }
 
         card.innerHTML = `
@@ -891,7 +969,8 @@
             ${detailsHtml}
             <input type="hidden" class="hidden-data-item" id="item-data-${o.id}" data-id="${o.id}" data-n="${o.n}" data-w="${o.w}" data-d="${safeD}" data-eq="${o.eq}" data-type="${o.type}" data-dmg="${o.dmg||'0'}" data-extra="${o.extra||'0'}" data-crit="${o.crit||'20/x2'}" data-skill="${o.skill||'Luta'}" data-img="${o.img||''}" data-atktype="${o.atkType||'Corpo a corpo'}" data-atk="${o.atk||'1'}" data-range="${o.range||'Curto'}" data-ammo="${o.ammo||'Nenhuma'}" data-capacity="${o.capacity||'0'}" data-currentshots="${o.currentShots!==undefined?o.currentShots:o.capacity}">
         `;
-        body.appendChild(card); if(!isLoadingData) { updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
+        body.appendChild(card); 
+        if(!isLoadingData) { updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
     }
     
     function removeItem(id) { const r1 = document.getElementById('inv-row-'+id); if(r1) r1.remove(); updateWeight(); updateWeaponsDisplay(); updateAllPericias(); save(); }
@@ -918,36 +997,56 @@
         if(!currentViewedItemId) return;
         const h = document.getElementById('item-data-' + currentViewedItemId); 
         if(!h) return;
+        
         document.getElementById('transfer-player-item-name').innerText = h.getAttribute('data-n');
         document.getElementById('transfer-target-code').value = '';
         document.getElementById('modal-transfer-player').style.display = 'flex';
     }
 
-    function fecharModalTransferirJogador() { document.getElementById('modal-transfer-player').style.display = 'none'; }
+    function fecharModalTransferirJogador() {
+        document.getElementById('modal-transfer-player').style.display = 'none';
+    }
 
     function confirmarEnvioJogador() {
         const targetCode = document.getElementById('transfer-target-code').value.trim().toUpperCase();
-        const myUpperCode = (baseUser || "").toUpperCase();
         if(!targetCode) return alert("Digite o código do jogador alvo!");
         if(targetCode === myUpperCode) return alert("Não pode enviar um item para si mesmo!");
+        
         if(!currentViewedItemId) return;
         const h = document.getElementById('item-data-' + currentViewedItemId); 
         if(!h) return;
 
         const itemParaEnviar = {
             id: 'inv_' + Date.now() + Math.floor(Math.random() * 1000),
-            n: h.getAttribute('data-n'), w: h.getAttribute('data-w'), d: h.getAttribute('data-d'),
-            eq: false, type: h.getAttribute('data-type'), dmg: h.getAttribute('data-dmg') || "0",
-            extra: h.getAttribute('data-extra') || "0", crit: h.getAttribute('data-crit') || "20/x2",
-            skill: h.getAttribute('data-skill') || "Luta", img: h.getAttribute('data-img') || "",
-            atkType: h.getAttribute('data-atktype') || "Corpo a corpo", atk: h.getAttribute('data-atk') || "1",
-            range: h.getAttribute('data-range') || "Curto", ammo: h.getAttribute('data-ammo') || "Nenhuma",
-            capacity: h.getAttribute('data-capacity') || "0", currentShots: h.getAttribute('data-currentshots') || h.getAttribute('data-capacity') || "0"
+            n: h.getAttribute('data-n'),
+            w: h.getAttribute('data-w'),
+            d: h.getAttribute('data-d'),
+            eq: false, 
+            type: h.getAttribute('data-type'),
+            dmg: h.getAttribute('data-dmg') || "0",
+            extra: h.getAttribute('data-extra') || "0",
+            crit: h.getAttribute('data-crit') || "20/x2",
+            skill: h.getAttribute('data-skill') || "Luta",
+            img: h.getAttribute('data-img') || "",
+            atkType: h.getAttribute('data-atktype') || "Corpo a corpo",
+            atk: h.getAttribute('data-atk') || "1",
+            range: h.getAttribute('data-range') || "Curto",
+            ammo: h.getAttribute('data-ammo') || "Nenhuma",
+            capacity: h.getAttribute('data-capacity') || "0",
+            currentShots: h.getAttribute('data-currentshots') || h.getAttribute('data-capacity') || "0"
         };
 
-        if (socket) { socket.emit('comando_mestre', { tipo: 'dar_item', codigo: targetCode, item: itemParaEnviar }); }
+        if (socket) {
+            socket.emit('comando_mestre', {
+                tipo: 'dar_item',
+                codigo: targetCode,
+                item: itemParaEnviar
+            });
+        }
+
         removeItem(currentViewedItemId);
-        alert(`O item '${itemParaEnviar.n}' foi enviado para ${targetCode}!`);
+        
+        alert(`O item '${itemParaEnviar.n}' foi enviado para ${targetCode}! (Certifique-se de que o jogador está online na mesa)`);
         fecharModalTransferirJogador();
         closeItemInfo();
     }
@@ -973,13 +1072,19 @@
         let faces = 8;
         if (tipo === 'Pequeno') faces = 6;
         if (tipo === 'Grande') faces = 10;
+        
         let forca = parseInt(document.getElementById('attr_for').value) || 0;
         let roll = Math.floor(Math.random() * faces) + 1;
         let isCrit = lastAttackWasCrit;
+        
         let total = roll;
-        if(isCrit) { let roll2 = Math.floor(Math.random() * faces) + 1; total += roll2; }
+        if(isCrit) {
+            let roll2 = Math.floor(Math.random() * faces) + 1;
+            total += roll2; 
+        }
         total += forca;
         if(total < 0) total = 0;
+        
         let title = isCrit ? `DANO CRÍTICO<br>(DESARMADO)` : `DANO<br>(DESARMADO)`;
         let color = isCrit ? "color: #ffcf33; text-shadow: 0 0 15px #ff0000, 2px 2px 4px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;";
         showPopup(total, title, color);
@@ -989,7 +1094,9 @@
     function updateWeight() {
         const forca = parseInt(document.getElementById('attr_for').value) || 0;
         const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false;
+        
         let lim = 5 + Math.floor(forca / 2) + (treinadoAtletismo ? 10 : 0);
+
         let t = 0, bm = 0;
         document.querySelectorAll('.hidden-data-item').forEach(h => { 
             if(h.getAttribute('data-eq') === 'true') { 
@@ -1000,7 +1107,9 @@
             }
         });
         lim += bm; 
+        
         ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id => t += parseInt(document.getElementById(id).value)||0);
+        
         const fill = document.getElementById('weight-bar-fill'); 
         fill.style.width = lim>0 ? Math.min((t/lim)*100, 100)+"%" : "0%";
         document.getElementById('weight-text').innerText = `${t} / ${lim}`; 
@@ -1059,7 +1168,7 @@
         if (!customCatalog.rituals.some(it => it.name.toLowerCase() === n.toLowerCase())) { customCatalog.rituals.push(newCatRitual); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (socket) socket.emit('novo_item_catalogo_global', { catType: 'rituals', item: newCatRitual }); }
 
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         
         addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); closeRitualPopup();
     }
@@ -1163,21 +1272,96 @@
         box.style.boxShadow = 'none'; 
         box.style.borderColor = 'var(--accent-yellow)';
         
-        document.getElementById('popup-content').style.display = 'flex'; 
+        document.getElementById('popup-content').style.display = 'none'; 
         document.getElementById('popup-dice').style.display = 'flex';
         
-        if (r.includes('CRÍTICO')) { 
-            box.style.animation = 'shakeCrit 0.4s infinite'; 
-            box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
-            box.style.borderColor = '#ff0000'; 
-        }
+        setTimeout(() => { 
+            document.getElementById('popup-content').style.display = 'flex'; 
+            if (r.includes('CRÍTICO')) { 
+                box.style.animation = 'shakeCrit 0.4s infinite'; 
+                box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
+                box.style.borderColor = '#ff0000'; 
+            } 
+        }, 1500);
 
         if (socket) {
             const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido';
-            const emissionCode = typeof viewCode !== 'undefined' && viewCode ? viewCode : (baseUser || "").toUpperCase();
+            const emissionCode = typeof viewCode !== 'undefined' && viewCode ? viewCode : myUpperCode;
             socket.emit('rolagem_feita', { codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' '), resultado: n, cor: st });
         }
     }
+
+    function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) { document.getElementById('max-atk-display').innerText = maxAtk; const input = document.getElementById('input-qtd-ataques'); input.max = maxAtk; input.value = maxAtk; input.oninput = function() { let val = parseInt(this.value); if (val > maxAtk) this.value = maxAtk; if (val < 1) this.value = 1; }; document.getElementById('modal-qtd-ataques').style.display = 'flex'; document.getElementById('btn-confirm-ataques').onclick = function() { let val = parseInt(input.value); if (isNaN(val) || val < 1) val = 1; if (val > maxAtk) val = maxAtk; fecharModalQtdAtaques(); rolarTesteD20(n, id, ak, modPerc, true, val); }; }
+    function fecharModalQtdAtaques() { document.getElementById('modal-qtd-ataques').style.display = 'none'; }
+    
+    function rolarTesteD20(n, id, ak, modPerc, eArma = false, qtdAtaquesForcado = null) {
+        lastAttackWasCrit = false; let sn = id.replace("skill_",""); let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false;
+        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0;
+        let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); let m = tabelaD20[f>20?20:f<1?1:f]; let numAttacks = 1; let cMarg = 20;
+
+        if (eArma) { 
+            const sel = document.getElementById('active-weapon-select'); 
+            if (sel && sel.value && sel.style.display !== 'none' || equippedWeaponsData.length > 0) { 
+                const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; 
+                const wp = equippedWeaponsData.find(w => w.id === wpId); 
+                if (wp) { 
+                    if (wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
+                        let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); 
+                        if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0])||20; } 
+                        else if (cStr.includes('x')) { cMarg = 20; } 
+                        else { cMarg = parseInt(cStr)||20; } 
+                    } 
+                    if (wp.atk && parseInt(wp.atk) > 1) { 
+                        let maxAtaquesPossiveis = parseInt(wp.atk); 
+                        if (qtdAtaquesForcado === null) { abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak, modPerc); return; } 
+                        else { numAttacks = qtdAtaquesForcado; } 
+                    } 
+                } 
+            } 
+        }
+
+        let resultsArray = []; let anyCrit = false; let allDesastre = true;
+        for(let i=0; i<numAttacks; i++) {
+            let d = Math.floor(Math.random()*20)+1; let isCrit = eArma ? (d >= cMarg) : false; if (isCrit) anyCrit = true; let textFormat = ""; let colorFormat = "";
+            if (d === 1) { textFormat = "DESASTRE"; colorFormat = "color:#ff5252; text-shadow: 2px 2px 4px #000;"; } else { allDesastre = false; if (isCrit && eArma) { textFormat = "CRÍTICO"; colorFormat = "color:#ffcf33; text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;"; } else if (d >= m.e && m.e != 99) { textFormat = "EXTREMO"; colorFormat = "color:var(--accent-yellow); text-shadow: 2px 2px 4px #000;"; } else if (d >= m.b && m.b != 99) { textFormat = "BOM"; colorFormat = "color:var(--accent-blue); text-shadow: 2px 2px 4px #000;"; } else if (d >= m.n) { textFormat = "NORMAL"; colorFormat = "color:var(--accent-green); text-shadow: 2px 2px 4px #000;"; } else { textFormat = "FALHA"; colorFormat = "color:var(--accent-red); text-shadow: 2px 2px 4px #000;"; } }
+            if (numAttacks > 1) { colorFormat = colorFormat.replace("text-shadow: 0 0 10px #ff0000, 2px 2px 4px #000;", "text-shadow: 2px 2px 4px #000;"); resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size: 0.7em; line-height: 1.2;">ATQ ${i+1}: ${d} (${textFormat})</div>`); } 
+            else { showPopup(d, `${n}<br>(${textFormat})`, colorFormat); }
+        }
+        lastAttackWasCrit = anyCrit;
+        if (numAttacks > 1) { let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">` + resultsArray.join('') + `</div>`; let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO"; if (allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>"; showPopup(numAttacks + "x", `${actionText}${finalHtml}`, "color:white; text-align:center;"); }
+    }
+
+    function rolarAtaqueArma(id) { const wp = equippedWeaponsData.find(w => w.id === id); if(!wp) return; let skillName = wp.skill ? wp.skill.trim() : "Luta"; let sn = skillName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"); let skillObj = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_") === sn); if(!skillObj) { skillObj = periciasBase.find(p => p.nome === "Luta"); } rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), skillObj.attr, skillObj.mod, true); }
+    
+    function rolarDanoArma(id) { 
+        const wp = equippedWeaponsData.find(w => w.id === id); if(!wp) return; let dmgBase = wp.dmg || "0"; let isCrit = lastAttackWasCrit; 
+        if(isCrit && wp.crit && wp.crit.toLowerCase() !== "nenhum") { 
+            let critMult = 2; 
+            let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); 
+            if(cStr.includes('/')) { critMult = parseInt(cStr.split('/')[1].replace('x',''))||2; } 
+            else if(cStr.includes('x')) { critMult = parseInt(cStr.replace('x',''))||2; } 
+            dmgBase = dmgBase.replace(/(\d+)d(\d+)/ig, (match, p1, p2) => { return (parseInt(p1) * critMult) + "d" + p2; }); 
+            dmgBase = dmgBase.replace(/(^|[^\d])d(\d+)/ig, (match, p1, p2) => { return p1 + critMult + "d" + p2; }); 
+        } 
+        let formula = dmgBase + "+" + (wp.extra || "0"); formula = formula.toLowerCase().replace(/\s/g, ''); 
+        try { 
+            const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; 
+            if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } 
+            let title = isCrit ? `DANO CRÍTICO<br>(${wp.name})` : `DANO<br>(${wp.name})`; let color = isCrit ? "color: #ffcf33; text-shadow: 0 0 15px #ff0000, 2px 2px 4px #000;" : "color: var(--accent-red); text-shadow: 2px 2px 4px #000;"; showPopup(t, title, color); 
+        } catch(e) { alert("A arma não possui uma fórmula de dano válida!"); } 
+        lastAttackWasCrit = false; 
+    }
+    
+    function rolarDadoPersonalizado() { document.getElementById('popup-input-dice').style.display = 'none'; showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white"); }
+    
+    function toggleTrained(sn) { 
+        document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); 
+        updateAllPericias(); 
+        if (sn === "atletismo") updateWeight(); 
+    }
+    
+    function updateTargetsPericia(id, ak, modPerc) { let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let sn = id.replace("skill_",""); let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); let m = tabelaD20[f>20?20:f<1?1:f]; let d = document.getElementById(id+"_targets"); if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }
+    function updateAllPericias() { ["agi","for","int","pre","vig"].forEach(a => { let v = parseInt(document.getElementById("attr_"+a).value)||1, m = tabelaD20[v>20?20:v]; if(document.getElementById("attr_"+a+"_targets")) document.getElementById("attr_"+a+"_targets").innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }); periciasBase.forEach(p => updateTargetsPericia("skill_"+p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), p.attr, p.mod)); }
 
     function save() {
         if(isLoadingData) return; 
@@ -1210,7 +1394,7 @@
         localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d));
         fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: playerCode, fichaData: d }) }).catch(e => console.error(e));
 
-        if (socket) { socket.emit('status_change', { codigo: (baseUser || "").toUpperCase(), origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, status: charStatus, fullData: d }); }
+        if (socket) { socket.emit('status_change', { codigo: myUpperCode, origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, status: charStatus, fullData: d }); }
     }
 
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if (!dataStr) { alert("Nenhum dado encontrado para exportar!"); return; } const blob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const fileName = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
@@ -1239,15 +1423,23 @@
                 nexSel.innerHTML = nexHtml;
             }
 
-            ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => { 
-                let id = "attr_" + a.toLowerCase().substring(0,3); 
-                document.getElementById('atributos-container').innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight(); updateDanoDesarmado();"><div class="attr-targets" id="${id}_targets"></div></div>`; 
-            });
+            const attrContainer = document.getElementById('atributos-container');
+            if (attrContainer) {
+                attrContainer.innerHTML = '';
+                ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a => { 
+                    let id = "attr_" + a.toLowerCase().substring(0,3); 
+                    attrContainer.innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight(); updateDanoDesarmado();"><div class="attr-targets" id="${id}_targets"></div></div>`; 
+                });
+            }
 
-            periciasBase.forEach(p => { 
-                let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"); 
-                document.getElementById('pericias-container').innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}', ${p.mod})" style="cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;"><div class="skill-header" style="margin-bottom: 8px;"><span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span></div><div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets" style="pointer-events: none;"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; 
-            });
+            const periciasContainer = document.getElementById('pericias-container');
+            if (periciasContainer) {
+                periciasContainer.innerHTML = '';
+                periciasBase.forEach(p => { 
+                    let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"); 
+                    periciasContainer.innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}', ${p.mod})" style="cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;"><div class="skill-header" style="margin-bottom: 8px;"><span style="font-size: 0.7em; font-weight: bold; text-transform: uppercase; color: var(--text-primary); pointer-events: none;">${p.nome}</span></div><div style="display:flex; justify-content:center; align-items:center; margin-bottom: 8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%; border-color:var(--accent-blue); background:rgba(0,176,255,0.1); display:flex; justify-content:center; align-items:center; padding: 6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 20px; height: 20px; filter: invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets" style="pointer-events: none;"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; 
+                });
+            }
 
             if (viewCode) {
                 const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; 
@@ -1263,11 +1455,11 @@
             if (socket && !viewCode) {
                 socket.on('connect', () => {
                     socket.emit('join_campaign', campanhaAtiva);
-                    setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")) { socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: (baseUser || "").toUpperCase() }); } save(); }, 500);
+                    setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")) { socket.emit('comando_mestre', { tipo: 'jogador_entrou', codigo: myUpperCode }); } save(); }, 500);
                 }); 
                 
                 socket.on('mestre_pede_ficha', (codigoPedido) => { 
-                    if ((codigoPedido || "").trim().toUpperCase() === (baseUser || "").trim().toUpperCase()) { save(); } 
+                    if ((codigoPedido || "").trim().toUpperCase() === myUpperCode) { save(); } 
                 });
 
                 socket.on('catalogo_inicial', (catalogoDoServidor) => {
@@ -1293,29 +1485,28 @@
                 });
 
                 socket.on('comando_mestre', (dados) => {
-                    const myCode = (baseUser || "").toUpperCase();
-                    const incCode = (dados.codigo || "").toUpperCase();
+                    const incCode = (dados.codigo || "").trim().toUpperCase();
 
-                    if (incCode === myCode) { 
+                    if (incCode === myUpperCode) { 
                         if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
                         else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
                         else if (dados.tipo === 'status') toggleStatus(dados.status); 
                     }
 
-                    if (dados.tipo === 'expulsar_jogador' && incCode === myCode) {
+                    if (dados.tipo === 'expulsar_jogador' && incCode === myUpperCode) {
                         alert("Foi removido da mesa pelo Mestre.\nTerá de escolher uma ficha novamente se for adicionado.");
                         localStorage.removeItem('ficha_vinculada_' + campanhaAtiva);
                         localStorage.removeItem('ordem_save_local_' + campanhaAtiva);
                         fazerLogout(); 
                     }
 
-                    if (dados.tipo === 'dar_item' && incCode === myCode) {
+                    if (dados.tipo === 'dar_item' && incCode === myUpperCode) {
                         addItemObj(dados.item); 
                         save(); 
                         alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
                     }
 
-                    if (dados.tipo === 'dar_ritual' && incCode === myCode) {
+                    if (dados.tipo === 'dar_ritual' && incCode === myUpperCode) {
                         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; 
                         if(dados.ritual.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; 
                         if(dados.ritual.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`;
@@ -1327,9 +1518,8 @@
                 });
 
                 socket.on('mestre_force_sync_player', (dados) => {
-                    const myCode = (baseUser || "").toUpperCase();
-                    const incCode = (dados.codigo || "").toUpperCase();
-                    if (incCode === myCode && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); }
+                    const incCode = (dados.codigo || "").trim().toUpperCase();
+                    if (incCode === myUpperCode && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); }
                 });
                 
                 socket.on('sync_item_catalogo_global', (data) => {
