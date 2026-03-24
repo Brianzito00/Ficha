@@ -55,6 +55,40 @@ app.post('/api/login', async (req, res) => {
     } catch (error) { res.json({ sucesso: false, erro: 'Erro interno.' }); }
 });
 
+// ----------------------------------------------------
+// ROTAS DE SINCRONIZAÇÃO DO LOBBY (NOVO)
+// ----------------------------------------------------
+app.post('/api/salvar_lobby', async (req, res) => {
+    const { usuario, fichas, mesas, campanhas_jogadas } = req.body;
+    try {
+        await db.collection('usuarios').doc(usuario).set({
+            fichas: fichas || [],
+            mesas: mesas || [],
+            campanhas_jogadas: campanhas_jogadas || []
+        }, { merge: true });
+        res.json({ sucesso: true });
+    } catch (error) { res.json({ sucesso: false }); }
+});
+
+app.post('/api/carregar_lobby', async (req, res) => {
+    const { usuario } = req.body;
+    try {
+        const doc = await db.collection('usuarios').doc(usuario).get();
+        if (doc.exists) {
+            const data = doc.data();
+            res.json({ 
+                sucesso: true, 
+                fichas: data.fichas || [], 
+                mesas: data.mesas || [], 
+                campanhas_jogadas: data.campanhas_jogadas || [] 
+            });
+        } else {
+            res.json({ sucesso: false });
+        }
+    } catch(e) { res.json({ sucesso: false }); }
+});
+// ----------------------------------------------------
+
 // Puxar Ficha de uma Campanha Específica
 app.post('/api/carregar_personagem', async (req, res) => {
     const { usuario } = req.body; // Vem no formato JOAO_NOME-DA-CAMPANHA
@@ -100,17 +134,9 @@ app.post('/api/sair_campanha', async (req, res) => {
     const idUnico = usuario + '_' + campanha;
     
     try {
-        // Apaga a ficha associada à campanha na Base de Dados
         await db.collection('fichas_campanha').doc(idUnico).delete(); 
-        
-        // Limpa a cache da memória RAM do servidor
-        if (typeof playersData !== 'undefined') {
-            delete playersData[idUnico]; 
-        }
-        
-        // Avisa o mestre (via socket) que o jogador saiu
+        if (typeof playersData !== 'undefined') { delete playersData[idUnico]; }
         io.to(campanha).emit('comando_mestre', { tipo: 'jogador_saiu', codigo: usuario });
-        
         console.log(`🗑️ O jogador [${usuario}] saiu/foi expulso da campanha [${campanha}]. Dados limpos.`);
         res.json({ sucesso: true });
     } catch(e) {
@@ -123,20 +149,17 @@ app.post('/api/sair_campanha', async (req, res) => {
 // 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
 
-// Memória RAM temporária para as fichas, para evitar ler a BD a toda a hora
 const playersData = {}; 
 
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
 
-    // Entra numa sala exclusiva da campanha para não vazar rolagens e itens
     socket.on('join_campaign', (campanha) => {
         socket.join(campanha);
         socket.campanha = campanha;
         console.log(`📌 Utilizador entrou na campanha (Sala: ${campanha})`);
     });
 
-    // Sincronização de Itens e Rituais do Catálogo Customizado
     socket.on('novo_item_catalogo_global', (data) => {
         socket.broadcast.to(socket.campanha).emit('sync_item_catalogo_global', data);
     });
@@ -145,52 +168,42 @@ io.on('connection', (socket) => {
         socket.broadcast.to(socket.campanha).emit('item_removido_catalogo_global', data);
     });
 
-    // Limpeza manual da memória a pedido do Mestre
     socket.on('limpar_cache_jogador', (dados) => {
         if(dados.codigo && socket.campanha) {
             delete playersData[dados.codigo + '_' + socket.campanha];
         }
     });
 
-    // Quando o jogador atualiza vida, sanidade, status, etc.
     socket.on('status_change', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo + '_' + socket.campanha] = dados;
-            // Envia para o Mestre
             socket.broadcast.to(socket.campanha).emit('update_mestre', dados); 
         }
     });
 
-    // Sincronização forçada enviada pela ficha (quando o mestre clica no botão de recarregar)
     socket.on('mestre_force_sync', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo + '_' + socket.campanha] = dados;
             socket.broadcast.to(socket.campanha).emit('update_mestre', dados); 
-            // Envia de volta ao jogador para atualizar o ecrã dele se o mestre alterar algo na DB
             socket.broadcast.to(socket.campanha).emit('mestre_force_sync_player', dados); 
         }
     });
 
-    // Comandos genéricos enviados pelo mestre (dar dano, curar, expulsar, etc)
     socket.on('comando_mestre', (dados) => {
         socket.broadcast.to(socket.campanha).emit('comando_mestre', dados);
     });
     
-    // Rolagem de dados e logs
     socket.on('rolagem_feita', (dados) => { 
         io.to(socket.campanha).emit('novo_log', dados); 
-        io.to(socket.campanha).emit('nova_rolagem', dados); // Para o overlay
+        io.to(socket.campanha).emit('nova_rolagem', dados); 
     });
 
-    // Mestre pede a ficha atualizada do jogador ao abrir o escudo ou adicionar o jogador
     socket.on('request_player', async (codigo) => {
         const idUnico = codigo + '_' + socket.campanha;
         
-        // 1º Tenta puxar da memória rápida (RAM)
         if(playersData[idUnico]) {
             socket.emit('update_mestre', playersData[idUnico]);
         } else {
-            // 2º Tenta puxar do Firebase (se ele tiver recarregado a página e a RAM estiver limpa)
             try {
                 const doc = await db.collection('fichas_campanha').doc(idUnico).get();
                 if (doc.exists && doc.data().ficha) {
@@ -211,7 +224,6 @@ io.on('connection', (socket) => {
                     playersData[idUnico] = dadosRecuperados;
                     socket.emit('update_mestre', dadosRecuperados);
                 } else {
-                    // 3º Se não houver nada na BD (novo vínculo), manda o ecrã do jogador forçar o envio
                     socket.broadcast.to(socket.campanha).emit('mestre_pede_ficha', codigo);
                 }
             } catch (e) {
