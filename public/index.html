@@ -208,8 +208,9 @@
         });
 
         let mesaPendenteUrl = null;
+        let lobbySynced = false; // A TRAVA DE SEGURANÇA (NOVO)
 
-        // FUNÇÃO QUE PUXA OS DADOS DO LOBBY DA NUVEM ASSIM QUE ENTRA!
+        // FUNÇÃO QUE PUXA E MESCLA OS DADOS COM A NUVEM
         async function syncLobbyComNuvem() {
             try {
                 const res = await fetch('/api/carregar_lobby', {
@@ -219,29 +220,59 @@
                 });
                 const data = await res.json();
                 if (data.sucesso) {
-                    if (data.fichas && data.fichas.length > 0) minhasFichas = data.fichas;
-                    if (data.mesas && data.mesas.length > 0) minhasMesas = data.mesas;
-                    if (data.campanhas_jogadas && data.campanhas_jogadas.length > 0) minhasCampanhasJogadas = data.campanhas_jogadas;
+                    let nuvemFichas = data.fichas || [];
+                    let nuvemMesas = data.mesas || [];
+                    let nuvemCampanhas = data.campanhas_jogadas || [];
+
+                    let precisaSalvarNaNuvem = false;
+
+                    // Se a memória do PC tiver algo que a nuvem não tem, adicionamos à nuvem! (MESCLAGEM)
+                    minhasFichas.forEach(f => { 
+                        if(!nuvemFichas.some(nf => nf.id === f.id)) { nuvemFichas.push(f); precisaSalvarNaNuvem = true; } 
+                    });
+                    minhasMesas.forEach(m => { 
+                        if(!nuvemMesas.some(nm => nm.id === m.id)) { nuvemMesas.push(m); precisaSalvarNaNuvem = true; } 
+                    });
+                    minhasCampanhasJogadas.forEach(c => { 
+                        if(!nuvemCampanhas.some(nc => nc.id === c.id)) { nuvemCampanhas.push(c); precisaSalvarNaNuvem = true; } 
+                    });
+
+                    minhasFichas = nuvemFichas;
+                    minhasMesas = nuvemMesas;
+                    minhasCampanhasJogadas = nuvemCampanhas;
 
                     localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas));
                     localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas));
                     localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas));
                     
+                    lobbySynced = true; // Sincronização concluída com segurança
+
+                    if (precisaSalvarNaNuvem) {
+                        salvarLobbyNaNuvemForcado(); // Envia os dados do PC antigo para restaurar a nuvem
+                    }
+
                     if(document.getElementById('view-jogador').style.display !== 'none') {
                         renderFichas(); renderCampanhasJogadas();
                     }
                     if(document.getElementById('view-mestre').style.display !== 'none') {
                         renderMesas();
                     }
+                } else {
+                    lobbySynced = true; // Se falhar a leitura, liberta na mesma
                 }
-            } catch(e) { console.error("Erro ao puxar da nuvem", e); }
+            } catch(e) { 
+                console.error("Erro ao puxar da nuvem", e); 
+                lobbySynced = true;
+            }
         }
         
-        // Puxa da nuvem automaticamente!
+        // Arranca a sincronização
         syncLobbyComNuvem();
 
         let debounceLobbyTimer;
         function salvarLobbyNaNuvem() {
+            if (!lobbySynced) return; // Se a sincronização não acabou, NÃO APAGA A NUVEM!
+            
             clearTimeout(debounceLobbyTimer);
             debounceLobbyTimer = setTimeout(() => {
                 fetch('/api/salvar_lobby', {
@@ -257,7 +288,20 @@
             }, 1000);
         }
 
-        // Alterado para salvar na nuvem automaticamente também!
+        // Usado para restaurar os dados do PC antigo logo que entra
+        function salvarLobbyNaNuvemForcado() {
+            fetch('/api/salvar_lobby', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    usuario: userLogado,
+                    fichas: minhasFichas,
+                    mesas: minhasMesas,
+                    campanhas_jogadas: minhasCampanhasJogadas
+                })
+            });
+        }
+
         function salvarFichas() { 
             localStorage.setItem('fichas_' + userLogado, JSON.stringify(minhasFichas)); 
             salvarLobbyNaNuvem();
