@@ -33,17 +33,15 @@ try {
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 
 // ----------------------------------------------------
-// ROTAS GOOGLE AUTH (ESCOLHER NOME DE UTILIZADOR)
+// ROTAS GOOGLE AUTH (AUTOMATIZADO)
 // ----------------------------------------------------
 app.post('/api/google_login', async (req, res) => {
     const { uid } = req.body;
     try {
         const doc = await db.collection('google_users').doc(uid).get();
         if (doc.exists) {
-            // Já tem um nome de utilizador escolhido!
             res.json({ sucesso: true, hasUsername: true, usuario: doc.data().usuario });
         } else {
-            // É a primeira vez da conta Google, tem de escolher o nome
             res.json({ sucesso: true, hasUsername: false });
         }
     } catch (error) { 
@@ -53,12 +51,12 @@ app.post('/api/google_login', async (req, res) => {
 
 app.post('/api/set_username', async (req, res) => {
     const { uid, username } = req.body;
-    const cleanName = username.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    // Agora permite espaços! Remove acentos e converte tudo em letras maiúsculas (ex: "JOÃO SILVA" -> "JOAO SILVA")
+    const cleanName = username.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
     
     if (!cleanName) return res.json({ sucesso: false, erro: "Nome inválido." });
 
     try {
-        // Grava na nuvem o link entre a conta Google (uid) e o nome escolhido
         await db.collection('google_users').doc(uid).set({ usuario: cleanName });
         res.json({ sucesso: true, usuario: cleanName });
     } catch (error) { 
@@ -111,7 +109,7 @@ app.post('/api/carregar_lobby', async (req, res) => {
 
 // Puxar Ficha de uma Campanha Específica
 app.post('/api/carregar_personagem', async (req, res) => {
-    const { usuario } = req.body; // Vem no formato JOAO_NOME-DA-CAMPANHA
+    const { usuario } = req.body;
     try {
         const doc = await db.collection('fichas_campanha').doc(usuario).get();
         if (doc.exists) res.json({ sucesso: true, ficha: doc.data().ficha });
@@ -169,7 +167,6 @@ app.post('/api/sair_campanha', async (req, res) => {
 // 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
 
-// Memória RAM temporária para as fichas, para evitar ler a BD a toda a hora
 const playersData = {}; 
 
 io.on('connection', (socket) => {
