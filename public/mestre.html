@@ -85,6 +85,13 @@
         
         .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.9em; font-weight: bold; line-height: 25px; text-shadow: 1px 1px 2px #000; }
 
+        .status-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+        .tag { font-size: 0.7em; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .tag:hover { filter: brightness(1.5); }
+        .tag-lesionado { background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red); }
+        .tag-morrendo { background: var(--accent-red); animation: pulseRed 1.5s infinite; border: 1px solid white; }
+        .tag-enlouquecendo { background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue); }
+
         .log-container {
             flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
             display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px;
@@ -170,6 +177,7 @@
         .map-tooltip h4 { margin: 0 0 8px 0; color: var(--accent-yellow); font-size: 1.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
         .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
 
+        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; padding: 10px; }
             .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
@@ -391,15 +399,17 @@
     </div>
 
     <div id="modal-transfer-obj" class="modal-overlay" style="z-index: 10001;">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div class="modal-content" style="max-width: 600px; text-align: center;">
             <h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir para UM Jogador</h2>
-            <p style="color: var(--text-secondary);">Deseja enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b> para quem?</p>
+            <p style="color: var(--text-secondary);">Clique no jogador para quem deseja enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b>:</p>
             <input type="hidden" id="transfer-obj-idx">
             <input type="hidden" id="transfer-obj-type"> 
-            <select id="transfer-player-select" class="monster-input" style="margin-bottom: 20px; font-size: 1.1em; color: white; padding: 12px; text-align: center;"></select>
+            
+            <div id="transfer-player-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 5px;">
+                </div>
+            
             <div style="display: flex; gap: 10px;">
-                <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button>
-                <button class="btn-add" style="background: var(--accent-blue); flex: 1;" onclick="confirmarTransferenciaUm()">ENVIAR 🎁</button>
+                <button class="btn-remove" style="position: static; width: 100%; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button>
             </div>
         </div>
     </div>
@@ -718,7 +728,7 @@
         }
 
         // ==========================================
-        // TRANSFERÊNCIA
+        // MUDANÇA: TRANSFERÊNCIA FORMATO CATÁLOGO (COM FOTOS)
         // ==========================================
         function enviarParaTodos(idx, tipo) {
             if (jogadoresPermitidos.length === 0) return alert("Não há jogadores conectados na mesa para receber este presente!");
@@ -733,19 +743,58 @@
 
         function abrirModalTransferir(idx, tipo) {
             const obj = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
-            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual'; document.getElementById('transfer-obj-name').innerText = obj.n; document.getElementById('transfer-obj-idx').value = idx; document.getElementById('transfer-obj-type').value = tipo;
-            const select = document.getElementById('transfer-player-select'); select.innerHTML = '';
-            if (jogadoresPermitidos.length === 0) return alert("Não tem nenhum jogador ligado à sua mesa no momento!");
-            jogadoresPermitidos.forEach(code => { const pData = playersDataMemoria[code]; const displayName = pData && pData.nome ? `${pData.nome} (${code})` : code; const opt = document.createElement('option'); opt.value = code; opt.innerText = displayName; select.appendChild(opt); });
+            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual'; 
+            document.getElementById('transfer-obj-name').innerText = obj.n; 
+            document.getElementById('transfer-obj-idx').value = idx; 
+            document.getElementById('transfer-obj-type').value = tipo;
+            
+            const grid = document.getElementById('transfer-player-grid'); 
+            grid.innerHTML = '';
+            
+            if (jogadoresPermitidos.length === 0) {
+                alert("Não tem nenhum jogador ligado à sua mesa no momento!");
+                return;
+            }
+            
+            jogadoresPermitidos.forEach(code => { 
+                const pData = playersDataMemoria[code] || {}; 
+                const displayName = pData.nome ? pData.nome : code; 
+                const displayImg = pData.foto ? pData.foto : 'https://via.placeholder.com/60';
+                
+                const card = document.createElement('div');
+                card.style.cssText = `background: rgba(18, 18, 20, 0.8); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;`;
+                card.onmouseover = function() { this.style.transform = 'scale(1.05)'; this.style.background = 'rgba(0, 176, 255, 0.2)'; };
+                card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.background = 'rgba(18, 18, 20, 0.8)'; };
+                card.onclick = () => confirmarTransferenciaUm(code);
+                
+                card.innerHTML = `
+                    <img src="${displayImg}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue);">
+                    <div style="color: white; font-weight: bold; font-size: 0.85em; text-transform: uppercase;">${displayName}</div>
+                `;
+                grid.appendChild(card); 
+            });
+            
             document.getElementById('modal-transfer-obj').style.display = 'flex';
         }
 
-        function confirmarTransferenciaUm() {
-            const idx = document.getElementById('transfer-obj-idx').value; const tipo = document.getElementById('transfer-obj-type').value; const codeAlvo = document.getElementById('transfer-player-select').value.toUpperCase();
-            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx]; if (!objOriginal || !codeAlvo) return;
-            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
-            if (tipo === 'item') { socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeAlvo, item: objParaEnviar }); } else { socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeAlvo, ritual: objParaEnviar }); }
-            document.getElementById('modal-transfer-obj').style.display = 'none'; alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
+        function confirmarTransferenciaUm(codeAlvo) {
+            const idx = document.getElementById('transfer-obj-idx').value; 
+            const tipo = document.getElementById('transfer-obj-type').value; 
+            
+            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx]; 
+            if (!objOriginal || !codeAlvo) return;
+            
+            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
+            objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
+            
+            if (tipo === 'item') { 
+                socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeAlvo, item: objParaEnviar }); 
+            } else { 
+                socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeAlvo, ritual: objParaEnviar }); 
+            }
+            
+            document.getElementById('modal-transfer-obj').style.display = 'none'; 
+            alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
         }
 
         // ==========================================
@@ -785,7 +834,40 @@
             const percSani = Math.min(Math.max(((dados.sani_atual||0) / (dados.sani_max||1)) * 100, 0), 100) || 0;
             const percPe = Math.min(Math.max(((dados.pe_atual||0) / (dados.pe_max||1)) * 100, 0), 100) || 0;
             
-            card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual||0} / ${dados.vida_max||0}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual||0} / ${dados.sani_max||0}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-yellow); font-weight: bold; margin-bottom: 2px;">PONTOS DE ESFORÇO</div><div class="bar-container"><div class="bar-fill fill-pe" style="width: ${percPe}%"></div><div class="bar-text">${dados.pe_atual||0} / ${dados.pe_max||0}</div></div></div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA COMPLETA</button>`;
+            // MUDANÇA: Cartões de jogadores agora apenas informativos (sem botões de edição de stats), com o botão de ver ficha completa
+            card.innerHTML = `
+                <button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button>
+                <div class="player-header">
+                    <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img">
+                    <div>
+                        <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
+                        <div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
+                        <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fill-vida" style="width: ${percVida}%"></div>
+                        <div class="bar-text">${dados.vida_atual||0} / ${dados.vida_max||0}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fill-sani" style="width: ${percSani}%"></div>
+                        <div class="bar-text">${dados.sani_atual||0} / ${dados.sani_max||0}</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75em; color: var(--accent-yellow); font-weight: bold; margin-bottom: 2px;">PONTOS DE ESFORÇO</div>
+                    <div class="bar-container">
+                        <div class="bar-fill fill-pe" style="width: ${percPe}%"></div>
+                        <div class="bar-text">${dados.pe_atual||0} / ${dados.pe_max||0}</div>
+                    </div>
+                </div>
+                <button class="btn-roll" style="width: 100%; margin-top: 10px;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA COMPLETA</button>
+            `;
         });
 
         socket.on('comando_mestre', (dados) => { if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); } if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); } if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); } if (dados.tipo === 'jogador_entrou' && dados.codigo) { const c = dados.codigo.toUpperCase().trim(); if (!jogadoresPermitidos.includes(c)) { jogadoresPermitidos.push(c); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', c); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); } else { socket.emit('request_player', c); } } });
@@ -799,7 +881,7 @@
         function closeDice() { document.getElementById('popup-dice').style.display='none'; }
         function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") { const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st }); } }
 
-        // MAPAS E MONSTROS (RESUMIDOS PARA CABER NO LIMITE)
+        // MAPAS E MONSTROS
         let mapScale = 1; let mapTranslateX = 0; let mapTranslateY = 0; let isDraggingMap = false; let startDragX = 0; let startDragY = 0; let hasMovedMap = false; let mapaBase64TempMap = null; let currentMapaIdMap = null;
         function carregarMapaPC(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX_DIM = 1920; if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); mapaBase64TempMap = canvas.toDataURL('image/jpeg', 0.8); document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC"; document.getElementById('novo-mapa-url').disabled = true; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
         function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim(); let url = document.getElementById('novo-mapa-url').value.trim(); if(!nome) return alert("Por favor, preencha o Nome do mapa."); if(!url && !mapaBase64TempMap) return alert("Forneça uma URL ou carregue uma imagem do seu PC."); if (mapaBase64TempMap) url = mapaBase64TempMap; const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; document.getElementById('novo-mapa-url').disabled = false; document.getElementById('novo-mapa-file').value = ''; mapaBase64TempMap = null; renderizarMapasList(); renderizarMapaAtual(); }
@@ -863,7 +945,6 @@
             }, 1000);
         }
         
-        // MONSTROS GERAIS E INICIATIVA (Compactados)
         let editMonstroId = null;
         function abrirModalCriatura() { editMonstroId = null; document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; document.getElementById('c-presenca').value = 'Perturbadora'; document.getElementById('c-defesa').value = '10'; document.getElementById('c-vida').value = '100'; ['agi','for','pre'].forEach(a => document.getElementById('c-'+a).value = '1'); ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { document.getElementById('c-treino-'+s).checked = false; document.getElementById('c-bonus-'+s).value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; document.getElementById('modal-criatura').style.display = 'flex'; }
         function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
