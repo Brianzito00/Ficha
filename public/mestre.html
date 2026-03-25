@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escudo do Mestre</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
         :root {
             --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85);
             --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
@@ -47,17 +49,11 @@
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
         .players-container, .monsters-grid {
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
         }
 
         .catalogo-grid-view {
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 10px; 
-            align-content: flex-start; 
-            padding-right: 5px; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; 
         }
 
         .player-card, .monster-card {
@@ -74,7 +70,9 @@
         .monster-name { color: var(--accent-red); }
         .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
         
-        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; }
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s;}
+        .btn-remove:hover { filter: brightness(1.2); }
+        
         .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
         .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
 
@@ -116,14 +114,11 @@
 
         .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
+        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         .popup-res::-webkit-scrollbar { width: 5px; }
         .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
-
-        @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
         
         .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
@@ -145,25 +140,20 @@
         .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
         .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
 
-        /* ABA DE ROTEIRO E CONSTRUÇÃO DE MUNDO */
+        /* ABA DE ROTEIRO */
         #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
-        
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
         .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
         .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
         .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
         .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
-
         .roteiro-titulo-input { background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px; padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s; }
         .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
         .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
-        .roteiro-textarea::-webkit-scrollbar, .roteiro-sidebar::-webkit-scrollbar, .roteiro-sidebar-right::-webkit-scrollbar { width: 6px; }
-        .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
         /* ABA DE MAPAS */
         #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
@@ -181,7 +171,6 @@
         .map-tooltip h4 { margin: 0 0 8px 0; color: var(--accent-yellow); font-size: 1.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
         .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
 
-        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; padding: 10px; }
             .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
@@ -197,8 +186,7 @@
 
             #roteiro-board { height: auto; padding: 15px; }
             .roteiro-layout { flex-direction: column; height: auto; }
-            .roteiro-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
-            .roteiro-sidebar-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); padding-left: 0; padding-top: 15px; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+            .roteiro-sidebar, .roteiro-sidebar-right { width: 100%; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; border:none; padding:0; margin-bottom:10px;}
             #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
             .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
             .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
@@ -215,7 +203,8 @@
         <div style="flex: 1;"></div>
 
         <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-       <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
+        
+        <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
     </div>
 
     <div class="tabs-container">
@@ -424,7 +413,9 @@
             <h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir para UM Jogador</h2>
             <p style="color: var(--text-secondary);">Deseja enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b> para quem?</p>
             <input type="hidden" id="transfer-obj-idx">
-            <input type="hidden" id="transfer-obj-type"> <select id="transfer-player-select" class="monster-input" style="margin-bottom: 20px; font-size: 1.1em; color: white; padding: 12px; text-align: center;"></select>
+            <input type="hidden" id="transfer-obj-type"> 
+            
+            <select id="transfer-player-select" class="monster-input" style="margin-bottom: 20px; font-size: 1.1em; color: white; padding: 12px; text-align: center;"></select>
             
             <div style="display: flex; gap: 10px;">
                 <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button>
@@ -519,6 +510,12 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
+        // Função de Logout Corrigida e Isolada Globalmente
+        function fazerLogout() {
+            localStorage.removeItem('campanha_atual');
+            window.location.href = '/index.html';
+        }
+
         let playerCode = localStorage.getItem('usuario_logado');
         let campanhaAtiva = localStorage.getItem('campanha_atual');
 
@@ -768,9 +765,9 @@
                 objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
 
                 if (tipo === 'item') {
-                    socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo, item: objParaEnviar });
+                    socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo.toUpperCase(), item: objParaEnviar });
                 } else {
-                    socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo, ritual: objParaEnviar });
+                    socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo.toUpperCase(), ritual: objParaEnviar });
                 }
             });
 
@@ -807,7 +804,7 @@
         function confirmarTransferenciaUm() {
             const idx = document.getElementById('transfer-obj-idx').value;
             const tipo = document.getElementById('transfer-obj-type').value;
-            const codeAlvo = document.getElementById('transfer-player-select').value;
+            const codeAlvo = document.getElementById('transfer-player-select').value.toUpperCase();
 
             const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
             if (!objOriginal || !codeAlvo) return;
@@ -861,38 +858,40 @@
         }
 
         function alterarStatusMestre(codigo, tipo, valor) {
-            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo, tipo: tipo, delta: valor });
-            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo, tipo: 'status', status: valor });
+            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: tipo, delta: valor });
+            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: 'status', status: valor });
         }
 
         function removerJogador(codigo, notificarJogador = true) { 
-            jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codigo); 
+            const codPuro = codigo.toUpperCase();
+            jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); 
             localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
-            const card = document.getElementById(`player-${codigo}`); 
+            const card = document.getElementById(`player-${codPuro}`); 
             if (card) card.remove(); 
             socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-            socket.emit('limpar_cache_jogador', { codigo: codigo });
-            if (notificarJogador) { socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codigo }); }
-            fetch('/api/sair_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codigo, campanha: campanhaAtiva }) });
+            socket.emit('limpar_cache_jogador', { codigo: codPuro });
+            if (notificarJogador) { socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codPuro }); }
+            fetch('/api/sair_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro, campanha: campanhaAtiva }) });
         }
 
-        function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo}`; document.getElementById('modal-ficha').style.display = 'flex'; }
+        function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo.toUpperCase()}`; document.getElementById('modal-ficha').style.display = 'flex'; }
         function fecharFicha() { document.getElementById('modal-ficha').style.display = 'none'; document.getElementById('iframe-ficha').src = ''; }
 
         socket.on('update_mestre', (dados) => {
-            if (!dados.codigo || !jogadoresPermitidos.includes(dados.codigo)) return;
-            playersDataMemoria[dados.codigo] = dados;
-            let card = document.getElementById(`player-${dados.codigo}`);
-            if (!card) { card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${dados.codigo}`; playersBoard.appendChild(card); }
+            const codPuro = (dados.codigo || "").toUpperCase(); 
+            if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
+            playersDataMemoria[codPuro] = dados;
+            let card = document.getElementById(`player-${codPuro}`);
+            if (!card) { card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${codPuro}`; playersBoard.appendChild(card); }
             const percVida = Math.min(Math.max((dados.vida_atual / dados.vida_max) * 100, 0), 100) || 0; const percSani = Math.min(Math.max((dados.sani_atual / dados.sani_max) * 100, 0), 100) || 0;
-            let tagsHtml = `<span class="tag" style="cursor:pointer; opacity: ${dados.status?.lesionado ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red);" onclick="alterarStatusMestre('${dados.codigo}', 'status', 'lesionado')">Lesionado</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.inconsciente ? '1' : '0.3'}; background: ${dados.status?.inconsciente ? '#ff5252' : 'transparent'}; border: 1px solid #ff5252;" onclick="alterarStatusMestre('${dados.codigo}', 'status', 'inconsciente')">Inconsciente</span><span class="tag ${dados.status?.morrendo ? 'tag-morrendo' : ''}" style="cursor:pointer; opacity: ${dados.status?.morrendo ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.8); border: 1px solid white;" onclick="alterarStatusMestre('${dados.codigo}', 'status', 'morrendo')">Morrendo</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.enlouquecendo ? '1' : '0.3'}; background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue);" onclick="alterarStatusMestre('${dados.codigo}', 'status', 'enlouquecendo')">Enlouquecendo</span>`;
-            card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${dados.codigo}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${dados.codigo}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${dados.codigo}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${dados.codigo}')">🔍 VER FICHA COMPLETA</button>`;
+            let tagsHtml = `<span class="tag" style="cursor:pointer; opacity: ${dados.status?.lesionado ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red);" onclick="alterarStatusMestre('${codPuro}', 'status', 'lesionado')">Lesionado</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.inconsciente ? '1' : '0.3'}; background: ${dados.status?.inconsciente ? '#ff5252' : 'transparent'}; border: 1px solid #ff5252;" onclick="alterarStatusMestre('${codPuro}', 'status', 'inconsciente')">Inconsciente</span><span class="tag ${dados.status?.morrendo ? 'tag-morrendo' : ''}" style="cursor:pointer; opacity: ${dados.status?.morrendo ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.8); border: 1px solid white;" onclick="alterarStatusMestre('${codPuro}', 'status', 'morrendo')">Morrendo</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.enlouquecendo ? '1' : '0.3'}; background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue);" onclick="alterarStatusMestre('${codPuro}', 'status', 'enlouquecendo')">Enlouquecendo</span>`;
+            card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA COMPLETA</button>`;
         });
 
         socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
-            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo); }
-            if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo, false); }
+            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
+            if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
             if (dados.tipo === 'jogador_entrou' && dados.codigo) {
                 const c = dados.codigo.toUpperCase().trim();
                 if (!jogadoresPermitidos.includes(c)) { 
@@ -903,14 +902,15 @@
         });
 
         socket.on('novo_log', (dados) => {
-            if (dados.codigo && !jogadoresPermitidos.includes(dados.codigo)) return;
+            const incCode = (dados.codigo || "").toUpperCase();
+            if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return;
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
-            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados); }
+            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
         });
 
-        function processarIniciativa(dados) {
-            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? dados.codigo : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
-            if (isPlayer) { let pData = playersDataMemoria[dados.codigo]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } 
+        function processarIniciativa(dados, upperCode) {
+            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
+            if (isPlayer) { let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } 
             else { let monstro = monstros.find(m => m.nome === dados.jogador); if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 0.50) + (sData.treinado ? 10 : 0)); } foto = monstro.foto || foto; } }
             let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
             if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
@@ -929,7 +929,7 @@
             const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
             let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
             let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); }
-            resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; ${st}`;
+            resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`;
             box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)';
             document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
             setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500);
