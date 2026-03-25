@@ -32,31 +32,11 @@ try {
 
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 
-app.post('/api/registar', async (req, res) => {
-    const { usuario, senha } = req.body;
-    try {
-        const docRef = db.collection('usuarios').doc(usuario);
-        const doc = await docRef.get();
-        if (doc.exists) return res.json({ sucesso: false, erro: 'Este utilizador já existe!' });
-        
-        await docRef.set({ senha: senha });
-        res.json({ sucesso: true });
-    } catch (error) { res.json({ sucesso: false, erro: 'Erro no banco de dados.' }); }
-});
-
-app.post('/api/login', async (req, res) => {
-    const { usuario, senha } = req.body;
-    try {
-        const docRef = db.collection('usuarios').doc(usuario);
-        const doc = await docRef.get();
-        if (!doc.exists || doc.data().senha !== senha) return res.json({ sucesso: false, erro: 'Utilizador ou senha incorretos!' });
-        
-        res.json({ sucesso: true });
-    } catch (error) { res.json({ sucesso: false, erro: 'Erro interno.' }); }
-});
+// As rotas antigas de login/registo manual foram eliminadas para maior segurança,
+// agora a verificação de quem entra é feita pelo frontend com Google Auth.
 
 // ----------------------------------------------------
-// ROTAS DE SINCRONIZAÇÃO DO LOBBY (NOVO)
+// ROTAS DE SINCRONIZAÇÃO DO LOBBY
 // ----------------------------------------------------
 app.post('/api/salvar_lobby', async (req, res) => {
     const { usuario, fichas, mesas, campanhas_jogadas } = req.body;
@@ -149,6 +129,7 @@ app.post('/api/sair_campanha', async (req, res) => {
 // 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
 
+// Memória RAM temporária para as fichas, para evitar ler a BD a toda a hora
 const playersData = {}; 
 
 io.on('connection', (socket) => {
