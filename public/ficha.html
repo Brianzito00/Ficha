@@ -33,7 +33,6 @@
         .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
 
-        /* MUDANÇA: Agora suporta 3 colunas para acomodar os PEs */
         .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
         .status-box { background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); padding: 10px; border-radius: 8px; text-align: center; }
         .status-header { margin-bottom: 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
@@ -216,8 +215,7 @@
                 </div>
                 <button class="status-btn" onclick="changeStatus('pe', 1)">+</button>
             </div>
-            <div class="status-toggles-container" style="min-height: 20px;">
-                </div>
+            <div class="status-toggles-container" style="min-height: 20px;"></div>
         </div>
     </div>
 
@@ -253,6 +251,11 @@
             <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
             <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
             <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
+            <div id="learned-rituals-list" style="display:flex; flex-wrap:wrap; gap:5px;">
+                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual aprendido.</div>
+            </div>
         </div>
     </div>
 </div>
@@ -354,19 +357,6 @@
                 <div style="grid-column: span 2;"><label style="font-size:0.7em; color:var(--text-secondary)">DANO EXTRA</label><input type="text" id="wp-extra" class="inv-input" placeholder="+1d6 Fogo"></div>
             </div>
 
-            <div id="fields-item-catalog" style="display:none;">
-                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique num item para adicioná-lo diretamente à sua mochila.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="item-grid-container"></div>
-            </div>
-            <div id="fields-armacc-catalog" style="display:none;">
-                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armacc-grid-container"></div>
-            </div>
-            <div id="fields-armadisp-catalog" style="display:none;">
-                <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 0;">Clique numa arma para adicioná-la diretamente à sua mochila.</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="armadisp-grid-container"></div>
-            </div>
-
             <div style="display:flex; gap:10px; margin-top:5px;">
                 <button class="btn-add" id="btn-confirm-add-item" style="flex:1; margin:0;" onclick="confirmAddItem()">ADICIONAR</button>
                 <button class="btn-del" style="flex:1;" onclick="closeItemPopup()">CANCELAR</button>
@@ -424,10 +414,8 @@
 <div id="popup-new-ritual" class="popup-overlay">
     <div class="popup-box" style="width: 550px;" onclick="event.stopPropagation()">
         <h3 style="color: var(--accent-purple); margin-top: 0; text-align: center;">Aprender Ritual</h3>
-        
         <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 15px;">Clique num ritual do catálogo para adicioná-lo ao seu grimório.</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;" id="ritual-grid-container"></div>
-        
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeRitualPopup()">FECHAR / CANCELAR</button>
         </div>
