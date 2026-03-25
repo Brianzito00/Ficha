@@ -150,6 +150,147 @@
     </div>
 </div>
 
+<div id="tab-personagem" class="main-container active">
+    <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-title">Informações do Personagem</div>
+        <div class="char-info-wrapper">
+            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            </div>
+            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-grid">
+        <div class="status-box">
+            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
+                </div>
+                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
+                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
+                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
+            </div>
+        </div>
+        <div class="status-box">
+            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
+            <div class="status-controls">
+                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
+                <div class="status-bar-container">
+                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
+                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
+                </div>
+                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns-wrapper">
+        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
+        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
+        
+        <div class="panel" style="flex:0 0 250px;">
+            <div class="panel-title">Ações</div>
+            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
+                PERSONALIZAR DADO
+            </button>
+            <div class="defense-box">
+                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
+                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
+            </div>
+
+            <div class="equipped-weapons-header">Ataque Corporal</div>
+            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+                <button class="ritual-btn" style="border-color: var(--text-secondary); color: var(--text-primary); width: 100%; margin-bottom: 8px; cursor: default; pointer-events: none;">Ataque Desarmado</button>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
+                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
+                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
+                </div>
+                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8</span></div>
+            </div>
+            
+            <div class="equipped-weapons-header">Arma Ativa</div>
+            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
+            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
+            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
+            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-inventario" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Mochila e Carga</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
+            </div>
+            <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
+        </div>
+        <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
+        <div class="catalogo-grid-view" id="inventory-body"></div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">Munições</div>
+        <div class="ammo-grid">
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Leve / Curta</label><input type="number" id="ammo_curta" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Longa</label><input type="number" id="ammo_longa" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Pesada</label><input type="number" id="ammo_pesada" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+            <div class="ammo-box"><div style="width:100%; height:50px; display:flex; align-items:center; justify-content:center; color:var(--accent-yellow); font-size:2em; margin-bottom:5px;">★</div><label>Especial</label><input type="number" id="ammo_especial" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
+        </div>
+    </div>
+</div>
+
+<div id="tab-rituais" class="main-container">
+    <div class="panel">
+        <div class="panel-title">Grimório e Conhecimento</div>
+        <div class="weight-container">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
+        </div>
+        <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
+        
+        <div id="rituais-1-container" style="margin-top: 20px; display: none;">
+            <h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-1-body"></div>
+        </div>
+        <div id="rituais-2-container" style="margin-top: 20px; display: none;">
+            <h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-2-body"></div>
+        </div>
+        <div id="rituais-3-container" style="margin-top: 20px; display: none;">
+            <h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">3º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-3-body"></div>
+        </div>
+        <div id="rituais-4-container" style="margin-top: 20px; display: none;">
+            <h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">4º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-4-body"></div>
+        </div>
+    </div>
+</div>
+
 <div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()" style="z-index: 4000;">
     <div class="popup-box" onclick="event.stopPropagation()" style="width: 300px; text-align: center;">
         <h3 style="color: var(--accent-blue); margin-top: 0; text-transform: uppercase;">Ataque Múltiplo</h3>
@@ -279,7 +420,14 @@
             </div>
             <div>
                 <label style="font-size:0.8em; color:var(--text-secondary)">ELEMENTO</label>
-                <select id="rit-elem" class="inv-input"><option value="Conhecimento">Conhecimento</option><option value="Energia">Energia</option><option value="Medo">Medo</option><option value="Morte">Morte</option><option value="Sangue">Sangue</option></select>
+                <select id="rit-elem" class="inv-input">
+                    <option value="Conhecimento">Conhecimento</option>
+                    <option value="Energia">Energia</option>
+                    <option value="Medo">Medo</option>
+                    <option value="Morte">Morte</option>
+                    <option value="Sangue">Sangue</option>
+                    <option value="Qualquer">Qualquer (4 Elementos)</option>
+                </select>
             </div>
             <div class="popup-grid">
                 <div><label style="font-size:0.7em; color:var(--text-secondary)">EXECUÇÃO</label><input type="text" id="rit-exec" class="inv-input" placeholder="Ex: Padrão"></div>
@@ -373,139 +521,9 @@
     </div>
 </div>
 
-<div id="tab-personagem" class="main-container active">
-    <div class="panel" style="margin-bottom: 20px;">
-        <div class="panel-title">Informações do Personagem</div>
-        <div class="char-info-wrapper">
-            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            </div>
-            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateWeight(); updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="status-grid">
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
-                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
-                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
-                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
-            </div>
-        </div>
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
-                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="columns-wrapper">
-        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
-        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
-        
-        <div class="panel" style="flex:0 0 250px;">
-            <div class="panel-title">Ações</div>
-            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
-                PERSONALIZAR DADO
-            </button>
-            <div class="defense-box">
-                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
-                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
-            </div>
-
-            <div class="equipped-weapons-header">Ataque Corporal</div>
-            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                <button class="ritual-btn" style="border-color: var(--text-secondary); color: var(--text-primary); width: 100%; margin-bottom: 8px; cursor: default; pointer-events: none;">Ataque Desarmado</button>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
-                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
-                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
-                </div>
-                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8 + FOR</span></div>
-            </div>
-            
-            <div class="equipped-weapons-header">Arma Ativa</div>
-            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
-            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
-            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
-            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-            
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
-            <div id="learned-rituals-list" style="display:flex; flex-wrap:wrap; gap:5px;">
-                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual aprendido.</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="tab-inventario" class="main-container">
-    <div class="panel">
-        <div class="panel-title">Mochila e Carga</div>
-        <div class="weight-container">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
-                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
-            </div>
-            <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
-        </div>
-        <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
-        <div class="catalogo-grid-view" id="inventory-body"></div>
-    </div>
-
-    <div class="panel">
-        <div class="panel-title">Munições</div>
-        <div class="ammo-grid">
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Leve / Curta</label><input type="number" id="ammo_curta" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Longa</label><input type="number" id="ammo_longa" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png" style="width:100%; height:50px; object-fit:contain; margin-bottom:5px;"><label>Pesada</label><input type="number" id="ammo_pesada" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-            <div class="ammo-box"><div style="width:100%; height:50px; display:flex; align-items:center; justify-content:center; color:var(--accent-yellow); font-size:2em; margin-bottom:5px;">★</div><label>Especial</label><input type="number" id="ammo_especial" class="inv-input" style="text-align:center;" value="0" min="0" oninput="updateWeight(); save()"></div>
-        </div>
-    </div>
-</div>
-
-<div id="tab-rituais" class="main-container">
-    <div class="panel">
-        <div class="panel-title">Grimório e Conhecimento</div>
-        <div class="weight-container">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9em;">
-                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
-            </div>
-        </div>
-        <button class="btn-add" style="background: #b82bf2; color: white;" onclick="openRitualPopup()">+ Adicionar Ritual</button>
-        <div class="catalogo-grid-view" id="rituals-body"></div>
-    </div>
-</div>
-
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js" onerror="console.warn('Servidor local não encontrado.')"></script>
 <script>
-   const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
     const viewCode = urlParams.get('view'); 
     
     let baseUser = localStorage.getItem('usuario_logado') || "";
@@ -541,7 +559,19 @@
     } catch(e) {}
 
     const tabelaD20 = {1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18}};
-    const periciasBase = [{nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},{nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},{nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},{nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},{nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},{nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},{nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},{nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},{nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},{nome:"Vontade",attr:"PRE",mod:0.50}];
+    
+    const periciasBase = [
+        {nome:"Acrobacia",attr:"AGI",mod:0.20},{nome:"Adestramento",attr:"PRE",mod:0.20},{nome:"Artes",attr:"PRE",mod:0.30},
+        {nome:"Atletismo",attr:"FOR",mod:0.35},{nome:"Atualidades",attr:"INT",mod:0.35},{nome:"Ciências",attr:"INT",mod:0.25},
+        {nome:"Crime",attr:"AGI",mod:0.35},{nome:"Diplomacia",attr:"PRE",mod:0.30},{nome:"Enganação",attr:"PRE",mod:0.25},
+        {nome:"Fortitude",attr:"VIG",mod:0.40},{nome:"Furtividade",attr:"AGI",mod:0.39},{nome:"Iniciativa",attr:"AGI",mod:0.50},
+        {nome:"Intimidação",attr:"PRE",mod:0.30},{nome:"Intuição",attr:"PRE",mod:0.35},{nome:"Investigação",attr:"INT",mod:0.50},
+        {nome:"Luta",attr:"FOR",mod:0.25},{nome:"Medicina",attr:"INT",mod:0.15},{nome:"Ocultismo",attr:"INT",mod:0.08},
+        {nome:"Percepção",attr:"PRE",mod:0.50},{nome:"Pilotagem",attr:"AGI",mod:0.15},{nome:"Pontaria",attr:"AGI",mod:0.45},
+        {nome:"Profissão",attr:"INT",mod:0.50},{nome:"Reflexos",attr:"AGI",mod:0.35},{nome:"Religião",attr:"PRE",mod:0.50},
+        {nome:"Sobrevivência",attr:"INT",mod:0.35},{nome:"Tática",attr:"INT",mod:0.45},{nome:"Tecnologia",attr:"INT",mod:0.25},
+        {nome:"Vontade",attr:"PRE",mod:0.50}
+    ];
     
     let equippedWeaponsData = []; 
     let charImages = { normal: '', lesionado: '', inconsciente: '', morrendo: '', enlouquecendo: '', les_enlouq: '' };
@@ -1149,7 +1179,7 @@
         if (!customCatalog.rituals.some(it => it.name.toLowerCase() === n.toLowerCase())) { customCatalog.rituals.push(newCatRitual); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (socket) socket.emit('novo_item_catalogo_global', { catType: 'rituals', item: newCatRitual }); }
 
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`;
-        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
+        const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
         
         addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, true, img); closeRitualPopup();
     }
@@ -1158,16 +1188,44 @@
         try {
             const container = document.getElementById('ritual-grid-container'); if(!container) return;
             container.innerHTML = `<div class="skill-card" style="cursor: pointer; padding: 10px; border: 2px dashed var(--accent-purple); border-radius: 8px; text-align: center; background: rgba(184, 43, 242, 0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px;" onclick="selectRitualType('custom')" onmouseover="this.style.background='rgba(184, 43, 242, 0.2)'" onmouseout="this.style.background='rgba(184, 43, 242, 0.05)'"><div style="font-size: 2.5em; margin-bottom: 5px;">➕</div><div style="font-weight: bold; color: var(--accent-purple); font-size: 0.85em; text-transform: uppercase;">Ritual Personalizado</div></div>`;
-            const renderCard = (rit, isCustom) => {
-                let color = "var(--text-primary)"; if(rit.el === 'Conhecimento') color = "#ffcf33"; if(rit.el === 'Sangue') color = "#e53935"; if(rit.el === 'Energia') color = "#b82bf2"; if(rit.el === 'Morte') color = "#71717a"; if(rit.el === 'Medo') color = "#fff";
-                let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
-                let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${rit.el.substring(0,3).toUpperCase()}`;
-                let safeRit = JSON.stringify(rit).replace(/"/g, '&quot;'); let safeName = rit.name.replace(/'/g, "\\'");
-                let btnRemove = isCustom ? `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('rituals', '${safeName}')">X</button>` : '';
-                return `<div class="skill-card" style="position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;" onclick="addCatalogRitual('${safeRit}')" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${color}50'">${btnRemove}<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div></div>`;
-            };
-            premadeRituals.forEach(rit => { container.innerHTML += renderCard(rit, false); });
-            if(customCatalog.rituals) { customCatalog.rituals.forEach(rit => { container.innerHTML += renderCard(rit, true); }); }
+
+            let todosRituais = [...premadeRituals];
+            if(customCatalog.rituals) {
+                customCatalog.rituals.forEach(r => todosRituais.push({...r, isCustom: true}));
+            }
+
+            let grouped = { '1º': [], '2º': [], '3º': [], '4º': [] };
+            todosRituais.forEach(r => {
+                let c = r.circ || '1º';
+                if(!grouped[c]) grouped[c] = [];
+                grouped[c].push(r);
+            });
+
+            Object.keys(grouped).forEach(circ => {
+                if(grouped[circ].length === 0) return;
+                let sec = document.createElement('div');
+                sec.style.cssText = "grid-column: 1 / -1; color: var(--accent-blue); font-weight: bold; margin-top: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;";
+                sec.innerText = `${circ} Círculo`;
+                container.appendChild(sec);
+
+                grouped[circ].forEach(rit => {
+                    let color = "var(--text-primary)"; if(rit.el === 'Conhecimento') color = "#ffcf33"; if(rit.el === 'Sangue') color = "#e53935"; if(rit.el === 'Energia') color = "#b82bf2"; if(rit.el === 'Morte') color = "#71717a"; if(rit.el === 'Medo') color = "#fff"; if(rit.el === 'Qualquer') color = "#aaaaaa";
+                    let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
+                    let textIcon = rit.el === 'Qualquer' ? 'ALL' : rit.el.substring(0,3).toUpperCase();
+                    let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`;
+                    let safeRit = JSON.stringify(rit).replace(/"/g, '&quot;'); let safeName = rit.name.replace(/'/g, "\\'");
+                    let btnRemove = rit.isCustom ? `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeCustomCatalogItem('rituals', '${safeName}')">X</button>` : '';
+
+                    let card = document.createElement('div');
+                    card.className = "skill-card";
+                    card.style.cssText = `position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;`;
+                    card.onclick = () => addCatalogRitual(safeRit);
+                    card.onmouseover = function() { this.style.borderColor=color; };
+                    card.onmouseout = function() { this.style.borderColor=`${color}50`; };
+                    card.innerHTML = `${btnRemove}<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.name}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div>`;
+                    container.appendChild(card);
+                });
+            });
         } catch(e) { console.error("Erro ao renderizar rituais:", e); }
     }
 
@@ -1179,9 +1237,9 @@
     }
     
     function addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, eq = true, img = "") {
-        const body = document.getElementById('rituals-body'); const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString();
+        const id = Date.now().toString() + Math.floor(Math.random() * 100000).toString();
         const safeDescGeral = (descGeral||"").replace(/"/g, "'"), safeDescDisc = (descDisc||"").replace(/"/g, "'"), safeDescVerd = (descVerd||"").replace(/"/g, "'"), safeImg = (img||"").replace(/"/g, "'");
-        let color = "var(--text-primary)"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff";
+        let color = "var(--text-primary)"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; if(el === 'Qualquer') color = "#aaaaaa";
         
         const card = document.createElement('div'); 
         card.id = 'rit-row-' + id; 
@@ -1192,7 +1250,8 @@
         card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
 
         let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
-        let imgSrc = safeImg && safeImg.trim() !== "" ? safeImg : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${el.substring(0,3).toUpperCase()}`;
+        let textIcon = el === 'Qualquer' ? 'ALL' : el.substring(0,3).toUpperCase();
+        let imgSrc = safeImg && safeImg.trim() !== "" ? safeImg : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`;
 
         card.innerHTML = `
             <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeRitual('${id}')">X</button>
@@ -1202,20 +1261,35 @@
             </div>
             <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px; margin-top: 15px;">
             <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${n}</div>
-            <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${circ}</span></div>
             <div style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></div>
         `;
-        document.getElementById('rituals-body').appendChild(card); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+        
+        let targetCirc = circ ? circ.charAt(0) : '1';
+        let body = document.getElementById(`rituais-${targetCirc}-body`);
+        if(!body) body = document.getElementById('rituais-1-body');
+        document.getElementById(`rituais-${targetCirc}-container`).style.display = 'block';
+        body.appendChild(card);
+        
+        if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
     }
     
-    function removeRitual(id) { document.getElementById('rit-row-'+id).remove(); updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
+    function removeRitual(id) { 
+        let row = document.getElementById('rit-row-'+id);
+        if(!row) return;
+        let container = row.parentElement;
+        row.remove(); 
+        if(container.children.length === 0) {
+            container.parentElement.style.display = 'none';
+        }
+        updateRitualsCount(); updateLearnedRitualsDisplay(); save(); 
+    }
     function updateRitualsCount() { document.getElementById('rituals-text').innerText = document.querySelectorAll('.rit-equipped:checked').length; }
     
     function updateLearnedRitualsDisplay() {
         const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false;
         document.querySelectorAll('.rit-equipped:checked').forEach(chk => { 
             has = true; const hr = chk.closest('div[id^="rit-row-"]').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.closest('div[id^="rit-row-"]').id.replace('rit-row-', '');
-            let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; 
+            let color = "#fff"; if(el === 'Conhecimento') color = "#ffcf33"; if(el === 'Sangue') color = "#e53935"; if(el === 'Energia') color = "#b82bf2"; if(el === 'Morte') color = "#71717a"; if(el === 'Medo') color = "#fff"; if(el === 'Qualquer') color = "#aaaaaa";
             container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`;
         });
         if(!has) container.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual.</div>`;
@@ -1342,7 +1416,19 @@
     }
     
     function updateTargetsPericia(id, ak, modPerc) { let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let sn = id.replace("skill_",""); let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let f = Math.floor(sk+(at*modPerc)+(tr?10:0) + penalty); let m = tabelaD20[f>20?20:f<1?1:f]; let d = document.getElementById(id+"_targets"); if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }
-    function updateAllPericias() { ["agi","for","int","pre","vig"].forEach(a => { let v = parseInt(document.getElementById("attr_"+a).value)||1, m = tabelaD20[v>20?20:v]; if(document.getElementById("attr_"+a+"_targets")) document.getElementById("attr_"+a+"_targets").innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; }); periciasBase.forEach(p => updateTargetsPericia("skill_"+p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_"), p.attr, p.mod)); }
+    
+    function updateAllPericias() { 
+        ["agi","for","int","pre","vig"].forEach(a => { 
+            let v = parseInt(document.getElementById("attr_"+a).value)||1;
+            let m = tabelaD20[v>20?20:v]; 
+            let targetEl = document.getElementById("attr_"+a+"_targets");
+            if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
+        }); 
+        periciasBase.forEach(p => {
+            let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\W/g,"_");
+            updateTargetsPericia("skill_"+sn, p.attr, p.mod);
+        }); 
+    }
 
     function save() {
         if(isLoadingData) return; 
@@ -1484,7 +1570,6 @@
                     if (dados.tipo === 'dar_item' && incCode === myUpperCode) {
                         addItemObj(dados.item); 
                         save(); 
-                        alert(`🎁 O Mestre enviou-lhe um novo item: ${dados.item.n}! Foi adicionado à sua Mochila.`);
                     }
 
                     if (dados.tipo === 'dar_ritual' && incCode === myUpperCode) {
@@ -1494,7 +1579,6 @@
                         const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`;
                         addRitual(dados.ritual.n, dados.ritual.el, dHTML, dados.ritual.circ, dados.ritual.ex, dados.ritual.alc, dados.ritual.alv, dados.ritual.dur, dados.ritual.res, dados.ritual.descGeral, dados.ritual.descDisc, dados.ritual.descVerd, true, dados.ritual.img);
                         save(); 
-                        alert(`🔮 O Mestre ensinou-lhe um novo ritual: ${dados.ritual.n}! Foi adicionado ao seu Grimório.`);
                     }
                 });
 
@@ -1538,7 +1622,13 @@
         
         document.getElementById('abilities-list').innerHTML = ''; if(d.abilities) d.abilities.forEach(a => addAbility(a.n, a.d));
         
-        document.getElementById('rituals-body').innerHTML = '';
+        [1,2,3,4].forEach(c => {
+            let body = document.getElementById(`rituais-${c}-body`);
+            if(body) body.innerHTML = '';
+            let cont = document.getElementById(`rituais-${c}-container`);
+            if(cont) cont.style.display = 'none';
+        });
+
         if(d.rituals) d.rituals.forEach(r => { const descGeral = r.descGeral || r.desc || "Sem descrição.", descDisc = r.descDisc || "-", descVerd = r.descVerd || "-"; let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`; const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo/Área:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq !== false, r.img || ""); });
         
         updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay(); updateDanoDesarmado();
