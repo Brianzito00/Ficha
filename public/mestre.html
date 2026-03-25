@@ -6,190 +6,134 @@
     <title>Escudo do Mestre</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-        
-        :root {
-            --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85);
-            --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3;
-            --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935;
-            --accent-purple: #b82bf2;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif; background-color: var(--bg-body);
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover; background-attachment: fixed; background-position: center; color: var(--text-primary);
-            margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
-        }
-
-        .mestre-top-bar {
-            background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; 
-            border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-        }
-        .code-input {
-            padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); 
-            color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; flex: 1; min-width: 200px;
-        }
-        .btn-add {
-            background: var(--accent-green); border: none; color: black; font-weight: bold; 
-            padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0;
-        }
-        .btn-add:hover { filter: brightness(1.2); }
-
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn {
-            background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
-            padding: 10px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold;
-            font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center;
-        }
-        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
-        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
-
-        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
-        .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
-
-        .players-container, .monsters-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1;
-        }
-
-        .catalogo-grid-view {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; 
-        }
-
-        .player-card, .monster-card {
-            background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px;
-            padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-            display: flex; flex-direction: column; gap: 10px; transition: 0.3s; position: relative;
-        }
-        .monster-card { border-color: var(--accent-red); }
-
-        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
-        .monster-img { border-color: var(--accent-red); }
-        .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
-        .monster-name { color: var(--accent-red); }
-        .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
-        
-        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s;}
-        .btn-remove:hover { filter: brightness(1.2); }
-        
-        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
-        .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
-
-        .bar-container { background: rgba(0,0,0,0.8); height: 25px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; flex: 1; }
-        .bar-fill { height: 100%; transition: width 0.4s ease; }
-        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
-        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
-        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.9em; font-weight: bold; line-height: 25px; text-shadow: 1px 1px 2px #000; }
-
-        .status-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .tag { font-size: 0.7em; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
-        .tag:hover { filter: brightness(1.5); }
-        .tag-lesionado { background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red); }
-        .tag-morrendo { background: var(--accent-red); animation: pulseRed 1.5s infinite; border: 1px solid white; }
-        .tag-enlouquecendo { background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue); }
-
-        .log-container {
-            flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
-            display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px;
-        }
-        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-        .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; }
-        .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
-        .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
-
-        @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 10px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
-        
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
-        .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
-        
-        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-        .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
-        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%;}
-        .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
-        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box;}
-        .btn-roll:hover { filter: brightness(1.2); }
-        .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto;}
-
-        .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
-        .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
-        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
-        .popup-res::-webkit-scrollbar { width: 5px; }
-        .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
-        
-        .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
-        .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
-        .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
-
-        #iniciativa-board, #catalogo-board, #rmestre-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
-        .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
-        
-        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap; }
-        .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
-        .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
-        .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
-        .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
-        .ini-info { flex: 1; min-width: 150px; }
-        .ini-name { font-size: 1.3em; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; color: white; }
-        .ini-details { font-size: 0.85em; color: var(--text-secondary); }
-        .ini-total-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px; border: 1px solid #333; }
-        .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
-        .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
-
-        /* ABA DE ROTEIRO */
-        #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
-        .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
-        .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
-        .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
-        .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
-        .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
-        .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
-        .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
-        .roteiro-titulo-input { background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px; padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s; }
-        .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
-        .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
-        .roteiro-textarea:focus { border-color: var(--accent-blue); }
-
-        /* ABA DE MAPAS */
-        #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
-        .map-list { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
-        .map-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; display: flex; gap: 10px; align-items: center; }
-        .map-btn.active { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.15); color: var(--accent-blue); }
-        .map-view-container { flex: 1; position: relative; overflow: hidden; border: 2px solid var(--border-color); border-radius: 8px; background: #0b0b0e; cursor: grab; display: block; }
-        .map-view-container:active { cursor: grabbing; }
-        #map-transform-wrapper { transform-origin: 0 0; width: 100%; height: 100%; position: absolute; top:0; left:0; will-change: transform; }
-        .map-image { display: block; max-width: none; user-select: none; pointer-events: none; }
-        .map-pin-marker { position: absolute; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: translate(-50%, -100%) rotate(-45deg); cursor: pointer; z-index: 10; box-shadow: 2px 2px 8px rgba(0,0,0,0.6); border: 2px solid white; transition: transform 0.1s, filter 0.1s; }
-        .map-pin-marker:hover { filter: brightness(1.3); transform: translate(-50%, -100%) rotate(-45deg) scale(1.15); }
-        .map-pin-marker::after { content: ''; width: 8px; height: 8px; background: white; position: absolute; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .map-tooltip { position: absolute; background: rgba(10, 10, 12, 0.95); border: 1px solid var(--accent-yellow); color: white; padding: 15px; border-radius: 8px; z-index: 20; max-width: 250px; display: none; transform: translate(-50%, -120%); margin-top: -15px; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .map-tooltip h4 { margin: 0 0 8px 0; color: var(--accent-yellow); font-size: 1.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
-        .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
-
+        :root { --bg-body:#121214; --bg-card:rgba(32,32,36,0.85); --border-color:rgba(50,50,56,0.8); --text-primary:#e1e1e6; --text-secondary:#a8a8b3; --accent-blue:#00b0ff; --accent-yellow:#ffcf33; --accent-green:#00e676; --accent-red:#e53935; --accent-purple:#b82bf2; }
+        body { font-family:'Roboto',sans-serif; background-color:var(--bg-body); background-image:url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size:cover; background-attachment:fixed; background-position:center; color:var(--text-primary); margin:0; padding:20px; display:flex; flex-direction:column; height:100vh; box-sizing:border-box; }
+        .mestre-top-bar { background:var(--bg-card); border:1px solid var(--border-color); padding:15px; border-radius:12px; margin-bottom:15px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px); }
+        .code-input { padding:10px; background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; border-radius:6px; text-transform:uppercase; font-weight:bold; flex:1; min-width:200px; }
+        .btn-add { background:var(--accent-green); border:none; color:black; font-weight:bold; padding:10px 20px; border-radius:6px; cursor:pointer; transition:0.2s; flex-shrink:0; }
+        .btn-add:hover { filter:brightness(1.2); }
+        .tabs-container { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+        .tab-btn { background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 25px; border-radius:8px 8px 0 0; cursor:pointer; font-weight:bold; font-size:1.1em; transition:0.3s; box-shadow:0 -4px 10px rgba(0,0,0,0.3); border-bottom:none; flex:1; text-align:center; }
+        .tab-btn.active { background:var(--accent-red); color:white; border-color:var(--accent-red); }
+        .tab-btn:hover:not(.active) { background:rgba(255,255,255,0.1); }
+        .content-wrapper { display:flex; gap:20px; flex:1; overflow:hidden; min-height:0; }
+        .left-panel { flex:3; display:flex; flex-direction:column; overflow:hidden; }
+        .players-container, .monsters-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-content:flex-start; overflow-y:auto; padding-right:10px; flex:1; }
+        .catalogo-grid-view { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; align-content:flex-start; padding-right:5px; }
+        .player-card, .monster-card { background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:15px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px); display:flex; flex-direction:column; gap:10px; transition:0.3s; position:relative; }
+        .monster-card { border-color:var(--accent-red); }
+        .player-header { display:flex; align-items:center; gap:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; flex-wrap:wrap; }
+        .player-img { width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-blue); background:#000; flex-shrink:0; }
+        .monster-img { border-color:var(--accent-red); }
+        .player-name { font-size:1.2em; font-weight:bold; color:var(--accent-yellow); text-transform:uppercase; margin:0; }
+        .monster-name { color:var(--accent-red); }
+        .player-info { font-size:0.8em; color:var(--text-secondary); line-height:1.4; }
+        .btn-remove { position:absolute; top:10px; right:10px; background:var(--accent-red); color:white; border:none; border-radius:4px; padding:2px 8px; font-size:0.8em; font-weight:bold; cursor:pointer; z-index:10; transition:0.2s;}
+        .btn-remove:hover { filter:brightness(1.2); }
+        .btn-ctrl { background:#333; color:white; border:1px solid var(--border-color); border-radius:4px; cursor:pointer; width:28px; height:28px; font-weight:bold; display:flex; justify-content:center; align-items:center; transition:0.2s; flex-shrink:0; }
+        .btn-ctrl:hover { filter:brightness(1.5); border-color:white; }
+        .bar-container { background:rgba(0,0,0,0.8); height:25px; border-radius:4px; border:1px solid #333; position:relative; overflow:hidden; margin-top:5px; flex:1; }
+        .bar-fill { height:100%; transition:width 0.4s ease; }
+        .fill-vida { background:linear-gradient(90deg, #8b0000, var(--accent-red)); }
+        .fill-sani { background:linear-gradient(90deg, #01579b, var(--accent-blue)); }
+        .bar-text { position:absolute; width:100%; text-align:center; top:0; font-size:0.9em; font-weight:bold; line-height:25px; text-shadow:1px 1px 2px #000; }
+        .status-tags { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+        .tag { font-size:0.7em; padding:4px 8px; border-radius:4px; font-weight:bold; text-transform:uppercase; transition:0.2s; }
+        .tag:hover { filter:brightness(1.5); }
+        .tag-lesionado { background:rgba(229,57,53,0.4); border:1px solid var(--accent-red); }
+        .tag-morrendo { background:var(--accent-red); animation:pulseRed 1.5s infinite; border:1px solid white; }
+        .tag-enlouquecendo { background:rgba(0,176,255,0.4); border:1px solid var(--accent-blue); }
+        .log-container { flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; display:flex; flex-direction:column; overflow:hidden; backdrop-filter:blur(8px); min-width:300px; }
+        .log-title { background:rgba(0,0,0,0.5); padding:15px; text-align:center; font-weight:bold; color:var(--accent-green); border-bottom:1px solid var(--border-color); flex-shrink:0; }
+        .log-messages { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; }
+        .log-item { background:rgba(18,18,20,0.9); border:1px solid #333; padding:10px; border-radius:8px; font-size:0.9em; }
+        .log-item .player-name { font-size:0.9em; color:var(--accent-blue); margin-bottom:5px; }
+        .log-item .roll-result { font-size:1.2em; font-weight:900; text-align:center; margin:5px 0; }
+        @keyframes pulseRed { 0% { box-shadow:0 0 2px var(--accent-red); } 50% { box-shadow:0 0 10px var(--accent-red); } 100% { box-shadow:0 0 2px var(--accent-red); } }
+        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column; backdrop-filter:blur(10px); }
+        .modal-content { background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.9); box-sizing:border-box; }
+        .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+        .form-group label { font-size:0.9em; font-weight:bold; color:var(--accent-yellow); }
+        .monster-input { padding:10px; background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; border-radius:6px; box-sizing:border-box; width:100%;}
+        .dynamic-row { display:flex; gap:5px; margin-bottom:5px; flex-wrap:wrap; }
+        .btn-roll { background:var(--accent-yellow); color:#000; border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s; font-size:0.8em; margin-top:5px; width:100%; box-sizing:border-box;}
+        .btn-roll:hover { filter:brightness(1.2); }
+        .monster-details { font-size:0.8em; color:var(--text-secondary); background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; max-height:250px; overflow-y:auto;}
+        .popup-box-dice { position:relative; width:90%; max-width:600px; height:400px; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#000; border:4px solid var(--accent-yellow); border-radius:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow:hidden; text-align:center; }
+        .popup-box-dice::after { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:1; }
+        .popup-content { position:absolute; top:0; left:0; right:0; bottom:0; z-index:10; display:none; flex-direction:column; justify-content:center; align-items:center; animation:fadeInResult 0.5s forwards; text-align:center; }
+        .popup-number { font-family:'Permanent Marker',cursive; font-size:8em; font-weight:900; color:white; text-shadow:4px 4px 0 #000; display:flex; justify-content:center; align-items:center; text-align:center; width:100%; line-height:1; margin:0; padding:0; }
+        .popup-res { font-family:'Permanent Marker',cursive; font-size:2.2em; line-height:1.1; margin:0; margin-top:5px; text-transform:uppercase; text-shadow:2px 2px 4px #000; max-height:180px; overflow-y:auto; padding:0 10px; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; text-align:center; }
+        .popup-res::-webkit-scrollbar { width:5px; }
+        .popup-res::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.3); border-radius:5px; }
+        @keyframes fadeInResult { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
+        @keyframes shakeCrit { 0% { transform:translate(2px,1px) rotate(0deg); } 10% { transform:translate(-1px,-2px) rotate(-2deg); } 20% { transform:translate(-3px,0px) rotate(2deg); } 30% { transform:translate(0px,2px) rotate(0deg); } 40% { transform:translate(1px,-1px) rotate(2deg); } 50% { transform:translate(-1px,2px) rotate(-2deg); } 60% { transform:translate(-3px,1px) rotate(0deg); } 70% { transform:translate(2px,1px) rotate(-2deg); } 80% { transform:translate(-1px,-1px) rotate(2deg); } 90% { transform:translate(2px,2px) rotate(0deg); } 100% { transform:translate(1px,-2px) rotate(-2deg); } }
+        .attr-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:15px; } 
+        .skill-group { display:flex; flex-direction:column; gap:4px; background:rgba(0,0,0,0.4); padding:8px; border-radius:6px; border:1px solid #333;}
+        .skill-group label { display:flex; align-items:center; gap:5px; font-size:0.8em; color:var(--text-primary); }
+        #iniciativa-board, #catalogo-board, #rmestre-board { display:none; flex-direction:column; height:100%; overflow:hidden; }
+        .ini-controls { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+        .ini-list-container { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:10px; }
+        .ini-card { background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:10px 20px; display:flex; align-items:center; gap:20px; position:relative; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:0.3s; backdrop-filter:blur(8px); flex-wrap:wrap; }
+        .ini-card.is-player { border-left:6px solid var(--accent-blue); }
+        .ini-card.is-monster { border-left:6px solid var(--accent-red); }
+        .ini-rank { font-size:2em; font-weight:900; color:var(--accent-yellow); width:40px; text-align:center; }
+        .ini-img { width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--text-secondary); background:black; }
+        .ini-info { flex:1; min-width:150px; }
+        .ini-name { font-size:1.3em; font-weight:bold; text-transform:uppercase; margin:0 0 5px 0; color:white; }
+        .ini-details { font-size:0.85em; color:var(--text-secondary); }
+        .ini-total-box { text-align:center; background:rgba(0,0,0,0.5); padding:10px 20px; border-radius:8px; border:1px solid #333; }
+        .ini-total { font-size:2em; font-weight:900; color:var(--accent-green); line-height:1; }
+        .ini-total-lbl { font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; }
+        #roteiro-board { display:none; flex-direction:column; height:100%; overflow:hidden; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px); }
+        .roteiro-layout { display:flex; gap:20px; height:calc(100% - 45px); overflow:hidden; }
+        .roteiro-sidebar { width:250px; display:flex; flex-direction:column; gap:10px; border-right:1px solid var(--border-color); padding-right:15px; overflow-y:auto; flex-shrink:0; }
+        .roteiro-sidebar-right { width:250px; display:flex; flex-direction:column; gap:10px; border-left:1px solid var(--border-color); padding-left:15px; overflow-y:auto; flex-shrink:0; }
+        .roteiro-editor { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+        .session-btn { background:rgba(18,18,20,0.8); color:var(--text-primary); border:1px solid var(--border-color); padding:12px; cursor:pointer; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-weight:bold; transition:0.2s; }
+        .session-btn:hover { border-color:var(--accent-blue); background:rgba(255,255,255,0.05); }
+        .session-btn.active { background:rgba(0,176,255,0.15); border-color:var(--accent-blue); color:var(--accent-blue); }
+        .session-btn.active-desc { background:rgba(184,43,242,0.15); border-color:var(--accent-purple); color:var(--accent-purple); }
+        .roteiro-titulo-input { background:transparent; border:none; border-bottom:2px solid var(--border-color); color:white; font-size:1.5em; font-weight:bold; margin-top:0; margin-bottom:15px; padding-bottom:5px; outline:none; width:100%; font-family:inherit; transition:0.2s; }
+        .roteiro-titulo-input:focus { border-color:var(--accent-yellow); }
+        .roteiro-textarea { flex:1; background:rgba(12,12,14,0.9); border:1px solid var(--border-color); color:var(--text-primary); padding:20px; font-family:'Roboto',sans-serif; font-size:1.1em; border-radius:8px; resize:none; outline:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); line-height:1.6; }
+        .roteiro-textarea:focus { border-color:var(--accent-blue); }
+        .roteiro-textarea::-webkit-scrollbar, .roteiro-sidebar::-webkit-scrollbar, .roteiro-sidebar-right::-webkit-scrollbar { width:6px; }
+        .roteiro-textarea::-webkit-scrollbar-thumb, .roteiro-sidebar::-webkit-scrollbar-thumb, .roteiro-sidebar-right::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.2); border-radius:4px; }
+        #mapas-board { display:none; flex-direction:column; height:100%; overflow:hidden; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px); }
+        .map-list { display:flex; gap:10px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px; flex-shrink:0; }
+        .map-btn { background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; padding:10px 20px; border-radius:6px; cursor:pointer; white-space:nowrap; font-weight:bold; transition:0.2s; display:flex; gap:10px; align-items:center; }
+        .map-btn.active { border-color:var(--accent-blue); background:rgba(0,176,255,0.15); color:var(--accent-blue); }
+        .map-view-container { flex:1; position:relative; overflow:hidden; border:2px solid var(--border-color); border-radius:8px; background:#0b0b0e; cursor:grab; display:block; }
+        .map-view-container:active { cursor:grabbing; }
+        #map-transform-wrapper { transform-origin:0 0; width:100%; height:100%; position:absolute; top:0; left:0; will-change:transform; }
+        .map-image { display:block; max-width:none; user-select:none; pointer-events:none; }
+        .map-pin-marker { position:absolute; width:26px; height:26px; border-radius:50% 50% 50% 0; transform:translate(-50%,-100%) rotate(-45deg); cursor:pointer; z-index:10; box-shadow:2px 2px 8px rgba(0,0,0,0.6); border:2px solid white; transition:transform 0.1s, filter 0.1s; }
+        .map-pin-marker:hover { filter:brightness(1.3); transform:translate(-50%,-100%) rotate(-45deg) scale(1.15); }
+        .map-pin-marker::after { content:''; width:8px; height:8px; background:white; position:absolute; border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%); }
+        .map-tooltip { position:absolute; background:rgba(10,10,12,0.95); border:1px solid var(--accent-yellow); color:white; padding:15px; border-radius:8px; z-index:20; max-width:250px; display:none; transform:translate(-50%,-120%); margin-top:-15px; pointer-events:none; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+        .map-tooltip h4 { margin:0 0 8px 0; color:var(--accent-yellow); font-size:1.1em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;}
+        .map-tooltip p { margin:0; font-size:0.9em; color:#ddd; line-height:1.4; white-space:pre-wrap; }
+        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns:repeat(2,1fr); } }
         @media (max-width: 768px) {
-            body { height: auto; overflow-y: auto; padding: 10px; }
-            .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
-            .left-panel { overflow: visible; }
-            .players-container, .monsters-grid, .catalogo-grid-view { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
-            .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
-            .tab-btn { border-radius: 8px; margin-bottom: 5px; }
-            .ini-card { gap: 10px; }
-            .popup-box-dice { height: 300px; }
-            .popup-number { font-size: 6em; }
-            .popup-res { font-size: 1.5em; }
-            .attr-grid { grid-template-columns: 1fr; } 
-
-            #roteiro-board { height: auto; padding: 15px; }
-            .roteiro-layout { flex-direction: column; height: auto; }
-            .roteiro-sidebar, .roteiro-sidebar-right { width: 100%; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; border:none; padding:0; margin-bottom:10px;}
-            #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
-            .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
-            .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
+            body { height:auto; overflow-y:auto; padding:10px; }
+            .content-wrapper { flex-direction:column; height:auto; overflow:visible; }
+            .left-panel { overflow:visible; }
+            .players-container, .monsters-grid, .catalogo-grid-view { grid-template-columns:1fr; overflow-y:visible; padding-right:0; }
+            .log-container { height:400px; margin-top:10px; min-width:100%; }
+            .tab-btn { border-radius:8px; margin-bottom:5px; }
+            .ini-card { gap:10px; }
+            .popup-box-dice { height:300px; }
+            .popup-number { font-size:6em; }
+            .popup-res { font-size:1.5em; }
+            .attr-grid { grid-template-columns:1fr; } 
+            #roteiro-board { height:auto; padding:15px; }
+            .roteiro-layout { flex-direction:column; height:auto; }
+            .roteiro-sidebar { width:100%; border-right:none; border-bottom:1px solid var(--border-color); padding-right:0; padding-bottom:15px; flex-direction:row; overflow-x:auto; flex-wrap:nowrap; }
+            .roteiro-sidebar-right { width:100%; border-left:none; border-top:1px solid var(--border-color); padding-left:0; padding-top:15px; flex-direction:row; overflow-x:auto; flex-wrap:nowrap; }
+            #roteiro-list, #descricao-list { flex-direction:row !important; display:flex; overflow-x:auto; flex-wrap:nowrap; gap:8px; width:100%;}
+            .session-btn { flex:0 0 auto; white-space:nowrap; padding:8px 12px; }
+            .roteiro-editor { overflow-y:visible; height:350px; margin:15px 0; }
         }
     </style>
 </head>
@@ -203,7 +147,6 @@
         <div style="flex: 1;"></div>
 
         <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-        
         <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
     </div>
 
@@ -235,18 +178,9 @@
                     <button class="btn-add" style="background: var(--accent-blue); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armadisp')">+ NOVA ARMA (DISPARO)</button>
                 </div>
                 <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 20px;">
-                    <div>
-                        <h3 style="color: var(--accent-green); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🎒 Itens Comuns</h3>
-                        <div class="catalogo-grid-view" id="catalogo-grid-comum"></div>
-                    </div>
-                    <div>
-                        <h3 style="color: var(--accent-yellow); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🗡️ Armas Corpo a Corpo</h3>
-                        <div class="catalogo-grid-view" id="catalogo-grid-armacc"></div>
-                    </div>
-                    <div>
-                        <h3 style="color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🔫 Armas de Disparo</h3>
-                        <div class="catalogo-grid-view" id="catalogo-grid-armadisp"></div>
-                    </div>
+                    <div><h3 style="color: var(--accent-green); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🎒 Itens Comuns</h3><div class="catalogo-grid-view" id="catalogo-grid-comum"></div></div>
+                    <div><h3 style="color: var(--accent-yellow); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🗡️ Armas Corpo a Corpo</h3><div class="catalogo-grid-view" id="catalogo-grid-armacc"></div></div>
+                    <div><h3 style="color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🔫 Armas de Disparo</h3><div class="catalogo-grid-view" id="catalogo-grid-armadisp"></div></div>
                 </div>
             </div>
 
@@ -254,7 +188,12 @@
                 <div style="margin-bottom: 20px;">
                     <button class="btn-add" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button>
                 </div>
-                <div class="catalogo-grid-view" id="rmestre-grid"></div>
+                <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 10px;">
+                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
+                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
+                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
+                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
+                </div>
             </div>
 
             <div id="iniciativa-board">
@@ -292,10 +231,8 @@
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <input type="text" id="novo-mapa-nome" class="monster-input" placeholder="Nome do Mapa" style="width: 150px; padding: 8px;">
                         <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width: 150px; padding: 8px;">
-                        
                         <label class="btn-add" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">
-                            📂 DO PC
-                            <input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)">
+                            📂 DO PC<input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)">
                         </label>
                         <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
                         <button class="btn-outline" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); border-color: var(--accent-blue);" onclick="resetarMapaZoom()">🔍 CENTRAR MAPA</button>
@@ -303,17 +240,14 @@
                     </div>
                 </div>
                 <div class="map-list" id="map-list-container"></div>
-                <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">
-                    💡 Use o <b>Scroll do rato</b> para dar zoom e <b>clique/arraste</b> para se mover. Um clique rápido adiciona um Pin!
-                </div>
+                <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">💡 Use o <b>Scroll do rato</b> para dar zoom e <b>clique/arraste</b> para se mover. Um clique rápido adiciona um Pin!</div>
                 <div class="map-view-container" id="map-view">
                     <div id="map-transform-wrapper">
                         <div id="map-content" style="position: relative; display: inline-block;">
                             <img id="map-image-display" class="map-image" src="" style="display: none;">
                             <div id="pins-container"></div>
                             <div class="map-tooltip" id="map-tooltip">
-                                <h4 id="tooltip-title"></h4>
-                                <p id="tooltip-desc"></p>
+                                <h4 id="tooltip-title"></h4><p id="tooltip-desc"></p>
                             </div>
                         </div>
                     </div>
@@ -324,9 +258,7 @@
 
         <div class="log-container">
             <div class="log-title">🎲 Resultados</div>
-            <div class="log-messages" id="log-box">
-                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8em; margin-top: 20px;" id="aguardar-msg">A aguardar rolagens...</div>
-            </div>
+            <div class="log-messages" id="log-box"><div style="text-align: center; color: var(--text-secondary); font-size: 0.8em; margin-top: 20px;" id="aguardar-msg">A aguardar rolagens...</div></div>
         </div>
     </div>
 
@@ -336,37 +268,16 @@
             <div class="form-group"><label>Nome do Item</label><input type="text" id="mi-nome" class="monster-input"></div>
             <div style="display:flex; gap:10px;">
                 <div class="form-group" style="flex:1;"><label>Espaços</label><input type="number" id="mi-espacos" class="monster-input" value="1"></div>
-                <div class="form-group" style="flex:2;">
-                    <label>Tipo de Item</label>
-                    <select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;">
-                        <option value="comum">🎒 Item Comum</option>
-                        <option value="armacc">🗡️ Arma (Corpo a Corpo)</option>
-                        <option value="armadisp">🔫 Arma (Disparo)</option>
-                    </select>
-                </div>
+                <div class="form-group" style="flex:2;"><label>Tipo de Item</label><select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;"><option value="comum">🎒 Item Comum</option><option value="armacc">🗡️ Arma (Corpo)</option><option value="armadisp">🔫 Arma (Disparo)</option></select></div>
             </div>
             <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div>
-            <div id="mi-campos-comum">
-                <div class="form-group">
-                    <label>Descrição / Efeitos</label>
-                    <textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;" placeholder="Descreva os efeitos do item aqui..."></textarea>
-                </div>
-            </div>
+            <div id="mi-campos-comum"><div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;" placeholder="Descreva os efeitos do item aqui..."></textarea></div></div>
             <div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="form-group"><label>Ataques (Qtd)</label><input type="number" id="mi-atk" class="monster-input" value="1"></div>
                 <div class="form-group"><label>Dano</label><input type="text" id="mi-dano" class="monster-input" placeholder="Ex: 1d8+2"></div>
                 <div class="form-group"><label>Crítico</label><input type="text" id="mi-crit" class="monster-input" value="20/x2"></div>
                 <div class="form-group"><label>Alcance</label><input type="text" id="mi-alcance" class="monster-input" value="Curto"></div>
-                <div class="form-group">
-                    <label>Munição</label>
-                    <select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;">
-                        <option value="Nenhuma">Nenhuma</option>
-                        <option value="Curta">Curta</option>
-                        <option value="Longa">Longa</option>
-                        <option value="Pesada">Pesada</option>
-                        <option value="Especial">Especial</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>Munição</label><select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div>
                 <div class="form-group"><label>Capacidade (Balas)</label><input type="number" id="mi-cap" class="monster-input" value="0"></div>
                 <div class="form-group"><label>Perícia</label><input type="text" id="mi-pericia" class="monster-input" value="Luta"></div>
             </div>
@@ -387,7 +298,14 @@
                 </div>
                 <div>
                     <label style="font-size:0.8em; color:var(--text-secondary)">ELEMENTO</label>
-                    <select id="mr-elem" class="monster-input" style="color: white; padding: 12px;"><option value="Conhecimento">Conhecimento</option><option value="Energia">Energia</option><option value="Medo">Medo</option><option value="Morte">Morte</option><option value="Sangue">Sangue</option></select>
+                    <select id="mr-elem" class="monster-input" style="color: white; padding: 12px;">
+                        <option value="Conhecimento">Conhecimento</option>
+                        <option value="Energia">Energia</option>
+                        <option value="Medo">Medo</option>
+                        <option value="Morte">Morte</option>
+                        <option value="Sangue">Sangue</option>
+                        <option value="Qualquer">Qualquer (4 Elementos)</option>
+                    </select>
                 </div>
                 <div class="popup-grid">
                     <div><label style="font-size:0.7em; color:var(--text-secondary)">EXECUÇÃO</label><input type="text" id="mr-exec" class="monster-input" placeholder="Ex: Padrão"></div>
@@ -414,9 +332,7 @@
             <p style="color: var(--text-secondary);">Deseja enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b> para quem?</p>
             <input type="hidden" id="transfer-obj-idx">
             <input type="hidden" id="transfer-obj-type"> 
-            
             <select id="transfer-player-select" class="monster-input" style="margin-bottom: 20px; font-size: 1.1em; color: white; padding: 12px; text-align: center;"></select>
-            
             <div style="display: flex; gap: 10px;">
                 <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button>
                 <button class="btn-add" style="background: var(--accent-blue); flex: 1;" onclick="confirmarTransferenciaUm()">ENVIAR 🎁</button>
@@ -444,7 +360,7 @@
         <div class="modal-content" style="max-width: 400px;">
             <h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Local (Pin)</h2>
             <div class="form-group"><label>Título do Local</label><input type="text" id="pin-title" class="monster-input" placeholder="Ex: Acampamento Ocultista"></div>
-            <div class="form-group"><label>Descrição Oculta (Apenas para si)</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div>
+            <div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div>
             <div class="form-group">
                 <label>Cor do Marcador</label>
                 <select id="pin-color" class="monster-input" style="color: white; padding: 12px;">
@@ -510,15 +426,10 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
-        // Função de Logout Corrigida e Isolada Globalmente
-        function fazerLogout() {
-            localStorage.removeItem('campanha_atual');
-            window.location.href = '/index.html';
-        }
+        function fazerLogout() { localStorage.removeItem('campanha_atual'); window.location.href = '/index.html'; }
 
         let playerCode = localStorage.getItem('usuario_logado');
         let campanhaAtiva = localStorage.getItem('campanha_atual');
-
         if (!playerCode || !campanhaAtiva) { window.location.href = '/index.html'; }
 
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
@@ -537,7 +448,6 @@
         const socket = io();
         const playersBoard = document.getElementById('players-board');
         const logBox = document.getElementById('log-box');
-
         let playersDataMemoria = {}; 
 
         let debounceTimer;
@@ -564,9 +474,7 @@
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
-            if (key.startsWith('mestre_') && key.includes(campanhaAtiva)) {
-                salvarMestreNoFirebase();
-            }
+            if (key.startsWith('mestre_') && key.includes(campanhaAtiva)) { salvarMestreNoFirebase(); }
         };
 
         let cloudSaveStr = localStorage.getItem('mestre_save_nuvem_' + campanhaAtiva);
@@ -588,7 +496,6 @@
         // ==========================================
         // SISTEMA DE RITUAIS DO MESTRE
         // ==========================================
-
         function abrirModalRitualMestre() {
             ['mr-name','mr-exec','mr-range','mr-target','mr-dur','mr-res','mr-img','mr-desc-geral','mr-desc-discente','mr-desc-verdadeiro'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('mr-circ').value = '1º';
@@ -600,7 +507,6 @@
             const n = document.getElementById('mr-name').value;
             const el = document.getElementById('mr-elem').value;
             if(!n) return alert("Dê um nome ao ritual!");
-            
             const circ = document.getElementById('mr-circ').value;
             const ex = document.getElementById('mr-exec').value || "-";
             const alc = document.getElementById('mr-range').value || "-";
@@ -612,11 +518,7 @@
             const descDisc = document.getElementById('mr-desc-discente').value || "-";
             const descVerd = document.getElementById('mr-desc-verdadeiro').value || "-";
             
-            const novoRitual = {
-                id: 'm_rit_' + Date.now(),
-                n, el, circ, ex, alc, alv, dur, res, img, descGeral, descDisc, descVerd
-            };
-            
+            const novoRitual = { id: 'm_rit_' + Date.now(), n, el, circ, ex, alc, alv, dur, res, img, descGeral, descDisc, descVerd };
             catalogoRituaisMestre.push(novoRitual);
             localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
             document.getElementById('modal-ritual-mestre').style.display = 'none';
@@ -624,34 +526,57 @@
         }
 
         function renderizarCatalogoRituais() {
-            const grid = document.getElementById('rmestre-grid');
-            grid.innerHTML = '';
+            [1,2,3,4].forEach(c => {
+                let body = document.getElementById(`rituais-mestre-${c}-body`);
+                if(body) body.innerHTML = '';
+                let cont = document.getElementById(`rituais-mestre-${c}-container`);
+                if(cont) cont.style.display = 'none';
+            });
+
             if(catalogoRituaisMestre.length === 0) {
-                grid.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum ritual no catálogo.</span>`;
+                let body = document.getElementById(`rituais-mestre-1-body`);
+                let cont = document.getElementById(`rituais-mestre-1-container`);
+                if(cont) cont.style.display = 'block';
+                if(body) body.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum ritual no catálogo.</span>`;
                 return;
             }
             
-            catalogoRituaisMestre.forEach((rit, index) => {
-                let color = "var(--text-primary)"; if(rit.el === 'Conhecimento') color = "#ffcf33"; if(rit.el === 'Sangue') color = "#e53935"; if(rit.el === 'Energia') color = "#b82bf2"; if(rit.el === 'Morte') color = "#71717a"; if(rit.el === 'Medo') color = "#fff";
-                
-                let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${color.replace('#','')}?text=${rit.el.substring(0,3).toUpperCase()}`;
+            let grouped = { '1º': [], '2º': [], '3º': [], '4º': [] };
+            catalogoRituaisMestre.forEach((r, i) => {
+                let c = r.circ || '1º';
+                if(!grouped[c]) grouped[c] = [];
+                grouped[c].push({r, i});
+            });
 
-                const card = document.createElement('div');
-                card.style.cssText = `position: relative; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between;`;
-                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
-                card.onmouseout = function() { this.style.borderColor = `${color}50`; this.style.filter = 'brightness(1)'; };
-                
-                card.innerHTML = `
-                    <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${index})">X</button>
-                    <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
-                    <div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rit.n}</div>
-                    <div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Círculo: <span style="color:white; font-weight:bold;">${rit.circ}</span><br>Alvo: <span style="color:white; font-weight:bold;">${rit.alv}</span></div>
-                    <div style="display: flex; gap: 5px; margin-top: 10px; width: 100%;">
-                        <button class="btn-roll" style="background: ${color}; color: ${rit.el === 'Morte' || rit.el === 'Medo' ? 'white' : 'black'}; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'ritual')">👤 UM</button>
-                        <button class="btn-roll" style="background: var(--accent-yellow); color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'ritual')">🌟 TODOS</button>
-                    </div>
-                `;
-                grid.appendChild(card);
+            Object.keys(grouped).forEach(circ => {
+                if(grouped[circ].length === 0) return;
+                let targetCirc = circ.charAt(0);
+                document.getElementById(`rituais-mestre-${targetCirc}-container`).style.display = 'block';
+                let body = document.getElementById(`rituais-mestre-${targetCirc}-body`);
+
+                grouped[circ].forEach(item => {
+                    let rit = item.r; let index = item.i;
+                    let color = "var(--text-primary)"; if(rit.el === 'Conhecimento') color = "#ffcf33"; if(rit.el === 'Sangue') color = "#e53935"; if(rit.el === 'Energia') color = "#b82bf2"; if(rit.el === 'Morte') color = "#71717a"; if(rit.el === 'Medo') color = "#fff"; if(rit.el === 'Qualquer') color = "#aaaaaa";
+                    let textIcon = rit.el === 'Qualquer' ? 'ALL' : rit.el.substring(0,3).toUpperCase();
+                    let hexColor = color.startsWith('var') ? 'e1e1e6' : color.replace('#','');
+                    let imgSrc = rit.img && rit.img.trim() !== "" ? rit.img : `https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`;
+
+                    const card = document.createElement('div');
+                    card.style.cssText = `position:relative; padding:10px; border:1px solid ${color}50; border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
+                    card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
+                    card.onmouseout = function() { this.style.borderColor = `${color}50`; this.style.filter = 'brightness(1)'; };
+                    card.innerHTML = `
+                        <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${index})">X</button>
+                        <img src="${imgSrc}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px;">
+                        <div style="font-weight:bold; color:${color}; font-size:0.9em; margin-bottom:5px; text-transform:uppercase;">${rit.n}</div>
+                        <div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Alvo: <span style="color:white; font-weight:bold;">${rit.alv}</span></div>
+                        <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
+                            <button class="btn-roll" style="background:${color}; color:${rit.el==='Morte'||rit.el==='Medo'||rit.el==='Qualquer'?'white':'black'}; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'ritual')">👤 UM</button>
+                            <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'ritual')">🌟 TODOS</button>
+                        </div>
+                    `;
+                    body.appendChild(card);
+                });
             });
         }
 
@@ -663,16 +588,13 @@
             }
         }
 
-
         // ==========================================
         // SISTEMA DE ITENS COMUNS E ARMAS
         // ==========================================
-
         function abrirModalItemMestre(tipo = 'comum') {
             document.getElementById('mi-nome').value = ''; document.getElementById('mi-espacos').value = '1'; document.getElementById('mi-foto').value = ''; document.getElementById('mi-desc').value = ''; document.getElementById('mi-atk').value = '1'; document.getElementById('mi-dano').value = ''; document.getElementById('mi-crit').value = '20/x2'; document.getElementById('mi-alcance').value = 'Curto'; document.getElementById('mi-ammo').value = 'Nenhuma'; document.getElementById('mi-cap').value = '0'; document.getElementById('mi-pericia').value = 'Luta';
             document.getElementById('mi-tipo').value = tipo;
-            toggleCamposItemMestre();
-            document.getElementById('modal-item-mestre').style.display = 'flex';
+            toggleCamposItemMestre(); document.getElementById('modal-item-mestre').style.display = 'flex';
         }
 
         function toggleCamposItemMestre() {
@@ -692,7 +614,6 @@
                 atkType = rawType === 'armadisp' ? "Disparo" : "Corpo a corpo"; atk = document.getElementById('mi-atk').value || "1"; dmg = document.getElementById('mi-dano').value || "0"; crit = document.getElementById('mi-crit').value || "20/x2"; range = document.getElementById('mi-alcance').value || "Curto"; ammo = document.getElementById('mi-ammo').value || "Nenhuma"; skill = document.getElementById('mi-pericia').value || "Luta"; cap = document.getElementById('mi-cap').value || "0";
                 dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`;
             }
-
             const novoItem = { id: 'm_item_' + Date.now(), n: nome, w: w, d: dHTML, eq: false, type: type, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap };
             catalogoMestre.push(novoItem); localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
             document.getElementById('modal-item-mestre').style.display = 'none'; renderizarCatalogo();
@@ -706,126 +627,66 @@
             const gridComum = document.getElementById('catalogo-grid-comum'); const gridArmaCC = document.getElementById('catalogo-grid-armacc'); const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
             gridComum.innerHTML = ''; gridArmaCC.innerHTML = ''; gridArmaDisp.innerHTML = '';
             let countComum = 0, countCC = 0, countDisp = 0;
-
-            if (catalogoMestre.length === 0) {
-                gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; return;
-            }
-            
+            if (catalogoMestre.length === 0) { gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Vazio.</span>`; return; }
             catalogoMestre.forEach((item, index) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
-                let detailsHtml = `<div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span></div>`;
+                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span></div>`;
                 if (item.type !== 'comum') {
-                     if(item.atkType === 'Disparo') { detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; } 
-                     else { detailsHtml = `<div style="font-size: 0.65em; color: var(--text-secondary); line-height: 1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; }
+                     if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; 
+                     else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; 
                 }
-
-                const card = document.createElement('div');
-                card.style.cssText = `position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between;`;
-                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
-                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
-                
+                const card = document.createElement('div'); card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
+                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
                 card.innerHTML = `
-                    <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); apagarItemCatalogo(${index})">X</button>
-                    <img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;">
-                    <div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${item.n}</div>
+                    <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${index})">X</button>
+                    <img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px;">
+                    <div style="font-weight:bold; color:${color}; font-size:0.85em; margin-bottom:5px; text-transform:uppercase;">${item.n}</div>
                     ${detailsHtml}
-                    <div style="display: flex; gap: 5px; margin-top: 10px; width: 100%;">
-                        <button class="btn-roll" style="background: ${color}; color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'item')">👤 UM</button>
-                        <button class="btn-roll" style="background: var(--accent-yellow); color: black; flex: 1; padding: 6px; font-size: 0.65em; font-weight: bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'item')">🌟 TODOS</button>
-                    </div>
-                `;
-                
-                if (item.type === 'comum') { gridComum.appendChild(card); countComum++; } 
-                else if (item.atkType === 'Disparo') { gridArmaDisp.appendChild(card); countDisp++; } 
-                else { gridArmaCC.appendChild(card); countCC++; }
+                    <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
+                        <button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir(${index}, 'item')">👤 UM</button>
+                        <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos(${index}, 'item')">🌟 TODOS</button>
+                    </div>`;
+                if (item.type === 'comum') { gridComum.appendChild(card); countComum++; } else if (item.atkType === 'Disparo') { gridArmaDisp.appendChild(card); countDisp++; } else { gridArmaCC.appendChild(card); countCC++; }
             });
-            
-            if (countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum criado.</span>`;
-            if (countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma corpo a corpo criada.</span>`;
-            if (countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma de disparo criada.</span>`;
+            if (countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
+            if (countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+            if (countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
         }
 
         // ==========================================
         // TRANSFERÊNCIA
         // ==========================================
-
         function enviarParaTodos(idx, tipo) {
-            if (jogadoresPermitidos.length === 0) {
-                alert("Não há jogadores conectados na mesa para receber este presente!");
-                return;
-            }
-
-            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
-            if (!objOriginal) return;
-
+            if (jogadoresPermitidos.length === 0) return alert("Não há jogadores conectados na mesa para receber este presente!");
+            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx]; if (!objOriginal) return;
             if (!confirm(`Deseja realmente enviar '${objOriginal.n}' para TODOS os ${jogadoresPermitidos.length} jogadores?`)) return;
-
             jogadoresPermitidos.forEach(alvo => {
-                let objParaEnviar = JSON.parse(JSON.stringify(objOriginal));
-                objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
-
-                if (tipo === 'item') {
-                    socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo.toUpperCase(), item: objParaEnviar });
-                } else {
-                    socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo.toUpperCase(), ritual: objParaEnviar });
-                }
+                let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
+                if (tipo === 'item') { socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo.toUpperCase(), item: objParaEnviar }); } else { socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo.toUpperCase(), ritual: objParaEnviar }); }
             });
-
             alert(`🌟 O ${tipo === 'item' ? 'item' : 'ritual'} '${objOriginal.n}' foi enviado com sucesso para TODOS os jogadores!`);
         }
 
         function abrirModalTransferir(idx, tipo) {
             const obj = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
-            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual';
-            document.getElementById('transfer-obj-name').innerText = obj.n;
-            document.getElementById('transfer-obj-idx').value = idx;
-            document.getElementById('transfer-obj-type').value = tipo;
-
-            const select = document.getElementById('transfer-player-select');
-            select.innerHTML = '';
-
-            if (jogadoresPermitidos.length === 0) {
-                alert("Não tem nenhum jogador ligado à sua mesa no momento!");
-                return;
-            }
-
-            jogadoresPermitidos.forEach(code => {
-                const pData = playersDataMemoria[code];
-                const displayName = pData && pData.nome ? `${pData.nome} (${code})` : code;
-                const opt = document.createElement('option');
-                opt.value = code;
-                opt.innerText = displayName;
-                select.appendChild(opt);
-            });
-
+            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual'; document.getElementById('transfer-obj-name').innerText = obj.n; document.getElementById('transfer-obj-idx').value = idx; document.getElementById('transfer-obj-type').value = tipo;
+            const select = document.getElementById('transfer-player-select'); select.innerHTML = '';
+            if (jogadoresPermitidos.length === 0) return alert("Não tem nenhum jogador ligado à sua mesa no momento!");
+            jogadoresPermitidos.forEach(code => { const pData = playersDataMemoria[code]; const displayName = pData && pData.nome ? `${pData.nome} (${code})` : code; const opt = document.createElement('option'); opt.value = code; opt.innerText = displayName; select.appendChild(opt); });
             document.getElementById('modal-transfer-obj').style.display = 'flex';
         }
 
         function confirmarTransferenciaUm() {
-            const idx = document.getElementById('transfer-obj-idx').value;
-            const tipo = document.getElementById('transfer-obj-type').value;
-            const codeAlvo = document.getElementById('transfer-player-select').value.toUpperCase();
-
-            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx];
-            if (!objOriginal || !codeAlvo) return;
-
-            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal));
-            objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
-
-            if (tipo === 'item') {
-                socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeAlvo, item: objParaEnviar });
-            } else {
-                socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeAlvo, ritual: objParaEnviar });
-            }
-
-            document.getElementById('modal-transfer-obj').style.display = 'none';
-            alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
+            const idx = document.getElementById('transfer-obj-idx').value; const tipo = document.getElementById('transfer-obj-type').value; const codeAlvo = document.getElementById('transfer-player-select').value.toUpperCase();
+            const objOriginal = tipo === 'item' ? catalogoMestre[idx] : catalogoRituaisMestre[idx]; if (!objOriginal || !codeAlvo) return;
+            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
+            if (tipo === 'item') { socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeAlvo, item: objParaEnviar }); } else { socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeAlvo, ritual: objParaEnviar }); }
+            document.getElementById('modal-transfer-obj').style.display = 'none'; alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
         }
 
         // ==========================================
         // OUTRAS ABAS E FUNÇÕES BASE
         // ==========================================
-
         function mudarAba(aba) {
             document.getElementById('tab-jogadores').classList.remove('active'); document.getElementById('tab-monstros').classList.remove('active'); document.getElementById('tab-iniciativa').classList.remove('active'); document.getElementById('tab-roteiro').classList.remove('active'); document.getElementById('tab-mapas').classList.remove('active'); document.getElementById('tab-catalogo').classList.remove('active'); document.getElementById('tab-rmestre').classList.remove('active');
             document.getElementById('players-board').style.display = 'none'; document.getElementById('monsters-board').style.display = 'none'; document.getElementById('iniciativa-board').style.display = 'none'; document.getElementById('roteiro-board').style.display = 'none'; document.getElementById('mapas-board').style.display = 'none'; document.getElementById('catalogo-board').style.display = 'none'; document.getElementById('rmestre-board').style.display = 'none';
@@ -840,229 +701,118 @@
             else if (aba === 'rmestre') { document.getElementById('tab-rmestre').classList.add('active'); document.getElementById('rmestre-board').style.display = 'flex'; logContainer.style.display = 'none'; renderizarCatalogoRituais(); }
         }
 
-        socket.on('connect', () => { 
-            socket.emit('join_campaign', campanhaAtiva);
-            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); 
-            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
-        });
+        socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo)); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); });
 
-        function adicionarJogador() {
-            let input = document.getElementById('add-code-input'); let codigo = input.value.toUpperCase().trim();
-            if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { 
-                jogadoresPermitidos.push(codigo); 
-                localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
-                socket.emit('request_player', codigo); 
-                socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-            }
-            input.value = '';
-        }
+        function adicionarJogador() { let input = document.getElementById('add-code-input'); let codigo = input.value.toUpperCase().trim(); if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { jogadoresPermitidos.push(codigo); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', codigo); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); } input.value = ''; }
 
-        function alterarStatusMestre(codigo, tipo, valor) {
-            if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: tipo, delta: valor });
-            else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: 'status', status: valor });
-        }
+        function alterarStatusMestre(codigo, tipo, valor) { if (tipo === 'vida' || tipo === 'sani') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: tipo, delta: valor }); else if (tipo === 'status') socket.emit('comando_mestre', { codigo: codigo.toUpperCase(), tipo: 'status', status: valor }); }
 
-        function removerJogador(codigo, notificarJogador = true) { 
-            const codPuro = codigo.toUpperCase();
-            jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); 
-            localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
-            const card = document.getElementById(`player-${codPuro}`); 
-            if (card) card.remove(); 
-            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-            socket.emit('limpar_cache_jogador', { codigo: codPuro });
-            if (notificarJogador) { socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codPuro }); }
-            fetch('/api/sair_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro, campanha: campanhaAtiva }) });
-        }
+        function removerJogador(codigo, notificarJogador = true) { const codPuro = codigo.toUpperCase(); jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); const card = document.getElementById(`player-${codPuro}`); if (card) card.remove(); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); socket.emit('limpar_cache_jogador', { codigo: codPuro }); if (notificarJogador) { socket.emit('comando_mestre', { tipo: 'expulsar_jogador', codigo: codPuro }); } fetch('/api/sair_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro, campanha: campanhaAtiva }) }); }
 
         function abrirFicha(codigo) { document.getElementById('iframe-ficha').src = `${URL_FICHA}?view=${codigo.toUpperCase()}`; document.getElementById('modal-ficha').style.display = 'flex'; }
         function fecharFicha() { document.getElementById('modal-ficha').style.display = 'none'; document.getElementById('iframe-ficha').src = ''; }
 
         socket.on('update_mestre', (dados) => {
-            const codPuro = (dados.codigo || "").toUpperCase(); 
-            if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
-            playersDataMemoria[codPuro] = dados;
-            let card = document.getElementById(`player-${codPuro}`);
-            if (!card) { card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${codPuro}`; playersBoard.appendChild(card); }
+            const codPuro = (dados.codigo || "").toUpperCase(); if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
+            playersDataMemoria[codPuro] = dados; let card = document.getElementById(`player-${codPuro}`); if (!card) { card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${codPuro}`; playersBoard.appendChild(card); }
             const percVida = Math.min(Math.max((dados.vida_atual / dados.vida_max) * 100, 0), 100) || 0; const percSani = Math.min(Math.max((dados.sani_atual / dados.sani_max) * 100, 0), 100) || 0;
             let tagsHtml = `<span class="tag" style="cursor:pointer; opacity: ${dados.status?.lesionado ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.4); border: 1px solid var(--accent-red);" onclick="alterarStatusMestre('${codPuro}', 'status', 'lesionado')">Lesionado</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.inconsciente ? '1' : '0.3'}; background: ${dados.status?.inconsciente ? '#ff5252' : 'transparent'}; border: 1px solid #ff5252;" onclick="alterarStatusMestre('${codPuro}', 'status', 'inconsciente')">Inconsciente</span><span class="tag ${dados.status?.morrendo ? 'tag-morrendo' : ''}" style="cursor:pointer; opacity: ${dados.status?.morrendo ? '1' : '0.3'}; background: rgba(229, 57, 53, 0.8); border: 1px solid white;" onclick="alterarStatusMestre('${codPuro}', 'status', 'morrendo')">Morrendo</span><span class="tag" style="cursor:pointer; opacity: ${dados.status?.enlouquecendo ? '1' : '0.3'}; background: rgba(0, 176, 255, 0.4); border: 1px solid var(--accent-blue);" onclick="alterarStatusMestre('${codPuro}', 'status', 'enlouquecendo')">Enlouquecendo</span>`;
             card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img"><div><h3 class="player-name">${dados.nome || 'Desconhecido'}</h3><div class="player-info">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div><div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'vida', -1)">-</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${percVida}%"></div><div class="bar-text">${dados.vida_atual} / ${dados.vida_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'vida', 1)">+</button></div></div><div><div style="font-size: 0.75em; color: var(--accent-blue); font-weight: bold; margin-bottom: 2px;">SANIDADE</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'sani', -1)">-</button><div class="bar-container"><div class="bar-fill fill-sani" style="width: ${percSani}%"></div><div class="bar-text">${dados.sani_atual} / ${dados.sani_max}</div></div><button class="btn-ctrl" onclick="alterarStatusMestre('${codPuro}', 'sani', 1)">+</button></div></div><div class="status-tags">${tagsHtml}</div><button class="btn-roll" style="width: 100%; margin-top: 5px;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA COMPLETA</button>`;
         });
 
-        socket.on('comando_mestre', (dados) => {
-            if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
-            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
-            if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
-            if (dados.tipo === 'jogador_entrou' && dados.codigo) {
-                const c = dados.codigo.toUpperCase().trim();
-                if (!jogadoresPermitidos.includes(c)) { 
-                    jogadoresPermitidos.push(c); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
-                    socket.emit('request_player', c); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-                } else { socket.emit('request_player', c); }
-            }
-        });
+        socket.on('comando_mestre', (dados) => { if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); } if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); } if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); } if (dados.tipo === 'jogador_entrou' && dados.codigo) { const c = dados.codigo.toUpperCase().trim(); if (!jogadoresPermitidos.includes(c)) { jogadoresPermitidos.push(c); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); socket.emit('request_player', c); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); } else { socket.emit('request_player', c); } } });
 
-        socket.on('novo_log', (dados) => {
-            const incCode = (dados.codigo || "").toUpperCase();
-            if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return;
-            adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
-            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
-        });
+        socket.on('novo_log', (dados) => { const incCode = (dados.codigo || "").toUpperCase(); if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return; adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor); if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); } });
 
-        function processarIniciativa(dados, upperCode) {
-            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
-            if (isPlayer) { let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } 
-            else { let monstro = monstros.find(m => m.nome === dados.jogador); if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 0.50) + (sData.treinado ? 10 : 0)); } foto = monstro.foto || foto; } }
-            let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
-            if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
-            if (document.getElementById('tab-iniciativa').classList.contains('active')) { renderizarIniciativa(); }
-        }
+        function processarIniciativa(dados, upperCode) { let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador; if (isPlayer) { let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 0.50) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } else { let monstro = monstros.find(m => m.nome === dados.jogador); if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 0.50) + (sData.treinado ? 10 : 0)); } foto = monstro.foto || foto; } } let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico); if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); } if (document.getElementById('tab-iniciativa').classList.contains('active')) { renderizarIniciativa(); } }
 
-        function adicionarAoLog(nome, acao, resultado, corStr = '') {
-            const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove();
-            const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)');
-            logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem); 
-        }
+        function adicionarAoLog(nome, acao, resultado, corStr = '') { const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove(); const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)'); logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem); }
 
         function closeDice() { document.getElementById('popup-dice').style.display='none'; }
-        
-        function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") {
-            const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`;
-            let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)';
-            let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); }
-            resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`;
-            box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)';
-            document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex';
-            setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500);
-            if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st }); }
-        }
+        function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") { const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r, resultado: n, cor: st }); } }
 
-        // MAPAS
-        let mapasInfo = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
-        let mapScale = 1; let mapTranslateX = 0; let mapTranslateY = 0; let isDraggingMap = false; let startDragX = 0; let startDragY = 0; let hasMovedMap = false;
-        let mapaBase64TempMap = null; let currentMapaIdMap = null;
-
-        function carregarMapaPC(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX_DIM = 1920; 
-                    if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } }
-                    canvas.width = w; canvas.height = h;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
-                    mapaBase64TempMap = canvas.toDataURL('image/jpeg', 0.8); 
-                    document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC"; document.getElementById('novo-mapa-url').disabled = true;
-                }
-                img.src = e.target.result;
-            }; reader.readAsDataURL(file);
-        }
-
-        function adicionarMapa() {
-            const nome = document.getElementById('novo-mapa-nome').value.trim(); let url = document.getElementById('novo-mapa-url').value.trim();
-            if(!nome) return alert("Por favor, preencha o Nome do mapa.");
-            if(!url && !mapaBase64TempMap) return alert("Forneça uma URL ou carregue uma imagem do seu PC.");
-            if (mapaBase64TempMap) url = mapaBase64TempMap;
-            const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] }; mapasInfo.push(novoMapa); currentMapaIdMap = novoMapa.id;
-            localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo));
-            document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; document.getElementById('novo-mapa-url').disabled = false; document.getElementById('novo-mapa-file').value = ''; mapaBase64TempMap = null;
-            renderizarMapasList(); renderizarMapaAtual();
-        }
-
-        function apagarMapaAtual() {
-            if (!currentMapaIdMap) return;
-            if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins? Esta ação é irreversível.")) {
-                mapasInfo = mapasInfo.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapasInfo.length > 0 ? mapasInfo[0].id : null;
-                localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo)); renderizarMapasList(); renderizarMapaAtual();
-            }
-        }
-
-        function renderizarMapasList() {
-            const list = document.getElementById('map-list-container'); list.innerHTML = '';
-            if (mapasInfo.length === 0) { list.innerHTML = `<span style="color:var(--text-secondary); font-style:italic; padding: 10px;">Nenhum mapa criado.</span>`; return; }
-            mapasInfo.forEach(m => {
-                const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`;
-                btn.onclick = () => { currentMapaIdMap = m.id; resetarMapaZoom(); renderizarMapasList(); renderizarMapaAtual(); };
-                btn.innerHTML = `🗺️ ${m.nome}`; list.appendChild(btn);
-            });
-        }
-
-        function renderizarMapaAtual() {
-            const imgDisplay = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); pinsContainer.innerHTML = '';
-            if (!currentMapaIdMap) { imgDisplay.style.display = 'none'; return; }
-            const mapa = mapasInfo.find(m => m.id === currentMapaIdMap);
-            if (mapa) {
-                imgDisplay.src = mapa.url; imgDisplay.style.display = 'block';
-                if (mapa.pins) {
-                    mapa.pins.forEach(pin => {
-                        const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = `${pin.x}%`; pinEl.style.top = `${pin.y}%`; pinEl.style.background = pin.color || 'var(--accent-red)';
-                        pinEl.onmouseover = () => mostrarTooltip(pin); pinEl.onmouseout = esconderTooltip;
-                        pinEl.onclick = (e) => { e.stopPropagation(); esconderTooltip(); abrirModalPinEdit(pin); };
-                        pinsContainer.appendChild(pinEl);
-                    });
-                }
-            }
-        }
-
-        function mostrarTooltip(pin) {
-            const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = pin.title;
-            document.getElementById('tooltip-desc').innerHTML = (pin.desc || 'Sem detalhes.').replace(/\n/g, '<br>'); tooltip.style.left = `${pin.x}%`; tooltip.style.top = `${pin.y}%`; tooltip.style.display = 'block';
-        }
+        // MAPAS E MONSTROS (RESUMIDOS PARA CABER NO LIMITE)
+        let mapScale = 1; let mapTranslateX = 0; let mapTranslateY = 0; let isDraggingMap = false; let startDragX = 0; let startDragY = 0; let hasMovedMap = false; let mapaBase64TempMap = null; let currentMapaIdMap = null;
+        function carregarMapaPC(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX_DIM = 1920; if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); mapaBase64TempMap = canvas.toDataURL('image/jpeg', 0.8); document.getElementById('novo-mapa-url').value = "Imagem Carregada do PC"; document.getElementById('novo-mapa-url').disabled = true; }; img.src = e.target.result; }; reader.readAsDataURL(file); }
+        function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim(); let url = document.getElementById('novo-mapa-url').value.trim(); if(!nome) return alert("Por favor, preencha o Nome do mapa."); if(!url && !mapaBase64TempMap) return alert("Forneça uma URL ou carregue uma imagem do seu PC."); if (mapaBase64TempMap) url = mapaBase64TempMap; const novoMapa = { id: 'map_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; document.getElementById('novo-mapa-url').disabled = false; document.getElementById('novo-mapa-file').value = ''; mapaBase64TempMap = null; renderizarMapasList(); renderizarMapaAtual(); }
+        function apagarMapaAtual() { if (!currentMapaIdMap) return; if(confirm("Tem certeza que deseja apagar o mapa atual e TODOS os seus pins? Esta ação é irreversível.")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); renderizarMapasList(); renderizarMapaAtual(); } }
+        function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; if (mapas.length === 0) { list.innerHTML = `<span style="color:var(--text-secondary); font-style:italic; padding: 10px;">Nenhum mapa criado.</span>`; return; } mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; resetarMapaZoom(); renderizarMapasList(); renderizarMapaAtual(); }; btn.innerHTML = `🗺️ ${m.nome}`; list.appendChild(btn); }); }
+        function renderizarMapaAtual() { const imgDisplay = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); pinsContainer.innerHTML = ''; if (!currentMapaIdMap) { imgDisplay.style.display = 'none'; return; } const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa) { imgDisplay.src = mapa.url; imgDisplay.style.display = 'block'; if (mapa.pins) { mapa.pins.forEach(pin => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = `${pin.x}%`; pinEl.style.top = `${pin.y}%`; pinEl.style.background = pin.color || 'var(--accent-red)'; pinEl.onmouseover = () => mostrarTooltip(pin); pinEl.onmouseout = esconderTooltip; pinEl.onclick = (e) => { e.stopPropagation(); esconderTooltip(); abrirModalPinEdit(pin); }; pinsContainer.appendChild(pinEl); }); } } }
+        function mostrarTooltip(pin) { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = pin.title; document.getElementById('tooltip-desc').innerHTML = (pin.desc || 'Sem detalhes.').replace(/\n/g, '<br>'); tooltip.style.left = `${pin.x}%`; tooltip.style.top = `${pin.y}%`; tooltip.style.display = 'block'; }
         function esconderTooltip() { document.getElementById('map-tooltip').style.display = 'none'; }
-        
-        function abrirModalPinNovo(x, y) {
-            document.getElementById('pin-id-edit').value = ''; document.getElementById('pin-temp-x').value = x; document.getElementById('pin-temp-y').value = y;
-            document.getElementById('pin-title').value = ''; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; 
-            document.getElementById('btn-delete-pin').style.display = 'none'; document.getElementById('modal-pin').style.display = 'flex';
-        }
-
-        function abrirModalPinEdit(pin) {
-            document.getElementById('pin-id-edit').value = pin.id; document.getElementById('pin-title').value = pin.title;
-            document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.color;
-            document.getElementById('btn-delete-pin').style.display = 'block'; document.getElementById('modal-pin').style.display = 'flex';
-        }
+        function abrirModalPinNovo(x, y) { document.getElementById('pin-id-edit').value = ''; document.getElementById('pin-temp-x').value = x; document.getElementById('pin-temp-y').value = y; document.getElementById('pin-title').value = ''; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; document.getElementById('btn-delete-pin').style.display = 'none'; document.getElementById('modal-pin').style.display = 'flex'; }
+        function abrirModalPinEdit(pin) { document.getElementById('pin-id-edit').value = pin.id; document.getElementById('pin-title').value = pin.title; document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.color; document.getElementById('btn-delete-pin').style.display = 'block'; document.getElementById('modal-pin').style.display = 'flex'; }
         function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
-
-        function salvarPin() {
-            if (!currentMapaIdMap) return; const mapa = mapasInfo.find(m => m.id === currentMapaIdMap); if (!mapa) return;
-            const title = document.getElementById('pin-title').value.trim(); const desc = document.getElementById('pin-desc').value.trim(); const color = document.getElementById('pin-color').value; const idEdit = document.getElementById('pin-id-edit').value;
-            if (!title) return alert("Dê um título ao local.");
-            if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.title = title; pin.desc = desc; pin.color = color; } } 
-            else { const x = parseFloat(document.getElementById('pin-temp-x').value); const y = parseFloat(document.getElementById('pin-temp-y').value); mapa.pins.push({ id: 'pin_' + Date.now(), x: x, y: y, title: title, desc: desc, color: color }); }
-            localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo)); renderizarMapaAtual(); fecharModalPin();
-        }
-
-        function apagarPin() {
-            if (!currentMapaIdMap) return; const mapa = mapasInfo.find(m => m.id === currentMapaIdMap); const idEdit = document.getElementById('pin-id-edit').value;
-            if (mapa && idEdit) { if(confirm("Deseja apagar este Pin?")) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapasInfo)); renderizarMapaAtual(); fecharModalPin(); } }
-        }
-
+        function salvarPin() { if (!currentMapaIdMap) return; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (!mapa) return; const title = document.getElementById('pin-title').value.trim(); const desc = document.getElementById('pin-desc').value.trim(); const color = document.getElementById('pin-color').value; const idEdit = document.getElementById('pin-id-edit').value; if (!title) return alert("Dê um título ao local."); if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.title = title; pin.desc = desc; pin.color = color; } } else { const x = parseFloat(document.getElementById('pin-temp-x').value); const y = parseFloat(document.getElementById('pin-temp-y').value); mapa.pins.push({ id: 'pin_' + Date.now(), x: x, y: y, title: title, desc: desc, color: color }); } localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); renderizarMapaAtual(); fecharModalPin(); }
+        function apagarPin() { if (!currentMapaIdMap) return; const mapa = mapas.find(m => m.id === currentMapaIdMap); const idEdit = document.getElementById('pin-id-edit').value; if (mapa && idEdit) { if(confirm("Deseja apagar este Pin?")) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); renderizarMapaAtual(); fecharModalPin(); } } }
         function applyMapTransform() { document.getElementById('map-transform-wrapper').style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`; }
         function resetarMapaZoom() { mapScale = 1; mapTranslateX = 0; mapTranslateY = 0; applyMapTransform(); }
         
         const mapView = document.getElementById('map-view');
-        mapView.addEventListener('wheel', (e) => {
-            if (!currentMapaIdMap) return; e.preventDefault(); const zoomFactor = 1 + (e.deltaY < 0 ? 1 : -1) * 0.1; const rect = mapView.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
-            let newScale = mapScale * zoomFactor; if (newScale < 0.1) newScale = 0.1; if (newScale > 10) newScale = 10;
-            mapTranslateX = mouseX - (mouseX - mapTranslateX) * (newScale / mapScale); mapTranslateY = mouseY - (mouseY - mapTranslateY) * (newScale / mapScale); mapScale = newScale; applyMapTransform();
-        });
-        mapView.addEventListener('mousedown', (e) => {
-            if (!currentMapaIdMap || e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return;
-            isDraggingMap = true; hasMovedMap = false; startDragX = e.clientX - mapTranslateX; startDragY = e.clientY - mapTranslateY;
-        });
-        window.addEventListener('mousemove', (e) => {
-            if (!isDraggingMap) return; hasMovedMap = true; mapTranslateX = e.clientX - startDragX; mapTranslateY = e.clientY - startDragY; applyMapTransform();
-        });
-        window.addEventListener('mouseup', (e) => {
-            if (!isDraggingMap) return; isDraggingMap = false;
-            if (!hasMovedMap && !e.target.closest('.map-pin-marker') && !e.target.closest('.map-tooltip')) {
-                const imgRect = document.getElementById('map-image-display').getBoundingClientRect();
-                const percentX = ((e.clientX - imgRect.left) / imgRect.width) * 100; const percentY = ((e.clientY - imgRect.top) / imgRect.height) * 100;
-                if(percentX >= 0 && percentX <= 100 && percentY >= 0 && percentY <= 100) abrirModalPinNovo(percentX, percentY);
-            }
-        });
+        mapView.addEventListener('wheel', (e) => { if (!currentMapaIdMap) return; e.preventDefault(); const zoomFactor = 1 + (e.deltaY < 0 ? 1 : -1) * 0.1; const rect = mapView.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; let newScale = mapScale * zoomFactor; if (newScale < 0.1) newScale = 0.1; if (newScale > 10) newScale = 10; mapTranslateX = mouseX - (mouseX - mapTranslateX) * (newScale / mapScale); mapTranslateY = mouseY - (mouseY - mapTranslateY) * (newScale / mapScale); mapScale = newScale; applyMapTransform(); });
+        mapView.addEventListener('mousedown', (e) => { if (!currentMapaIdMap || e.target.closest('.map-pin-marker') || e.target.closest('.map-tooltip')) return; isDraggingMap = true; hasMovedMap = false; startDragX = e.clientX - mapTranslateX; startDragY = e.clientY - mapTranslateY; });
+        window.addEventListener('mousemove', (e) => { if (!isDraggingMap) return; hasMovedMap = true; mapTranslateX = e.clientX - startDragX; mapTranslateY = e.clientY - startDragY; applyMapTransform(); });
+        window.addEventListener('mouseup', (e) => { if (!isDraggingMap) return; isDraggingMap = false; if (!hasMovedMap && !e.target.closest('.map-pin-marker') && !e.target.closest('.map-tooltip')) { const imgRect = document.getElementById('map-image-display').getBoundingClientRect(); const percentX = ((e.clientX - imgRect.left) / imgRect.width) * 100; const percentY = ((e.clientY - imgRect.top) / imgRect.height) * 100; if(percentX >= 0 && percentX <= 100 && percentY >= 0 && percentY <= 100) abrirModalPinNovo(percentX, percentY); } });
 
-        if (mapasInfo.length > 0) { renderizarMapasList(); renderizarMapaAtual(); }
+        if (mapas.length > 0) { renderizarMapasList(); renderizarMapaAtual(); }
+        
+        // ROTEIRO E GESTÃO
+        let currentRoteiroId = null; let roteiroEditorTimeout;
+        if (!roteiros) { roteiros = [{ id: 'sessao_1', titulo: 'Sessão 1', texto: '' }]; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+        
+        function renderRoteiros() { const list = document.getElementById('roteiro-list'); list.innerHTML = ''; roteiros.forEach(r => { const btn = document.createElement('div'); btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`; btn.onclick = () => carregarRoteiro(r.id); btn.innerHTML = `<span>${r.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>`; list.appendChild(btn); }); }
+        function renderDescricoes() { const list = document.getElementById('descricao-list'); list.innerHTML = ''; descricoes.forEach(d => { const btn = document.createElement('div'); btn.className = `session-btn ${d.id === currentRoteiroId ? 'active-desc' : ''}`; btn.onclick = () => carregarDescricao(d.id); btn.innerHTML = `<span>${d.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em; background: #333;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>`; list.appendChild(btn); }); }
+        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); renderRoteiros(); carregarRoteiro(novo.id); }
+        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); renderDescricoes(); carregarDescricao(novo.id); }
+        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
+        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
+        function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        
+        function atualizarEditor() {
+            const inputTitulo = document.getElementById('roteiro-titulo-atual'); const areaTexto = document.getElementById('roteiro-text');
+            if(!currentRoteiroId) { inputTitulo.value = ''; inputTitulo.disabled = true; areaTexto.value = ''; areaTexto.disabled = true; return; }
+            inputTitulo.disabled = false; areaTexto.disabled = false;
+            let item = roteiros.find(r => r.id === currentRoteiroId) || descricoes.find(d => d.id === currentRoteiroId);
+            if(item) { inputTitulo.value = item.titulo; areaTexto.value = item.texto; }
+        }
+
+        document.getElementById('roteiro-titulo-atual').addEventListener('input', (e) => {
+            if(!currentRoteiroId) return; const val = e.target.value; let item = roteiros.find(r => r.id === currentRoteiroId);
+            if(item) { item.titulo = val || 'Sem Título'; renderRoteiros(); } else { item = descricoes.find(d => d.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderDescricoes(); } } salvarTextoEditor();
+        });
+        document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
+
+        function salvarTextoEditor() {
+            if(!currentRoteiroId) return;
+            const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)';
+            clearTimeout(roteiroEditorTimeout);
+            roteiroEditorTimeout = setTimeout(() => {
+                const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId);
+                if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; }
+                if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); }
+                status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000);
+            }, 1000);
+        }
+        
+        // MONSTROS GERAIS E INICIATIVA (Compactados)
+        let editMonstroId = null;
+        function abrirModalCriatura() { editMonstroId = null; document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; document.getElementById('c-presenca').value = 'Perturbadora'; document.getElementById('c-defesa').value = '10'; document.getElementById('c-vida').value = '100'; ['agi','for','pre'].forEach(a => document.getElementById('c-'+a).value = '1'); ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { document.getElementById('c-treino-'+s).checked = false; document.getElementById('c-bonus-'+s).value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; document.getElementById('modal-criatura').style.display = 'flex'; }
+        function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
+        function addCampoAtaque(containerId, atq = {nome:'', teste:'', dano:''}) { const c = document.getElementById(containerId); const id = Date.now() + Math.random(); const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; div.innerHTML = `<input type="text" class="monster-input" placeholder="Nome Atq" value="${atq.nome}" style="flex:2;"><input type="text" class="monster-input" placeholder="Teste" value="${atq.teste}" style="flex:1;"><input type="text" class="monster-input" placeholder="Dano" value="${atq.dano}" style="flex:1;"><button class="btn-remove" style="position:static;" onclick="document.getElementById('row-${id}').remove()">X</button>`; c.appendChild(div); }
+        function addCampoPoder(containerId, pod = {nome:'', desc:''}) { const c = document.getElementById(containerId); const id = Date.now() + Math.random(); const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; div.innerHTML = `<input type="text" class="monster-input" placeholder="Nome do Poder" value="${pod.nome}" style="width:100%; margin-bottom:5px;"><textarea class="monster-input" placeholder="Descrição do efeito..." style="height:60px; resize:none;">${pod.desc}</textarea><button class="btn-remove" style="position:static; width:100%; margin-top:5px;" onclick="document.getElementById('row-${id}').remove()">Remover Poder</button>`; c.appendChild(div); }
+        function salvarCriatura() { const m = { id: editMonstroId || ('monstro_' + Date.now()), nome: document.getElementById('c-nome').value || 'Criatura Desconhecida', foto: document.getElementById('c-foto').value, presenca: document.getElementById('c-presenca').value, defesa: document.getElementById('c-defesa').value, vida_atual: document.getElementById('c-vida').value, vida_max: document.getElementById('c-vida').value, attrs: { agi: document.getElementById('c-agi').value, for: document.getElementById('c-for').value, pre: document.getElementById('c-pre').value }, skills: {}, ataques: [], poderes: [] }; ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; }); document.getElementById('c-ataques-list').childNodes.forEach(row => { const inputs = row.querySelectorAll('input'); if(inputs[0].value) m.ataques.push({ nome: inputs[0].value, teste: inputs[1].value, dano: inputs[2].value }); }); document.getElementById('c-poderes-list').childNodes.forEach(row => { const inputs = row.querySelectorAll('input, textarea'); if(inputs[0].value) m.poderes.push({ nome: inputs[0].value, desc: inputs[1].value }); }); if (editMonstroId) { const idx = monstros.findIndex(x => x.id === editMonstroId); if(idx > -1) monstros[idx] = m; } else { monstros.push(m); } localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); fecharModalCriatura(); renderizarMonstros(); }
+        function renderizarMonstros() { const grid = document.getElementById('monsters-grid'); grid.innerHTML = ''; monstros.forEach(m => { let htmlAtaques = ''; m.ataques.forEach(a => { htmlAtaques += `<div style="margin-top:5px;"><strong style="color:var(--accent-yellow)">${a.nome}:</strong> Teste ${a.teste} | Dano ${a.dano} <div style="display:flex; gap:5px;"><button class="btn-roll" style="border-color:var(--accent-blue);" onclick="rolarTesteMonstro('${m.nome}', '${a.nome} (Teste)', '${a.teste}')">ROLAR TESTE</button><button class="btn-roll" style="border-color:var(--accent-red);" onclick="rolarDanoMonstro('${m.nome}', '${a.nome}', '${a.dano}')">ROLAR DANO</button></div></div>`; }); let htmlPoderes = ''; m.poderes.forEach(p => { htmlPoderes += `<div style="margin-top:8px;"><strong style="color:var(--accent-purple)">${p.nome}:</strong><br>${p.desc}</div>`; }); const card = document.createElement('div'); card.className = 'monster-card'; card.innerHTML = `<button class="btn-remove" onclick="apagarMonstro('${m.id}')">X</button><button class="btn-ctrl" style="position:absolute; top:10px; right:40px; font-size:0.8em;" onclick="editarMonstro('${m.id}')">✏️</button><div class="player-header"><img src="${m.foto || 'https://via.placeholder.com/60'}" class="player-img monster-img"><div><h3 class="player-name monster-name">${m.nome}</h3><div class="player-info">DEF: ${m.defesa} | Presença: ${m.presenca}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">PONTOS DE VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100)}%"></div><div class="bar-text">${m.vida_atual} / ${m.vida_max}</div></div><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button></div></div><div class="monster-details">${htmlAtaques}${htmlPoderes}</div>`; grid.appendChild(card); }); }
+        function apagarMonstro(id) { if(confirm("Deseja apagar esta criatura?")) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); renderizarMonstros(); } }
+        function editarMonstro(id) { const m = monstros.find(x => x.id === id); if(!m) return; editMonstroId = m.id; document.getElementById('c-nome').value = m.nome; document.getElementById('c-foto').value = m.foto || ''; document.getElementById('c-presenca').value = m.presenca || ''; document.getElementById('c-defesa').value = m.defesa || '10'; document.getElementById('c-vida').value = m.vida_max; if(m.attrs) { document.getElementById('c-agi').value = m.attrs.agi || 1; document.getElementById('c-for').value = m.attrs.for || 1; document.getElementById('c-pre').value = m.attrs.pre || 1; } if(m.skills) { ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { if(m.skills[s]) { document.getElementById('c-treino-'+s).checked = m.skills[s].treinado; document.getElementById('c-bonus-'+s).value = m.skills[s].bonus; } }); } document.getElementById('c-ataques-list').innerHTML = ''; m.ataques.forEach(a => addCampoAtaque('c-ataques-list', a)); document.getElementById('c-poderes-list').innerHTML = ''; m.poderes.forEach(p => addCampoPoder('c-poderes-list', p)); document.getElementById('modal-criatura').style.display = 'flex'; }
+        function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); renderizarMonstros(); } }
+        function rolarTesteMonstro(nomeMonstro, nomeAtaque, formula) { let num = parseInt(formula.replace(/[^0-9]/g, '')) || 0; let d = Math.floor(Math.random()*20)+1; let t = d + num; showPopup(t, `${nomeAtaque}<br>(${d} + ${num})`, "color:var(--accent-blue)", nomeMonstro); }
+        function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { try { let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } showPopup(t, `DANO: ${nomeAtaque}`, "color:var(--accent-red)", nomeMonstro); } catch(e) { alert("Fórmula de dano inválida!"); } }
+
+        function renderizarIniciativa() { const c = document.getElementById('iniciativa-list-container'); c.innerHTML = ''; iniciativaList.sort((a,b) => { if(b.total !== a.total) return b.total - a.total; if(b.dano !== a.dano) return b.dano - a.dano; return b.agi - a.agi; }); iniciativaList.forEach((ini, idx) => { const card = document.createElement('div'); card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; card.innerHTML = `<button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button><div class="ini-rank">#${idx+1}</div><img src="${ini.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${ini.nome}</h3><div class="ini-details">D20: ${ini.dado} | Bônus: ${ini.bonus}</div></div><div class="ini-total-box"><div class="ini-total-lbl">TOTAL</div><div class="ini-total">${ini.total}</div></div>`; c.appendChild(card); }); }
+        function rolarMonstrosIniciativa() { monstros.forEach(m => { let a = m.attrs ? (parseInt(m.attrs.agi)||1) : 1; let b = 0; if(m.skills && m.skills['iniciativa']) b = Math.floor(m.skills['iniciativa'].bonus + (a * 0.50) + (m.skills['iniciativa'].treinado ? 10 : 0)); let d = Math.floor(Math.random()*20)+1; let t = d+b; let idx = iniciativaList.findIndex(i => i.id === m.id); if(idx > -1) { iniciativaList[idx].dado = d; iniciativaList[idx].total = t; } else { iniciativaList.push({ id: m.id, isPlayer: false, nome: m.nome, foto: m.foto || 'https://via.placeholder.com/60', dado: d, bonus: b, agi: a, total: t }); } showPopup(t, `INICIATIVA`, "color:white", m.nome); }); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); renderizarIniciativa(); }
+        function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); renderizarIniciativa(); }
+        function limparIniciativa() { if(confirm("Deseja apagar a tabela de iniciativa?")) { iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); renderizarIniciativa(); } }
     </script>
 </body>
 </html>
