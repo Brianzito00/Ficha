@@ -33,7 +33,7 @@ try {
 app.get('/', (req, res) => { res.redirect('/login.html'); });
 
 // ----------------------------------------------------
-// ROTAS GOOGLE AUTH (NOVAS)
+// ROTAS GOOGLE AUTH (ESCOLHER NOME DE UTILIZADOR)
 // ----------------------------------------------------
 app.post('/api/google_login', async (req, res) => {
     const { uid } = req.body;
@@ -43,7 +43,7 @@ app.post('/api/google_login', async (req, res) => {
             // Já tem um nome de utilizador escolhido!
             res.json({ sucesso: true, hasUsername: true, usuario: doc.data().usuario });
         } else {
-            // É a primeira vez, tem de escolher o nome
+            // É a primeira vez da conta Google, tem de escolher o nome
             res.json({ sucesso: true, hasUsername: false });
         }
     } catch (error) { 
@@ -104,6 +104,9 @@ app.post('/api/carregar_lobby', async (req, res) => {
         res.json({ sucesso: false }); 
     }
 });
+
+// ----------------------------------------------------
+// ROTAS DAS FICHAS E CAMPANHAS
 // ----------------------------------------------------
 
 // Puxar Ficha de uma Campanha Específica
@@ -161,10 +164,12 @@ app.post('/api/sair_campanha', async (req, res) => {
     }
 });
 
+
 // ==========================================
 // 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
 
+// Memória RAM temporária para as fichas, para evitar ler a BD a toda a hora
 const playersData = {}; 
 
 io.on('connection', (socket) => {
