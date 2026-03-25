@@ -4,282 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Contos do Outro Lado</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #b82bf2;
-            --primary-hover: #d25aff;
-            --success: #00e676;
-            --danger: #e53935;
-            --bg-input: rgba(255, 255, 255, 0.05);
-            --border-input: rgba(255, 255, 255, 0.1);
-        }
-
         body {
-            margin: 0; 
-            padding: 0; 
-            height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            background-color: #121214; 
-            color: white; 
-            font-family: 'Poppins', sans-serif;
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: #121214; color: white; font-family: 'Poppins', sans-serif;
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKTXXlROZKTCRy58cJfdjVCw3XLueRPdoC5_Sfq6uErKvriHoomeeOGrnHTJ6LjmplkFSXfV1W-pS4pW1tU2CkNFO8PtUKlCzfO9qsPbY48iDU2wA2d0TGcUG-MA0e634RTWoUBdOpTVhz50k3nvxkXTdVYj1dfthCmp2Dpvw0rfSui-h3SDd-VB8jA2rH/w1322-h744/Fundo.jpg');
-            background-size: cover; 
-            background-position: center;
+            background-size: cover; background-position: center;
         }
-
-        /* Fundo escurecido e desfocado aprimorado */
+        
         body::before {
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(18,18,20,0.6) 100%); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            z-index: -1;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: -1;
         }
 
-        /* Glassmorphism moderno */
         .login-box {
-            background: rgba(20, 20, 24, 0.6); 
-            padding: 50px 40px; 
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(20, 20, 24, 0.6); padding: 40px; border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1); border-top: 1px solid rgba(255, 255, 255, 0.2); border-left: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(184, 43, 242, 0.15);
-            width: 100%; 
-            max-width: 360px; 
-            text-align: center; 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative; 
-            z-index: 1; 
+            width: 100%; max-width: 400px; text-align: center; position: relative; z-index: 1;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-sizing: border-box;
         }
 
-        @keyframes slideUpFade { 
-            from { opacity: 0; transform: translateY(30px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        h1 { color: #b82bf2; text-transform: uppercase; margin-top: 0; margin-bottom: 5px; font-size: 2em; font-weight: 800; text-shadow: 0 0 15px rgba(184, 43, 242, 0.5); }
+        
+        .btn-google {
+            width: 100%; padding: 15px; margin-top: 30px; font-size: 1.1em; font-weight: 600;
+            background: white; color: #444; border: none; border-radius: 12px;
+            cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 12px;
+            font-family: 'Poppins', sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
-        h2 { 
-            color: #fff; 
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase; 
-            margin-top: 0; 
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-        }
-        
-        h2 span {
-            color: var(--primary);
-            text-shadow: 0 0 15px rgba(184, 43, 242, 0.6);
-        }
-        
-        .input-group { 
-            margin-bottom: 20px; 
-            text-align: left; 
-        }
-
-        .input-group label { 
-            display: block; 
-            font-size: 0.85rem; 
-            color: #a8a8b3; 
-            margin-bottom: 8px; 
-            font-weight: 500; 
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .input-group input { 
-            width: 100%; 
-            padding: 14px 16px; 
-            background: var(--bg-input); 
-            border: 1px solid var(--border-input); 
-            border-radius: 8px; 
-            color: white; 
-            box-sizing: border-box; 
-            font-size: 1rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .input-group input:focus { 
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--primary); 
-            outline: none; 
-            box-shadow: 0 0 0 4px rgba(184, 43, 242, 0.15);
-        }
-        
-        .btn { 
-            width: 100%; 
-            padding: 15px; 
-            font-weight: 600; 
-            font-size: 1rem;
-            letter-spacing: 1px;
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            transition: all 0.3s ease; 
-            text-transform: uppercase; 
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Botão principal com gradiente suave */
-        .btn-login { 
-            background: linear-gradient(135deg, var(--primary) 0%, #7c12a6 100%); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(184, 43, 242, 0.3); 
-        }
-
-        .btn-login:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(184, 43, 242, 0.5); 
-            background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
-        }
-
-        .btn-login:active {
-            transform: translateY(1px);
-        }
-        
-        /* Botão secundário mais clean */
-        .btn-register { 
-            background: transparent; 
-            border: 1px solid var(--success); 
-            color: var(--success); 
-            margin-top: 15px; 
-        }
-
-        .btn-register:hover { 
-            background: rgba(0, 230, 118, 0.1); 
-            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.2);
-        }
-        
-        #msg-erro { 
-            font-size: 0.9rem; 
-            font-weight: 500; 
-            margin-top: 10px; 
-            min-height: 22px; 
-            transition: 0.3s;
-        }
+        .btn-google:hover { background: #f8f9fa; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,255,255,0.2); }
+        .btn-google img { width: 24px; height: 24px; }
     </style>
 </head>
 <body>
 
     <div class="login-box">
-        <h2>Aceder ao <span>Lobby</span></h2>
+        <h1>RPG<br>Contos do Outro Lado</h1>
+        <p style="color: #a8a8b3; font-size: 0.9em; margin-bottom: 10px;">Faça login com o Google para aceder às suas fichas, itens e mesas.</p>
         
-        <div class="input-group">
-            <label>Utilizador</label>
-            <input type="text" id="user" placeholder="Ex: JOAO" style="text-transform: uppercase;" autocomplete="off">
-        </div>
-        
-        <div class="input-group">
-            <label>Senha</label>
-            <input type="password" id="pass" placeholder="••••••••">
-        </div>
-
-        <div id="msg-erro"></div>
-
-        <button class="btn btn-login" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
-        <button class="btn btn-register" onclick="registar()">Criar Nova Conta</button>
+        <button class="btn-google" id="btn-login">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Logotipo Google">
+            Entrar com o Google
+        </button>
     </div>
 
-    <script>
-        // Se já estiver logado, não precisa de ver a tela de login de novo
-        if (localStorage.getItem('usuario_logado')) {
-            window.location.href = '/index.html';
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        async function registar() {
-            const u = document.getElementById('user').value.toUpperCase().trim();
-            const p = document.getElementById('pass').value.trim();
-            const msg = document.getElementById('msg-erro');
-            
-            if(!u || !p) {
-                msg.style.color = 'var(--danger)';
-                msg.innerText = "Preencha todos os campos!";
-                return;
-            }
+        // ==============================================================
+        // ⚠️ SUBSTITUA O OBJETO ABAIXO PELO SEU DO FIREBASE CONSOLE ⚠️
+        // ==============================================================
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "SEU_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
 
-            const res = await fetch('/api/registar', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario: u, senha: p })
-            });
-            const data = await res.json();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-            if(data.sucesso) {
-                msg.style.color = 'var(--success)';
-                msg.innerText = "Conta criada com sucesso! Pode entrar.";
-            } else {
-                msg.style.color = 'var(--danger)';
-                msg.innerText = data.erro;
-            }
-        }
-
-        async function fazerLogin() {
-            const u = document.getElementById('user').value.toUpperCase().trim();
-            const p = document.getElementById('pass').value.trim();
-            const msg = document.getElementById('msg-erro');
-            const btn = document.getElementById('btn-entrar');
-
-            if(!u || !p) {
-                msg.style.color = 'var(--danger)';
-                msg.innerText = "Preencha todos os campos!";
-                return;
-            }
-
-            btn.innerText = "A autenticar...";
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
-
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario: u, senha: p })
-                });
-                const data = await res.json();
-
-                if(data.sucesso) {
-                    // Guarda o utilizador no navegador
-                    localStorage.setItem('usuario_logado', u);
+        document.getElementById('btn-login').addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    const user = result.user;
                     
-                    // Vai direto para o Lobby (index.html)
-                    window.location.href = '/index.html';
-                } else {
-                    msg.style.color = 'var(--danger)';
-                    msg.innerText = data.erro;
-                    btn.innerText = "Entrar";
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                }
-            } catch(e) {
-                msg.style.color = 'var(--danger)';
-                msg.innerText = "Erro ao contactar o servidor.";
-                btn.innerText = "Entrar";
-                btn.disabled = false;
-                btn.style.opacity = '1';
-            }
-        }
+                    // Converte o email "joao.123@gmail.com" no código limpo "JOAO123" para o sistema ler
+                    let username = user.email.split('@')[0]; 
+                    username = username.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
 
-        // Permitir dar "Enter" no teclado para fazer login
-        document.getElementById("pass").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                fazerLogin();
-            }
+                    // Guarda no navegador e manda para o Lobby
+                    localStorage.setItem('usuario_logado', username);
+                    window.location.href = '/index.html';
+                }).catch((error) => {
+                    console.error("Erro na autenticação:", error);
+                    alert("Ocorreu um erro ao fazer login com o Google. Tente novamente.");
+                });
         });
     </script>
 </body>
