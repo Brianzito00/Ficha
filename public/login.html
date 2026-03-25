@@ -42,7 +42,7 @@
 </head>
 <body>
 
-    <div class="login-box">
+    <div class="login-box" id="box-login">
         <h1>RPG<br>Contos do Outro Lado</h1>
         <p style="color: #a8a8b3; font-size: 0.9em; margin-bottom: 10px;">Faça login com o Google para aceder às suas fichas, itens e mesas.</p>
         
@@ -60,12 +60,12 @@
         // ⚠️ SUBSTITUA O OBJETO ABAIXO PELO SEU DO FIREBASE CONSOLE ⚠️
         // ==============================================================
         const firebaseConfig = {
-           apiKey: "AIzaSyAZQ6tSOmpA_L7eLXua5lU8IxpSseKZnqc",
-            authDomain: "o-culto-do-outro-lado.firebaseapp.com",
-        projectId: "o-culto-do-outro-lado",
-          storageBucket: "o-culto-do-outro-lado.firebasestorage.app",
-          messagingSenderId: "893353185743",
-          appId: "1:893353185743:web:8c178bd41dc586446082ba",
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "SEU_SENDER_ID",
+            appId: "SEU_APP_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -73,20 +73,56 @@
         const provider = new GoogleAuthProvider();
 
         document.getElementById('btn-login').addEventListener('click', () => {
+            const btn = document.getElementById('btn-login');
+            btn.innerHTML = "A autenticar..."; btn.disabled = true;
+
             signInWithPopup(auth, provider)
-                .then((result) => {
+                .then(async (result) => {
                     const user = result.user;
                     
-                    // Converte o email "joao.123@gmail.com" no código limpo "JOAO123" para o sistema ler
-                    let username = user.email.split('@')[0]; 
-                    username = username.toUpperCase().replace(/[^A-Z0-9]/g, ''); 
+                    // Pega no nome verdadeiro da conta Google (ou a primeira parte do email se falhar)
+                    let googleName = user.displayName || user.email.split('@')[0];
 
-                    // Guarda no navegador e manda para o Lobby
-                    localStorage.setItem('usuario_logado', username);
-                    window.location.href = '/index.html';
+                    try {
+                        // Verifica se este utilizador já existe
+                        const res = await fetch('/api/google_login', {
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ uid: user.uid })
+                        });
+                        const data = await res.json();
+
+                        if (data.sucesso && data.hasUsername) {
+                            // Se já existe, entra direto com o nome que já tem!
+                            localStorage.setItem('usuario_logado', data.usuario);
+                            window.location.href = '/index.html';
+                        } else {
+                            // Se é novo, regista-o automaticamente usando o nome do Google!
+                            const resReg = await fetch('/api/set_username', {
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ uid: user.uid, username: googleName })
+                            });
+                            const dataReg = await resReg.json();
+                            
+                            if (dataReg.sucesso) {
+                                localStorage.setItem('usuario_logado', dataReg.usuario);
+                                window.location.href = '/index.html';
+                            } else {
+                                alert("Erro ao criar conta na base de dados.");
+                                btn.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"> Entrar com o Google`;
+                                btn.disabled = false;
+                            }
+                        }
+                    } catch(e) {
+                        alert("Erro de conexão com o servidor. Verifique a internet.");
+                        btn.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"> Entrar com o Google`;
+                        btn.disabled = false;
+                    }
                 }).catch((error) => {
                     console.error("Erro na autenticação:", error);
-                    alert("Ocorreu um erro ao fazer login com o Google. Tente novamente.");
+                    btn.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"> Entrar com o Google`;
+                    btn.disabled = false;
                 });
         });
     </script>
