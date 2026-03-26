@@ -86,6 +86,7 @@
 
         .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-bottom: 20px; }
         .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
+        .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin: 10px 0; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         
         .weight-container { background: rgba(18, 18, 20, 0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(51, 51, 51, 0.5); }
         .weight-bar-bg { width: 100%; height: 12px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; border: 1px solid #222; margin-top: 8px; }
@@ -179,8 +180,41 @@
                         <option value="Revoltado">Revoltado</option>
                     </select>
                 </div>
-                <div><label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">CLASSE</label><select id="char_origem" class="inv-input" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
-                <div><label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">TIPO CORPO</label><select id="char_tipo_corpo" class="inv-input" onchange="updateWeight();updateDanoDesarmado();save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
+                <div>
+                    <label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">ORIGEM / CLASSE</label>
+                    <select id="char_origem" class="inv-input" onchange="save()">
+                        <option value="Nenhuma">Nenhuma</option>
+                        <option value="Combatente">Combatente</option>
+                        <option value="Ocultista">Ocultista</option>
+                        <option value="Especialista">Especialista</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">NÍVEL</label>
+                    <select id="char_nivel" class="inv-input" onchange="save()">
+                        <option value="Recruta">Recruta</option>
+                        <option value="Veterano">Veterano</option>
+                        <option value="Expert">Expert</option>
+                        <option value="Elite">Elite</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">NÍVEL DE CRÉDITO</label>
+                    <select id="char_credito" class="inv-input" onchange="save()">
+                        <option value="Baixo">Baixo</option>
+                        <option value="Intermediário">Intermediário</option>
+                        <option value="Alto">Alto</option>
+                        <option value="Elite">Elite</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.7em;color:var(--text-secondary);font-weight:bold;">TIPO CORPO</label>
+                    <select id="char_tipo_corpo" class="inv-input" onchange="updateWeight();updateDanoDesarmado();save()">
+                        <option value="Pequeno">Pequeno</option>
+                        <option value="Médio" selected>Médio</option>
+                        <option value="Grande">Grande</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -192,9 +226,17 @@
                 <button class="status-btn" onclick="changeStatus('vida',-1)">-</button>
                 <div class="status-bar-container">
                     <div id="bar_vida" class="status-bar-fill fill-vida"></div>
-                    <div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars();save()">/<input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars();save()"></div>
+                    <div class="status-text">
+                        <input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars();save()">
+                        /
+                        <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars();save()">
+                    </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('vida',1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
+                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
             </div>
         </div>
         
@@ -204,9 +246,16 @@
                 <button class="status-btn" onclick="changeStatus('sani',-1)">-</button>
                 <div class="status-bar-container">
                     <div id="bar_sani" class="status-bar-fill fill-sani"></div>
-                    <div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars();save()">/<input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars();save()"></div>
+                    <div class="status-text">
+                        <input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars();save()">
+                        /
+                        <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars();save()">
+                    </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('sani',1)">+</button>
+            </div>
+            <div class="status-toggles-container">
+                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
             </div>
         </div>
         
@@ -216,7 +265,11 @@
                 <button class="status-btn" onclick="changeStatus('pe',-1)">-</button>
                 <div class="status-bar-container">
                     <div id="bar_pe" class="status-bar-fill fill-pe"></div>
-                    <div class="status-text"><input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars();save()">/<input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars();save()"></div>
+                    <div class="status-text">
+                        <input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars();save()">
+                        /
+                        <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars();save()">
+                    </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('pe',1)">+</button>
             </div>
@@ -236,14 +289,17 @@
         
         <div class="panel" style="flex:0 0 250px;">
             <div class="panel-title">Ações</div>
-            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0,176,255,0.1);border:1px solid var(--accent-blue);color:var(--accent-blue);width:100%;height:60px;border-radius:8px;font-weight:bold;margin-bottom:20px;cursor:pointer;">ROLAR DADO</button>
+            
+            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0,176,255,0.1);border:1px solid var(--accent-blue);color:var(--accent-blue);width:100%;height:60px;border-radius:8px;font-weight:bold;margin-bottom:20px;cursor:pointer;">
+                ROLAR DADO
+            </button>
             
             <div class="defense-box">
                 <label style="font-size:0.75em;color:var(--text-secondary);font-weight:bold;">DEFESA</label><br>
                 <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
             </div>
 
-            <div style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;text-transform:uppercase;margin:10px 0;text-align:center;border-bottom:1px solid var(--border-color);padding-bottom:5px;">Ataque Corporal</div>
+            <div class="equipped-weapons-header">Ataque Corporal</div>
             <div style="background:rgba(18,18,20,0.8);border:1px solid rgba(51,51,51,0.5);border-radius:8px;padding:10px;margin-bottom:10px;text-align:center;">
                 <div style="margin-bottom:8px;color:var(--text-secondary);">Ataque Desarmado</div>
                 <div style="display:flex;gap:8px;margin-bottom:8px;">
@@ -253,15 +309,15 @@
                 <span id="display-dano-corpo" style="color:var(--accent-yellow);font-size:0.9em;">1d8</span>
             </div>
             
-            <div style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;text-transform:uppercase;margin:10px 0;text-align:center;border-bottom:1px solid var(--border-color);padding-bottom:5px;">Arma Ativa</div>
+            <div class="equipped-weapons-header">Arma Ativa</div>
             <select id="active-weapon-select" class="inv-input" style="margin-bottom:10px;display:none;color:var(--accent-yellow);font-weight:bold;" onchange="renderActiveWeapon();save()"></select>
             <div id="equipped-weapons-list" style="display:flex;flex-direction:column;gap:10px;"></div>
 
-            <div style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;text-transform:uppercase;margin:30px 0 10px 0;text-align:center;border-bottom:1px solid var(--border-color);padding-bottom:5px;">Habilidades</div>
+            <div class="equipped-weapons-header" style="margin-top:30px;">Habilidades</div>
             <button class="btn-roll" style="width:100%;border-color:var(--accent-green);color:var(--accent-green);margin-bottom:10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
             <div id="abilities-list" style="display:flex;flex-direction:column;gap:10px;"></div>
 
-            <div style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;text-transform:uppercase;margin:30px 0 10px 0;text-align:center;border-bottom:1px solid var(--border-color);padding-bottom:5px;">Rituais Prontos</div>
+            <div class="equipped-weapons-header" style="margin-top:30px;">Rituais Prontos</div>
             <div id="learned-rituals-list" style="display:flex;flex-direction:column;gap:5px;">
                 <div style="color:var(--text-secondary);font-size:0.8em;text-align:center;">Nenhum ritual preparado.</div>
             </div>
@@ -273,7 +329,9 @@
     <div class="panel">
         <div class="panel-title">Mochila e Carga</div>
         <div class="weight-container">
-            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:0.9em;"><span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span></div>
+            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:0.9em;">
+                <span>ESPAÇOS OCUPADOS</span><span id="weight-text">0 / 0</span>
+            </div>
             <div class="weight-bar-bg"><div id="weight-bar-fill" class="weight-bar-fill"></div></div>
         </div>
         <button class="btn-add" onclick="openItemPopup()">+ Novo Item / Arma</button>
@@ -295,15 +353,29 @@
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
         <div class="weight-container">
-            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:0.9em;"><span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span></div>
+            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:0.9em;">
+                <span>RITUAIS APRENDIDOS</span><span id="rituals-text">0</span>
+            </div>
         </div>
         
         <button class="btn-add" style="background:#b82bf2;color:white;" onclick="openRitualPopup()">+ Aprender Ritual (Catálogo do Mestre)</button>
         
-        <div id="rituais-1-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-1-body"></div></div>
-        <div id="rituais-2-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-2-body"></div></div>
-        <div id="rituais-3-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-3-body"></div></div>
-        <div id="rituais-4-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-4-body"></div></div>
+        <div id="rituais-1-container" style="display:none;margin-top:20px;">
+            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">1º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-1-body"></div>
+        </div>
+        <div id="rituais-2-container" style="display:none;margin-top:20px;">
+            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">2º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-2-body"></div>
+        </div>
+        <div id="rituais-3-container" style="display:none;margin-top:20px;">
+            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">3º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-3-body"></div>
+        </div>
+        <div id="rituais-4-container" style="display:none;margin-top:20px;">
+            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);">4º Círculo</h3>
+            <div class="catalogo-grid-view" id="rituais-4-body"></div>
+        </div>
     </div>
 </div>
 
@@ -314,7 +386,7 @@
         <input type="number" id="input-qtd-ataques" class="inv-input" style="font-size:2em;text-align:center;margin-bottom:20px;" min="1" value="1">
         <div style="display:flex;gap:10px;">
             <button class="btn-add" id="btn-confirm-ataques" style="flex:1;">ROLAR</button>
-            <button class="btn-del" onclick="fecharModalQtdAtaques()" style="flex:1;">CANCELAR</button>
+            <button class="btn-del" onclick="document.getElementById('modal-qtd-ataques').style.display='none'" style="flex:1;">CANCELAR</button>
         </div>
     </div>
 </div>
@@ -345,19 +417,34 @@
         
         <div id="fields-arma" style="display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
             <div><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE ATQ</label><input type="text" id="wp-atk-type" class="inv-input"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">ATAQUES (QTD)</label><input type="number" id="wp-atk" class="inv-input" value="1"></div>
+            <div><label style="font-size:0.8em;color:var(--text-secondary);">ATAQUES(QTD)</label><input type="number" id="wp-atk" class="inv-input" value="1"></div>
             <div><label style="font-size:0.8em;color:var(--text-secondary);">DANO</label><input type="text" id="wp-dmg" class="inv-input"></div>
             <div><label style="font-size:0.8em;color:var(--text-secondary);">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input"></div>
             <div><label style="font-size:0.8em;color:var(--text-secondary);">ALCANCE</label><input type="text" id="wp-range" class="inv-input"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">MUNIÇÃO</label><select id="wp-ammo" class="inv-input"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div>
+            <div>
+                <label style="font-size:0.8em;color:var(--text-secondary);">MUNIÇÃO</label>
+                <select id="wp-ammo" class="inv-input">
+                    <option value="Nenhuma">Nenhuma</option>
+                    <option value="Curta">Curta</option>
+                    <option value="Longa">Longa</option>
+                    <option value="Pesada">Pesada</option>
+                    <option value="Especial">Especial</option>
+                </select>
+            </div>
             <div><label style="font-size:0.8em;color:var(--text-secondary);">CAPACIDADE</label><input type="number" id="wp-capacity" class="inv-input" value="6"></div>
             <div><label style="font-size:0.8em;color:var(--text-secondary);">PERÍCIA</label><input type="text" id="wp-skill" class="inv-input"></div>
             <div style="grid-column:span 2;"><label style="font-size:0.8em;color:var(--text-secondary);">EXTRA</label><input type="text" id="wp-extra" class="inv-input"></div>
         </div>
         
-        <div id="fields-item-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;"><div class="catalogo-grid-view" id="item-grid-container"></div></div>
-        <div id="fields-armacc-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;"><div class="catalogo-grid-view" id="armacc-grid-container"></div></div>
-        <div id="fields-armadisp-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;"><div class="catalogo-grid-view" id="armadisp-grid-container"></div></div>
+        <div id="fields-item-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;">
+            <div class="catalogo-grid-view" id="item-grid-container"></div>
+        </div>
+        <div id="fields-armacc-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;">
+            <div class="catalogo-grid-view" id="armacc-grid-container"></div>
+        </div>
+        <div id="fields-armadisp-catalog" style="display:none;max-height:300px;overflow-y:auto;margin-top:10px;">
+            <div class="catalogo-grid-view" id="armadisp-grid-container"></div>
+        </div>
         
         <div style="display:flex;gap:10px;margin-top:15px;">
             <button class="btn-add" id="btn-confirm-add-item" style="flex:1;" onclick="confirmAddItem()">SALVAR</button>
@@ -397,10 +484,10 @@
         <label style="font-size:0.8em;color:var(--text-secondary);">NOME</label>
         <input type="text" id="new-ability-name" class="inv-input" style="margin-bottom:10px;">
         <label style="font-size:0.8em;color:var(--text-secondary);">DESCRIÇÃO</label>
-        <textarea id="new-ability-desc" class="inv-input" style="height:100px;margin-bottom:15px;"></textarea>
+        <textarea id="new-ability-desc" class="inv-input" style="height:100px;margin-bottom:15px;resize:none;"></textarea>
         <div style="display:flex;gap:10px;">
             <button class="btn-add" style="flex:1;" onclick="confirmAddAbility()">ADICIONAR</button>
-            <button class="btn-del" style="flex:1;" onclick="closeAbilityPopup()">CANCELAR</button>
+            <button class="btn-del" style="flex:1;" onclick="document.getElementById('popup-new-ability').style.display='none'">CANCELAR</button>
         </div>
     </div>
 </div>
@@ -460,10 +547,10 @@
         </div>
         <input type="hidden" id="popup-skill-sn">
         <input type="hidden" id="popup-skill-attr">
-        <input type="hidden" id="popup-skill-mod">
+        
         <div style="display:flex;gap:10px;">
             <button class="btn-add" style="background:var(--accent-blue);flex:1;" onclick="saveSkillPopup()">SALVAR</button>
-            <button class="btn-del" style="flex:1;" onclick="closeSkillPopup()">FECHAR</button>
+            <button class="btn-del" style="flex:1;" onclick="document.getElementById('popup-skill-info').style.display='none'">FECHAR</button>
         </div>
     </div>
 </div>
@@ -492,13 +579,13 @@
     let campanhaAtiva = localStorage.getItem('campanha_atual');
     const urlParams = new URLSearchParams(window.location.search); 
     const viewCode = urlParams.get('view'); 
-
+    
     if (!baseUser && !viewCode) { window.location.href = '/login.html'; } 
     if (!campanhaAtiva && !viewCode) { window.location.href = '/index.html'; }
-
+    
     let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
-
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva); 
+    
     if(customWP && customWP.trim() !== '') { 
         document.body.style.backgroundImage = `url('${customWP}')`; 
     }
@@ -510,7 +597,7 @@
 
     let socket = null; 
     if (typeof io !== 'undefined') socket = io();
-
+    
     let isLoadingData = false; 
     let currentViewedItemId = null; 
     let editingItemId = null; 
@@ -533,16 +620,16 @@
     };
     
     const periciasBase = [ 
-        {nome:"Acrobacia",attr:"AGI",mod:0.20}, {nome:"Adestramento",attr:"PRE",mod:0.20}, {nome:"Artes",attr:"PRE",mod:0.30}, 
-        {nome:"Atletismo",attr:"FOR",mod:0.35}, {nome:"Atualidades",attr:"INT",mod:0.35}, {nome:"Ciências",attr:"INT",mod:0.25}, 
-        {nome:"Crime",attr:"AGI",mod:0.35}, {nome:"Diplomacia",attr:"PRE",mod:0.30}, {nome:"Enganação",attr:"PRE",mod:0.25}, 
-        {nome:"Fortitude",attr:"VIG",mod:0.40}, {nome:"Furtividade",attr:"AGI",mod:0.39}, {nome:"Iniciativa",attr:"AGI",mod:0.50}, 
-        {nome:"Intimidação",attr:"PRE",mod:0.30}, {nome:"Intuição",attr:"PRE",mod:0.35}, {nome:"Investigação",attr:"INT",mod:0.50}, 
-        {nome:"Luta",attr:"FOR",mod:0.25}, {nome:"Medicina",attr:"INT",mod:0.15}, {nome:"Ocultismo",attr:"INT",mod:0.08}, 
-        {nome:"Percepção",attr:"PRE",mod:0.50}, {nome:"Pilotagem",attr:"AGI",mod:0.15}, {nome:"Pontaria",attr:"AGI",mod:0.45}, 
-        {nome:"Profissão",attr:"INT",mod:0.50}, {nome:"Reflexos",attr:"AGI",mod:0.35}, {nome:"Religião",attr:"PRE",mod:0.50}, 
-        {nome:"Sobrevivência",attr:"INT",mod:0.35}, {nome:"Tática",attr:"INT",mod:0.45}, {nome:"Tecnologia",attr:"INT",mod:0.25}, 
-        {nome:"Vontade",attr:"PRE",mod:0.50} 
+        {nome:"Acrobacia",attr:"AGI"}, {nome:"Adestramento",attr:"PRE"}, {nome:"Artes",attr:"PRE"}, 
+        {nome:"Atletismo",attr:"FOR"}, {nome:"Atualidades",attr:"INT"}, {nome:"Ciências",attr:"INT"}, 
+        {nome:"Crime",attr:"AGI"}, {nome:"Diplomacia",attr:"PRE"}, {nome:"Enganação",attr:"PRE"}, 
+        {nome:"Fortitude",attr:"VIG"}, {nome:"Furtividade",attr:"AGI"}, {nome:"Iniciativa",attr:"AGI"}, 
+        {nome:"Intimidação",attr:"PRE"}, {nome:"Intuição",attr:"PRE"}, {nome:"Investigação",attr:"INT"}, 
+        {nome:"Luta",attr:"FOR"}, {nome:"Medicina",attr:"INT"}, {nome:"Ocultismo",attr:"INT"}, 
+        {nome:"Percepção",attr:"PRE"}, {nome:"Pilotagem",attr:"AGI"}, {nome:"Pontaria",attr:"AGI"}, 
+        {nome:"Profissão",attr:"INT"}, {nome:"Reflexos",attr:"AGI"}, {nome:"Religião",attr:"PRE"}, 
+        {nome:"Sobrevivência",attr:"INT"}, {nome:"Tática",attr:"INT"}, {nome:"Tecnologia",attr:"INT"}, 
+        {nome:"Vontade",attr:"PRE"} 
     ];
 
     let equippedWeaponsData = []; 
@@ -676,28 +763,26 @@
         document.getElementById('bar_pe').style.width = Math.min(Math.max((pA/pM)*100, 0), 100) + '%'; 
     }
 
-    function openSkillPopup(sn, nome, attr, mod) { 
+    function openSkillPopup(sn, nome, attr) { 
         document.getElementById('popup-skill-name').innerText = nome; 
-        document.getElementById('popup-skill-attr-name').innerText = attr + " (x" + mod + ")"; 
+        document.getElementById('popup-skill-attr-name').innerText = attr + " (x10)"; 
         let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
         let at = atEl ? parseInt(atEl.value)||0 : 0; 
-        document.getElementById('popup-skill-natural').innerText = Math.floor(at * mod); 
+        document.getElementById('popup-skill-natural').innerText = at * 10; 
         document.getElementById('popup-skill-trained').checked = document.getElementById('chk_'+sn).checked; 
         document.getElementById('popup-skill-bonus').value = document.getElementById('skill_'+sn).value; 
         document.getElementById('popup-skill-sn').value = sn; 
         document.getElementById('popup-skill-attr').value = attr; 
-        document.getElementById('popup-skill-mod').value = mod; 
         updateSkillPopupCalc(); 
         document.getElementById('popup-skill-info').style.display = 'flex'; 
     }
     
     function updateSkillPopupCalc() { 
-        let mod = parseFloat(document.getElementById('popup-skill-mod').value);
         let attr = document.getElementById('popup-skill-attr').value; 
         let sn = document.getElementById('popup-skill-sn').value; 
         let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
         let at = atEl ? parseInt(atEl.value)||0 : 0; 
-        let natural = Math.floor(at * mod);
+        let natural = at * 10; 
         let bonus = parseInt(document.getElementById('popup-skill-bonus').value) || 0; 
         let trained = document.getElementById('popup-skill-trained').checked ? 10 : 0; 
         
@@ -723,18 +808,10 @@
         document.getElementById('popup-skill-info').style.display = 'none'; 
     }
 
-    function closeSkillPopup() {
-        document.getElementById('popup-skill-info').style.display = 'none';
-    }
-
     function openAbilityPopup() { 
         document.getElementById('popup-new-ability').style.display = 'flex'; 
     }
     
-    function closeAbilityPopup() {
-        document.getElementById('popup-new-ability').style.display = 'none';
-    }
-
     function confirmAddAbility() { 
         const n = document.getElementById('new-ability-name').value; 
         const d = document.getElementById('new-ability-desc').value; 
@@ -993,7 +1070,7 @@
                 if(customCatalog.items) {
                     customCatalog.items.filter(i=>i.visivel!==false).forEach((it, index) => { 
                         let dName = it.n || it.name;
-                        containerItem.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('items', ${index})"><img src="${it.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em;">${dName}<br><span style="font-size:0.7em; color:var(--text-secondary);">(Do Mestre)</span></div></div>`; 
+                        containerItem.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('items', ${index})"><img src="${it.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-green); font-size: 0.85em;">${dName}</div></div>`; 
                     }); 
                 }
             } 
@@ -1004,7 +1081,7 @@
                 if(customCatalog.melee) {
                     customCatalog.melee.filter(w=>w.visivel!==false).forEach((wp, index) => { 
                         let dName = wp.n || wp.name;
-                        containerCC.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('melee', ${index})"><img src="${wp.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em;">${dName}<br><span style="font-size:0.7em; color:var(--text-secondary);">(Do Mestre)</span></div><div style="font-size: 0.65em; color: var(--text-secondary);">Dano: ${wp.dmg}</div></div>`; 
+                        containerCC.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('melee', ${index})"><img src="${wp.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.85em;">${dName}</div><div style="font-size: 0.65em; color: var(--text-secondary);">Dano: ${wp.dmg}</div></div>`; 
                     }); 
                 }
             } 
@@ -1015,7 +1092,7 @@
                 if(customCatalog.ranged) {
                     customCatalog.ranged.filter(w=>w.visivel!==false).forEach((wp, index) => { 
                         let dName = wp.n || wp.name;
-                        containerDisp.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('ranged', ${index})"><img src="${wp.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em;">${dName}<br><span style="font-size:0.7em; color:var(--text-secondary);">(Do Mestre)</span></div><div style="font-size: 0.65em; color: var(--text-secondary);">Dano: ${wp.dmg}</div></div>`; 
+                        containerDisp.innerHTML += `<div class="skill-card" onclick="addCustomCatalogItem('ranged', ${index})"><img src="${wp.img || 'https://via.placeholder.com/60'}" style="width: 100%; height: 60px; object-fit: contain;"><div style="font-weight: bold; color: var(--accent-blue); font-size: 0.85em;">${dName}</div><div style="font-size: 0.65em; color: var(--text-secondary);">Dano: ${wp.dmg}</div></div>`; 
                     }); 
                 }
             } 
@@ -1171,7 +1248,7 @@
     function rolarAtaqueDesarmado() { 
         let skillObj = periciasBase.find(p=>p.nome==="Luta"); 
         if(!skillObj) return; 
-        rolarTesteD20(skillObj.nome, "skill_luta", skillObj.attr, skillObj.mod, true); 
+        rolarTesteD20(skillObj.nome, "skill_luta", skillObj.attr, true); 
     }
     
     function rolarDanoDesarmado() { 
@@ -1502,7 +1579,7 @@
             container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`; 
         }); 
         
-        if(!has) container.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:0.8em;font-style:italic;">Nenhum ritual preparado.</div>`; 
+        if(!has) container.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:0.8em;font-style:italic; width: 100%;">Nenhum ritual preparado.</div>`; 
     }
     
     function openRitualInfo(id, color) { 
@@ -1573,7 +1650,7 @@
         } 
     }
 
-    function abrirModalQtdAtaques(maxAtk, n, id, ak, modPerc) { 
+    function abrirModalQtdAtaques(maxAtk, n, id, ak) { 
         document.getElementById('max-atk-display').innerText = maxAtk; 
         const input = document.getElementById('input-qtd-ataques'); 
         input.max = maxAtk; 
@@ -1585,7 +1662,7 @@
             if(isNaN(val) || val < 1) val = 1; 
             if(val > maxAtk) val = maxAtk; 
             fecharModalQtdAtaques(); 
-            rolarTesteD20(n, id, ak, modPerc, true, val); 
+            rolarTesteD20(n, id, ak, true, val); 
         }; 
     }
     
@@ -1593,7 +1670,7 @@
         document.getElementById('modal-qtd-ataques').style.display = 'none'; 
     }
 
-    function rolarTesteD20(n, id, ak, modPerc, eArma=false, qtdAtaquesForcado=null) { 
+    function rolarTesteD20(n, id, ak, eArma=false, qtdAtaquesForcado=null) { 
         lastAttackWasCrit = false; 
         let sn = id.replace("skill_", ""); 
         let skEl = document.getElementById(id); 
@@ -1604,8 +1681,12 @@
         let tr = chkEl ? chkEl.checked : false; 
         
         let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
-        let f = Math.floor(sk+(at*modPerc)+(tr?10:0)+penalty); 
-        let m = tabelaD20[f>20?20:f<1?1:f]; 
+        
+        let f = Math.floor(sk + (at * 10) + (tr ? 10 : 0) + penalty); 
+        let d20Index = Math.max(1, Math.min(20, Math.floor(f / 5)));
+        if (f > 0 && d20Index === 0) d20Index = 1;
+        let m = tabelaD20[d20Index]; 
+        
         let numAttacks = 1; 
         let cMarg = 20; 
         
@@ -1624,7 +1705,7 @@
                     if(wp.atk && parseInt(wp.atk) > 1){ 
                         let maxAtaquesPossiveis = parseInt(wp.atk); 
                         if(qtdAtaquesForcado === null){ 
-                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak, modPerc); 
+                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); 
                             return; 
                         } else { 
                             numAttacks = qtdAtaquesForcado; 
@@ -1688,7 +1769,7 @@
         let sn = skillName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
         let skillObj = periciasBase.find(p=>p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_") === sn); 
         if(!skillObj) skillObj = periciasBase.find(p=>p.nome==="Luta"); 
-        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"), skillObj.attr, skillObj.mod, true); 
+        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"), skillObj.attr, true); 
     }
     
     function rolarDanoArma(id) { 
@@ -1741,7 +1822,7 @@
         if(sn==="atletismo") updateWeight(); 
     }
     
-    function updateTargetsPericia(id, ak, modPerc) { 
+    function updateTargetsPericia(id, ak) { 
         let skEl = document.getElementById(id); 
         let sk = skEl ? parseInt(skEl.value)||0 : 0; 
         let atEl = document.getElementById("attr_"+ak.toLowerCase()); 
@@ -1751,8 +1832,11 @@
         let tr = chkEl ? chkEl.checked : false; 
         
         let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
-        let f = Math.floor(sk+(at*modPerc)+(tr?10:0)+penalty); 
-        let m = tabelaD20[f>20?20:f<1?1:f]; 
+        
+        let f = Math.floor(sk + (at * 10) + (tr ? 10 : 0) + penalty); 
+        let d20Index = Math.max(1, Math.min(20, Math.floor(f / 5)));
+        if (f > 0 && d20Index === 0) d20Index = 1;
+        let m = tabelaD20[d20Index]; 
         let d = document.getElementById(id + "_targets"); 
         
         if(d) d.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
@@ -1761,13 +1845,15 @@
     function updateAllPericias() { 
         ["agi", "for", "int", "pre", "vig"].forEach(a=>{ 
             let v = parseInt(document.getElementById("attr_"+a).value) || 1; 
-            let m = tabelaD20[v>20?20:v]; 
+            let d20Index = Math.max(1, Math.min(20, Math.floor((v * 10) / 5)));
+            if (v > 0 && d20Index === 0) d20Index = 1;
+            let m = tabelaD20[d20Index]; 
             let targetEl = document.getElementById("attr_"+a+"_targets"); 
             if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
         }); 
         periciasBase.forEach(p=>{ 
             let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
-            updateTargetsPericia("skill_" + sn, p.attr, p.mod); 
+            updateTargetsPericia("skill_" + sn, p.attr); 
         }); 
     }
 
@@ -1916,17 +2002,6 @@
     document.addEventListener('change', attivAutoSave); 
     document.addEventListener('click', (e)=>{ if(e.target.tagName==='BUTTON' || e.target.closest('button')) attivAutoSave(); });
 
-    function hasHeavyArmorEquipped() { 
-        let has = false; 
-        document.querySelectorAll('.hidden-data-item').forEach(h=>{ 
-            if(h.getAttribute('data-eq')==='true'){ 
-                const n = h.getAttribute('data-n').toLowerCase(); 
-                if(n.includes('proteção pesada') || n.includes('protecao pesada')) has = true; 
-            } 
-        }); 
-        return has; 
-    }
-
     function init() {
         try {
             const nexSel = document.getElementById('char_nex'); 
@@ -1942,7 +2017,7 @@
                 attrContainer.innerHTML = ''; 
                 ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a=>{ 
                     let id = "attr_" + a.toLowerCase().substring(0,3); 
-                    attrContainer.innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" oninput="updateAllPericias(); updateWeight(); updateDanoDesarmado();"><div class="attr-targets" id="${id}_targets"></div></div>`; 
+                    attrContainer.innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0; updateAllPericias(); updateWeight(); updateDanoDesarmado();"><div class="attr-targets" id="${id}_targets"></div></div>`; 
                 }); 
             }
             
@@ -1952,12 +2027,12 @@
                 periciasBase.forEach(p=>{ 
                     let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
                     periciasContainer.innerHTML += `
-                        <div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}', ${p.mod})">
+                        <div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}')">
                             <div class="skill-header" style="margin-bottom:8px;">
                                 <span style="font-size:0.7em; font-weight:bold; text-transform:uppercase; pointer-events:none;">${p.nome}</span>
                             </div>
                             <div style="display:flex;justify-content:center;margin-bottom:8px;">
-                                <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}',${p.mod}, false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;">
+                                <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}', false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;">
                                     <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:20px;height:20px;filter:invert(1);">
                                 </button>
                             </div>
