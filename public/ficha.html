@@ -125,8 +125,7 @@
         .item-equipped { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-yellow); margin-right: 8px; }
         .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
-        .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; text-align: center; width: 100%; margin-bottom: 5px; }
-        .ritual-btn:hover { filter: brightness(1.2); }
+        .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; margin-bottom: 5px; width: 100%;}
 
         .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
@@ -567,7 +566,7 @@
         <p style="color: var(--text-secondary); font-size: 0.85em; text-align: center; margin-top: 15px;">Clique num ritual do catálogo para o adicionar ao seu grimório.</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;" id="ritual-grid-container"></div>
         <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeRitualPopup()">FECHAR</button>
+            <button class="btn-del" style="flex:1; padding:12px; border-radius:6px; background:#333;" onclick="closeRitualPopup()">FECHAR / CANCELAR</button>
         </div>
     </div>
 </div>
@@ -585,12 +584,12 @@
     <div class="popup-box" onclick="event.stopPropagation()">
         <h3 style="color: var(--accent-blue); margin-top: 0; text-align: center;">Fotos de Status</h3>
         <div style="display:flex; flex-direction:column; gap:10px;">
-            <div><label style="font-size:0.7em; color:var(--text-secondary)">NORMAL</label><input type="text" id="img-normal" class="inv-input"></div>
-            <div><label style="font-size:0.7em; color:var(--text-secondary)">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input"></div>
-            <div><label style="font-size:0.7em; color:var(--text-secondary)">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input"></div>
-            <div><label style="font-size:0.7em; color:var(--text-secondary)">MORRENDO</label><input type="text" id="img-morrendo" class="inv-input"></div>
-            <div><label style="font-size:0.7em; color:var(--text-secondary)">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input"></div>
-            <div><label style="font-size:0.7em; color:var(--accent-yellow); font-weight:bold;">LESIONADO + ENLOUQUECENDO</label><input type="text" id="img-les-enlouq" class="inv-input"></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">NORMAL</label><input type="text" id="img-normal" class="inv-input" placeholder="URL da foto normal..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input" placeholder="URL da foto lesionado..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input" placeholder="URL da foto inconsciente..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">MORRENDO</label><input type="text" id="img-morrendo" class="inv-input" placeholder="URL da foto morrendo..."></div>
+            <div><label style="font-size:0.7em; color:var(--text-secondary)">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" placeholder="URL da foto enlouquecendo..."></div>
+            <div><label style="font-size:0.7em; color:var(--accent-yellow); font-weight:bold;">LESIONADO + ENLOUQUECENDO</label><input type="text" id="img-les-enlouq" class="inv-input" placeholder="URL da foto combinada..."></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn-add" style="flex:1; margin:0; background: var(--accent-blue);" onclick="saveCharImgPopup()">SALVAR</button>
@@ -2017,7 +2016,6 @@
             let d20Index = Math.max(1, Math.min(20, Math.floor((v * 10) / 5)));
             if (v > 0 && d20Index === 0) d20Index = 1;
             let m = tabelaD20[d20Index]; 
-            
             let targetEl = document.getElementById("attr_"+a+"_targets"); 
             if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${m.n}</span> <span class="target-b">B:${m.b==99?'X':m.b}</span> <span class="target-e">E:${m.e==99?'X':m.e}</span>`; 
         }); 
@@ -2171,6 +2169,17 @@
     document.addEventListener('input', attivAutoSave); 
     document.addEventListener('change', attivAutoSave); 
     document.addEventListener('click', (e)=>{ if(e.target.tagName==='BUTTON' || e.target.closest('button')) attivAutoSave(); });
+
+    function hasHeavyArmorEquipped() { 
+        let has = false; 
+        document.querySelectorAll('.hidden-data-item').forEach(h=>{ 
+            if(h.getAttribute('data-eq')==='true'){ 
+                const n = h.getAttribute('data-n').toLowerCase(); 
+                if(n.includes('proteção pesada') || n.includes('protecao pesada')) has = true; 
+            } 
+        }); 
+        return has; 
+    }
 
     function init() {
         try {
