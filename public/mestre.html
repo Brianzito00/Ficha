@@ -697,26 +697,51 @@
         }
 
         function renderizarCatalogo() {
-            const gridComum = document.getElementById('catalogo-grid-comum'); const gridArmaCC = document.getElementById('catalogo-grid-armacc'); const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
-            gridComum.innerHTML = ''; gridArmaCC.innerHTML = ''; gridArmaDisp.innerHTML = '';
-            
+            const imgDictMestre = { 
+            'espada da ordem': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEju5bkRj--vXSVBbQ5BQJYn3kVz35QQD1IEf6NDnxI5Ie7eq-S-Sh6YkMr75lWI5Pw9hNlhKdenz9fzAiuiQYWN6hnxNLx9_m-B1XQDFJGwJxjrxLLCeolauP9mvD9YYaYtY9dzTFGJmoLtAKHOYnqe4Z3GCEIIxGeoQEKGsjxv-KIDHJmdnPKlc94AXRwa/s320/Espada%20da%20Ordem.png", 
+            'escopeta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhISlyZ5FTMNtk515SBRl7xa4D4yHisGG6vdqr20AA73SJWlk7H6JuN9yha2tLse3MCklAoGYUCT6FQLvsufeXZ_EuoIbHjVH8sk7Nn0PbjclXNcGQbxMZ3kxHQlcmtRuw2ksS_GDOQjP4I_vBVY6sTylIaEWNAe3oNxbz4vguqiLLtZDKHfN0fKdCXf9ZY/s320/ink.png", 
+            'soqueira': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpegg79kPPLZvXMLn_PMPUgiJfSMKpEigTxCLDkOhPKNbZsQtMqo_4SrH7JNGmOBIllXi66nizJU6WssMvrt-YgXVA0moMFKjDjmzLVqh6tR0oxocShg7IfYFHjlW25GKJCVTf4OVX2s5ZY-KGiL0qIpYTyPtwd74-48e-BTps3Bx0CMH6FFpLsqBTL91A/s320/Soqueiras.png", 
+            'faca': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMy1Auh8lIT4zHxcRwpWhzA_Jk7Qu9_ILzGAJHdi60Rvu4FfUlwWVuzHuu5HXmy0JuVIpRRBJ8xA_0WGbHIHQM_lobrl3ZUA-ZGnlwQLZs4lSGI6stfHfXCyg656-qyN-nOaTLfUwBYTDX6sdWr5XhMPs5Tb6WMM7vdLneEJuWCLm4MuOpiqaQRCw9mLhN/s320/Faca.png", 
+            'machado': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIyZF4bFM3yTMs4dPBKxXxt_-eHtSgDntPZqRc9CwWYWlCZtLyLdjTi63qCcRed-m5Ddcd4KZi5fo2guDyBGXk3B35X1lFpfJOTtNptON_eitnfUihUVehba86gRmsuD7JDSkucRcvo2cJJHAJzxDEadm6lCBwgSTNCMV4XvNGpCVVEeIUxK8-FpOfNPw8/s320/Machado.png", 
+            'machete': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwXKDbmSRGW48rlposLbMD2H4xIQwA39v6LvrnGJhOjJTis3wOfOeC4_h_yAoMqWbPgAzTsWXM6iR4yUH4SqeY-pDEYb6fuKIXDoH7z3355fW5h6tW_vnG-9OfwWkhdnmo9BZiB5wr9-uVQX4Id5OHlcNyw2vKEyOLtqjLlqo8b8Xil3zmpTquKXOhOkAr/s320/Machete.png", 
+            'martelo': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiC3r5t4TBIdSv9sMHwaIaGocHjDhnD1DYizZ8GBgi_Kba-KbtM8hljeRjg_u332wbOkCDXidt7nSh5n8MTqaA3F1BierA0tXbrfyh1V2MFxgqmWyk4D_9YKF-0NrO5TSFzClEJsh2IeTSs6pN-leKjEJogJxXqY6W4DEIdB0SzL47of_Vrxw9YkgWSFAT/s320/Martelo.png", 
+            'marreta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8gpzP0SJc9j2Zsb1K2XeoYfedZRYihBaXas_bKut2b_lwRXSqOHkjHL__pmamdVhJ9nyNTaTaIPwvW_p2ntWKvx3BExg_FK46gG_ti5Cm2ZzCXS7hP_ZVkLWRUr40H-f2okfKDuEwkZ89jOY5SIbx_c2uaAu2wUl4Of24lT3r_xHVZ5AidYwuh1aLa7_j/s320/Marreta.png", 
+            'serra elétrica': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWIytinBbLwLA9l6DyHOReFOvU5wYL6jDcwVDX92aQSjOl-8v2z-ftEv3Ur2b3wW-3BFA09eXiwOU_W7DhhescDK1cATlnj51PSsxHxRdj4l_7ZXeSGvOoh6PFG93xpzI_FE6YHFtr3YgzAylhfTkUc9ppuZWcvpKaGYTjOSsNfy-Y60DchJbW0oFywSMQ/s320/Serra%20El%C3%A9trica.png", 
+            'mochila': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmOTfY9u0Z_loviBw9gJrS9mYQ-4tQYMErCLCvrSMlj1SCj2hZI0Z4TqXBTM3SqEp31yDRglUiV0vUntoTCgw1vAFAuQ1sw1qe0oZj8acEv2KJnsu4D0iEz24N-or8dQQZNZC3WMmwMpfFbhHbYaPP1mng5m_Dcimy0wwzRenifx4uGXOd8s4dj7-XAEfT/w295-h414/Mochila.png", 
+            'lanterna': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilX9DWfY6eIGG0Gzoi-JA_2TTahiX_Mpkz1ut3qUJw82L3QZP-3x9LKk_3zOgUzP5bihX8RnetgKp-UIgjdcQ41dSKjV_YtkdLNu4XmQ8LKARChKNpcX5NmPYrLoG3PFVRR0kdpQJPhm0e1sn1ONNHsS1gCahi_qNrCkJO0pTQb-GZBBlHVs4WoeSldg-t/s1600/Lanterna.png", 
+            'proteção leve': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_4GIAm69-0y1zSykwJdvvA2-UQ-2ReN2-Qs0vSB1sHhhiOWbxSL9nl8BpZcrL2PXlkGGklLUBX5ULciy7L9xGwc7evILQX14EvqhR_Jgv8-Jpxx-wKFXbILucU_JorR32pZGdlnewBv0M_YeZu2c9gQtsiP1pYMY1SokOng8qwkSb8UHm7jn8ywi57Fo6/s320/Colete%20Leve.png", 
+            'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png" 
+        };
+
+        const premadeItemsMestre = [ { name: "Mochila", weight: 0, desc: "Aumenta capacidade em 2.", img: imgDictMestre['mochila'] }, { name: "Lanterna", weight: 1, desc: "Ilumina. Ofusca 1 alvo.", img: imgDictMestre['lanterna'] }, { name: "Proteção Leve", weight: 2, desc: "+5 Defesa.", img: imgDictMestre['proteção leve'] }, { name: "Proteção Pesada", weight: 5, desc: "+10 Defesa, -5 em perícias.", img: imgDictMestre['proteção pesada'] } ];
+        const premadeMeleeWeaponsMestre = [ { name: "Soqueira", atk: 2, dmg: "1d6", crit: "20/x2", range: "Toque", skill: "Luta", img: imgDictMestre['soqueira'], weight: 1 }, { name: "Faca", atk: 1, dmg: "1d4", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['faca'], weight: 1 }, { name: "Machado", atk: 1, dmg: "1d8", crit: "20/x3", range: "Curto", skill: "Luta", img: imgDictMestre['machado'], weight: 2 }, { name: "Machete", atk: 1, dmg: "1d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['machete'], weight: 1 }, { name: "Martelo", atk: 1, dmg: "1d6", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['martelo'], weight: 1 }, { name: "Marreta", atk: 1, dmg: "1d10", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['marreta'], weight: 2 }, { name: "Espada da Ordem", atk: 1, dmg: "1d8", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['espada da ordem'], weight: 2 }, { name: "Serra Elétrica", atk: 1, dmg: "2d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['serra elétrica'], weight: 2 } ];
+        const premadeRangedWeaponsMestre = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 }, { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1 }, { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDictMestre['escopeta'], weight: 2 }, { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1 }, { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2 }, { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 }, { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2 } ];
+
+        function renderizarCatalogo() {
+            const gridComum = document.getElementById('catalogo-grid-comum');
+            const gridArmaCC = document.getElementById('catalogo-grid-armacc');
+            const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
+
+            if(gridComum) gridComum.innerHTML = '';
+            if(gridArmaCC) gridArmaCC.innerHTML = '';
+            if(gridArmaDisp) gridArmaDisp.innerHTML = '';
+
+            let countComum = 0, countCC = 0, countDisp = 0;
             let todosItens = [];
-            
-            premadeItems.forEach(p => todosItens.push({
-                n: p.name, w: p.weight, d: p.desc, type: 'comum', img: p.img, eq: false, isCustom: false
-            }));
-            
-            premadeMeleeWeapons.forEach(p => todosItens.push({
-                n: p.name, w: p.weight!==undefined?p.weight:1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", eq: false, isCustom: false
+
+            premadeItemsMestre.forEach(p => todosItens.push({
+                n: p.name, w: p.weight !== undefined ? p.weight : 1, d: p.desc, type: 'comum', img: p.img, isCustom: false
             }));
 
-            premadeRangedWeapons.forEach(p => todosItens.push({
-                n: p.name, w: p.weight!==undefined?p.weight:1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, eq: false, isCustom: false
+            premadeMeleeWeaponsMestre.forEach(p => todosItens.push({
+                n: p.name, w: p.weight !== undefined ? p.weight : 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", isCustom: false
+            }));
+
+            premadeRangedWeaponsMestre.forEach(p => todosItens.push({
+                n: p.name, w: p.weight !== undefined ? p.weight : 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, isCustom: false
             }));
 
             catalogoMestre.forEach((i, idx) => todosItens.push({...i, isCustom: true, originalIdx: idx}));
-
-            let countComum = 0, countCC = 0, countDisp = 0;
 
             todosItens.forEach((item) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
@@ -727,12 +752,14 @@
                 }
 
                 let btnRemove = item.isCustom ? `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${item.originalIdx})">X</button>` : '';
-
                 const safeItemStr = encodeURIComponent(JSON.stringify(item));
                 const displayName = item.isCustom ? `${item.n} <br><span style="font-size:0.7em; color:${color}">(Criado)</span>` : item.n;
 
-                const card = document.createElement('div'); card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
-                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+                const card = document.createElement('div');
+                card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
+                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; };
+                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+                
                 card.innerHTML = `
                     ${btnRemove}
                     <img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px;">
@@ -741,17 +768,18 @@
                     <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
                         <button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button>
                         <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button>
-                    </div>`;
-                if (item.type === 'comum') { gridComum.appendChild(card); countComum++; } 
-                else if (item.atkType === 'Disparo') { gridArmaDisp.appendChild(card); countDisp++; } 
-                else { gridArmaCC.appendChild(card); countCC++; }
+                    </div>
+                `;
+                
+                if (item.type === 'comum') { if(gridComum) gridComum.appendChild(card); countComum++; } 
+                else if (item.atkType === 'Disparo') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } 
+                else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
             });
 
-            if (countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
-            if (countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
-            if (countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
+            if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+            if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
         }
-
         // ==========================================
         // TRANSFERÊNCIA
         // ==========================================
