@@ -1263,32 +1263,55 @@
     }
 
     function updateWeaponsDisplay() {
-        // CORRIGIDO: Agora puxa apenas as armas que estão MARCADAS COMO EQUIPADAS na maleta
+        // Puxa apenas as armas que estão MARCADAS COMO EQUIPADAS na maleta
         equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp'));
         
         const sel = document.getElementById('active-weapon-select');
-        const listDiv = document.getElementById('equipped-weapons-list');
         
-        if (sel && listDiv) {
+        if (sel) {
+            let currentVal = sel.value;
             sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join('');
             sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none';
             
-            listDiv.innerHTML = equippedWeaponsData.map(w => {
-                let safeSkill = (w.skill || "Luta").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
-                let attrToUse = (w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI";
-                
-                return `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
-                    <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">${w.n}</div>
-                    <div style="display: flex; gap: 8px; justify-content: center;">
-                        <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarTesteD20('${w.n}','skill_${safeSkill}','${attrToUse}', true)">ATQ</button>
-                        <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoMonstro('Jogador', '${w.n}', '${w.dmg}')">DANO</button>
-                    </div>
-                </div>`;
-            }).join('');
+            if (currentVal && equippedWeaponsData.some(w => w.id === currentVal)) {
+                sel.value = currentVal;
+            } else if (equippedWeaponsData.length > 0) {
+                sel.value = equippedWeaponsData[0].id;
+            }
+        }
+        
+        renderActiveWeapon();
+    }
+
+    function renderActiveWeapon() { 
+        const sel = document.getElementById('active-weapon-select');
+        const listDiv = document.getElementById('equipped-weapons-list');
+        
+        if (!listDiv) return;
+        
+        if (equippedWeaponsData.length === 0 || !sel || !sel.value) {
+            listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>';
+            return;
+        }
+
+        // Pega APENAS a arma que está selecionada na caixa de seleção
+        const activeWeaponId = sel.value;
+        const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
+        
+        if (w) {
+            let safeSkill = (w.skill || "Luta").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
+            let attrToUse = (w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI";
+            
+            listDiv.innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+                <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">${w.n}</div>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarTesteD20('${w.n}','skill_${safeSkill}','${attrToUse}', true)">ATQ</button>
+                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoMonstro('Jogador', '${w.n}', '${w.dmg}')">DANO</button>
+                </div>
+            </div>`;
         }
     }
 
-    function renderActiveWeapon() { updateWeaponsDisplay(); }
     function hasHeavyArmorEquipped() { return inventoryItems.some(i => i.eq && i.n.toLowerCase().includes('pesada')); }
     
     function abrirModalTransferirJogador() { document.getElementById('modal-transfer-player').style.display = 'flex'; }
@@ -1437,7 +1460,7 @@
         let totalValN = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
         
         let numAttacks = 1; 
-        let cMarg = 20; // Margem padrão do D20 para Crítico 
+        let cMarg = 20; 
         
         if(eArma){ 
             const sel=document.getElementById('active-weapon-select'); 
@@ -1469,7 +1492,7 @@
         let anyCrit = false; 
         let allDesastre = true; 
         
-        // CORRIGIDO: Sistema de 1d20 Puro
+        // CORRIGIDO: Sistema de D20 Clássico
         for(let i=0; i<numAttacks; i++){ 
             let d20 = Math.floor(Math.random() * 20) + 1;
             let somaTotal = d20 + totalValN;
@@ -1521,7 +1544,6 @@
     
     function rolarDadoPersonalizado() { 
         document.getElementById('popup-input-dice').style.display='none'; 
-        // CORRIGIDO: Permite fórmulas como "1d20+5" no dado livre
         let formula = document.getElementById('custom_dice_formula').value;
         if(formula) {
             rolarDanoMonstro('Jogador', 'Dado Personalizado', formula);
@@ -1533,7 +1555,6 @@
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
     function showPopup(n, r="TOTAL", st="color:white") { const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')){ textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText=`font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); if (socket) { const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido'; const emissionCode = typeof viewCode!=='undefined'&&viewCode ? viewCode : myUpperCode; socket.emit('rolagem_feita', {codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' '), resultado: n, cor: st}); } }
 
-    // Utiliza a mesma lógica forte do Mestre para rolar Dano de qualquer arma
     function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { 
         try { 
             if (!formula) formula = '0';
@@ -1546,7 +1567,6 @@
                     if(cur.includes('d')) { 
                         const parts = cur.split('d'); 
                         for(let i=0; i<(parseInt(parts[0])||1); i++) {
-                            // Se for crítico, dobra os dados
                             if (lastAttackWasCrit) {
                                 t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; 
                                 t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; 
