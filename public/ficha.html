@@ -707,11 +707,47 @@
         {nome:"Vontade",attr:"PRE"} 
     ];
 
+    // --- NOVA TABELA DE SUCESSO DO D20 ---
+    const tbSucesso = {
+        1: {n:20, b:99, e:99},
+        2: {n:19, b:20, e:99},
+        3: {n:18, b:20, e:99},
+        4: {n:17, b:19, e:99},
+        5: {n:16, b:19, e:20},
+        6: {n:15, b:18, e:20},
+        7: {n:14, b:18, e:20},
+        8: {n:13, b:17, e:20},
+        9: {n:12, b:17, e:20},
+        10: {n:11, b:16, e:19},
+        11: {n:10, b:16, e:19},
+        12: {n:9, b:15, e:19},
+        13: {n:8, b:15, e:19},
+        14: {n:7, b:14, e:19},
+        15: {n:6, b:14, e:18},
+        16: {n:5, b:13, e:18},
+        17: {n:4, b:13, e:18},
+        18: {n:3, b:12, e:18},
+        19: {n:2, b:12, e:18},
+        20: {n:1, b:11, e:18}
+    };
+
+    function getAlvosD20(vh) {
+        if (vh < 1) vh = 1;
+        if (vh > 20) {
+            // Se passar de 20 (muito raro, mas pode acontecer com combos), a dificuldade cai seguindo a lógica matemática.
+            return {
+                n: 1, 
+                b: Math.max(2, 21 - Math.floor(vh / 2)), 
+                e: Math.max(2, 21 - Math.floor(vh / 5))
+            };
+        }
+        return tbSucesso[vh];
+    }
+
     let equippedWeaponsData = []; 
     let charImages = { normal: '', lesionado: '', inconsciente: '', morrendo: '', enlouquecendo: '', les_enlouq: '' }; 
     let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
 
-    // --- NOVA FUNÇÃO PARA CALCULAR O BÔNUS PELO NÍVEL ---
     function getNivelBonus() {
         const n = document.getElementById('char_nivel');
         if(!n) return 2;
@@ -1432,23 +1468,25 @@
         let nivelBonus = getNivelBonus();
         let total = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
         
-        let valN = total;
-        let valB = Math.floor(total / 2);
-        let valE = Math.floor(total / 5);
+        let tg = getAlvosD20(total);
+        let strN = tg.n;
+        let strB = tg.b > 20 ? 'x' : tg.b;
+        let strE = tg.e > 20 ? 'x' : tg.e;
         
         let d = document.getElementById(id + "_targets"); 
-        if(d) d.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
+        if(d) d.innerHTML = `<span class="target-n">N:${strN}</span> <span class="target-b">B:${strB}</span> <span class="target-e">E:${strE}</span>`; 
     }
 
     function updateAllPericias() { 
         ["agi", "for", "int", "pre", "vig"].forEach(a=>{ 
             let v = parseInt(document.getElementById("attr_"+a).value) || 0; 
             let total = v * 2;
-            let valN = total;
-            let valB = Math.floor(total / 2);
-            let valE = Math.floor(total / 5);
+            let tg = getAlvosD20(total);
+            let strN = tg.n;
+            let strB = tg.b > 20 ? 'x' : tg.b;
+            let strE = tg.e > 20 ? 'x' : tg.e;
             let targetEl = document.getElementById("attr_"+a+"_targets"); 
-            if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
+            if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${strN}</span> <span class="target-b">B:${strB}</span> <span class="target-e">E:${strE}</span>`; 
         }); 
         periciasBase.forEach(p=>{ 
             let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
@@ -1477,6 +1515,8 @@
         
         let nivelBonus = getNivelBonus();
         let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
+        
+        let tg = getAlvosD20(totalValN);
         
         let numAttacks = 1; 
         let cMarg = 20; 
@@ -1513,7 +1553,6 @@
         
         for(let i=0; i<numAttacks; i++){ 
             let d20 = Math.floor(Math.random() * 20) + 1;
-            let somaTotal = d20 + totalValN;
             
             let textFormat = ""; 
             let colorFormat = ""; 
@@ -1528,22 +1567,32 @@
                 textFormat = "CRÍTICO!"; 
                 colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
             } 
-            else if(d20 === 20) { 
+            else if(d20 >= tg.e) { 
                 allDesastre = false; 
-                textFormat = "SUCESSO (20)"; 
+                textFormat = "EXTREMO"; 
                 colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
             } 
-            else { 
+            else if(d20 >= tg.b) { 
+                allDesastre = false; 
+                textFormat = "BOM"; 
+                colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if(d20 >= tg.n) { 
                 allDesastre = false; 
                 textFormat = "NORMAL"; 
                 colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
             } 
+            else { 
+                allDesastre = false; 
+                textFormat = "FALHA"; 
+                colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
+            } 
             
             if(numAttacks > 1){ 
                 colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); 
-                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${somaTotal} (${textFormat})</div>`); 
+                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${d20} (${textFormat})</div>`); 
             } else { 
-                showPopup(somaTotal, `${n}<br>(${textFormat})`, colorFormat); 
+                showPopup(d20, `${n}<br>(${textFormat})`, colorFormat); 
             } 
         } 
         
