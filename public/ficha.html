@@ -185,10 +185,6 @@
             transform: scale(1.05);
         }
 
-        .status-btn:active {
-            transform: scale(0.95);
-        }
-
         .status-bar-container {
             position: relative;
             flex: 1;
@@ -206,9 +202,9 @@
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); box-shadow: 0 0 10px rgba(229, 57, 53, 0.5); }
-        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); box-shadow: 0 0 10px rgba(0, 176, 255, 0.5); }
-        .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); box-shadow: 0 0 10px rgba(255, 207, 51, 0.5); }
+        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
+        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
+        .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
 
         .status-text {
             position: absolute;
@@ -232,13 +228,18 @@
             font-size: 1em;
             width: 40px;
             outline: none;
-            text-shadow: inherit;
             pointer-events: auto;
         }
 
-        .status-input:focus { border-bottom: 2px solid white; }
+        .status-input:focus {
+            border-bottom: 2px solid white;
+        }
+
         .status-input::-webkit-outer-spin-button, 
-        .status-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .status-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
 
         .status-toggles-container {
             display: flex;
@@ -441,7 +442,7 @@
         }
         .pool-item:hover { filter: brightness(1.2); }
         .pool-item-bg { width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; opacity: 0.3; z-index: 1;}
-        .pool-item-text { position: relative; z-index: 2; }
+        .pool-item-text { position: relative; z-index: 2; pointer-events: none;}
 
         .ammo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
         .ammo-box { background: rgba(25, 25, 27, 0.7); padding: 15px; border-radius: 10px; border: 1px solid rgba(45, 45, 48, 0.8); text-align: center; display: flex; flex-direction: column; align-items: center;}
@@ -451,13 +452,11 @@
 
         .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
         
-        .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; transition: 0.2s; }
+        .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; margin-bottom: 10px;}
         .btn-add:hover { filter: brightness(1.2); }
         
         .btn-del { background: var(--accent-red); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-weight: bold; transition: 0.2s; }
         .btn-del:hover { filter: brightness(1.2); }
-        
-        .item-equipped { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-yellow); margin-right: 8px; }
         
         .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
         .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
@@ -706,7 +705,7 @@
 
 <div id="tab-inventario" class="main-container">
     <div class="panel">
-        <div class="panel-title">Maleta (Inventário)</div>
+        <div class="panel-title">Maleta (Inventário - Toque RE4)</div>
         
         <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
             
@@ -732,7 +731,7 @@
                     <div style="text-align: center; color: var(--text-secondary); font-style: italic;">Selecione um item na maleta para ver os detalhes.</div>
                 </div>
                 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <label style="display: flex; align-items: center; gap: 5px; background: rgba(18,18,20,0.8); padding: 8px; border-radius: 4px; flex: 1; justify-content: center; cursor: pointer; border: 2px solid #444; transition: 0.2s;" id="info-equip-container">
                         <input type="checkbox" id="info-equip" style="cursor:pointer;" onchange="toggleEquipSelected()" disabled>
                         <span style="font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white;">Equipar</span>
@@ -740,7 +739,10 @@
                     <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button>
                 </div>
                 
-                <button class="btn-roll" style="width:100%; margin-top:10px; border-color:var(--accent-purple); color:var(--accent-purple); font-weight:bold; padding: 8px;" onclick="abrirModalTransferirJogador()" id="btn-transfer-item" disabled>📤 Enviar a Jogador</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-roll" style="flex: 1; border-color:var(--accent-purple); color:var(--accent-purple); font-weight:bold; padding: 8px;" onclick="abrirModalTransferirJogador()" id="btn-transfer-item" disabled>📤 Enviar</button>
+                    <button class="btn-roll" style="flex: 1; border-color:var(--accent-yellow); color:var(--accent-yellow); font-weight:bold; padding: 8px;" onclick="openEditItemPopup()" id="btn-edit-item" disabled>✏️ Editar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -851,7 +853,7 @@
         
         <div style="display:flex;gap:10px;margin-top:15px;">
             <button class="btn-add" id="btn-confirm-add-item" style="flex:1;" onclick="confirmAddItem()">COLOCAR NA CAIXA</button>
-            <button class="btn-del" style="flex:1;" onclick="document.getElementById('popup-new-item').style.display='none'">CANCELAR</button>
+            <button class="btn-del" style="flex:1;" onclick="closeItemPopup()">CANCELAR</button>
         </div>
     </div>
 </div>
@@ -940,7 +942,7 @@
         
         <div style="display:flex;gap:10px;">
             <button class="btn-add" style="background:var(--accent-blue);flex:1;" onclick="saveSkillPopup()">SALVAR</button>
-            <button class="btn-del" style="flex:1;" onclick="document.getElementById('popup-skill-info').style.display='none'">FECHAR</button>
+            <button class="btn-del" style="flex:1;" onclick="closeSkillPopup()">FECHAR</button>
         </div>
     </div>
 </div>
@@ -1185,7 +1187,8 @@
         activeDragItem = null; 
         currentItem.el.classList.remove('ghost-valid', 'ghost-invalid');
 
-        if (!hasMovedMouse && currentItem.x >= 0) {
+        // CLIQUE SIMPLES (sem arrastar muito) - Abre a Info na lateral direita
+        if (!hasMovedMouse) {
             updateInventoryDisplay(); 
             selectItemInfo(currentItem.id);
             return;
@@ -1194,6 +1197,7 @@
         const pos = getGridPosition(e.clientX, e.clientY);
         const rect = gridEl.getBoundingClientRect();
 
+        // ATIRAR FORA DA MALETA (Volta para a Inbox)
         if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
             currentItem.x = -1;
             currentItem.y = -1;
@@ -1205,6 +1209,7 @@
             return;
         }
 
+        // TENTAR COLOCAR NA GRELHA
         if (canPlace(pos.col, pos.row, currentItem.w, currentItem.h)) {
             currentItem.x = pos.col;
             currentItem.y = pos.row;
@@ -1244,13 +1249,15 @@
             offsetY = oldOffsetX;
             
             const pos = getGridPosition(window.event ? window.event.clientX : 0, window.event ? window.event.clientY : 0);
-            const rect = gridEl.getBoundingClientRect();
             activeDragItem.el.classList.remove('ghost-valid', 'ghost-invalid');
             if (canPlace(pos.col, pos.row, activeDragItem.w, activeDragItem.h)) activeDragItem.el.classList.add('ghost-valid');
             else activeDragItem.el.classList.add('ghost-invalid');
         }
     });
 
+    // ==========================================
+    // PAINEL DE INFORMAÇÕES DO ITEM SELECIONADO
+    // ==========================================
     function selectItemInfo(id) {
         currentSelectedItemId = id;
         inventoryItems.forEach(i => { if(i.el) i.el.classList.remove('selected'); });
@@ -1295,6 +1302,7 @@
         }
         document.getElementById('info-stats').innerHTML = statsHTML;
         
+        // Ativar os Botões Laterais
         const chkEquip = document.getElementById('info-equip');
         chkEquip.disabled = false;
         chkEquip.checked = item.eq;
@@ -1302,6 +1310,7 @@
         
         document.getElementById('btn-delete-item').disabled = false;
         document.getElementById('btn-transfer-item').disabled = false;
+        document.getElementById('btn-edit-item').disabled = false;
     }
 
     function deselectItemInfo() {
@@ -1315,6 +1324,7 @@
         document.getElementById('info-equip-container').style.borderColor = '#444';
         document.getElementById('btn-delete-item').disabled = true;
         document.getElementById('btn-transfer-item').disabled = true;
+        document.getElementById('btn-edit-item').disabled = true;
     }
 
     function toggleEquipSelected() {
@@ -1338,182 +1348,158 @@
         }
     }
 
-
     // ==========================================
-    // FUNÇÕES RESTANTES (CORE / RITUAIS / ETC)
+    // FUNÇÕES DE CRIAÇÃO E CATÁLOGO
     // ==========================================
-    function openCharImgPopup() { document.getElementById('img-normal').value=charImages.normal||''; document.getElementById('img-lesionado').value=charImages.lesionado||''; document.getElementById('img-inconsciente').value=charImages.inconsciente||''; document.getElementById('img-morrendo').value=charImages.morrendo||''; document.getElementById('img-enlouquecendo').value=charImages.enlouquecendo||''; document.getElementById('img-les-enlouq').value=charImages.les_enlouq||''; document.getElementById('popup-char-imgs').style.display='flex'; }
-    function closeCharImgPopup() { document.getElementById('popup-char-imgs').style.display='none'; }
-    function saveCharImgPopup() { charImages.normal=document.getElementById('img-normal').value; charImages.lesionado=document.getElementById('img-lesionado').value; charImages.inconsciente=document.getElementById('img-inconsciente').value; charImages.morrendo=document.getElementById('img-morrendo').value; charImages.enlouquecendo=document.getElementById('img-enlouquecendo').value; charImages.les_enlouq=document.getElementById('img-les-enlouq').value; updateProfilePicture(); save(); closeCharImgPopup(); }
-    function toggleStatus(type) { charStatus[type] = !charStatus[type]; updateProfilePicture(); save(); }
-    function updateProfilePicture() { let imgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg"; if (charStatus.morrendo && charImages.morrendo) imgUrl=charImages.morrendo; else if (charStatus.inconsciente && charImages.inconsciente) imgUrl=charImages.inconsciente; else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) imgUrl=charImages.les_enlouq; else if (charStatus.enlouquecendo && charImages.enlouquecendo) imgUrl=charImages.enlouquecendo; else if (charStatus.lesionado && charImages.lesionado) imgUrl=charImages.lesionado; let imgEl = document.getElementById('char_img_display'); if(imgEl && imgEl.src !== imgUrl) { imgEl.style.opacity = 0; setTimeout(() => { imgEl.src = imgUrl; imgEl.onload = () => imgEl.style.opacity = 1; setTimeout(() => imgEl.style.opacity = 1, 100); }, 300); } ['lesionado', 'inconsciente', 'morrendo', 'enlouquecendo'].forEach(s => { let btn = document.getElementById('btn-status-' + s); if(btn) { if(charStatus[s]) btn.classList.add('active-' + s); else btn.classList.remove('active-' + s); } }); }
-    
-    function applyOccupation(newOcc) { const skillsMap = { "Academico": ["ciencias", "investigacao"], "AgenteSaude": ["intuicao", "medicina"], "Artista": ["artes", "enganacao"], "Atleta": ["acrobacia", "atletismo"], "Chef": ["fortitude", "profissao"], "Criminoso": ["crime", "furtividade"], "EntendedorOculto": ["ocultismo", "religiao"], "Engenheiro": ["profissao", "tecnologia"], "Desgarrado": ["fortitude", "sobrevivencia"], "Investigador": ["investigacao", "percepcao"], "Lutador": ["luta", "reflexos"], "Policial": ["pontaria", "percepcao"], "Religioso": ["religiao", "vontade"], "TI": ["investigacao", "tecnologia"], "Universitario": ["atualidades", "investigacao"], "Jornalista": ["atualidades", "investigacao"], "Revoltado": ["furtividade", "vontade"] }; if(currentOccupation !== "Nenhuma" && skillsMap[currentOccupation]) { skillsMap[currentOccupation].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = false; toggleTrained(s); } }); } if(newOcc !== "Nenhuma" && skillsMap[newOcc]) { skillsMap[newOcc].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = true; toggleTrained(s); } }); } currentOccupation = newOcc; }
-    
-    function openTab(id, btn) { document.querySelectorAll('.main-container, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); }
-    function changeStatus(type, amount) { let el = document.getElementById(type + '_atual'); if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } }
-    function updateStatusBars() { const vA = parseInt(document.getElementById('vida_atual').value)||0, vM = parseInt(document.getElementById('vida_max').value)||1; const sA = parseInt(document.getElementById('sani_atual').value)||0, sM = parseInt(document.getElementById('sani_max').value)||1; const pA = parseInt(document.getElementById('pe_atual').value)||0, pM = parseInt(document.getElementById('pe_max').value)||1; document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; document.getElementById('bar_pe').style.width = Math.min(Math.max((pA/pM)*100, 0), 100) + '%'; }
-
-    //=========================================
-    // CÁLCULO N/B/E EXATO COMO NA IMAGEM
-    //=========================================
-    function openSkillPopup(sn, nome, attr) { 
-        document.getElementById('popup-skill-name').innerText=nome; 
-        document.getElementById('popup-skill-attr-name').innerText=attr+" (x2)"; 
-        let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
-        let at = atEl?parseInt(atEl.value)||0:0; 
-        document.getElementById('popup-skill-natural').innerText=at*2; 
-        document.getElementById('popup-skill-trained').checked=document.getElementById('chk_'+sn).checked; 
-        document.getElementById('popup-skill-bonus').value=document.getElementById('skill_'+sn).value; 
-        document.getElementById('popup-skill-sn').value=sn; 
-        document.getElementById('popup-skill-attr').value=attr; 
-        updateSkillPopupCalc(); 
-        document.getElementById('popup-skill-info').style.display='flex'; 
-    }
-
-    function updateSkillPopupCalc() { 
-        let attr = document.getElementById('popup-skill-attr').value; 
-        let sn = document.getElementById('popup-skill-sn').value; 
-        let atEl = document.getElementById("attr_"+attr.toLowerCase()); 
-        let at = atEl?parseInt(atEl.value)||0:0; 
-        let natural = at*2; 
-        let bonus = parseInt(document.getElementById('popup-skill-bonus').value)||0; 
-        let trained = document.getElementById('popup-skill-trained').checked?10:0; 
-        let penalty = 0; 
-        if(hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) penalty = -5; 
-        document.getElementById('popup-skill-total').innerText = natural+bonus+trained+penalty; 
-    }
-
-    function saveSkillPopup() { 
-        let sn = document.getElementById('popup-skill-sn').value; 
-        document.getElementById('chk_'+sn).checked=document.getElementById('popup-skill-trained').checked; 
-        document.getElementById('skill_'+sn).value=document.getElementById('popup-skill-bonus').value; 
-        toggleTrained(sn); 
-        save(); 
-        document.getElementById('popup-skill-info').style.display='none'; 
-    }
-
-    function closeSkillPopup() { document.getElementById('popup-skill-info').style.display='none'; }
-
-    function updateTargetsPericia(id, ak) { 
-        let skEl = document.getElementById(id); 
-        let sk = skEl ? parseInt(skEl.value)||0 : 0; 
-        let atEl = document.getElementById("attr_"+ak.toLowerCase()); 
-        let at = atEl ? parseInt(atEl.value)||0 : 0; 
-        let sn = id.replace("skill_", ""); 
-        let chkEl = document.getElementById("chk_"+sn); 
-        let tr = chkEl ? chkEl.checked : false; 
-        
-        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
-        
-        // MATEMÁTICA N/B/E EXATA
-        let total = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
-        let valN = total;
-        let valB = Math.floor(total / 2);
-        let valE = Math.floor(total / 5);
-        
-        let d = document.getElementById(id + "_targets"); 
-        if(d) d.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
-    }
-
-    function updateAllPericias() { 
-        ["agi", "for", "int", "pre", "vig"].forEach(a=>{ 
-            let v = parseInt(document.getElementById("attr_"+a).value) || 0; 
-            let total = v * 2;
-            let valN = total;
-            let valB = Math.floor(total / 2);
-            let valE = Math.floor(total / 5);
-            let targetEl = document.getElementById("attr_"+a+"_targets"); 
-            if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
-        }); 
-        periciasBase.forEach(p=>{ 
-            let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
-            updateTargetsPericia("skill_" + sn, p.attr); 
-        }); 
-    }
-
-    function toggleTrained(sn) { document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); updateAllPericias(); if(sn==="atletismo") updateWeight(); }
-
-    function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
-    function closeAbilityPopup() { document.getElementById('popup-new-ability').style.display='none'; }
-    function confirmAddAbility() { const n = document.getElementById('new-ability-name').value; const d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); closeAbilityPopup(); }
-    function addAbility(n, d) { const id = Date.now().toString()+Math.floor(Math.random()*100000).toString(); const safeD = (d||"").replace(/"/g, "'"); const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); div.style.background = 'rgba(18,18,20,0.8)'; div.style.border = '1px solid rgba(51,51,51,0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="document.getElementById('ability-${id}').remove(); save();">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; document.getElementById('abilities-list').appendChild(div); save(); }
-
     function openItemPopup() { 
-        editingItemId=null; 
-        ['new-item-name','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { let el = document.getElementById(i); if(el) el.value=(i==='wp-atk')?'1':(i==='wp-capacity'?'6':''); }); 
-        document.getElementById('wp-ammo').value='Nenhuma'; document.getElementById('new-item-w').value='1'; document.getElementById('new-item-h').value='1';
-        document.getElementById('popup-new-item-title').innerText="Adicionar Inventário"; document.getElementById('btn-confirm-add-item').innerText="COLOCAR NA CAIXA"; selectItemType('item'); document.getElementById('popup-new-item').style.display='flex'; 
+        editingItemId = null; 
+        ['new-item-name','new-item-desc','new-item-img','wp-atk-type','wp-atk','wp-dmg','wp-crit','wp-range','wp-skill','wp-extra','wp-capacity'].forEach(i=> { 
+            let el = document.getElementById(i); 
+            if(el) el.value = (i==='wp-atk') ? '1' : (i==='wp-capacity' ? '6' : ''); 
+        }); 
+        
+        document.getElementById('wp-ammo').value = 'Nenhuma'; 
+        document.getElementById('new-item-w').value = '1'; 
+        document.getElementById('new-item-h').value = '1';
+        document.getElementById('popup-new-item-title').innerText = "Adicionar Inventário"; 
+        document.getElementById('btn-confirm-add-item').innerText = "COLOCAR NA CAIXA"; 
+        selectItemType('item'); 
+        document.getElementById('popup-new-item').style.display = 'flex'; 
     }
-    function closeItemPopup() { document.getElementById('popup-new-item').style.display='none'; editingItemId=null; }
+
+    function closeItemPopup() { 
+        document.getElementById('popup-new-item').style.display = 'none'; 
+        editingItemId = null; 
+    }
+
     function selectItemType(type) { 
         document.getElementById('new-item-type').value = type; 
-        ['item', 'armacc', 'armadisp'].forEach(t => { let btn = document.getElementById('btn-type-' + t); if(btn) btn.classList.remove('active'); }); 
-        if(type==='item'||type==='pers-item') document.getElementById('btn-type-item').classList.add('active'); 
-        if(type==='armacc'||type==='pers-cc') document.getElementById('btn-type-armacc').classList.add('active'); 
-        if(type==='armadisp'||type==='pers-disp') document.getElementById('btn-type-armadisp').classList.add('active'); 
+        ['item', 'armacc', 'armadisp'].forEach(t => { 
+            let btn = document.getElementById('btn-type-' + t); 
+            if(btn) btn.classList.remove('active'); 
+        }); 
         
-        document.getElementById('fields-comum').style.display='none'; document.getElementById('fields-arma').style.display='none'; document.getElementById('fields-item-catalog').style.display='none'; document.getElementById('fields-armacc-catalog').style.display='none'; document.getElementById('fields-armadisp-catalog').style.display='none'; 
-        const btnAdd = document.getElementById('btn-confirm-add-item'), genericFields = document.getElementById('generic-item-fields'); 
-        if (type==='item') { document.getElementById('fields-item-catalog').style.display='block'; btnAdd.style.display='none'; genericFields.style.display='none'; renderPremadeCatalogs(); } 
-        else if (type==='armacc') { document.getElementById('fields-armacc-catalog').style.display='block'; btnAdd.style.display='none'; genericFields.style.display='none'; renderPremadeCatalogs(); } 
-        else if (type==='armadisp') { document.getElementById('fields-armadisp-catalog').style.display='block'; btnAdd.style.display='none'; genericFields.style.display='none'; renderPremadeCatalogs(); } 
-        else { 
-            btnAdd.style.display='block'; genericFields.style.display='block'; 
-            if(type==='pers-item') { document.getElementById('fields-comum').style.display='block'; } 
-            else if (type==='pers-disp') { document.getElementById('fields-arma').style.display='grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value='Disparo'; document.getElementById('wp-ammo').value='Curta'; } } 
-            else if (type==='pers-cc') { document.getElementById('fields-arma').style.display='grid'; if(!editingItemId) { document.getElementById('wp-atk-type').value='Corpo a corpo'; document.getElementById('wp-ammo').value='Nenhuma'; } } 
+        if(type === 'item' || type === 'pers-item') document.getElementById('btn-type-item').classList.add('active'); 
+        if(type === 'armacc' || type === 'pers-cc') document.getElementById('btn-type-armacc').classList.add('active'); 
+        if(type === 'armadisp' || type === 'pers-disp') document.getElementById('btn-type-armadisp').classList.add('active'); 
+        
+        document.getElementById('fields-comum').style.display = 'none'; 
+        document.getElementById('fields-arma').style.display = 'none'; 
+        document.getElementById('fields-item-catalog').style.display = 'none'; 
+        document.getElementById('fields-armacc-catalog').style.display = 'none'; 
+        document.getElementById('fields-armadisp-catalog').style.display = 'none'; 
+        
+        const btnAdd = document.getElementById('btn-confirm-add-item');
+        const genericFields = document.getElementById('generic-item-fields'); 
+        
+        if (type === 'item') { 
+            document.getElementById('fields-item-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none'; 
+            genericFields.style.display = 'none'; 
+            renderPremadeCatalogs(); 
+        } else if (type === 'armacc') { 
+            document.getElementById('fields-armacc-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none'; 
+            genericFields.style.display = 'none'; 
+            renderPremadeCatalogs(); 
+        } else if (type === 'armadisp') { 
+            document.getElementById('fields-armadisp-catalog').style.display = 'block'; 
+            btnAdd.style.display = 'none'; 
+            genericFields.style.display = 'none'; 
+            renderPremadeCatalogs(); 
+        } else { 
+            btnAdd.style.display = 'block'; 
+            genericFields.style.display = 'block'; 
+            if(type === 'pers-item') { 
+                document.getElementById('fields-comum').style.display = 'block'; 
+            } else if (type === 'pers-disp') { 
+                document.getElementById('fields-arma').style.display = 'grid'; 
+                if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Disparo'; document.getElementById('wp-ammo').value = 'Curta'; } 
+            } else if (type === 'pers-cc') { 
+                document.getElementById('fields-arma').style.display = 'grid'; 
+                if(!editingItemId) { document.getElementById('wp-atk-type').value = 'Corpo a corpo'; document.getElementById('wp-ammo').value = 'Nenhuma'; } 
+            } 
         } 
     }
-    
+
     function confirmAddItem() { 
         const n = document.getElementById('new-item-name').value; 
         const w = parseInt(document.getElementById('new-item-w').value)||1; 
         const h = parseInt(document.getElementById('new-item-h').value)||1;
         const rawType = document.getElementById('new-item-type').value; 
-        const type = (rawType==='pers-item'||rawType==='item')?'comum':'arma'; 
+        const type = (rawType === 'pers-item' || rawType === 'item') ? 'comum' : 'arma'; 
         let img = document.getElementById('new-item-img').value; 
         if(!n) return alert("Dê um nome!"); 
         
         let d="", dmg="0", extra="0", crit="20/x2", skill="Luta", atkType="Corpo a corpo", atk="1", range="Curto", ammo="Nenhuma", cap="0", curShots="0"; 
-        if(type==='comum') { d = document.getElementById('new-item-desc').value||"Sem descrição."; } 
-        else { 
-            atkType=document.getElementById('wp-atk-type').value||(rawType==='pers-disp'?"Disparo":"Corpo a corpo"); 
-            atk=document.getElementById('wp-atk').value||"1"; dmg=document.getElementById('wp-dmg').value||"0"; 
-            crit=document.getElementById('wp-crit').value||"20/x2"; range=document.getElementById('wp-range').value||"Curto"; 
-            ammo=document.getElementById('wp-ammo').value||"Nenhuma"; skill=document.getElementById('wp-skill').value||"Luta"; 
-            extra=document.getElementById('wp-extra').value||"0"; cap=document.getElementById('wp-capacity').value||"0"; curShots=cap; 
+        
+        if(type === 'comum') { 
+            d = document.getElementById('new-item-desc').value || "Sem descrição."; 
+        } else { 
+            atkType = document.getElementById('wp-atk-type').value || (rawType === 'pers-disp' ? "Disparo" : "Corpo a corpo"); 
+            atk = document.getElementById('wp-atk').value || "1"; 
+            dmg = document.getElementById('wp-dmg').value || "0"; 
+            crit = document.getElementById('wp-crit').value || "20/x2"; 
+            range = document.getElementById('wp-range').value || "Curto"; 
+            ammo = document.getElementById('wp-ammo').value || "Nenhuma"; 
+            skill = document.getElementById('wp-skill').value || "Luta"; 
+            extra = document.getElementById('wp-extra').value || "0"; 
+            cap = document.getElementById('wp-capacity').value || "0"; 
+            curShots = cap; 
         } 
         
-        let idToUse=Date.now(); 
-        if(!editingItemId) { 
-            let catType=''; let newCatItem={name:n,w:w,h:h,img:img,type:type,atkType:atkType,atk:atk,dmg:dmg,crit:crit,range:range,ammo:ammo,skill:skill,extra:extra,capacity:cap}; 
-            if(type==='comum'){ newCatItem.desc=document.getElementById('new-item-desc').value||"Sem descrição."; if(!customCatalog.items.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); catType='items'; }
-            else if(atkType.toLowerCase().includes("disparo")){ if(!customCatalog.ranged.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); catType='ranged'; }
-            else{ if(!customCatalog.melee.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); catType='melee'; } 
-            localStorage.setItem(keyCatalog,JSON.stringify(customCatalog)); 
-            if(socket) socket.emit('novo_item_catalogo_global',{catType:catType,item:newCatItem}); 
+        if (!editingItemId) { 
+            let idToUse = Date.now();
+            let catType = ''; 
+            let newCatItem = { name: n, w: w, h: h, img: img, type: type, atkType: atkType, atk: atk, dmg: dmg, crit: crit, range: range, ammo: ammo, skill: skill, extra: extra, capacity: cap }; 
             
+            if(type === 'comum') { newCatItem.desc = document.getElementById('new-item-desc').value || "Sem descrição."; if(!customCatalog.items.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.items.push(newCatItem); catType='items'; }
+            else if(atkType.toLowerCase().includes("disparo")) { if(!customCatalog.ranged.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.ranged.push(newCatItem); catType='ranged'; }
+            else { if(!customCatalog.melee.some(it=>(it.name||it.n||"").toLowerCase()===newCatItem.name.toLowerCase())) customCatalog.melee.push(newCatItem); catType='melee'; } 
+            
+            localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); 
+            if(socket) socket.emit('novo_item_catalogo_global',{catType:catType, item:newCatItem}); 
+            
+            // Joga para a Caixa de Entrada (x:-1, y:-1)
             inventoryItems.push({ id: 'inv_'+idToUse, n, w, h, d, eq: false, type, dmg, extra, crit, skill, img, atkType, atk, range, ammo, capacity: cap, currentShots: curShots, x:-1, y:-1, rotated:false });
         } else {
+            // Editando Item Existente
             const idx = inventoryItems.findIndex(i => i.id === editingItemId);
             if (idx > -1) {
                 inventoryItems[idx] = { ...inventoryItems[idx], n, w, h, d, type, dmg, extra, crit, skill, img, atkType, atk, range, ammo, capacity: cap };
-                if (inventoryItems[idx].x >= 0) {
+                
+                // Se já estiver na grelha, o HTML tem de ser atualizado em tempo real para bater certo
+                if (inventoryItems[idx].x >= 0 && inventoryItems[idx].el) {
                     inventoryItems[idx].el.style.width = (inventoryItems[idx].rotated ? h : w) * CELL_SIZE + 'px';
                     inventoryItems[idx].el.style.height = (inventoryItems[idx].rotated ? w : h) * CELL_SIZE + 'px';
                 }
             }
         }
-        updateInventoryDisplay(); save(); closeItemPopup(); 
+        
+        updateInventoryDisplay(); 
+        
+        // Se estávamos editando, atualiza também a aba de inspeção ao fechar
+        if(editingItemId === currentSelectedItemId) selectItemInfo(editingItemId);
+        
+        save(); 
+        closeItemPopup(); 
     }
 
     function addCustomCatalogItem(type, index) { 
-        let idToUse='inv_'+Date.now()+Math.random(); 
-        if (type==='items') { const it=customCatalog.items[index]; inventoryItems.push({id:idToUse,n:it.n||it.name,w:it.w||it.weight||1,h:it.h||1,d:it.rawDesc||it.d||it.desc,eq:false,type:'comum',img:it.img,x:-1,y:-1,rotated:false}); } 
-        else if (type==='melee') { const wp=customCatalog.melee[index]; inventoryItems.push({id:idToUse,n:wp.n||wp.name,w:wp.w||wp.weight||1,h:wp.h||1,d:"",eq:false,type:'arma',dmg:wp.dmg,extra:wp.extra||'0',crit:wp.crit,skill:wp.skill,img:wp.img,atkType:wp.atkType,atk:wp.atk,range:wp.range,ammo:wp.ammo,capacity:wp.capacity||'0',currentShots:wp.capacity||'0',x:-1,y:-1,rotated:false}); } 
-        else if (type==='ranged') { const wp=customCatalog.ranged[index]; inventoryItems.push({id:idToUse,n:wp.n||wp.name,w:wp.w||wp.weight||1,h:wp.h||1,d:"",eq:false,type:'arma',dmg:wp.dmg,extra:wp.extra||'0',crit:wp.crit,skill:wp.skill,img:wp.img,atkType:wp.atkType,atk:wp.atk,range:wp.range,ammo:wp.ammo,capacity:wp.capacity||'0',currentShots:wp.capacity||'0',x:-1,y:-1,rotated:false}); } 
-        updateInventoryDisplay(); save(); closeItemPopup(); 
+        let idToUse = 'inv_' + Date.now() + Math.random(); 
+        if (type === 'items') { 
+            const it = customCatalog.items[index]; 
+            inventoryItems.push({id: idToUse, n: it.n||it.name, w: it.w||it.weight||1, h: it.h||1, d: it.rawDesc||it.d||it.desc, eq: false, type: 'comum', img: it.img, x: -1, y: -1, rotated: false}); 
+        } else if (type === 'melee') { 
+            const wp = customCatalog.melee[index]; 
+            inventoryItems.push({id: idToUse, n: wp.n||wp.name, w: wp.w||wp.weight||1, h: wp.h||1, d: "", eq: false, type: 'arma', dmg: wp.dmg, extra: wp.extra||'0', crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity||'0', currentShots: wp.capacity||'0', x: -1, y: -1, rotated: false}); 
+        } else if (type === 'ranged') { 
+            const wp = customCatalog.ranged[index]; 
+            inventoryItems.push({id: idToUse, n: wp.n||wp.name, w: wp.w||wp.weight||1, h: wp.h||1, d: "", eq: false, type: 'arma', dmg: wp.dmg, extra: wp.extra||'0', crit: wp.crit, skill: wp.skill, img: wp.img, atkType: wp.atkType, atk: wp.atk, range: wp.range, ammo: wp.ammo, capacity: wp.capacity||'0', currentShots: wp.capacity||'0', x: -1, y: -1, rotated: false}); 
+        } 
+        updateInventoryDisplay(); 
+        save(); 
+        closeItemPopup(); 
     }
 
     function openEditItemPopup() { 
@@ -1530,50 +1516,78 @@
         
         if(type === 'arma') { 
             let atkType = item.atkType || "Corpo a corpo"; 
-            if (atkType.toLowerCase().includes("disparo")) selectItemType('pers-disp'); else selectItemType('pers-cc'); 
-            document.getElementById('wp-atk-type').value = atkType; document.getElementById('wp-atk').value = item.atk || "1"; 
-            document.getElementById('wp-dmg').value = item.dmg || "0"; document.getElementById('wp-crit').value = item.crit || "20/x2"; 
-            document.getElementById('wp-range').value = item.range || "Curto"; document.getElementById('wp-ammo').value = item.ammo || "Nenhuma"; 
-            document.getElementById('wp-capacity').value = item.capacity || "6"; document.getElementById('wp-skill').value = item.skill || "Luta"; 
-            document.getElementById('wp-extra').value = item.extra || "0"; document.getElementById('new-item-desc').value = ""; 
+            if (atkType.toLowerCase().includes("disparo")) selectItemType('pers-disp'); 
+            else selectItemType('pers-cc'); 
+            
+            document.getElementById('wp-atk-type').value = atkType; 
+            document.getElementById('wp-atk').value = item.atk || "1"; 
+            document.getElementById('wp-dmg').value = item.dmg || "0"; 
+            document.getElementById('wp-crit').value = item.crit || "20/x2"; 
+            document.getElementById('wp-range').value = item.range || "Curto"; 
+            document.getElementById('wp-ammo').value = item.ammo || "Nenhuma"; 
+            document.getElementById('wp-capacity').value = item.capacity || "6"; 
+            document.getElementById('wp-skill').value = item.skill || "Luta"; 
+            document.getElementById('wp-extra').value = item.extra || "0"; 
+            document.getElementById('new-item-desc').value = ""; 
         } else { 
             selectItemType('pers-item'); 
             document.getElementById('new-item-desc').value = (item.d || "").replace(/&quot;/g, '"'); 
         } 
+        
         document.getElementById('popup-new-item-title').innerText = "Editar Item / Arma"; 
         document.getElementById('btn-confirm-add-item').innerText = "SALVAR ALTERAÇÕES"; 
         document.getElementById('popup-new-item').style.display = 'flex'; 
     }
 
-    function abrirModalTransferirJogador() { 
-        if(!currentSelectedItemId) return; 
-        const item = inventoryItems.find(i => i.id === currentSelectedItemId);
-        if(!item) return; 
-        document.getElementById('transfer-player-item-name').innerText = item.n; 
-        document.getElementById('transfer-target-code').value = ''; 
-        document.getElementById('modal-transfer-player').style.display = 'flex'; 
-    }
-    
-    function confirmarEnvioJogador() { 
-        const targetCode = document.getElementById('transfer-target-code').value.trim().toUpperCase(); 
-        if(!targetCode) return alert("Digite o login do jogador!"); 
-        if(targetCode === myUpperCode) return alert("Não pode enviar para si mesmo!"); 
-        if(!currentSelectedItemId) return; 
-        const item = inventoryItems.find(i => i.id === currentSelectedItemId);
-        if(!item) return; 
+    // ==========================================
+    // CÁLCULO DAS PERÍCIAS (D100 / NORMAL-BOM-EXTREMO)
+    // ==========================================
+    function updateTargetsPericia(id, ak) { 
+        let skEl = document.getElementById(id); 
+        let sk = skEl ? parseInt(skEl.value)||0 : 0; 
+        let atEl = document.getElementById("attr_"+ak.toLowerCase()); 
+        let at = atEl ? parseInt(atEl.value)||0 : 0; 
+        let sn = id.replace("skill_", ""); 
+        let chkEl = document.getElementById("chk_"+sn); 
+        let tr = chkEl ? chkEl.checked : false; 
         
-        const itemParaEnviar = { ...item, id: 'inv_' + Date.now(), x: -1, y: -1, rotated: false, eq: false }; 
-        if(socket) socket.emit('comando_mestre', {tipo: 'dar_item', codigo: targetCode, item: itemParaEnviar}); 
+        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
         
-        inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId);
-        deselectItemInfo(); updateInventoryDisplay(); save();
-        alert(`Item enviado com sucesso!`); 
-        document.getElementById('modal-transfer-player').style.display = 'none'; 
+        let total = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
+        let valN = total;
+        let valB = Math.floor(total / 2);
+        let valE = Math.floor(total / 5);
+        
+        let d = document.getElementById(id + "_targets"); 
+        if(d) d.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
     }
 
-    // ===============================
-    // DADOS E ROLAGEM D100 (CALL OF CTHULHU)
-    // ===============================
+    function updateAllPericias() { 
+        ["agi", "for", "int", "pre", "vig"].forEach(a=>{ 
+            let v = parseInt(document.getElementById("attr_"+a).value) || 0; 
+            let total = v * 2;
+            let valN = total;
+            let valB = Math.floor(total / 2);
+            let valE = Math.floor(total / 5);
+            
+            let targetEl = document.getElementById("attr_"+a+"_targets"); 
+            if(targetEl) targetEl.innerHTML = `<span class="target-n">N:${valN}</span> <span class="target-b">B:${valB}</span> <span class="target-e">E:${valE}</span>`; 
+        }); 
+        periciasBase.forEach(p=>{ 
+            let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
+            updateTargetsPericia("skill_" + sn, p.attr); 
+        }); 
+    }
+
+    function toggleTrained(sn) { 
+        document.getElementById(`card_${sn}`).classList.toggle('trained', document.getElementById(`chk_${sn}`).checked); 
+        updateAllPericias(); 
+        if(sn==="atletismo") updateWeight(); 
+    }
+
+    // ==========================================
+    // ROLAGEM DE DADOS E D100
+    // ==========================================
     function rolarTesteD20(n, id, ak, eArma=false, qtdAtaquesForcado=null) { 
         lastAttackWasCrit = false; 
         let sn = id.replace("skill_", ""); 
@@ -1586,14 +1600,13 @@
         
         let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
         
-        // ALVOS BASE (Total, /2, /5)
         let total = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
         let valN = total;
         let valB = Math.floor(total / 2);
         let valE = Math.floor(total / 5);
         
         let numAttacks = 1; 
-        let cMarg = 20; // Default para d20
+        let cMarg = 20; 
         
         if(eArma){ 
             const sel=document.getElementById('active-weapon-select'); 
@@ -1625,36 +1638,34 @@
         let allDesastre = true; 
         
         for(let i=0; i<numAttacks; i++){ 
-            
-            // AGORA ROLAMOS 1 a 100 PARA OS TESTES!
-            let d = Math.floor(Math.random() * 100) + 1; 
+            let d = Math.floor(Math.random() * 100) + 1; // Rola 1d100
             
             let textFormat = ""; 
             let colorFormat = ""; 
-
-            if (d === 100 || (d >= 96 && valN < 50)) { 
+            
+            if(d === 100 || (d >= 96 && valN < 50)){ 
                 textFormat = "DESASTRE"; 
                 colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; 
-            } else if (d === 1) {
-                allDesastre = false;
-                if(eArma) anyCrit = true; 
+            } else if(d === 1) { 
+                allDesastre = false; 
+                if(eArma) anyCrit = true;
                 textFormat = "CRÍTICO ABSOLUTO"; 
-                colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;";
-            } else if (d <= valE) { 
-                allDesastre = false;
-                if(eArma) anyCrit = true; 
+                colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
+            } else if(d <= valE){ 
+                allDesastre = false; 
+                if(eArma) anyCrit = true;
                 textFormat = "EXTREMO"; 
                 colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
-            } else if (d <= valB) { 
+            } else if(d <= valB){ 
                 allDesastre = false; 
                 textFormat = "BOM"; 
                 colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
-            } else if (d <= valN) { 
+            } else if(d <= valN){ 
                 allDesastre = false; 
                 textFormat = "NORMAL"; 
                 colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
             } else { 
-                allDesastre = false;
+                allDesastre = false; 
                 textFormat = "FALHA"; 
                 colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
             } 
@@ -1677,97 +1688,284 @@
         } 
     }
 
-    function rolarAtaqueArma(id) { 
-        const wp = equippedWeaponsData.find(w=>w.id===id); 
-        if(!wp) return; 
-        let skillName = wp.skill ? wp.skill.trim() : "Luta"; 
-        let sn = skillName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
-        let skillObj = periciasBase.find(p=>p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_") === sn); 
-        if(!skillObj) skillObj = periciasBase.find(p=>p.nome==="Luta"); 
-        rolarTesteD20(skillObj.nome, "skill_" + skillObj.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"), skillObj.attr, true); 
-    }
-    
-    function rolarDanoArma(id) { 
-        const wp = equippedWeaponsData.find(w=>w.id===id); 
-        if(!wp) return; 
-        let dmgBase = wp.dmg || "0"; 
-        let isCrit = lastAttackWasCrit; 
+    // ==========================================
+    // FUNÇÕES DE SERVIDOR E INICIALIZAÇÃO
+    // ==========================================
+    function save() { 
+        if (isLoadingData) return; 
+        let currentImgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg"; 
         
-        if(isCrit && wp.crit && wp.crit.toLowerCase()!=="nenhum"){ 
-            let critMult = 2; 
-            let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); 
-            if(cStr.includes('/')) { critMult = parseInt(cStr.split('/')[1].replace('x', '')) || 2; } 
-            else if(cStr.includes('x')) { critMult = parseInt(cStr.replace('x', '')) || 2; } 
-            dmgBase = dmgBase.replace(/(\d+)d(\d+)/ig, (match, p1, p2) => { return (parseInt(p1) * critMult) + "d" + p2; }); 
-            dmgBase = dmgBase.replace(/(^|[^\d])d(\d+)/ig, (match, p1, p2) => { return p1 + critMult + "d" + p2; }); 
-        } 
+        if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
+        else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
+        else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+        else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; 
+        else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado; 
         
-        let formula = dmgBase + "+" + (wp.extra || "0"); 
-        formula = formula.toLowerCase().replace(/\s/g, ''); 
+        const d = { 
+            attrs: {}, skills: {}, ammo: {}, abilities: [], rituals: [], defense: document.getElementById('defense_val').value, 
+            info: {}, charImages: charImages, charStatus: charStatus,
+            inv: inventoryItems.map(i => ({id:i.id, n:i.n, w:i.w, h:i.h, d:i.d, eq:i.eq, type:i.type, dmg:i.dmg, extra:i.extra, crit:i.crit, skill:i.skill, img:i.img, atkType:i.atkType, atk:i.atk, range:i.range, ammo:i.ammo, capacity:i.capacity, currentShots:i.currentShots, x:i.x, y:i.y, rotated:i.rotated}))
+        }; 
         
-        try { 
-            const matches = formula.match(/([+-]?\d+d\d+|[+-]?\d+)/g); 
-            let t = 0; 
-            if (matches) { 
-                matches.forEach(m => { 
-                    let sign = m.startsWith('-') ? -1 : 1; 
-                    let cur = m.replace(/[+-]/, ''); 
-                    if (cur.includes('d')) { 
-                        const parts = cur.split('d'); 
-                        for (let i = 0; i < (parseInt(parts[0]) || 1); i++) t += (Math.floor(Math.random() * parseInt(parts[1])) + 1) * sign; 
-                    } else t += parseInt(cur) * sign; 
+        ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max", "pe_atual", "pe_max"].forEach(id=>{ 
+            if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; 
+        }); 
+        
+        const activeWeaponSelect = document.getElementById('active-weapon-select'); 
+        d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null; 
+        d.info['char_img'] = currentImgUrl; 
+        
+        document.querySelectorAll('.attr-input').forEach(i=>d.attrs[i.id]=i.value); 
+        document.querySelectorAll('[id^="skill_"]').forEach(i=>d.skills[i.id]=i.value); 
+        document.querySelectorAll('[id^="chk_"]').forEach(i=>d.skills[i.id]=i.checked); 
+        
+        ["ammo_curta", "ammo_longa", "ammo_pesada", "ammo_especial"].forEach(id=>d.ammo[id] = document.getElementById(id).value); 
+        
+        document.querySelectorAll('.ability-item').forEach(ab=>{ 
+            d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); 
+        }); 
+        
+        document.querySelectorAll('.hidden-ritual').forEach(hr=>{ 
+            const eq = hr.closest('div[id^="rit-row-"]').querySelector('.rit-equipped').checked; 
+            d.rituals.push({ 
+                n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), 
+                ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), 
+                dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), 
+                descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), 
+                eq: eq, img: hr.getAttribute('data-img') 
+            }); 
+        }); 
+        
+        if(viewCode){ 
+            if(socket){ 
+                socket.emit('mestre_force_sync', {
+                    codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', 
+                    foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, 
+                    vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, 
+                    sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, 
+                    pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, 
+                    status: charStatus, fullData: d
                 }); 
             } 
-            let title = isCrit ? `DANO CRÍTICO<br>(${wp.name||wp.n})` : `DANO<br>(${wp.name||wp.n})`; 
-            let color = isCrit ? "color:#ffcf33; text-shadow:0 0 15px #ff0000, 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
-            showPopup(t, title, color); 
-        } catch(e){ alert("Fórmula de dano inválida!"); } 
+            return; 
+        } 
         
-        lastAttackWasCrit = false; 
+        localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d)); 
+        fetch('/api/guardar_ficha', {
+            method:'POST', headers:{'Content-Type':'application/json'}, 
+            body:JSON.stringify({usuario: playerCode, fichaData: d})
+        }).catch(e=>{}); 
+        
+        if(socket){ 
+            socket.emit('status_change', {
+                codigo: myUpperCode, origin: socket.id, id: playerCode, 
+                nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, 
+                defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, 
+                sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, 
+                pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, 
+                status: charStatus, fullData: d
+            }); 
+        } 
     }
 
     function init() {
         try {
-            const nexSel = document.getElementById('char_nex'); if(nexSel){ let nexHtml = ''; for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}">${i}</option>`; nexHtml += `<option value="99">99</option>`; nexSel.innerHTML = nexHtml; }
-            const attrContainer = document.getElementById('atributos-container'); if(attrContainer){ attrContainer.innerHTML = ''; ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a=>{ let id = "attr_" + a.toLowerCase().substring(0,3); attrContainer.innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0; updateAllPericias(); updateWeight(); updateDanoDesarmado(); save();"><div class="attr-targets" id="${id}_targets"></div></div>`; }); }
-            const periciasContainer = document.getElementById('pericias-container'); if(periciasContainer){ periciasContainer.innerHTML = ''; periciasBase.forEach(p=>{ let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); periciasContainer.innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}')"><div class="skill-header" style="margin-bottom:8px;"><span style="font-size:0.7em; font-weight:bold; text-transform:uppercase; pointer-events:none;">${p.nome}</span></div><div style="display:flex;justify-content:center;margin-bottom:8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}', false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:20px;height:20px;filter:invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; }); }
-            if (viewCode) { const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; if(socket) { socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); socket.emit('request_player', viewCode); }); socket.on('update_mestre', (dados) => { if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { isLoadingData = true; populateData(dados.fullData); } }); } } else { load(); }
+            const nexSel = document.getElementById('char_nex'); 
+            if(nexSel){ 
+                let nexHtml = ''; 
+                for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}">${i}</option>`; 
+                nexHtml += `<option value="99">99</option>`; 
+                nexSel.innerHTML = nexHtml; 
+            }
+            
+            const attrContainer = document.getElementById('atributos-container'); 
+            if(attrContainer){ 
+                attrContainer.innerHTML = ''; 
+                ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a=>{ 
+                    let id = "attr_" + a.toLowerCase().substring(0,3); 
+                    attrContainer.innerHTML += `
+                        <div class="attr-box">
+                            <label>${a}</label>
+                            <input type="number" id="${id}" class="attr-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0; updateAllPericias(); updateWeight(); updateDanoDesarmado(); save();">
+                            <div class="attr-targets" id="${id}_targets"></div>
+                        </div>`; 
+                }); 
+            }
+            
+            const periciasContainer = document.getElementById('pericias-container'); 
+            if(periciasContainer){ 
+                periciasContainer.innerHTML = ''; 
+                periciasBase.forEach(p=>{ 
+                    let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); 
+                    periciasContainer.innerHTML += `
+                        <div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}')">
+                            <div class="skill-header" style="margin-bottom:8px;">
+                                <span style="font-size:0.7em; font-weight:bold; text-transform:uppercase; pointer-events:none;">${p.nome}</span>
+                            </div>
+                            <div style="display:flex;justify-content:center;margin-bottom:8px;">
+                                <button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}', false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;">
+                                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:20px;height:20px;filter:invert(1);">
+                                </button>
+                            </div>
+                            <div class="skill-targets" id="skill_${sn}_targets"></div>
+                            <input type="checkbox" id="chk_${sn}" style="display:none;">
+                            <input type="number" id="skill_${sn}" value="0" style="display:none;">
+                        </div>`; 
+                }); 
+            }
+            
+            if (viewCode) { 
+                const topBtns = document.getElementById('main-top-buttons'); 
+                if(topBtns) topBtns.style.display = 'none'; 
+                if(socket) { 
+                    socket.on('connect', () => { 
+                        socket.emit('join_campaign', campanhaAtiva); 
+                        socket.emit('request_player', viewCode); 
+                    }); 
+                    socket.on('update_mestre', (dados) => { 
+                        if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { 
+                            isLoadingData = true; 
+                            populateData(dados.fullData); 
+                        } 
+                    }); 
+                } 
+            } else { 
+                load(); 
+            }
+            
             if (socket && !viewCode) {
-                socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")){ socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode}); socket.emit('comando_mestre', {tipo: 'pedir_catalogo'}); } save(); }, 500); }); 
-                socket.on('mestre_pede_ficha', (codigoPedido) => { if((codigoPedido||"").trim().toUpperCase() === myUpperCode) save(); });
+                socket.on('connect', () => { 
+                    socket.emit('join_campaign', campanhaAtiva); 
+                    setTimeout(() => { 
+                        if(!campanhaAtiva.includes("SOLO_")){ 
+                            socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode}); 
+                            socket.emit('comando_mestre', {tipo: 'pedir_catalogo'}); 
+                        } 
+                        save(); 
+                    }, 500); 
+                }); 
+                
+                socket.on('mestre_pede_ficha', (codigoPedido) => { 
+                    if((codigoPedido||"").trim().toUpperCase() === myUpperCode) save(); 
+                });
+                
                 socket.on('comando_mestre', (dados) => { 
                     const incCode = (dados.codigo||"").trim().toUpperCase(); 
-                    if (dados.tipo === 'catalogo_sincronizado') { let mudouLocal = false; let dataCatItems = dados.itens || []; let dataCatRits = dados.rituais || []; customCatalog = { items: [], melee: [], ranged: [], rituals: [] }; dataCatItems.forEach(serverItem => { let tipoList = serverItem.type === 'comum' ? 'items' : (serverItem.atkType === 'Disparo' ? 'ranged' : 'melee'); customCatalog[tipoList].push(serverItem); mudouLocal = true; }); dataCatRits.forEach(serverRit => { customCatalog.rituals.push(serverRit); mudouLocal = true; }); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); if (document.getElementById('popup-new-item').style.display === 'flex') renderPremadeCatalogs(); return; }
-                    if (incCode === myUpperCode) { if (dados.tipo === 'vida') changeStatus('vida', dados.delta); else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); else if (dados.tipo === 'status') toggleStatus(dados.status); else if (dados.tipo === 'expulsar_jogador') { alert("Você foi removido da mesa pelo Mestre."); localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); localStorage.removeItem('ordem_save_local_'+campanhaAtiva); fazerLogout(); } else if (dados.tipo === 'dar_item') { const itemRecebido = {...dados.item, x:-1, y:-1, rotated:false}; inventoryItems.push(itemRecebido); updateInventoryDisplay(); save(); alert("Recebeu um item do Mestre: " + itemRecebido.n); } else if (dados.tipo === 'dar_ritual') { let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; if(dados.ritual.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; if(dados.ritual.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(dados.ritual.n,dados.ritual.el,dHTML,dados.ritual.circ,dados.ritual.ex,dados.ritual.alc,dados.ritual.alv,dados.ritual.dur,dados.ritual.res,dados.ritual.descGeral,dados.ritual.descDisc,dados.ritual.descVerd,true,dados.ritual.img); save(); } } 
+                    
+                    if (dados.tipo === 'catalogo_sincronizado') {
+                        let mudouLocal = false;
+                        let dataCatItems = dados.itens || [];
+                        let dataCatRits = dados.rituais || [];
+
+                        customCatalog = { items: [], melee: [], ranged: [], rituals: [] };
+
+                        dataCatItems.forEach(serverItem => {
+                            let tipoList = serverItem.type === 'comum' ? 'items' : (serverItem.atkType === 'Disparo' ? 'ranged' : 'melee');
+                            customCatalog[tipoList].push(serverItem);
+                            mudouLocal = true;
+                        });
+                        dataCatRits.forEach(serverRit => {
+                            customCatalog.rituals.push(serverRit);
+                            mudouLocal = true;
+                        });
+
+                        localStorage.setItem(keyCatalog, JSON.stringify(customCatalog));
+                        if (document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog();
+                        if (document.getElementById('popup-new-item').style.display === 'flex') renderPremadeCatalogs();
+                        return;
+                    }
+
+                    if (incCode === myUpperCode) { 
+                        if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
+                        else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
+                        else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); 
+                        else if (dados.tipo === 'status') toggleStatus(dados.status); 
+                        else if (dados.tipo === 'expulsar_jogador') { 
+                            alert("Você foi removido da mesa pelo Mestre."); 
+                            localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); 
+                            localStorage.removeItem('ordem_save_local_'+campanhaAtiva); 
+                            fazerLogout(); 
+                        } 
+                        else if (dados.tipo === 'dar_item') { 
+                            const itemRecebido = {...dados.item, x:-1, y:-1, rotated:false}; 
+                            inventoryItems.push(itemRecebido); 
+                            updateInventoryDisplay(); 
+                            save(); 
+                            alert("Recebeu um item do Mestre: " + itemRecebido.n); 
+                        } 
+                        else if (dados.tipo === 'dar_ritual') { 
+                            let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; 
+                            if(dados.ritual.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; 
+                            if(dados.ritual.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; 
+                            const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; 
+                            addRitual(dados.ritual.n,dados.ritual.el,dHTML,dados.ritual.circ,dados.ritual.ex,dados.ritual.alc,dados.ritual.alv,dados.ritual.dur,dados.ritual.res,dados.ritual.descGeral,dados.ritual.descDisc,dados.ritual.descVerd,true,dados.ritual.img); 
+                            save(); 
+                        }
+                    } 
                 });
-                socket.on('mestre_force_sync_player', (dados) => { const incCode = (dados.codigo||"").trim().toUpperCase(); if (incCode === myUpperCode && dados.fullData) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); } });
+                
+                socket.on('mestre_force_sync_player', (dados) => { 
+                    const incCode = (dados.codigo||"").trim().toUpperCase(); 
+                    if (incCode === myUpperCode && dados.fullData) { 
+                        isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); 
+                    } 
+                });
             }
         } catch(e){}
     }
 
-    function load() { isLoadingData = true; let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } try { populateData(JSON.parse(s)); } catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } }
+    function load() { 
+        isLoadingData = true; 
+        let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
+        if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
+        try { populateData(JSON.parse(s)); } 
+        catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } 
+    }
     
     function populateData(d) {
-        if (d.charImages) charImages = {...charImages, ...d.charImages}; else if(d.info && d.info.char_img) charImages.normal = d.info.char_img;
+        if (d.charImages) charImages = {...charImages, ...d.charImages}; 
+        else if(d.info && d.info.char_img) charImages.normal = d.info.char_img;
+        
         if (d.charStatus) charStatus = d.charStatus;
-        if(d.info){ ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max", "pe_atual", "pe_max"].forEach(id=>{ if(document.getElementById(id) && d.info[id]!==undefined) document.getElementById(id).value = d.info[id]; }); }
-        updateProfilePicture(); currentOccupation = document.getElementById('char_ocupacao') ? document.getElementById('char_ocupacao').value : "Nenhuma";
+        if(d.info){ 
+            ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max", "pe_atual", "pe_max"].forEach(id=>{ 
+                if(document.getElementById(id) && d.info[id]!==undefined) document.getElementById(id).value = d.info[id]; 
+            }); 
+        }
+        
+        updateProfilePicture(); 
+        currentOccupation = document.getElementById('char_ocupacao') ? document.getElementById('char_ocupacao').value : "Nenhuma";
+        
         for (let id in d.attrs) if(document.getElementById(id)) document.getElementById(id).value = d.attrs[id];
         for (let id in d.skills){ const el = document.getElementById(id); if(el){ if(el.type==='checkbox') el.checked = d.skills[id]; else el.value = d.skills[id]; } }
         if (d.ammo) for(let id in d.ammo) if(document.getElementById(id)) document.getElementById(id).value = d.ammo[id];
         if (d.defense) document.getElementById('defense_val').value = d.defense;
         
         inventoryItems = [];
-        if(d.inv) d.inv.forEach(i=>{ inventoryItems.push({id:i.id||Date.now(), n:i.n, w:i.w||1, h:i.h||1, d:i.d, eq:i.eq, type:i.type, dmg:i.dmg, extra:i.extra, crit:i.crit, skill:i.skill, img:i.img, atkType:i.atkType, atk:i.atk, range:i.range, ammo:i.ammo, capacity:i.capacity, currentShots:i.currentShots, x:i.x??-1, y:i.y??-1, rotated:i.rotated||false}); });
+        if(d.inv) d.inv.forEach(i=>{ 
+            inventoryItems.push({id:i.id||Date.now(), n:i.n, w:i.w||1, h:i.h||1, d:i.d, eq:i.eq, type:i.type, dmg:i.dmg, extra:i.extra, crit:i.crit, skill:i.skill, img:i.img, atkType:i.atkType, atk:i.atk, range:i.range, ammo:i.ammo, capacity:i.capacity, currentShots:i.currentShots, x:i.x??-1, y:i.y??-1, rotated:i.rotated||false}); 
+        });
         updateInventoryDisplay();
         
-        document.getElementById('abilities-list').innerHTML = ''; if(d.abilities) d.abilities.forEach(a=>addAbility(a.n, a.d));
+        document.getElementById('abilities-list').innerHTML = ''; 
+        if(d.abilities) d.abilities.forEach(a=>addAbility(a.n, a.d));
+        
         [1,2,3,4].forEach(c=>{ let body = document.getElementById(`rituais-${c}-body`); if(body) body.innerHTML = ''; let cont = document.getElementById(`rituais-${c}-container`); if(cont) cont.style.display = 'none'; });
-        if(d.rituals) d.rituals.forEach(r=>{ const descGeral=r.descGeral||r.desc||"Sem descrição."; const descDisc=r.descDisc||"-"; const descVerd=r.descVerd||"-"; let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; if(descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; if(descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq!==false, r.img||""); });
+        
+        if(d.rituals) d.rituals.forEach(r=>{ 
+            const descGeral=r.descGeral||r.desc||"Sem descrição."; const descDisc=r.descDisc||"-"; const descVerd=r.descVerd||"-"; 
+            let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${descGeral}`; 
+            if(descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${descDisc}`; 
+            if(descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${descVerd}`; 
+            const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${r.circ||'1º'}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${r.ex||'-'}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${r.alc||'-'}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${r.alv||'-'}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur||'-'}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${r.res||'-'}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; 
+            addRitual(r.n, r.el, dHTML, r.circ||'1º', r.ex||'-', r.alc||'-', r.alv||'-', r.dur||'-', r.res||'-', descGeral, descDisc, descVerd, r.eq!==false, r.img||""); 
+        });
         
         updateStatusBars(); updateAllPericias(); updateWeight(); updateWeaponsDisplay(); updateRitualsCount(); updateLearnedRitualsDisplay(); updateDanoDesarmado();
+        
         if(d.arma_ativa_id){ const sel = document.getElementById('active-weapon-select'); if(sel && equippedWeaponsData.some(wp=>wp.id===d.arma_ativa_id)){ sel.value = d.arma_ativa_id; renderActiveWeapon(); } }
-        document.querySelectorAll('[id^="chk_"]').forEach(c=>{ if(c.checked) toggleTrained(c.id.replace('chk_','')); }); isLoadingData = false; 
+        document.querySelectorAll('[id^="chk_"]').forEach(c=>{ if(c.checked) toggleTrained(c.id.replace('chk_','')); }); 
+        isLoadingData = false; 
     }
     
     init();
