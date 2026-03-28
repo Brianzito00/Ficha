@@ -781,6 +781,11 @@
             }
             
             if (item.x < 0 || item.y < 0) {
+                // Se for uma mochila e já estiver equipada, não renderiza na caixa de entrada
+                if (item.eq && (item.n || "").toLowerCase().includes('mochila')) {
+                    return; 
+                }
+
                 item.el.className = 'pool-item';
                 item.el.style = ''; 
                 let color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
@@ -852,31 +857,30 @@
         const item = inventoryItems.find(i => i.id === id);
         if (!item) return;
 
-        let spot = findEmptySpot(item.w, item.h);
-        if (spot) {
-            item.x = spot.x;
-            item.y = spot.y;
-            item.rotated = spot.rotated;
-            if (spot.rotated) {
-                let temp = item.w;
-                item.w = item.h;
-                item.h = temp;
-            }
-            
-            const isMochila = (item.n || "").toLowerCase().includes('mochila');
-            if (isMochila) {
-                document.getElementById('backpack-confirm-item-id').value = item.id;
-                document.getElementById('modal-backpack').style.display = 'flex';
-            } else {
-                item.eq = true; 
-            }
-            
-            updateWeight();
-            updateInventoryDisplay();
-            selectItemInfo(item.id); 
-            save();
+        const isMochila = (item.n || "").toLowerCase().includes('mochila');
+
+        if (isMochila) {
+            document.getElementById('backpack-confirm-item-id').value = item.id;
+            document.getElementById('modal-backpack').style.display = 'flex';
         } else {
-            alert("Não há espaço suficiente na maleta para este item! Reorganize ou consiga mais espaço.");
+            let spot = findEmptySpot(item.w, item.h);
+            if (spot) {
+                item.x = spot.x;
+                item.y = spot.y;
+                item.rotated = spot.rotated;
+                if (spot.rotated) {
+                    let temp = item.w;
+                    item.w = item.h;
+                    item.h = temp;
+                }
+                item.eq = true; 
+                updateWeight();
+                updateInventoryDisplay();
+                selectItemInfo(item.id); 
+                save();
+            } else {
+                alert("Não há espaço suficiente na maleta para este item! Reorganize ou consiga mais espaço.");
+            }
         }
     }
 
@@ -1142,7 +1146,7 @@
         if (isMochila && isChecking) {
             document.getElementById('backpack-confirm-item-id').value = item.id;
             document.getElementById('modal-backpack').style.display = 'flex';
-            document.getElementById('info-equip').checked = false; // Corrige o bug visual do checkbox
+            document.getElementById('info-equip').checked = false;
         } else {
             item.eq = isChecking;
             document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444';
@@ -1227,8 +1231,7 @@
     function closeItemPopup() { document.getElementById('popup-new-item').style.display = 'none'; }
     
     function selectItemType(type) {
-        // Corrige o conflito de abas garantindo que afeta apenas o popup
-        document.querySelectorAll('#popup-new-item .tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('btn-type-' + type).classList.add('active');
         document.getElementById('new-item-type').value = type;
         document.getElementById('fields-comum').style.display = type === 'item' ? 'block' : 'none';
@@ -1275,19 +1278,16 @@
             sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join('');
             sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none';
             
-            // Simula render de lista e arruma o botão de ATQ
-            listDiv.innerHTML = equippedWeaponsData.map(w => {
-                let safeSkill = (w.skill || "Luta").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
-                let attrToUse = (w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI";
-                
-                return `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
+            // Simula render de lista
+            listDiv.innerHTML = equippedWeaponsData.map(w => 
+                `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
                     <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">${w.n}</div>
                     <div style="display: flex; gap: 8px; justify-content: center;">
-                        <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarTesteD20('${w.n}','skill_${safeSkill}','${attrToUse}', true)">ATQ</button>
+                        <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarTesteD20('${w.n}','skill_${w.skill.toLowerCase()}','AGI', true)">ATQ</button>
                         <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="showPopup('${w.dmg}', 'DANO<br>(${w.n})', 'color:var(--accent-red)')">DANO</button>
                     </div>
-                </div>`;
-            }).join('');
+                </div>`
+            ).join('');
         }
     }
 
@@ -1333,14 +1333,7 @@
     
     function applyOccupation(newOcc) { const skillsMap = { "Academico": ["ciencias", "investigacao"], "AgenteSaude": ["intuicao", "medicina"], "Artista": ["artes", "enganacao"], "Atleta": ["acrobacia", "atletismo"], "Chef": ["fortitude", "profissao"], "Criminoso": ["crime", "furtividade"], "EntendedorOculto": ["ocultismo", "religiao"], "Engenheiro": ["profissao", "tecnologia"], "Desgarrado": ["fortitude", "sobrevivencia"], "Investigador": ["investigacao", "percepcao"], "Lutador": ["luta", "reflexos"], "Policial": ["pontaria", "percepcao"], "Religioso": ["religiao", "vontade"], "TI": ["investigacao", "tecnologia"], "Universitario": ["atualidades", "investigacao"], "Jornalista": ["atualidades", "investigacao"], "Revoltado": ["furtividade", "vontade"] }; if(currentOccupation !== "Nenhuma" && skillsMap[currentOccupation]) { skillsMap[currentOccupation].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = false; toggleTrained(s); } }); } if(newOcc !== "Nenhuma" && skillsMap[newOcc]) { skillsMap[newOcc].forEach(s => { const chk = document.getElementById('chk_' + s); if(chk) { chk.checked = true; toggleTrained(s); } }); } currentOccupation = newOcc; }
     
-    function openTab(id, btn) { 
-        document.querySelectorAll('.main-container').forEach(el => el.classList.remove('active')); 
-        document.querySelectorAll('.top-bar .tab-btn').forEach(el => el.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-        btn.classList.add('active'); 
-        if(id === 'tab-inventario') { updateWeight(); updateInventoryDisplay(); } 
-    }
-    
+    function openTab(id, btn) { document.querySelectorAll('.main-container, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if(id === 'tab-inventario') { updateWeight(); updateInventoryDisplay(); } }
     function changeStatus(type, amount) { let el = document.getElementById(type + '_atual'); if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } }
     function updateStatusBars() { const vA = parseInt(document.getElementById('vida_atual').value)||0, vM = parseInt(document.getElementById('vida_max').value)||1; const sA = parseInt(document.getElementById('sani_atual').value)||0, sM = parseInt(document.getElementById('sani_max').value)||1; const pA = parseInt(document.getElementById('pe_atual').value)||0, pM = parseInt(document.getElementById('pe_max').value)||1; document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; document.getElementById('bar_pe').style.width = Math.min(Math.max((pA/pM)*100, 0), 100) + '%'; }
 
