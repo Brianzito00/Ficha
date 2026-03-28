@@ -569,9 +569,10 @@
             'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png" 
         };
 
-        const premadeItemsMestre = [ { name: "Mochila", weight: 0, desc: "Aumenta capacidade em 2.", img: imgDictMestre['mochila'] }, { name: "Lanterna", weight: 1, desc: "Ilumina. Ofusca 1 alvo.", img: imgDictMestre['lanterna'] }, { name: "Proteção Leve", weight: 2, desc: "+5 Defesa.", img: imgDictMestre['proteção leve'] }, { name: "Proteção Pesada", weight: 5, desc: "+10 Defesa, -5 em perícias.", img: imgDictMestre['proteção pesada'] } ];
-        const premadeMeleeWeaponsMestre = [ { name: "Soqueira", atk: 2, dmg: "1d6", crit: "20/x2", range: "Toque", skill: "Luta", img: imgDictMestre['soqueira'], weight: 1 }, { name: "Faca", atk: 1, dmg: "1d4", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['faca'], weight: 1 }, { name: "Machado", atk: 1, dmg: "1d8", crit: "20/x3", range: "Curto", skill: "Luta", img: imgDictMestre['machado'], weight: 2 }, { name: "Machete", atk: 1, dmg: "1d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['machete'], weight: 1 }, { name: "Martelo", atk: 1, dmg: "1d6", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['martelo'], weight: 1 }, { name: "Marreta", atk: 1, dmg: "1d10", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['marreta'], weight: 2 }, { name: "Espada da Ordem", atk: 1, dmg: "1d8", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['espada da ordem'], weight: 2 }, { name: "Serra Elétrica", atk: 1, dmg: "2d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['serra elétrica'], weight: 2 } ];
-        const premadeRangedWeaponsMestre = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1 }, { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1 }, { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDictMestre['escopeta'], weight: 2 }, { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1 }, { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2 }, { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2 }, { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2 } ];
+        // Adicionado a Altura (h: 1) nos Itens Predefinidos para compatibilidade
+        const premadeItemsMestre = [ { name: "Mochila", weight: 0, h: 1, desc: "Aumenta capacidade em 2.", img: imgDictMestre['mochila'] }, { name: "Lanterna", weight: 1, h: 1, desc: "Ilumina. Ofusca 1 alvo.", img: imgDictMestre['lanterna'] }, { name: "Proteção Leve", weight: 2, h: 1, desc: "+5 Defesa.", img: imgDictMestre['proteção leve'] }, { name: "Proteção Pesada", weight: 5, h: 1, desc: "+10 Defesa, -5 em perícias.", img: imgDictMestre['proteção pesada'] } ];
+        const premadeMeleeWeaponsMestre = [ { name: "Soqueira", atk: 2, dmg: "1d6", crit: "20/x2", range: "Toque", skill: "Luta", img: imgDictMestre['soqueira'], weight: 1, h: 1 }, { name: "Faca", atk: 1, dmg: "1d4", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['faca'], weight: 1, h: 1 }, { name: "Machado", atk: 1, dmg: "1d8", crit: "20/x3", range: "Curto", skill: "Luta", img: imgDictMestre['machado'], weight: 2, h: 1 }, { name: "Machete", atk: 1, dmg: "1d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['machete'], weight: 1, h: 1 }, { name: "Martelo", atk: 1, dmg: "1d6", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['martelo'], weight: 1, h: 1 }, { name: "Marreta", atk: 1, dmg: "1d10", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['marreta'], weight: 2, h: 1 }, { name: "Espada da Ordem", atk: 1, dmg: "1d8", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['espada da ordem'], weight: 2, h: 1 }, { name: "Serra Elétrica", atk: 1, dmg: "2d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['serra elétrica'], weight: 2, h: 1 } ];
+        const premadeRangedWeaponsMestre = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1, h: 1 }, { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1, h: 1 }, { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1, h: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDictMestre['escopeta'], weight: 2, h: 1 }, { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1, h: 1 }, { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2, h: 1 }, { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2, h: 1 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2, h: 1 }, { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2, h: 1 } ];
 
         const URL_FICHA = "/ficha.html"; 
         const socket = io(); 
@@ -778,7 +779,8 @@
                 const it = catalogoMestre[idx];
                 document.getElementById('mi-tipo').value = it.rawType || (it.type === 'comum' ? 'comum' : (it.atkType === 'Disparo' ? 'armadisp' : 'armacc'));
                 document.getElementById('mi-nome').value = it.n;
-                document.getElementById('mi-espacos').value = it.w;
+                document.getElementById('mi-w').value = it.w || 1; // CORRIGIDO: Agora usa o ID correto mi-w
+                document.getElementById('mi-h').value = it.h || 1; // CORRIGIDO: Agora lê e grava o valor de altura
                 document.getElementById('mi-foto').value = it.img || '';
                 document.getElementById('mi-visivel').checked = it.visivel !== false;
                 
@@ -796,7 +798,8 @@
                 document.getElementById('modal-item-title').innerText = "Editar Item";
             } else {
                 document.getElementById('mi-nome').value = ''; 
-                document.getElementById('mi-espacos').value = '1'; 
+                document.getElementById('mi-w').value = '1'; 
+                document.getElementById('mi-h').value = '1'; 
                 document.getElementById('mi-foto').value = ''; 
                 document.getElementById('mi-desc').value = ''; 
                 document.getElementById('mi-atk').value = '1'; 
@@ -827,7 +830,8 @@
         
         function salvarItemMestre() { 
             const nome = document.getElementById('mi-nome').value.trim(); 
-            const w = document.getElementById('mi-espacos').value; 
+            const w = parseInt(document.getElementById('mi-w').value) || 1; // CORRIGIDO: Era mi-espacos
+            const h = parseInt(document.getElementById('mi-h').value) || 1; // CORRIGIDO: Lê a altura corretamente
             const img = document.getElementById('mi-foto').value.trim(); 
             const rawType = document.getElementById('mi-tipo').value; 
             
@@ -855,7 +859,7 @@
             
             const novoItem = { 
                 id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), 
-                n: nome, w: w, d: dHTML, eq: false, type: type, dmg: dmg, extra: extra, crit: crit, skill: skill, 
+                n: nome, w: w, h: h, d: dHTML, eq: false, type: type, dmg: dmg, extra: extra, crit: crit, skill: skill, // CORRIGIDO: Salva w e h perfeitamente
                 img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, 
                 visivel: visivel, rawType: rawType, rawDesc: rawDesc 
             }; 
@@ -897,18 +901,18 @@
             let countComum = 0, countCC = 0, countDisp = 0; 
             let todosItens = [];
             
-            premadeItemsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, d: p.desc, type: 'comum', img: p.img, isCustom: false }));
-            premadeMeleeWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", isCustom: false }));
-            premadeRangedWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, isCustom: false }));
+            premadeItemsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: p.desc, type: 'comum', img: p.img, isCustom: false }));
+            premadeMeleeWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", isCustom: false }));
+            premadeRangedWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, isCustom: false }));
             
             catalogoMestre.forEach((i, idx) => todosItens.push({...i, isCustom: true, originalIdx: idx}));
             
             todosItens.forEach((item) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
-                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span></div>`;
+                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
                 if (item.type !== 'comum') {
-                     if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; 
-                     else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; 
+                     if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; 
+                     else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; 
                 }
                 
                 let btnCtrl = '';
@@ -1685,14 +1689,16 @@
         }
         
         function rolarTesteMonstro(nomeMonstro, nomeAtaque, formula) { 
-            let num = parseInt(formula.replace(/[^0-9]/g, '')) || 0; 
+            let num = parseInt(formula.replace(/[^0-9+-]/g, '')) || 0; // CORRIGIDO: Agora aceita números negativos (ex: -2)
             let d = Math.floor(Math.random()*20)+1; 
             let t = d + num; 
-            showPopup(t, `${nomeAtaque}<br>(${d} + ${num})`, "color:var(--accent-blue)", nomeMonstro); 
+            let sinal = num >= 0 ? '+' : '';
+            showPopup(t, `${nomeAtaque}<br>(${d} ${sinal} ${num})`, "color:var(--accent-blue)", nomeMonstro); 
         }
         
         function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { 
             try { 
+                if (!formula) formula = '0';
                 let f = formula.toLowerCase().replace(/\s/g, ''); 
                 const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); 
                 let t = 0; 
@@ -1755,7 +1761,11 @@
             } 
         }
         
-        window.onload = () => { renderizarCatalogoRituais(); renderizarCatalogo(); };
+        window.onload = () => { 
+            renderizarCatalogoRituais(); 
+            renderizarCatalogo(); 
+            mudarAba('jogadores'); // CORRIGIDO: Agora a aba começa aberta
+        };
     </script>
 </body>
 </html>
