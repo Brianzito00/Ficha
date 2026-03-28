@@ -130,8 +130,8 @@
         .grid-item.selected { border-width: 3px; border-color: #fff; z-index: 15 !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .ghost-valid { border: 3px solid #00e676 !important; background-color: rgba(0, 230, 118, 0.4) !important;}
         .ghost-invalid { border: 3px solid #e53935 !important; background-color: rgba(229, 57, 53, 0.4) !important;}
-        .pool-item { background: rgba(18,18,20,0.9); border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: grab; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; }
-        .pool-item:hover { filter: brightness(1.2); }
+        .pool-item { background: rgba(18,18,20,0.9); border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
+        .pool-item:hover { filter: brightness(1.2); border-color: white; color: white; }
         .pool-item-bg { width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; opacity: 0.3; z-index: 1; pointer-events: none;}
         .pool-item-text { position: relative; z-index: 2; pointer-events: none;}
         .ammo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
@@ -374,7 +374,7 @@
             
             <div style="width: 250px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
                 <h4 style="text-align: center; color: var(--accent-yellow); margin-top: 0; text-transform: uppercase;">Caixa de Entrada</h4>
-                <p style="font-size: 0.7em; color: var(--text-secondary); text-align: center; margin-bottom: 15px;">Itens recebidos aparecem aqui.<br>Arraste-os para a Maleta.</p>
+                <p style="font-size: 0.7em; color: var(--text-secondary); text-align: center; margin-bottom: 15px;">Itens recebidos aparecem aqui.<br>Clique neles para equipar.</p>
                 <div id="inbox-items" style="display: flex; flex-direction: column; gap: 10px; min-height: 100px;"></div>
                 <button class="btn-add" style="width:100%; margin-top: 15px; padding: 10px;" onclick="openItemPopup()">+ ADICIONAR / CATÁLOGO</button>
                 <div id="weight-bar-container" style="margin-top: 15px; background: rgba(0,0,0,0.8); height: 20px; border-radius: 10px; border: 1px solid #444; overflow: hidden; position: relative;">
@@ -781,6 +781,11 @@
             }
             
             if (item.x < 0 || item.y < 0) {
+                // Se for uma mochila e já estiver equipada, não renderiza na caixa de entrada
+                if (item.eq && (item.n || "").toLowerCase().includes('mochila')) {
+                    return; 
+                }
+
                 item.el.className = 'pool-item';
                 item.el.style = ''; 
                 let color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
@@ -791,7 +796,9 @@
                 content += `<span class="pool-item-text" style="color:${color}; text-shadow: 1px 1px 2px #000;">${item.n} (${item.w}x${item.h})</span>`;
                 item.el.innerHTML = content;
 
-                item.el.onmousedown = (e) => startDrag(e, item, false);
+                item.el.onmousedown = null; 
+                item.el.onclick = () => autoEquipItem(item.id);
+                
                 inboxEl.appendChild(item.el);
             } 
             else {
@@ -830,6 +837,51 @@
         });
         
         updateWeaponsDisplay();
+    }
+
+    function findEmptySpot(w, h) {
+        for (let r = 0; r < GRID_ROWS; r++) {
+            for (let c = 0; c < GRID_COLS; c++) {
+                if (canPlace(c, r, w, h)) return { x: c, y: r, rotated: false };
+            }
+        }
+        for (let r = 0; r < GRID_ROWS; r++) {
+            for (let c = 0; c < GRID_COLS; c++) {
+                if (canPlace(c, r, h, w)) return { x: c, y: r, rotated: true };
+            }
+        }
+        return null;
+    }
+
+    function autoEquipItem(id) {
+        const item = inventoryItems.find(i => i.id === id);
+        if (!item) return;
+
+        const isMochila = (item.n || "").toLowerCase().includes('mochila');
+
+        if (isMochila) {
+            document.getElementById('backpack-confirm-item-id').value = item.id;
+            document.getElementById('modal-backpack').style.display = 'flex';
+        } else {
+            let spot = findEmptySpot(item.w, item.h);
+            if (spot) {
+                item.x = spot.x;
+                item.y = spot.y;
+                item.rotated = spot.rotated;
+                if (spot.rotated) {
+                    let temp = item.w;
+                    item.w = item.h;
+                    item.h = temp;
+                }
+                item.eq = true; 
+                updateWeight();
+                updateInventoryDisplay();
+                selectItemInfo(item.id); 
+                save();
+            } else {
+                alert("Não há espaço suficiente na maleta para este item! Reorganize ou consiga mais espaço.");
+            }
+        }
     }
 
     function startDrag(e, item, fromGrid) {
@@ -1143,10 +1195,8 @@
         inventoryItems.forEach(item => { 
             if(item.eq){ 
                 const n = (item.n||item.name||"").toLowerCase(); 
-                if(n.includes('mochila militar') || n.includes('mochila tática') || n.includes('mochila tatica')) {
-                    extraCap += 5;
-                } else if(n.includes('mochila')) {
-                    extraCap += 2;
+                if(n.includes('mochila')) {
+                    extraCap += 16; 
                 }
             } 
         }); 
@@ -1504,7 +1554,6 @@
                     let rName = rit.name || rit.n || "Ritual"; let color = "var(--text-primary)"; 
                     if(rit.el==='Conhecimento') color="#ffcf33"; if(rit.el==='Sangue') color="#e53935"; if(rit.el==='Energia') color="#b82bf2"; if(rit.el==='Morte') color="#71717a"; if(rit.el==='Medo') color="#fff"; if(rit.el==='Qualquer') color="#aaaaaa"; 
                     let hexColor = color.startsWith('var')?'e1e1e6':color.replace('#',''); 
-                    // Correção: usar rit.el em vez de el solto
                     let textIcon = rit.el==='Qualquer'?'ALL':rit.el.substring(0,3).toUpperCase(); 
                     let imgSrc=rit.img&&rit.img.trim()!==""?rit.img:`https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`; let safeRit=JSON.stringify(rit).replace(/"/g, '&quot;'); 
                     let card = document.createElement('div'); card.className = "skill-card"; card.style.cssText=`position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;`; card.onclick=()=>addCatalogRitual(safeRit); card.onmouseover=function(){this.style.borderColor=color;}; card.onmouseout=function(){this.style.borderColor=`${color}50`;}; 
