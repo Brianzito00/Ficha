@@ -236,7 +236,7 @@
                 </div>
                 <div>
                     <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label>
-                    <select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()">
+                    <select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateAllPericias(); save()">
                         <option value="Recruta">Recruta</option>
                         <option value="Veterano">Veterano</option>
                         <option value="Expert">Expert</option>
@@ -620,7 +620,7 @@
         <h3 id="popup-skill-name" style="color:var(--accent-blue);text-align:center;margin-top:0;text-transform:uppercase;">PERÍCIA</h3>
         <div style="background:rgba(255,207,51,0.1);border:1px solid var(--accent-yellow);padding:12px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:15px;">
             <input type="checkbox" id="popup-skill-trained" onchange="updateSkillPopupCalc()" style="width:20px;height:20px;accent-color:var(--accent-yellow);cursor:pointer;"> 
-            <label for="popup-skill-trained" style="color:var(--accent-yellow);font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:0.9em;">TREINADA (+10)</label>
+            <label for="popup-skill-trained" style="color:var(--accent-yellow);font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:0.9em;">TREINADA (+2)</label>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-input);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:10px;">
             <span style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;">NATURAL (<span id="popup-skill-attr-name"></span>)</span>
@@ -710,6 +710,18 @@
     let equippedWeaponsData = []; 
     let charImages = { normal: '', lesionado: '', inconsciente: '', morrendo: '', enlouquecendo: '', les_enlouq: '' }; 
     let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
+
+    // --- NOVA FUNÇÃO PARA CALCULAR O BÔNUS PELO NÍVEL ---
+    function getNivelBonus() {
+        const n = document.getElementById('char_nivel');
+        if(!n) return 2;
+        const val = n.value;
+        if(val === 'Recruta') return 2;
+        if(val === 'Veterano') return 3;
+        if(val === 'Expert') return 5;
+        if(val === 'Elite') return 10;
+        return 2;
+    }
 
     // ==========================================
     // SISTEMA DE INVENTÁRIO (RE4 STYLE + BLOQUEIOS)
@@ -1263,7 +1275,6 @@
     }
 
     function updateWeaponsDisplay() {
-        // Puxa apenas as armas que estão MARCADAS COMO EQUIPADAS na maleta
         equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp'));
         
         const sel = document.getElementById('active-weapon-select');
@@ -1294,7 +1305,6 @@
             return;
         }
 
-        // Pega APENAS a arma que está selecionada na caixa de seleção
         const activeWeaponId = sel.value;
         const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
         
@@ -1385,7 +1395,13 @@
         let at = atEl?parseInt(atEl.value)||0:0; 
         let natural = at*2; 
         let bonus = parseInt(document.getElementById('popup-skill-bonus').value)||0; 
-        let trained = document.getElementById('popup-skill-trained').checked?10:0; 
+        
+        let nivelBonus = getNivelBonus();
+        let trained = document.getElementById('popup-skill-trained').checked ? nivelBonus : 0; 
+        
+        const label = document.querySelector('label[for="popup-skill-trained"]');
+        if(label) label.innerText = `TREINADA (+${nivelBonus})`;
+
         let penalty = 0; 
         if(hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) penalty = -5; 
         document.getElementById('popup-skill-total').innerText = natural+bonus+trained+penalty; 
@@ -1413,7 +1429,9 @@
         
         let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
         
-        let total = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
+        let nivelBonus = getNivelBonus();
+        let total = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
+        
         let valN = total;
         let valB = Math.floor(total / 2);
         let valE = Math.floor(total / 5);
@@ -1457,7 +1475,8 @@
         
         let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
         
-        let totalValN = Math.floor(sk + (at * 2) + (tr ? 10 : 0) + penalty); 
+        let nivelBonus = getNivelBonus();
+        let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
         
         let numAttacks = 1; 
         let cMarg = 20; 
@@ -1492,7 +1511,6 @@
         let anyCrit = false; 
         let allDesastre = true; 
         
-        // CORRIGIDO: Sistema de D20 Clássico
         for(let i=0; i<numAttacks; i++){ 
             let d20 = Math.floor(Math.random() * 20) + 1;
             let somaTotal = d20 + totalValN;
@@ -1618,7 +1636,7 @@
     function addCatalogRitual(ritStr) { 
         const rit=JSON.parse(ritStr); let rName = rit.name || rit.n || "Ritual"; 
         let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(rit.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`; 
-        const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${rit.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; 
+        const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${r.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; 
         addRitual(rName,rit.el,dHTML,rit.circ,rit.ex,rit.alc,rit.alv,rit.dur,rit.res,rit.descGeral,rit.descDisc,rit.descVerd,true,rit.img); closeRitualPopup(); 
     }
     
