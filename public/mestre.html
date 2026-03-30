@@ -619,6 +619,43 @@
             localStorage.removeItem('mestre_save_nuvem_' + campanhaAtiva); 
         }
 
+        // --- MIGRAÇÃO: Transforma Itens Hardcoded em Editáveis ---
+        if (!localStorage.getItem('mestre_catalogo_migrado_' + campanhaAtiva)) {
+            let idCounter = Date.now();
+            premadeItemsMestre.forEach(p => {
+                catalogoMestre.push({
+                    id: 'm_item_' + (idCounter++),
+                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: p.desc, eq: false,
+                    type: 'comum', dmg: "0", extra: "0", crit: "20/x2", skill: "Luta",
+                    img: p.img, atkType: "Corpo a corpo", atk: "1", range: "Curto", ammo: "Nenhuma", capacity: "0", currentShots: "0",
+                    visivel: true, rawType: 'comum', rawDesc: p.desc
+                });
+            });
+            premadeMeleeWeaponsMestre.forEach(p => {
+                catalogoMestre.push({
+                    id: 'm_item_' + (idCounter++),
+                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1,
+                    d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`,
+                    eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill,
+                    img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0",
+                    visivel: true, rawType: 'armacc', rawDesc: ""
+                });
+            });
+            premadeRangedWeaponsMestre.forEach(p => {
+                catalogoMestre.push({
+                    id: 'm_item_' + (idCounter++),
+                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1,
+                    d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`,
+                    eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill,
+                    img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity,
+                    visivel: true, rawType: 'armadisp', rawDesc: ""
+                });
+            });
+            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
+            localStorage.setItem('mestre_catalogo_migrado_' + campanhaAtiva, "true");
+        }
+        // -------------------------------------------------------------
+
         function sincronizarCatalogoGeral() {
             if(!socket) return;
             const itensFiltrados = catalogoMestre.filter(i => i.visivel !== false);
@@ -888,6 +925,7 @@
             } 
         }
 
+        // --- RENDERIZAR TODO O CATÁLOGO APENAS PELO catalogoMestre ---
         function renderizarCatalogo() {
             const gridComum = document.getElementById('catalogo-grid-comum'); 
             const gridArmaCC = document.getElementById('catalogo-grid-armacc'); 
@@ -898,15 +936,8 @@
             if(gridArmaDisp) gridArmaDisp.innerHTML = '';
             
             let countComum = 0, countCC = 0, countDisp = 0; 
-            let todosItens = [];
             
-            premadeItemsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: p.desc, type: 'comum', img: p.img, isCustom: false }));
-            premadeMeleeWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", isCustom: false }));
-            premadeRangedWeaponsMestre.forEach(p => todosItens.push({ n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, isCustom: false }));
-            
-            catalogoMestre.forEach((i, idx) => todosItens.push({...i, isCustom: true, originalIdx: idx}));
-            
-            todosItens.forEach((item) => {
+            catalogoMestre.forEach((item, idx) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
                 let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
                 if (item.type !== 'comum') {
@@ -914,18 +945,14 @@
                      else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; 
                 }
                 
-                let btnCtrl = '';
-                let opacity = '1';
-                if (item.isCustom) {
-                    let visIcon = item.visivel === false ? '🚫' : '👁️';
-                    opacity = item.visivel === false ? '0.5' : '1';
-                    btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${item.originalIdx})">X</button>
-                               <button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${item.originalIdx})">${visIcon}</button>
-                               <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${item.originalIdx})">✏️</button>`;
-                }
+                let visIcon = item.visivel === false ? '🚫' : '👁️';
+                let opacity = item.visivel === false ? '0.5' : '1';
+                let btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button>
+                               <button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button>
+                               <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
                 
                 const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
-                const displayName = item.isCustom ? `${item.n} <br><span style="font-size:0.7em; color:${color}">(Criado)</span>` : item.n;
+                const displayName = item.n; 
                 
                 const card = document.createElement('div'); 
                 card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
@@ -942,8 +969,8 @@
                         <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button>
                     </div>`;
                     
-                if (item.type === 'comum') { if(gridComum) gridComum.appendChild(card); countComum++; } 
-                else if (item.atkType === 'Disparo') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } 
+                if (item.type === 'comum' || item.rawType === 'comum') { if(gridComum) gridComum.appendChild(card); countComum++; } 
+                else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } 
                 else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
             });
             
