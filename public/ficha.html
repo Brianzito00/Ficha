@@ -1,411 +1,151 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ficha de Jogador</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
-
-        /* Variáveis de Cores e Estilos Gerais */
-        :root {
-            --bg-body: #121214;
-            --bg-card: rgba(32, 32, 36, 0.85);
-            --bg-input: rgba(18, 18, 20, 0.8);
-            --border-color: rgba(50, 50, 56, 0.8);
-            --text-primary: #e1e1e6;
-            --text-secondary: #a8a8b3;
-            --accent-blue: #00b0ff;
-            --accent-yellow: #ffcf33;
-            --accent-green: #00e676;
-            --accent-red: #e53935;
-            --accent-purple: #b82bf2;
-            --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-body);
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        input, textarea, select { user-select: auto; }
-
-        /* Top Bar e Navegação */
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; width: 100%; max-width: 1300px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .tabs-nav { display: flex; gap: 10px; width: auto; }
-        .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; transition: 0.3s; backdrop-filter: blur(8px); margin: 0; }
-        .tab-btn.active { background: var(--accent-blue); color: #000; border-color: var(--accent-blue); }
-        .top-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-        /* Estrutura Principal */
-        .main-container { width: 100%; max-width: 1300px; display: none; }
-        .main-container.active { display: block; }
-        .columns-wrapper { display: flex; gap: 20px; align-items: flex-start; }
-        .panel { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; box-shadow: var(--shadow-card); margin-bottom: 20px; backdrop-filter: blur(8px); }
-        .panel-title { font-size: 1.1em; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        
-        /* Personagem Info */
-        .char-info-wrapper { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: center; }
-
-        /* Status (Vida, Sanidade, PE) */
-        .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
-        .status-box { background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); padding: 10px; border-radius: 8px; text-align: center; }
-        .status-header { margin-bottom: 5px; font-weight: 900; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px; }
-        .status-controls { display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 10px; }
-        .status-btn { background: rgba(30, 30, 35, 0.9); border: 2px solid var(--border-color); color: white; border-radius: 6px; width: 30px; height: 30px; font-size: 1.2em; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
-        .status-btn:hover { border-color: var(--accent-blue); transform: scale(1.05); }
-        .status-btn:active { transform: scale(0.95); }
-        .status-bar-container { position: relative; flex: 1; height: 30px; background: rgba(0, 0, 0, 0.8); border-radius: 6px; border: 2px solid #222; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
-        .status-bar-fill { height: 100%; width: 100%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); box-shadow: 0 0 10px rgba(229, 57, 53, 0.5); }
-        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); box-shadow: 0 0 10px rgba(0, 176, 255, 0.5); }
-        .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); box-shadow: 0 0 10px rgba(255, 207, 51, 0.5); }
-        .status-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; gap: 5px; font-weight: 900; font-size: 1em; text-shadow: 1px 1px 2px black, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
-        .status-input { background: transparent; border: none; color: white; text-align: center; font-weight: 900; font-size: 1em; width: 40px; outline: none; text-shadow: inherit; pointer-events: auto; }
-        .status-input:focus { border-bottom: 2px solid white; }
-        .status-input::-webkit-outer-spin-button, .status-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .status-toggles-container { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
-        .status-toggle { background: rgba(0,0,0,0.5); border: 1px solid #444; color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; font-size: 0.65em; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .status-toggle:hover { border-color: #888; color: white; }
-        .status-toggle.active-lesionado { background: rgba(229, 57, 53, 0.4); border-color: var(--accent-red); color: white; }
-        .status-toggle.active-inconsciente { background: rgba(150, 0, 0, 0.6); border-color: #ff5252; color: white; }
-        .status-toggle.active-morrendo { background: var(--accent-red); border-color: #fff; color: white; animation: pulseRed 1.5s infinite; }
-        .status-toggle.active-enlouquecendo { background: rgba(0, 176, 255, 0.6); border-color: #fff; color: white; animation: pulseBlue 1.5s infinite; }
-
-        @keyframes pulseRed { 0% { box-shadow: 0 0 2px var(--accent-red); } 50% { box-shadow: 0 0 12px var(--accent-red); } 100% { box-shadow: 0 0 2px var(--accent-red); } }
-        @keyframes pulseBlue { 0% { box-shadow: 0 0 2px var(--accent-blue); } 50% { box-shadow: 0 0 12px var(--accent-blue); } 100% { box-shadow: 0 0 2px var(--accent-blue); } }
-
-        /* Atributos e Perícias */
-        .attr-box { background: var(--bg-input); padding: 12px; border-radius: 10px; border: 1px solid rgba(51, 51, 51, 0.5); margin-bottom: 15px; text-align: center; }
-        .attr-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--accent-yellow); color: white; text-align: center; font-size: 1.5em; font-weight: 900; }
-        .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-        .skill-card { background: rgba(25, 25, 27, 0.7); border: 1px solid rgba(45, 45, 48, 0.8); border-radius: 8px; padding: 10px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; cursor: pointer; }
-        .skill-card:hover { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.05); }
-        .skill-card.trained { border-color: var(--accent-yellow); background: rgba(255, 207, 51, 0.05); }
-        .skill-card.trained:hover { border-color: var(--accent-yellow); filter: brightness(1.2); }
-        .skill-header { display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .skill-targets { display: flex; justify-content: center; gap: 10px; font-size: 0.68em; background: rgba(10, 10, 11, 0.7); padding: 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-weight: bold; margin-top: 8px; pointer-events: none; }
-        .target-n { color: var(--accent-green); } .target-b { color: var(--accent-blue); } .target-e { color: var(--accent-yellow); }
-
-        .defense-box { background: var(--bg-input); padding: 15px; border-radius: 12px; border: 2px solid var(--border-color); text-align: center; margin-top: 20px; margin-bottom: 20px; }
-        .defense-input { width: 80px; background: transparent; border: none; color: var(--accent-green); text-align: center; font-size: 2.5em; font-weight: 900; }
-        .equipped-weapons-header { font-size: 0.85em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-top: 10px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-
-        /* Inputs Gerais */
-        .inv-input { background: var(--bg-input); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
-        .btn-add { background: var(--accent-green); color: #000; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-add:hover { filter: brightness(1.2); }
-        .btn-del { background: var(--accent-red); border: none; color: white; cursor: pointer; border-radius: 4px; padding: 5px 10px; font-weight: bold; transition: 0.2s; }
-        .btn-del:hover { filter: brightness(1.2); }
-        .btn-roll { background: rgba(37, 37, 41, 0.8); border: 1px solid rgba(51, 51, 51, 0.8); cursor: pointer; border-radius: 6px; padding: 4px 8px; color: white; transition: 0.2s; }
-        .btn-roll:hover { background: rgba(50, 50, 56, 0.9); }
-        .ritual-btn { background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; margin-bottom: 5px; width: 100%; }
-
-        /* INVENTÁRIO (RE4 STYLE) CSS */
-        .case-container { background: #202024; border: 4px solid #444; border-radius: 8px; padding: 10px; position: relative; display: inline-block; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
-        .grid-container-wrapper { position: relative; width: 500px; height: 300px; }
-        #grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        #inventory-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
-        .grid-item { position: absolute; box-sizing: border-box; cursor: grab; transition: transform 0.1s, border-color 0.2s; overflow: visible; display: flex; justify-content: center; align-items: center; }
-        .grid-item:active { cursor: grabbing; }
-        .item-border-comum { border: 2px solid var(--accent-green); background: rgba(0, 230, 118, 0.2); }
-        .item-border-arma { border: 2px solid var(--accent-yellow); background: rgba(255, 207, 51, 0.2); }
-        .grid-item.selected { border-width: 3px; border-color: #fff; z-index: 15 !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .ghost-valid { border: 3px solid #00e676 !important; background-color: rgba(0, 230, 118, 0.4) !important;}
-        .ghost-invalid { border: 3px solid #e53935 !important; background-color: rgba(229, 57, 53, 0.4) !important;}
-        .pool-item { background: rgba(18,18,20,0.9); border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
-        .pool-item:hover { filter: brightness(1.2); border-color: white; color: white; }
-        .pool-item-bg { width: 100%; height: 100%; object-fit: contain; position: absolute; top:0; left:0; opacity: 0.3; z-index: 1; pointer-events: none;}
-        .pool-item-text { position: relative; z-index: 2; pointer-events: none;}
-        .catalogo-grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; }
-
-        /* MODAIS E POPUPS */
-        .popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
-        .popup-box { background: var(--bg-card); border: 2px solid var(--border-color); padding: 25px; border-radius: 15px; width: 450px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); max-height: 90vh; overflow-y: auto; }
-        .popup-box-dice { position: relative; width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
-        .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
-        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
-        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
-        .popup-res::-webkit-scrollbar { width: 5px; }
-        .popup-res::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 5px; }
-
-        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
-
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .tabs-nav { width: 100%; flex-wrap: wrap; justify-content: center; }
-            .tab-btn { flex: 1 1 30%; font-size: 0.85em; padding: 10px 5px; text-align: center; }
-            .columns-wrapper { flex-direction: column; }
-            .panel { width: 100%; flex: 1 1 100% !important; box-sizing: border-box; padding: 15px; }
-            .char-info-wrapper { flex-direction: column; }
-            .status-grid { grid-template-columns: 1fr; gap: 10px; }
-            .skill-grid, .catalogo-grid-view { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            .popup-box { width: 95%; padding: 15px; box-sizing: border-box; }
-            .popup-box-dice { width: 95%; height: 300px; }
-            .case-container { overflow-x: auto; max-width: 100%; }
-            .inv-input { font-size: 16px; } 
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ficha de Jogador</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+    :root {--bg-body:#121214; --bg-card:rgba(32,32,36,0.85); --bg-input:rgba(18,18,20,0.8); --border-color:rgba(50,50,56,0.8); --text-primary:#e1e1e6; --text-secondary:#a8a8b3; --accent-blue:#00b0ff; --accent-yellow:#ffcf33; --accent-green:#00e676; --accent-red:#e53935; --accent-purple:#b82bf2; --shadow-card:0 8px 32px 0 rgba(0,0,0,0.8);}
+    body {font-family:'Roboto',sans-serif; background-color:var(--bg-body); background-image:url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size:cover; background-position:center; background-attachment:fixed; background-repeat:no-repeat; color:var(--text-primary); margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; min-height:100vh; box-sizing:border-box; user-select:none;}
+    input, textarea, select {user-select:auto;}
+    .top-bar {display:flex; justify-content:space-between; align-items:flex-end; width:100%; max-width:1300px; margin-bottom:20px; flex-wrap:wrap; gap:15px;}
+    .tabs-nav {display:flex; gap:10px; width:auto;}
+    .tab-btn {background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-secondary); padding:12px 25px; border-radius:8px 8px 0 0; cursor:pointer; font-weight:bold; transition:0.3s; backdrop-filter:blur(8px); margin:0;}
+    .tab-btn.active {background:var(--accent-blue); color:#000; border-color:var(--accent-blue);}
+    .top-buttons {display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .main-container {width:100%; max-width:1300px; display:none;}
+    .main-container.active {display:block;}
+    .columns-wrapper {display:flex; gap:20px; align-items:flex-start;}
+    .panel {background:var(--bg-card); border:1px solid var(--border-color); padding:20px; border-radius:12px; box-shadow:var(--shadow-card); margin-bottom:20px; backdrop-filter:blur(8px);}
+    .panel-title {font-size:1.1em; text-transform:uppercase; color:var(--text-secondary); text-align:center; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:10px;}
+    .char-info-wrapper {display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:center;}
+    .status-grid {display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin-bottom:15px;}
+    .status-box {background:rgba(18,18,20,0.8); border:1px solid rgba(51,51,51,0.5); padding:10px; border-radius:8px; text-align:center;}
+    .status-header {margin-bottom:5px; font-weight:900; text-transform:uppercase; font-size:0.9em; letter-spacing:1px;}
+    .status-controls {display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:10px;}
+    .status-btn {background:rgba(30,30,35,0.9); border:2px solid var(--border-color); color:white; border-radius:6px; width:30px; height:30px; font-size:1.2em; font-weight:bold; cursor:pointer; display:flex; justify-content:center; align-items:center; transition:0.2s;}
+    .status-btn:hover {border-color:var(--accent-blue); transform:scale(1.05);}
+    .status-btn:active {transform:scale(0.95);}
+    .status-bar-container {position:relative; flex:1; height:30px; background:rgba(0,0,0,0.8); border-radius:6px; border:2px solid #222; overflow:hidden; box-shadow:inset 0 2px 5px rgba(0,0,0,0.8);}
+    .status-bar-fill {height:100%; width:100%; transition:width 0.4s cubic-bezier(0.4, 0, 0.2, 1);}
+    .fill-vida {background:linear-gradient(90deg, #8b0000, var(--accent-red)); box-shadow:0 0 10px rgba(229,57,53,0.5);}
+    .fill-sani {background:linear-gradient(90deg, #01579b, var(--accent-blue)); box-shadow:0 0 10px rgba(0,176,255,0.5);}
+    .fill-pe {background:linear-gradient(90deg, #b38f00, var(--accent-yellow)); box-shadow:0 0 10px rgba(255,207,51,0.5);}
+    .status-text {position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; gap:5px; font-weight:900; font-size:1em; text-shadow:1px 1px 2px black, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;}
+    .status-input {background:transparent; border:none; color:white; text-align:center; font-weight:900; font-size:1em; width:40px; outline:none; text-shadow:inherit; pointer-events:auto;}
+    .status-input:focus {border-bottom:2px solid white;}
+    .status-input::-webkit-outer-spin-button, .status-input::-webkit-inner-spin-button {-webkit-appearance:none; margin:0;}
+    .status-toggles-container {display:flex; justify-content:center; gap:5px; flex-wrap:wrap;}
+    .status-toggle {background:rgba(0,0,0,0.5); border:1px solid #444; color:var(--text-secondary); border-radius:4px; padding:4px 8px; font-size:0.65em; font-weight:bold; cursor:pointer; transition:0.3s; text-transform:uppercase;}
+    .status-toggle:hover {border-color:#888; color:white;}
+    .status-toggle.active-lesionado {background:rgba(229,57,53,0.4); border-color:var(--accent-red); color:white;}
+    .status-toggle.active-inconsciente {background:rgba(150,0,0,0.6); border-color:#ff5252; color:white;}
+    .status-toggle.active-morrendo {background:var(--accent-red); border-color:#fff; color:white; animation:pulseRed 1.5s infinite;}
+    .status-toggle.active-enlouquecendo {background:rgba(0,176,255,0.6); border-color:#fff; color:white; animation:pulseBlue 1.5s infinite;}
+    @keyframes pulseRed {0%{box-shadow:0 0 2px var(--accent-red);} 50%{box-shadow:0 0 12px var(--accent-red);} 100%{box-shadow:0 0 2px var(--accent-red);}}
+    @keyframes pulseBlue {0%{box-shadow:0 0 2px var(--accent-blue);} 50%{box-shadow:0 0 12px var(--accent-blue);} 100%{box-shadow:0 0 2px var(--accent-blue);}}
+    .attr-box {background:var(--bg-input); padding:12px; border-radius:10px; border:1px solid rgba(51,51,51,0.5); margin-bottom:15px; text-align:center;}
+    .attr-input {width:100%; background:transparent; border:none; border-bottom:2px solid var(--accent-yellow); color:white; text-align:center; font-size:1.5em; font-weight:900;}
+    .skill-grid {display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px;}
+    .skill-card {background:rgba(25,25,27,0.7); border:1px solid rgba(45,45,48,0.8); border-radius:8px; padding:10px; text-align:center; transition:0.3s; display:flex; flex-direction:column; justify-content:space-between; position:relative; cursor:pointer;}
+    .skill-card:hover {border-color:var(--accent-blue); background:rgba(0,176,255,0.05);}
+    .skill-card.trained {border-color:var(--accent-yellow); background:rgba(255,207,51,0.05);}
+    .skill-card.trained:hover {border-color:var(--accent-yellow); filter:brightness(1.2);}
+    .skill-header {display:flex; align-items:center; justify-content:center; gap:8px;}
+    .skill-targets {display:flex; justify-content:center; gap:10px; font-size:0.68em; background:rgba(10,10,11,0.7); padding:5px; border-radius:4px; font-family:'Consolas',monospace; font-weight:bold; margin-top:8px; pointer-events:none;}
+    .target-n {color:var(--accent-green);} .target-b {color:var(--accent-blue);} .target-e {color:var(--accent-yellow);}
+    .defense-box {background:var(--bg-input); padding:15px; border-radius:12px; border:2px solid var(--border-color); text-align:center; margin-top:20px; margin-bottom:20px;}
+    .defense-input {width:80px; background:transparent; border:none; color:var(--accent-green); text-align:center; font-size:2.5em; font-weight:900;}
+    .equipped-weapons-header {font-size:0.85em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-top:10px; margin-bottom:10px; text-align:center; border-bottom:1px solid var(--border-color); padding-bottom:5px;}
+    .inv-input {background:var(--bg-input); border:1px solid #444; color:white; padding:8px; border-radius:4px; width:100%; box-sizing:border-box;}
+    .btn-add {background:var(--accent-green); color:#000; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s;}
+    .btn-add:hover {filter:brightness(1.2);}
+    .btn-del {background:var(--accent-red); border:none; color:white; cursor:pointer; border-radius:4px; padding:5px 10px; font-weight:bold; transition:0.2s;}
+    .btn-del:hover {filter:brightness(1.2);}
+    .btn-roll {background:rgba(37,37,41,0.8); border:1px solid rgba(51,51,51,0.8); cursor:pointer; border-radius:6px; padding:4px 8px; color:white; transition:0.2s;}
+    .btn-roll:hover {background:rgba(50,50,56,0.9);}
+    .ritual-btn {background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold; transition:0.2s; text-transform:uppercase; font-size:0.8em; flex:1 1 45%; text-align:center; margin-bottom:5px; width:100%;}
+    .case-container {background:#202024; border:4px solid #444; border-radius:8px; padding:10px; position:relative; display:inline-block; box-shadow:inset 0 0 20px rgba(0,0,0,0.8);}
+    .grid-container-wrapper {position:relative; width:500px; height:300px;}
+    #grid-background {position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;}
+    #inventory-grid {position:absolute; top:0; left:0; width:100%; height:100%; z-index:2;}
+    .grid-item {position:absolute; box-sizing:border-box; cursor:grab; transition:transform 0.1s, border-color 0.2s; overflow:visible; display:flex; justify-content:center; align-items:center;}
+    .grid-item:active {cursor:grabbing;}
+    .item-border-comum {border:2px solid var(--accent-green); background:rgba(0,230,118,0.2);}
+    .item-border-arma {border:2px solid var(--accent-yellow); background:rgba(255,207,51,0.2);}
+    .grid-item.selected {border-width:3px; border-color:#fff; z-index:15 !important; box-shadow:0 0 10px rgba(255,255,255,0.5);}
+    .ghost-valid {border:3px solid #00e676 !important; background-color:rgba(0,230,118,0.4) !important;}
+    .ghost-invalid {border:3px solid #e53935 !important; background-color:rgba(229,57,53,0.4) !important;}
+    .pool-item {background:rgba(18,18,20,0.9); border:1px solid var(--accent-blue); padding:10px; text-align:center; cursor:pointer; border-radius:4px; font-weight:bold; color:var(--accent-blue); margin-bottom:8px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; min-height:40px; transition:0.2s;}
+    .pool-item:hover {filter:brightness(1.2); border-color:white; color:white;}
+    .pool-item-bg {width:100%; height:100%; object-fit:contain; position:absolute; top:0; left:0; opacity:0.3; z-index:1; pointer-events:none;}
+    .pool-item-text {position:relative; z-index:2; pointer-events:none;}
+    .catalogo-grid-view {display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; align-content:flex-start; padding-right:5px;}
+    .popup-grid {display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    .popup-overlay {position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:3000; backdrop-filter:blur(10px);}
+    .popup-box {background:var(--bg-card); border:2px solid var(--border-color); padding:25px; border-radius:15px; width:450px; box-shadow:var(--shadow-card); backdrop-filter:blur(15px); max-height:90vh; overflow-y:auto;}
+    .popup-box-dice {position:relative; width:600px; height:400px; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#000; border:4px solid var(--accent-yellow); border-radius:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow:hidden; text-align:center;}
+    .popup-box-dice::after {content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:1;}
+    .popup-content {position:absolute; top:0; left:0; right:0; bottom:0; z-index:10; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center;}
+    .popup-number {font-family:'Permanent Marker',cursive; font-size:8em; font-weight:900; color:white; text-shadow:4px 4px 0 #000; display:flex; justify-content:center; align-items:center; text-align:center; width:100%; line-height:1; margin:0; padding:0;}
+    .popup-res {font-family:'Permanent Marker',cursive; font-size:2.2em; line-height:1.1; margin:0; margin-top:5px; text-transform:uppercase; text-shadow:2px 2px 4px #000; max-height:180px; overflow-y:auto; padding:0 10px; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; text-align:center;}
+    .popup-res::-webkit-scrollbar {width:5px;} .popup-res::-webkit-scrollbar-thumb {background:rgba(255,255,255,0.3); border-radius:5px;}
+    @keyframes shakeCrit {0%,100%{transform:translate(0,0) rotate(0)} 20%{transform:translate(-3px,0px) rotate(2deg)} 40%{transform:translate(1px,-1px) rotate(-2deg)} 60%{transform:translate(-3px,1px) rotate(2deg)} 80%{transform:translate(-1px,-1px) rotate(-2deg)}}
+    @media (max-width:768px) {
+        body {padding:10px;} .tabs-nav {width:100%; flex-wrap:wrap; justify-content:center;} .tab-btn {flex:1 1 30%; font-size:0.85em; padding:10px 5px; text-align:center;}
+        .columns-wrapper {flex-direction:column;} .panel {width:100%; flex:1 1 100% !important; box-sizing:border-box; padding:15px;} .char-info-wrapper {flex-direction:column;}
+        .status-grid {grid-template-columns:1fr; gap:10px;} .skill-grid, .catalogo-grid-view {grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));} .popup-box {width:95%; padding:15px; box-sizing:border-box;} .popup-box-dice {width:95%; height:300px;} .case-container {overflow-x:auto; max-width:100%;} .inv-input {font-size:16px;} 
+    }
+</style>
 </head>
 <body>
-
 <div class="top-bar">
-    <div class="tabs-nav">
-        <button class="tab-btn active" onclick="openTab('tab-personagem', this)">Personagem</button>
-        <button class="tab-btn" onclick="openTab('tab-inventario', this)">Inventário</button>
-        <button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button>
-    </div>
+    <div class="tabs-nav"><button class="tab-btn active" onclick="openTab('tab-personagem', this)">Personagem</button><button class="tab-btn" onclick="openTab('tab-inventario', this)">Inventário</button><button class="tab-btn" onclick="openTab('tab-rituais', this)">Rituais</button></div>
     <div class="top-buttons" id="main-top-buttons">
-        <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">
-            <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado na Nuvem ✔️</span>
-        </div>
-        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button>
-        <label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin: 0; display: flex; align-items: center;" title="Carregar ficheiro .json">
-            📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)">
-        </label>
-        <button class="btn-roll" id="btn-logout" style="background: transparent; color: var(--accent-red); border-color: var(--accent-red); font-weight: bold; padding: 10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao lobby">Sair (Lobby)</button>
+        <div style="background:rgba(18,18,20,0.8); border:2px solid var(--accent-yellow); padding:8px 15px; border-radius:6px; font-weight:bold; color:var(--accent-yellow); margin-right:10px; display:flex; align-items:center;"><span id="save-status" style="font-size:0.8em; color:var(--text-secondary); font-style:italic;">Sincronizado na Nuvem ✔️</span></div>
+        <button class="btn-roll" style="background:var(--accent-blue); color:#000; font-weight:bold; border-color:var(--accent-blue); padding:10px 20px;" onclick="exportFicha()" title="Baixar ficheiro .json da ficha">💾 Exportar</button>
+        <label class="btn-roll" style="background:var(--bg-card); color:var(--text-primary); font-weight:bold; padding:10px 20px; cursor:pointer; margin:0; display:flex; align-items:center;" title="Carregar ficheiro .json">📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importFicha(event)"></label>
+        <button class="btn-roll" id="btn-logout" style="background:transparent; color:var(--accent-red); border-color:var(--accent-red); font-weight:bold; padding:10px 20px;" onclick="fazerLogout()" title="Sair da conta e voltar ao lobby">Sair (Lobby)</button>
     </div>
 </div>
 
 <div id="tab-personagem" class="main-container active">
-    <div class="panel" style="margin-bottom: 20px;">
+    <div class="panel" style="margin-bottom:20px;">
         <div class="panel-title">Informações do Personagem</div>
         <div class="char-info-wrapper">
-            <div style="flex: 0 0 140px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-blue); box-shadow: 0 0 15px rgba(0, 176, 255, 0.2); cursor: pointer; transition: transform 0.3s, opacity 0.3s ease-in-out; opacity: 1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            </div>
-            <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+            <div style="flex:0 0 140px; display:flex; flex-direction:column; align-items:center; gap:10px;"><img id="char_img_display" src="https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg" style="width:140px; height:140px; object-fit:cover; border-radius:50%; border:3px solid var(--accent-blue); box-shadow:0 0 15px rgba(0,176,255,0.2); cursor:pointer; transition:transform 0.3s,opacity 0.3s ease-in-out; opacity:1;" onclick="openCharImgPopup()" title="Clique para gerenciar fotos de status" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"></div>
+            <div style="flex:1; display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:15px;">
                 <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nome</label><input type="text" id="char_nome" class="inv-input" oninput="save()"></div>
-                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()"></select></div>
-                <div>
-                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label>
-                    <select id="char_ocupacao" class="inv-input" style="padding: 7px; color: #fff;" onchange="applyOccupation(this.value); save()">
-                        <option value="Nenhuma">Sem Ocupação</option>
-                        <option value="Academico">Acadêmico</option>
-                        <option value="AgenteSaude">Agente de Saúde</option>
-                        <option value="Artista">Artista</option>
-                        <option value="Atleta">Atleta</option>
-                        <option value="Chef">Chef</option>
-                        <option value="Criminoso">Criminoso</option>
-                        <option value="EntendedorOculto">Entendedor do Oculto</option>
-                        <option value="Engenheiro">Engenheiro</option>
-                        <option value="Desgarrado">Desgarrado</option>
-                        <option value="Investigador">Investigador</option>
-                        <option value="Lutador">Lutador</option>
-                        <option value="Policial">Policial</option>
-                        <option value="Religioso">Religioso</option>
-                        <option value="TI">T.I.</option>
-                        <option value="Universitario">Universitário</option>
-                        <option value="Jornalista">Jornalista</option>
-                        <option value="Revoltado">Revoltado</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label>
-                    <select id="char_origem" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()">
-                        <option value="Nenhuma">Nenhuma</option>
-                        <option value="Combatente">Combatente</option>
-                        <option value="Ocultista">Ocultista</option>
-                        <option value="Especialista">Especialista</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label>
-                    <select id="char_nivel" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateAllPericias(); save()">
-                        <option value="Recruta">Recruta</option>
-                        <option value="Veterano">Veterano</option>
-                        <option value="Expert">Expert</option>
-                        <option value="Elite">Elite</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label>
-                    <select id="char_credito" class="inv-input" style="padding: 7px; color: #fff;" onchange="save()">
-                        <option value="Baixo">Baixo</option>
-                        <option value="Intermediário">Intermediário</option>
-                        <option value="Alto">Alto</option>
-                        <option value="Elite">Elite</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label>
-                    <select id="char_tipo_corpo" class="inv-input" style="padding: 7px; color: #fff;" onchange="updateDanoDesarmado(); save()">
-                        <option value="Pequeno">Pequeno</option>
-                        <option value="Médio" selected>Médio</option>
-                        <option value="Grande">Grande</option>
-                    </select>
-                </div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">NEX (%)</label><select id="char_nex" class="inv-input" style="padding:7px; color:#fff;" onchange="save()"></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Ocupação</label><select id="char_ocupacao" class="inv-input" style="padding:7px; color:#fff;" onchange="applyOccupation(this.value); save()"><option value="Nenhuma">Sem Ocupação</option><option value="Academico">Acadêmico</option><option value="AgenteSaude">Agente de Saúde</option><option value="Artista">Artista</option><option value="Atleta">Atleta</option><option value="Chef">Chef</option><option value="Criminoso">Criminoso</option><option value="EntendedorOculto">Entendedor do Oculto</option><option value="Engenheiro">Engenheiro</option><option value="Desgarrado">Desgarrado</option><option value="Investigador">Investigador</option><option value="Lutador">Lutador</option><option value="Policial">Policial</option><option value="Religioso">Religioso</option><option value="TI">T.I.</option><option value="Universitario">Universitário</option><option value="Jornalista">Jornalista</option><option value="Revoltado">Revoltado</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Origem / Classe</label><select id="char_origem" class="inv-input" style="padding:7px; color:#fff;" onchange="save()"><option value="Nenhuma">Nenhuma</option><option value="Combatente">Combatente</option><option value="Ocultista">Ocultista</option><option value="Especialista">Especialista</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível</label><select id="char_nivel" class="inv-input" style="padding:7px; color:#fff;" onchange="updateAllPericias(); save()"><option value="Recruta">Recruta</option><option value="Veterano">Veterano</option><option value="Expert">Expert</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Nível de Crédito</label><select id="char_credito" class="inv-input" style="padding:7px; color:#fff;" onchange="save()"><option value="Baixo">Baixo</option><option value="Intermediário">Intermediário</option><option value="Alto">Alto</option><option value="Elite">Elite</option></select></div>
+                <div><label style="font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;">Tipo de Corpo</label><select id="char_tipo_corpo" class="inv-input" style="padding:7px; color:#fff;" onchange="updateDanoDesarmado(); save()"><option value="Pequeno">Pequeno</option><option value="Médio" selected>Médio</option><option value="Grande">Grande</option></select></div>
             </div>
         </div>
     </div>
-
     <div class="status-grid">
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('vida', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
-                    <div class="status-text">
-                        <input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
-                    </div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button>
-                <button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button>
-                <button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button>
-            </div>
-        </div>
-        
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('sani', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
-                    <div class="status-text">
-                        <input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
-                    </div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
-            </div>
-            <div class="status-toggles-container">
-                <button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button>
-            </div>
-        </div>
-
-        <div class="status-box">
-            <div class="status-header"><span style="color:var(--accent-yellow);">PONTOS DE ESFORÇO</span></div>
-            <div class="status-controls">
-                <button class="status-btn" onclick="changeStatus('pe', -1)">-</button>
-                <div class="status-bar-container">
-                    <div id="bar_pe" class="status-bar-fill fill-pe" style="width: 100%;"></div>
-                    <div class="status-text">
-                        <input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
-                    </div>
-                </div>
-                <button class="status-btn" onclick="changeStatus('pe', 1)">+</button>
-            </div>
-            <div class="status-toggles-container" style="min-height: 20px;"></div>
-        </div>
+        <div class="status-box"><div class="status-header"><span style="color:var(--accent-red);">VIDA</span></div><div class="status-controls"><button class="status-btn" onclick="changeStatus('vida', -1)">-</button><div class="status-bar-container"><div id="bar_vida" class="status-bar-fill fill-vida" style="width:100%;"></div><div class="status-text"><input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div></div><button class="status-btn" onclick="changeStatus('vida', 1)">+</button></div><div class="status-toggles-container"><button id="btn-status-lesionado" class="status-toggle" onclick="toggleStatus('lesionado')">Lesionado</button><button id="btn-status-inconsciente" class="status-toggle" onclick="toggleStatus('inconsciente')">Inconsciente</button><button id="btn-status-morrendo" class="status-toggle" onclick="toggleStatus('morrendo')">Morrendo</button></div></div>
+        <div class="status-box"><div class="status-header"><span style="color:var(--accent-blue);">SANIDADE</span></div><div class="status-controls"><button class="status-btn" onclick="changeStatus('sani', -1)">-</button><div class="status-bar-container"><div id="bar_sani" class="status-bar-fill fill-sani" style="width:100%;"></div><div class="status-text"><input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div></div><button class="status-btn" onclick="changeStatus('sani', 1)">+</button></div><div class="status-toggles-container"><button id="btn-status-enlouquecendo" class="status-toggle" onclick="toggleStatus('enlouquecendo')">Enlouquecendo</button></div></div>
+        <div class="status-box"><div class="status-header"><span style="color:var(--accent-yellow);">PONTOS DE ESFORÇO</span></div><div class="status-controls"><button class="status-btn" onclick="changeStatus('pe', -1)">-</button><div class="status-bar-container"><div id="bar_pe" class="status-bar-fill fill-pe" style="width:100%;"></div><div class="status-text"><input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars(); save()"></div></div><button class="status-btn" onclick="changeStatus('pe', 1)">+</button></div><div class="status-toggles-container" style="min-height:20px;"></div></div>
     </div>
-
     <div class="columns-wrapper">
-        <div class="panel" style="flex:0 0 240px;">
-            <div class="panel-title">Atributos</div>
-            <div id="atributos-container"></div>
-        </div>
-        
-        <div class="panel" style="flex:1;">
-            <div class="panel-title">Perícias (Clique para Editar)</div>
-            <div class="skill-grid" id="pericias-container"></div>
-        </div>
-        
-        <div class="panel" style="flex:0 0 250px;">
-            <div class="panel-title">Ações</div>
-            
-            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0, 176, 255, 0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter: invert(1);">
-                ROLAR DADO LIVRE
-            </button>
-            
-            <div class="defense-box">
-                <label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label>
-                <input type="number" id="defense_val" class="defense-input" value="10" oninput="save()">
-            </div>
-
-            <div class="equipped-weapons-header">Ataque Corporal</div>
-            <div style="background: rgba(18, 18, 20, 0.8); border: 1px solid rgba(51, 51, 51, 0.5); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
-                <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">Ataque Desarmado</div>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px; justify-content: center;">
-                    <button class="btn-roll" style="border-color: var(--accent-blue); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarAtaqueDesarmado()">ATQ</button>
-                    <button class="btn-roll" style="border-color: var(--accent-red); padding: 5px 20px; font-weight: bold; flex: 1;" onclick="rolarDanoDesarmado()">DANO</button>
-                </div>
-                <div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8</span></div>
-            </div>
-            
-            <div class="equipped-weapons-header">Arma Ativa</div>
-            <select id="active-weapon-select" class="inv-input" style="margin-bottom: 10px; display: none; text-align: center; color: var(--accent-yellow); font-weight: bold;" onchange="renderActiveWeapon(); save()"></select>
-            <div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Habilidades</div>
-            <button class="btn-roll" style="width:100%; border-color: var(--accent-green); color: var(--accent-green); font-weight: bold; margin-bottom: 10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button>
-            <div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-
-            <div class="equipped-weapons-header" style="margin-top: 30px;">Rituais Prontos</div>
-            <div id="learned-rituals-list" style="display:flex; flex-direction:column; gap:5px;">
-                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width: 100%;">Nenhum ritual preparado.</div>
-            </div>
-        </div>
+        <div class="panel" style="flex:0 0 240px;"><div class="panel-title">Atributos</div><div id="atributos-container"></div></div>
+        <div class="panel" style="flex:1;"><div class="panel-title">Perícias (Clique para Editar)</div><div class="skill-grid" id="pericias-container"></div></div>
+        <div class="panel" style="flex:0 0 250px;"><div class="panel-title">Ações</div><button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background:rgba(0,176,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); width:100%; height:60px; border-radius:8px; cursor:pointer; font-weight:bold; margin-bottom:20px; display:flex; align-items:center; justify-content:center; gap:8px;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:24px; height:24px; filter:invert(1);"> ROLAR DADO LIVRE</button><div class="defense-box"><label style="display:block; font-size:0.75em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase; margin-bottom:5px;">Escudo / Defesa</label><input type="number" id="defense_val" class="defense-input" value="10" oninput="save()"></div><div class="equipped-weapons-header">Ataque Corporal</div><div style="background:rgba(18,18,20,0.8); border:1px solid rgba(51,51,51,0.5); border-radius:8px; padding:10px; margin-bottom:10px;"><div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">Ataque Desarmado</div><div style="display:flex; gap:8px; margin-bottom:8px; justify-content:center;"><button class="btn-roll" style="border-color:var(--accent-blue); padding:5px 20px; font-weight:bold; flex:1;" onclick="rolarAtaqueDesarmado()">ATQ</button><button class="btn-roll" style="border-color:var(--accent-red); padding:5px 20px; font-weight:bold; flex:1;" onclick="rolarDanoDesarmado()">DANO</button></div><div style="font-size:0.8em; color:var(--text-secondary); text-align:center;">Dano: <span id="display-dano-corpo" style="color:var(--accent-yellow); font-weight:bold;">1d8</span></div></div><div class="equipped-weapons-header">Arma Ativa</div><select id="active-weapon-select" class="inv-input" style="margin-bottom:10px; display:none; text-align:center; color:var(--accent-yellow); font-weight:bold;" onchange="renderActiveWeapon(); save()"></select><div id="equipped-weapons-list" style="display:flex; flex-direction:column; gap:10px;"></div><div class="equipped-weapons-header" style="margin-top:30px;">Habilidades</div><button class="btn-roll" style="width:100%; border-color:var(--accent-green); color:var(--accent-green); font-weight:bold; margin-bottom:10px;" onclick="openAbilityPopup()">+ Nova Habilidade</button><div id="abilities-list" style="display:flex; flex-direction:column; gap:10px;"></div><div class="equipped-weapons-header" style="margin-top:30px;">Rituais Prontos</div><div id="learned-rituals-list" style="display:flex; flex-direction:column; gap:5px;"><div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic; width:100%;">Nenhum ritual preparado.</div></div></div>
     </div>
 </div>
 
 <div id="tab-inventario" class="main-container">
     <div class="panel">
         <div class="panel-title">Maleta (Inventário - Toque RE4)</div>
-        <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-            
-            <div style="width: 250px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
-                <h4 style="text-align: center; color: var(--accent-yellow); margin-top: 0; text-transform: uppercase;">Caixa de Entrada</h4>
-                <p style="font-size: 0.7em; color: var(--text-secondary); text-align: center; margin-bottom: 15px;">Itens recebidos aparecem aqui.<br>Clique neles para equipar.</p>
-                <div id="inbox-items" style="display: flex; flex-direction: column; gap: 10px; min-height: 100px;"></div>
-                <button class="btn-add" style="width:100%; margin-top: 15px; padding: 10px;" onclick="openItemPopup()">+ ADICIONAR / CATÁLOGO</button>
-                <div id="weight-bar-container" style="margin-top: 15px; background: rgba(0,0,0,0.8); height: 20px; border-radius: 10px; border: 1px solid #444; overflow: hidden; position: relative;">
-                    <div id="weight-bar-fill" style="height: 100%; width: 0%; background: var(--accent-blue); transition: width 0.3s;"></div>
-                    <span id="weight-text" style="position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 0.8em; font-weight: bold; line-height: 20px; color: white;">0 / 5</span>
-                </div>
-            </div>
-
-            <div class="case-container" style="flex: 0 0 auto;">
-                <div class="grid-container-wrapper">
-                    <div id="grid-background"></div>
-                    <div id="inventory-grid"></div>
-                </div>
-            </div>
-
-            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-blue); box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
-                <h3 id="info-name" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">Nenhum Item</h3>
-                
-                <div id="info-img-container" style="text-align: center; margin-bottom: 15px; display: none; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
-                    <img id="info-img" src="" style="max-width: 100%; max-height: 120px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,176,255,0.2));">
-                </div>
-                
-                <div id="info-stats" style="font-size: 0.85em; color: var(--text-primary); line-height: 1.5; margin-bottom: 15px; min-height: 80px; ">
-                    <div style="text-align: center; color: var(--text-secondary); font-style: italic;">Selecione um item na maleta para ver os detalhes.</div>
-                </div>
-                
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-                    <label style="display: flex; align-items: center; gap: 5px; background: rgba(18,18,20,0.8); padding: 8px; border-radius: 4px; flex: 1; justify-content: center; cursor: pointer; border: 2px solid #444; transition: 0.2s;" id="info-equip-container">
-                        <input type="checkbox" id="info-equip" style="cursor:pointer;" onchange="toggleEquipSelected()" disabled>
-                        <span style="font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white;">Equipar</span>
-                    </label>
-                    <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button>
-                </div>
-                
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-roll" style="flex: 1; border-color:var(--accent-purple); color:var(--accent-purple); font-weight:bold; padding: 8px;" onclick="abrirModalTransferirJogador()" id="btn-transfer-item" disabled>📤 Enviar</button>
-                    <button class="btn-roll" style="flex: 1; border-color:var(--accent-yellow); color:var(--accent-yellow); font-weight:bold; padding: 8px;" onclick="openEditItemPopup()" id="btn-edit-item" disabled>✏️ Editar</button>
-                </div>
-            </div>
+        <div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="width:250px; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid #444; flex-shrink:0; box-shadow:inset 0 0 10px rgba(0,0,0,0.5);"><h4 style="text-align:center; color:var(--accent-yellow); margin-top:0; text-transform:uppercase;">Caixa de Entrada</h4><p style="font-size:0.7em; color:var(--text-secondary); text-align:center; margin-bottom:15px;">Itens recebidos aparecem aqui.<br>Clique neles para equipar.</p><div id="inbox-items" style="display:flex; flex-direction:column; gap:10px; min-height:100px;"></div><button class="btn-add" style="width:100%; margin-top:15px; padding:10px;" onclick="openItemPopup()">+ CRIAR ITEM</button><div id="weight-bar-container" style="margin-top:15px; background:rgba(0,0,0,0.8); height:20px; border-radius:10px; border:1px solid #444; overflow:hidden; position:relative;"><div id="weight-bar-fill" style="height:100%; width:0%; background:var(--accent-blue); transition:width 0.3s;"></div><span id="weight-text" style="position:absolute; top:0; left:0; width:100%; text-align:center; font-size:0.8em; font-weight:bold; line-height:20px; color:white;">0 / 5</span></div></div>
+            <div class="case-container" style="flex:0 0 auto;"><div class="grid-container-wrapper"><div id="grid-background"></div><div id="inventory-grid"></div></div></div>
+            <div style="flex:1; min-width:250px; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px; border:1px solid var(--accent-blue); box-shadow:inset 0 0 10px rgba(0,0,0,0.5);"><h3 id="info-name" style="color:var(--accent-blue); text-align:center; margin-top:0; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; margin-bottom:15px;">Nenhum Item</h3><div id="info-img-container" style="text-align:center; margin-bottom:15px; display:none; background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;"><img id="info-img" src="" style="max-width:100%; max-height:120px; object-fit:contain; filter:drop-shadow(0 0 5px rgba(0,176,255,0.2));"></div><div id="info-stats" style="font-size:0.85em; color:var(--text-primary); line-height:1.5; margin-bottom:15px; min-height:80px; "><div style="text-align:center; color:var(--text-secondary); font-style:italic;">Selecione um item na maleta para ver os detalhes.</div></div><div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;"><label style="display:flex; align-items:center; gap:5px; background:rgba(18,18,20,0.8); padding:8px; border-radius:4px; flex:1; justify-content:center; cursor:pointer; border:2px solid #444; transition:0.2s;" id="info-equip-container"><input type="checkbox" id="info-equip" style="cursor:pointer;" onchange="toggleEquipSelected()" disabled><span style="font-weight:bold; font-size:0.85em; text-transform:uppercase; color:white;">Equipar</span></label><button class="btn-del" style="flex:1; padding:10px; border:2px solid var(--accent-red); background:transparent; color:var(--accent-red); font-weight:bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button></div><div style="display:flex; gap:10px; flex-wrap:wrap;"><button class="btn-roll" style="flex:1; border-color:var(--accent-purple); color:var(--accent-purple); font-weight:bold; padding:8px;" onclick="abrirModalTransferirJogador()" id="btn-transfer-item" disabled>📤 Enviar</button><button class="btn-roll" style="flex:1; border-color:var(--accent-yellow); color:var(--accent-yellow); font-weight:bold; padding:8px;" onclick="openEditItemPopup()" id="btn-edit-item" disabled>✏️ Editar</button></div></div>
         </div>
     </div>
 </div>
@@ -413,235 +153,26 @@
 <div id="tab-rituais" class="main-container">
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
-        
         <button class="btn-add" style="background:#b82bf2;color:white;width:100%;" onclick="openRitualPopup()">+ Aprender Ritual (Catálogo do Mestre)</button>
-        <div style="text-align: center; margin-top: 10px;">
-            <span style="color: var(--text-secondary); font-size: 0.9em;">Total de Rituais Aprendidos: <span id="rituals-text" style="color: white; font-weight: bold;">0</span></span>
-        </div>
-        
-        <div id="rituais-1-container" style="display:none;margin-top:20px;">
-            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">1º Círculo</h3>
-            <div class="catalogo-grid-view" id="rituais-1-body"></div>
-        </div>
-        <div id="rituais-2-container" style="display:none;margin-top:20px;">
-            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">2º Círculo</h3>
-            <div class="catalogo-grid-view" id="rituais-2-body"></div>
-        </div>
-        <div id="rituais-3-container" style="display:none;margin-top:20px;">
-            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">3º Círculo</h3>
-            <div class="catalogo-grid-view" id="rituais-3-body"></div>
-        </div>
-        <div id="rituais-4-container" style="display:none;margin-top:20px;">
-            <h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">4º Círculo</h3>
-            <div class="catalogo-grid-view" id="rituais-4-body"></div>
-        </div>
+        <div style="text-align:center; margin-top:10px;"><span style="color:var(--text-secondary); font-size:0.9em;">Total de Rituais Aprendidos: <span id="rituals-text" style="color:white; font-weight:bold;">0</span></span></div>
+        <div id="rituais-1-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-1-body"></div></div>
+        <div id="rituais-2-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-2-body"></div></div>
+        <div id="rituais-3-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-3-body"></div></div>
+        <div id="rituais-4-container" style="display:none;margin-top:20px;"><h3 style="color:var(--text-secondary);border-bottom:1px solid var(--border-color);padding-bottom:5px;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-4-body"></div></div>
     </div>
 </div>
 
-<div id="modal-backpack" class="popup-overlay">
-    <div class="popup-box" style="width: 400px; text-align: center;">
-        <h2 style="color: var(--accent-yellow);">Adicionar Mochila</h2>
-        <p style="color: var(--text-primary);">Deseja equipar este item para liberar mais quadrados na sua maleta?</p>
-        <input type="hidden" id="backpack-confirm-item-id">
-        <div style="display:flex; gap:10px; margin-top: 20px;">
-            <button class="btn-add" style="flex:1;" onclick="confirmEquipBackpack()">SIM</button>
-            <button class="btn-del" style="flex:1;" onclick="document.getElementById('modal-backpack').style.display='none'">NÃO</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()">
-    <div class="popup-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;">
-        <h3 style="color:var(--accent-blue);margin-top:0;">Ataque Múltiplo</h3>
-        <p style="color:var(--text-secondary);">Até <span id="max-atk-display" style="color:white;font-weight:bold;">X</span> ataques.</p>
-        <input type="number" id="input-qtd-ataques" class="inv-input" style="font-size:2em;text-align:center;margin-bottom:20px;" min="1" value="1">
-        <div style="display:flex;gap:10px;">
-            <button class="btn-add" id="btn-confirm-ataques" style="flex:1;margin:0;">ROLAR</button>
-            <button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="fecharModalQtdAtaques()">CANCELAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="popup-new-item" class="popup-overlay">
-    <div class="popup-box" style="width:550px;">
-        <h3 id="popup-new-item-title" style="color:var(--accent-green);text-align:center;margin-top:0;">Criar / Adicionar Item</h3>
-        <div style="display:flex;gap:10px;margin-bottom:15px;">
-            <button id="btn-type-item" class="tab-btn active" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('item')">Comum</button>
-            <button id="btn-type-municao" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('municao')">Munição</button>
-            <button id="btn-type-armacc" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('armacc')">Arma Corpo</button>
-            <button id="btn-type-armadisp" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('armadisp')">Arma Fogo</button>
-        </div>
-        
-        <input type="hidden" id="new-item-type" value="item">
-        
-        <div id="generic-item-fields">
-            <div style="display:flex;gap:10px;margin-bottom:10px;">
-                <div style="flex:2;"><label style="font-size:0.8em;color:var(--text-secondary);">NOME</label><input type="text" id="new-item-name" class="inv-input"></div>
-                <div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">LARGURA(X)</label><input type="number" id="new-item-w" class="inv-input" value="1" min="1" max="10"></div>
-                <div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">ALTURA(Y)</label><input type="number" id="new-item-h" class="inv-input" value="1" min="1" max="6"></div>
-            </div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">FOTO URL</label><input type="text" id="new-item-img" class="inv-input"></div>
-        </div>
-        
-        <div id="fields-comum" style="margin-top:10px;">
-            <label style="font-size:0.8em;color:var(--text-secondary);">DESCRIÇÃO</label>
-            <textarea id="new-item-desc" class="inv-input" style="height:80px;resize:none;"></textarea>
-        </div>
-
-        <div id="fields-municao" style="display:none; margin-top:10px;">
-            <div style="display:flex; gap:10px;">
-                <div style="flex:1;">
-                    <label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE MUNIÇÃO</label>
-                    <select id="new-item-ammo-type" class="inv-input">
-                        <option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option>
-                    </select>
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size:0.8em;color:var(--text-secondary);">QUANTIDADE (1-3)</label>
-                    <input type="number" id="new-item-ammo-qtd" class="inv-input" value="1" min="1" max="3">
-                </div>
-            </div>
-        </div>
-        
-        <div id="fields-arma" style="display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE ATQ</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Ex: Corpo a Corpo"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">ATAQUES(QTD)</label><input type="number" id="wp-atk" class="inv-input" value="1"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="Ex: 1d8+1"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" value="20/x2"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">ALCANCE</label><input type="text" id="wp-range" class="inv-input" value="Curto"></div>
-            <div>
-                <label style="font-size:0.8em;color:var(--text-secondary);">MUNIÇÃO</label>
-                <select id="wp-ammo" class="inv-input" style="padding:7px;color:white;">
-                    <option value="Nenhuma">Nenhuma</option>
-                    <option value="Curta">Curta</option>
-                    <option value="Longa">Longa</option>
-                    <option value="Pesada">Pesada</option>
-                    <option value="Especial">Especial</option>
-                </select>
-            </div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">CAPACIDADE (BALAS)</label><input type="number" id="wp-capacity" class="inv-input" value="0"></div>
-            <div><label style="font-size:0.8em;color:var(--text-secondary);">PERÍCIA (Nome Exato)</label><input type="text" id="wp-skill" class="inv-input" value="Luta"></div>
-            <div style="grid-column:span 2;"><label style="font-size:0.8em;color:var(--text-secondary);">EXTRA</label><input type="text" id="wp-extra" class="inv-input" value="-"></div>
-        </div>
-        
-        <div style="display:flex;gap:10px;margin-top:15px;">
-            <button class="btn-add" id="btn-confirm-add-item" style="flex:1;margin:0;" onclick="confirmAddItem()">CRIAR E COLOCAR NA CAIXA</button>
-            <button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeItemPopup()">CANCELAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="modal-transfer-player" class="popup-overlay">
-    <div class="popup-box" style="width:400px;text-align:center;">
-        <h2 style="color:var(--accent-purple);margin-top:0;">Enviar Item</h2>
-        <p style="color:var(--text-secondary);">Para quem enviar <b id="transfer-player-item-name" style="color:white;"></b>?</p>
-        <input type="text" id="transfer-target-code" class="inv-input" placeholder="LOGIN DO JOGADOR" style="text-transform:uppercase;font-size:1.2em;text-align:center;margin-bottom:20px;">
-        <div style="display:flex;gap:10px;">
-            <button class="btn-remove" style="flex:1;padding:12px;border-radius:6px;background:#333;border:none;color:white;font-weight:bold;cursor:pointer;" onclick="document.getElementById('modal-transfer-player').style.display='none'">CANCELAR</button>
-            <button class="btn-add" style="background:var(--accent-purple);color:white;flex:1;margin:0;" onclick="confirmarEnvioJogador()">ENVIAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="popup-new-ability" class="popup-overlay" onclick="closeAbilityPopup()">
-    <div class="popup-box" onclick="event.stopPropagation()">
-        <h3 style="color:var(--accent-green);text-align:center;margin-top:0;">Nova Habilidade</h3>
-        <label style="font-size:0.8em;color:var(--text-secondary);">NOME</label>
-        <input type="text" id="new-ability-name" class="inv-input" style="margin-bottom:10px;">
-        <label style="font-size:0.8em;color:var(--text-secondary);">DESCRIÇÃO</label>
-        <textarea id="new-ability-desc" class="inv-input" style="height:100px;margin-bottom:15px;resize:none;"></textarea>
-        <div style="display:flex;gap:10px;">
-            <button class="btn-add" style="flex:1;margin:0;" onclick="confirmAddAbility()">ADICIONAR</button>
-            <button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeAbilityPopup()">CANCELAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="popup-new-ritual" class="popup-overlay" onclick="closeRitualPopup()">
-    <div class="popup-box" style="width:550px;" onclick="event.stopPropagation()">
-        <h3 style="color:var(--accent-purple);text-align:center;margin-top:0;">Aprender Ritual</h3>
-        <p style="text-align:center;color:var(--text-secondary);">Escolha do catálogo do Mestre</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-height:350px;overflow-y:auto;padding-right:5px;" id="ritual-grid-container"></div>
-        <button class="btn-del" style="width:100%;margin-top:15px;padding:12px;border-radius:6px;background:#333;" onclick="closeRitualPopup()">FECHAR</button>
-    </div>
-</div>
-
-<div id="popup-ritual-info" class="popup-overlay" onclick="closeRitualInfo()">
-    <div class="popup-box" onclick="event.stopPropagation()">
-        <h3 id="info-rit-name" style="text-align:center;margin-top:0;text-transform:uppercase;">NOME</h3>
-        <img id="info-rit-img" src="" style="width:100%;max-height:200px;object-fit:contain;margin-bottom:15px;display:none;border-radius:8px;">
-        <div id="info-rit-details" style="color:var(--text-primary);font-size:0.95em;line-height:1.5;"></div>
-        <button class="btn-del" style="width:100%;margin-top:20px;padding:12px;border-radius:6px;background:#333;" onclick="closeRitualInfo()">FECHAR</button>
-    </div>
-</div>
-
-<div id="popup-char-imgs" class="popup-overlay" onclick="closeCharImgPopup()">
-    <div class="popup-box" onclick="event.stopPropagation()">
-        <h3 style="color:var(--accent-blue);text-align:center;margin-top:0;">Fotos de Status</h3>
-        <label style="font-size:0.8em;color:var(--text-secondary);">NORMAL</label>
-        <input type="text" id="img-normal" class="inv-input" style="margin-bottom:5px;">
-        <label style="font-size:0.8em;color:var(--text-secondary);">LESIONADO</label>
-        <input type="text" id="img-lesionado" class="inv-input" style="margin-bottom:5px;">
-        <label style="font-size:0.8em;color:var(--text-secondary);">INCONSCIENTE</label>
-        <input type="text" id="img-inconsciente" class="inv-input" style="margin-bottom:5px;">
-        <label style="font-size:0.8em;color:var(--text-secondary);">MORRENDO</label>
-        <input type="text" id="img-morrendo" class="inv-input" style="margin-bottom:5px;">
-        <label style="font-size:0.8em;color:var(--text-secondary);">ENLOUQUECENDO</label>
-        <input type="text" id="img-enlouquecendo" class="inv-input" style="margin-bottom:5px;">
-        <label style="font-size:0.8em;color:var(--accent-yellow);font-weight:bold;">COMBINADA</label>
-        <input type="text" id="img-les-enlouq" class="inv-input" style="margin-bottom:15px;">
-        <div style="display:flex;gap:10px;">
-            <button class="btn-add" style="background:var(--accent-blue);flex:1;margin:0;" onclick="saveCharImgPopup()">SALVAR</button>
-            <button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeCharImgPopup()">FECHAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="popup-skill-info" class="popup-overlay" onclick="closeSkillPopup()">
-    <div class="popup-box" onclick="event.stopPropagation()">
-        <h3 id="popup-skill-name" style="color:var(--accent-blue);text-align:center;margin-top:0;text-transform:uppercase;">PERÍCIA</h3>
-        <div style="background:rgba(255,207,51,0.1);border:1px solid var(--accent-yellow);padding:12px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:15px;">
-            <input type="checkbox" id="popup-skill-trained" onchange="updateSkillPopupCalc()" style="width:20px;height:20px;accent-color:var(--accent-yellow);cursor:pointer;"> 
-            <label for="popup-skill-trained" style="color:var(--accent-yellow);font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:0.9em;">TREINADA (+2)</label>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-input);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:10px;">
-            <span style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;">NATURAL (<span id="popup-skill-attr-name"></span>)</span>
-            <span id="popup-skill-natural" style="color:var(--accent-green);font-size:1.2em;font-weight:bold;">0</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-input);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:15px;">
-            <span style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;">BÔNUS EXTRA</span>
-            <input type="number" id="popup-skill-bonus" class="inv-input" style="width:60px;text-align:center;border-bottom:2px solid var(--accent-blue);padding:0;background:transparent;border-top:none;border-left:none;border-right:none;font-size:1.2em;font-weight:bold;" value="0" oninput="updateSkillPopupCalc()">
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,176,255,0.1);padding:15px;border-radius:8px;border:1px solid var(--accent-blue);margin-bottom:20px;">
-            <span style="font-weight:bold; color:white;font-size:1em;">TOTAL</span>
-            <span id="popup-skill-total" style="color:var(--accent-blue);font-weight:900;font-size:1.8em;">0</span>
-        </div>
-        <input type="hidden" id="popup-skill-sn">
-        <input type="hidden" id="popup-skill-attr">
-        
-        <div style="display:flex;gap:10px;">
-            <button class="btn-add" style="background:var(--accent-blue);flex:1;margin:0;" onclick="saveSkillPopup()">SALVAR</button>
-            <button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeSkillPopup()">FECHAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="popup-input-dice" class="popup-overlay" onclick="this.style.display='none'">
-    <div class="popup-box" style="width:350px;text-align:center;" onclick="event.stopPropagation()">
-        <h3 style="color:var(--accent-blue);margin-top:0;">Rolar Dados Livre</h3>
-        <input type="text" id="custom_dice_formula" class="inv-input" style="font-size:1.2em;text-align:center;margin-bottom:20px;" placeholder="Ex: 2d10 + 5">
-        <button onclick="rolarDadoPersonalizado()" style="background:var(--accent-blue);border:none;color:black;width:100%;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;">ROLAR</button>
-    </div>
-</div>
-
-<div id="popup-dice" class="popup-overlay" onclick="closeDice()">
-    <div class="popup-box-dice" onclick="event.stopPropagation()">
-        <div id="popup-content" class="popup-content">
-            <div id="popup-num" class="popup-number">00</div>
-            <div id="popup-res" class="popup-res">RESULTADO</div>
-        </div>
-    </div>
-</div>
+<div id="modal-backpack" class="popup-overlay"><div class="popup-box" style="width:400px; text-align:center;"><h2 style="color:var(--accent-yellow);">Adicionar Mochila</h2><p style="color:var(--text-primary);">Deseja equipar este item para liberar mais quadrados na sua maleta?</p><input type="hidden" id="backpack-confirm-item-id"><div style="display:flex; gap:10px; margin-top:20px;"><button class="btn-add" style="flex:1;" onclick="confirmEquipBackpack()">SIM</button><button class="btn-del" style="flex:1;" onclick="document.getElementById('modal-backpack').style.display='none'">NÃO</button></div></div></div>
+<div id="modal-qtd-ataques" class="popup-overlay" onclick="fecharModalQtdAtaques()"><div class="popup-box" onclick="event.stopPropagation()" style="width:300px;text-align:center;"><h3 style="color:var(--accent-blue);margin-top:0;">Ataque Múltiplo</h3><p style="color:var(--text-secondary);">Até <span id="max-atk-display" style="color:white;font-weight:bold;">X</span> ataques.</p><input type="number" id="input-qtd-ataques" class="inv-input" style="font-size:2em;text-align:center;margin-bottom:20px;" min="1" value="1"><div style="display:flex;gap:10px;"><button class="btn-add" id="btn-confirm-ataques" style="flex:1;margin:0;">ROLAR</button><button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="fecharModalQtdAtaques()">CANCELAR</button></div></div></div>
+<div id="popup-new-item" class="popup-overlay"><div class="popup-box" style="width:550px;"><h3 id="popup-new-item-title" style="color:var(--accent-green);text-align:center;margin-top:0;">Criar / Adicionar Item</h3><div style="display:flex;gap:10px;margin-bottom:15px;"><button id="btn-type-item" class="tab-btn active" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('item')">Comum</button><button id="btn-type-municao" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('municao')">Munição</button><button id="btn-type-armacc" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('armacc')">Arma Corpo</button><button id="btn-type-armadisp" class="tab-btn" style="flex:1;padding:10px;margin:0;" onclick="selectItemType('armadisp')">Arma Fogo</button></div><input type="hidden" id="new-item-type" value="item"><div id="generic-item-fields"><div style="display:flex;gap:10px;margin-bottom:10px;"><div style="flex:2;"><label style="font-size:0.8em;color:var(--text-secondary);">NOME</label><input type="text" id="new-item-name" class="inv-input"></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">LARGURA(X)</label><input type="number" id="new-item-w" class="inv-input" value="1" min="1" max="10"></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">ALTURA(Y)</label><input type="number" id="new-item-h" class="inv-input" value="1" min="1" max="6"></div></div><div><label style="font-size:0.8em;color:var(--text-secondary);">FOTO URL</label><input type="text" id="new-item-img" class="inv-input"></div></div><div id="fields-comum" style="margin-top:10px;"><label style="font-size:0.8em;color:var(--text-secondary);">DESCRIÇÃO</label><textarea id="new-item-desc" class="inv-input" style="height:80px;resize:none;"></textarea></div><div id="fields-municao" style="display:none; margin-top:10px;"><div style="display:flex; gap:10px;"><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE MUNIÇÃO</label><select id="new-item-ammo-type" class="inv-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">QUANTIDADE (1-3)</label><input type="number" id="new-item-ammo-qtd" class="inv-input" value="1" min="1" max="3"></div></div></div><div id="fields-arma" style="display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;"><div><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE ATQ</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Ex: Corpo a Corpo"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">ATAQUES(QTD)</label><input type="number" id="wp-atk" class="inv-input" value="1"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="Ex: 1d8+1"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" value="20/x2"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">ALCANCE</label><input type="text" id="wp-range" class="inv-input" value="Curto"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">MUNIÇÃO</label><select id="wp-ammo" class="inv-input" style="padding:7px;color:white;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div><label style="font-size:0.8em;color:var(--text-secondary);">CAPACIDADE (BALAS)</label><input type="number" id="wp-capacity" class="inv-input" value="0"></div><div><label style="font-size:0.8em;color:var(--text-secondary);">PERÍCIA (Nome Exato)</label><input type="text" id="wp-skill" class="inv-input" value="Luta"></div><div style="grid-column:span 2;"><label style="font-size:0.8em;color:var(--text-secondary);">EXTRA</label><input type="text" id="wp-extra" class="inv-input" value="-"></div></div><div style="display:flex;gap:10px;margin-top:15px;"><button class="btn-add" id="btn-confirm-add-item" style="flex:1;margin:0;" onclick="confirmAddItem()">CRIAR E COLOCAR NA CAIXA</button><button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeItemPopup()">CANCELAR</button></div></div></div>
+<div id="modal-transfer-player" class="popup-overlay"><div class="popup-box" style="width:400px;text-align:center;"><h2 style="color:var(--accent-purple);margin-top:0;">Enviar Item</h2><p style="color:var(--text-secondary);">Para quem enviar <b id="transfer-player-item-name" style="color:white;"></b>?</p><input type="text" id="transfer-target-code" class="inv-input" placeholder="LOGIN DO JOGADOR" style="text-transform:uppercase;font-size:1.2em;text-align:center;margin-bottom:20px;"><div style="display:flex;gap:10px;"><button class="btn-remove" style="flex:1;padding:12px;border-radius:6px;background:#333;border:none;color:white;font-weight:bold;cursor:pointer;" onclick="document.getElementById('modal-transfer-player').style.display='none'">CANCELAR</button><button class="btn-add" style="background:var(--accent-purple);color:white;flex:1;margin:0;" onclick="confirmarEnvioJogador()">ENVIAR</button></div></div></div>
+<div id="popup-new-ability" class="popup-overlay" onclick="closeAbilityPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color:var(--accent-green);text-align:center;margin-top:0;">Nova Habilidade</h3><label style="font-size:0.8em;color:var(--text-secondary);">NOME</label><input type="text" id="new-ability-name" class="inv-input" style="margin-bottom:10px;"><label style="font-size:0.8em;color:var(--text-secondary);">DESCRIÇÃO</label><textarea id="new-ability-desc" class="inv-input" style="height:100px;margin-bottom:15px;resize:none;"></textarea><div style="display:flex;gap:10px;"><button class="btn-add" style="flex:1;margin:0;" onclick="confirmAddAbility()">ADICIONAR</button><button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeAbilityPopup()">CANCELAR</button></div></div></div>
+<div id="popup-new-ritual" class="popup-overlay" onclick="closeRitualPopup()"><div class="popup-box" style="width:550px;" onclick="event.stopPropagation()"><h3 style="color:var(--accent-purple);text-align:center;margin-top:0;">Aprender Ritual</h3><p style="text-align:center;color:var(--text-secondary);">Escolha do catálogo do Mestre</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-height:350px;overflow-y:auto;padding-right:5px;" id="ritual-grid-container"></div><button class="btn-del" style="width:100%;margin-top:15px;padding:12px;border-radius:6px;background:#333;" onclick="closeRitualPopup()">FECHAR</button></div></div>
+<div id="popup-ritual-info" class="popup-overlay" onclick="closeRitualInfo()"><div class="popup-box" onclick="event.stopPropagation()"><h3 id="info-rit-name" style="text-align:center;margin-top:0;text-transform:uppercase;">NOME</h3><img id="info-rit-img" src="" style="width:100%;max-height:200px;object-fit:contain;margin-bottom:15px;display:none;border-radius:8px;"><div id="info-rit-details" style="color:var(--text-primary);font-size:0.95em;line-height:1.5;"></div><button class="btn-del" style="width:100%;margin-top:20px;padding:12px;border-radius:6px;background:#333;" onclick="closeRitualInfo()">FECHAR</button></div></div>
+<div id="popup-char-imgs" class="popup-overlay" onclick="closeCharImgPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color:var(--accent-blue);text-align:center;margin-top:0;">Fotos de Status</h3><label style="font-size:0.8em;color:var(--text-secondary);">NORMAL</label><input type="text" id="img-normal" class="inv-input" style="margin-bottom:5px;"><label style="font-size:0.8em;color:var(--text-secondary);">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input" style="margin-bottom:5px;"><label style="font-size:0.8em;color:var(--text-secondary);">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input" style="margin-bottom:5px;"><label style="font-size:0.8em;color:var(--text-secondary);">MORRENDO</label><input type="text" id="img-morrendo" class="inv-input" style="margin-bottom:5px;"><label style="font-size:0.8em;color:var(--text-secondary);">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" style="margin-bottom:5px;"><label style="font-size:0.8em;color:var(--accent-yellow);font-weight:bold;">COMBINADA</label><input type="text" id="img-les-enlouq" class="inv-input" style="margin-bottom:15px;"><div style="display:flex;gap:10px;"><button class="btn-add" style="background:var(--accent-blue);flex:1;margin:0;" onclick="saveCharImgPopup()">SALVAR</button><button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeCharImgPopup()">FECHAR</button></div></div></div>
+<div id="popup-skill-info" class="popup-overlay" onclick="closeSkillPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 id="popup-skill-name" style="color:var(--accent-blue);text-align:center;margin-top:0;text-transform:uppercase;">PERÍCIA</h3><div style="background:rgba(255,207,51,0.1);border:1px solid var(--accent-yellow);padding:12px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:15px;"><input type="checkbox" id="popup-skill-trained" onchange="updateSkillPopupCalc()" style="width:20px;height:20px;accent-color:var(--accent-yellow);cursor:pointer;"> <label for="popup-skill-trained" style="color:var(--accent-yellow);font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:0.9em;">TREINADA (+2)</label></div><div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-input);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:10px;"><span style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;">NATURAL (<span id="popup-skill-attr-name"></span>)</span><span id="popup-skill-natural" style="color:var(--accent-green);font-size:1.2em;font-weight:bold;">0</span></div><div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-input);padding:12px;border-radius:8px;border:1px solid var(--border-color);margin-bottom:15px;"><span style="font-size:0.85em;color:var(--text-secondary);font-weight:bold;">BÔNUS EXTRA</span><input type="number" id="popup-skill-bonus" class="inv-input" style="width:60px;text-align:center;border-bottom:2px solid var(--accent-blue);padding:0;background:transparent;border-top:none;border-left:none;border-right:none;font-size:1.2em;font-weight:bold;" value="0" oninput="updateSkillPopupCalc()"></div><div style="display:flex;justify-content:space-between;align-items:center;background:rgba(0,176,255,0.1);padding:15px;border-radius:8px;border:1px solid var(--accent-blue);margin-bottom:20px;"><span style="font-weight:bold; color:white;font-size:1em;">TOTAL</span><span id="popup-skill-total" style="color:var(--accent-blue);font-weight:900;font-size:1.8em;">0</span></div><input type="hidden" id="popup-skill-sn"><input type="hidden" id="popup-skill-attr"><div style="display:flex;gap:10px;"><button class="btn-add" style="background:var(--accent-blue);flex:1;margin:0;" onclick="saveSkillPopup()">SALVAR</button><button class="btn-del" style="flex:1;padding:12px;border-radius:6px;background:#333;" onclick="closeSkillPopup()">FECHAR</button></div></div></div>
+<div id="popup-input-dice" class="popup-overlay" onclick="this.style.display='none'"><div class="popup-box" style="width:350px;text-align:center;" onclick="event.stopPropagation()"><h3 style="color:var(--accent-blue);margin-top:0;">Rolar Dados Livre</h3><input type="text" id="custom_dice_formula" class="inv-input" style="font-size:1.2em;text-align:center;margin-bottom:20px;" placeholder="Ex: 2d10 + 5"><button onclick="rolarDadoPersonalizado()" style="background:var(--accent-blue);border:none;color:black;width:100%;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;">ROLAR</button></div></div>
+<div id="popup-dice" class="popup-overlay" onclick="closeDice()"><div class="popup-box-dice" onclick="event.stopPropagation()"><div id="popup-content" class="popup-content"><div id="popup-num" class="popup-number">00</div><div id="popup-res" class="popup-res">RESULTADO</div></div></div></div>
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
@@ -656,7 +187,6 @@
     try { let loadedCat = JSON.parse(localStorage.getItem(keyCatalog)); if (loadedCat) customCatalog = { ...customCatalog, ...loadedCat }; } catch(e) {}
 
     const periciasBase = [{nome:"Acrobacia",attr:"AGI"},{nome:"Adestramento",attr:"PRE"},{nome:"Artes",attr:"PRE"},{nome:"Atletismo",attr:"FOR"},{nome:"Atualidades",attr:"INT"},{nome:"Ciências",attr:"INT"},{nome:"Crime",attr:"AGI"},{nome:"Diplomacia",attr:"PRE"},{nome:"Enganação",attr:"PRE"},{nome:"Fortitude",attr:"VIG"},{nome:"Furtividade",attr:"AGI"},{nome:"Iniciativa",attr:"AGI"},{nome:"Intimidação",attr:"PRE"},{nome:"Intuição",attr:"PRE"},{nome:"Investigação",attr:"INT"},{nome:"Luta",attr:"FOR"},{nome:"Medicina",attr:"INT"},{nome:"Ocultismo",attr:"INT"},{nome:"Percepção",attr:"PRE"},{nome:"Pilotagem",attr:"AGI"},{nome:"Pontaria",attr:"AGI"},{nome:"Profissão",attr:"INT"},{nome:"Reflexos",attr:"AGI"},{nome:"Religião",attr:"PRE"},{nome:"Sobrevivência",attr:"INT"},{nome:"Tática",attr:"INT"},{nome:"Tecnologia",attr:"INT"},{nome:"Vontade",attr:"PRE"}];
-
     const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
 
     function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
@@ -718,11 +248,47 @@
         return null;
     }
 
+    function toggleEquipSelected() { 
+        if(!currentSelectedItemId) return; const item = inventoryItems.find(i => i.id === currentSelectedItemId); if(!item) return; 
+        const isChecking = document.getElementById('info-equip').checked; const isMochila = item.n.toLowerCase().includes('mochila'); 
+        if (isMochila && isChecking) { 
+            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; document.getElementById('info-equip').checked = false; 
+        } else { 
+            item.eq = isChecking; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; 
+            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
+        } 
+    }
+
+    function confirmEquipBackpack() { 
+        const id = document.getElementById('backpack-confirm-item-id').value; const item = inventoryItems.find(i => i.id === id); 
+        if(item) { 
+            item.eq = true; if(currentSelectedItemId === id) { document.getElementById('info-equip').checked = true; document.getElementById('info-equip-container').style.borderColor = 'var(--accent-yellow)'; } 
+            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
+        } 
+        document.getElementById('modal-backpack').style.display = 'none'; 
+    }
+
+    function apagarItemSelecionado() { 
+        if(!currentSelectedItemId) return; 
+        if(confirm("Tem certeza que deseja deitar este item fora?")) { 
+            inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId); 
+            deselectItemInfo(); updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
+        } 
+    }
+
     function autoEquipItem(id) {
         const item = inventoryItems.find(i => i.id === id); if (!item) return;
         const isMochila = (item.n || "").toLowerCase().includes('mochila');
-        if (isMochila) { document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; } 
-        else { let spot = findEmptySpot(item.w, item.h); if (spot) { item.x = spot.x; item.y = spot.y; item.rotated = spot.rotated; if (spot.rotated) { let temp = item.w; item.w = item.h; item.h = temp; } item.eq = true; updateWeight(); updateInventoryDisplay(); selectItemInfo(item.id); save(); } else { alert("Não há espaço suficiente na maleta para este item!"); } }
+        if (isMochila) { 
+            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; 
+        } else { 
+            let spot = findEmptySpot(item.w, item.h); 
+            if (spot) { 
+                item.x = spot.x; item.y = spot.y; item.rotated = spot.rotated; 
+                if (spot.rotated) { let temp = item.w; item.w = item.h; item.h = temp; } 
+                item.eq = true; updateWeight(); updateInventoryDisplay(); selectItemInfo(item.id); updateAllPericias(); save(); 
+            } else { alert("Não há espaço suficiente na maleta para este item!"); } 
+        }
     }
 
     function startDrag(e, item, fromGrid) {
@@ -746,16 +312,20 @@
     function getGridPosition(mouseX, mouseY) { const rect = gridEl.getBoundingClientRect(); const relativeX = (mouseX - offsetX) - rect.left; const relativeY = (mouseY - offsetY) - rect.top; return { col: Math.round(relativeX / CELL_SIZE), row: Math.round(relativeY / CELL_SIZE) }; }
 
     window.addEventListener('mousemove', (e) => { if (!isDragging || !activeDragItem) return; hasMovedMouse = true; moveElementToMouse(e.clientX, e.clientY); const pos = getGridPosition(e.clientX, e.clientY); const rect = gridEl.getBoundingClientRect(); activeDragItem.el.classList.remove('ghost-valid', 'ghost-invalid'); if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) { if (canPlace(pos.col, pos.row, activeDragItem.w, activeDragItem.h)) { activeDragItem.el.classList.add('ghost-valid'); } else { activeDragItem.el.classList.add('ghost-invalid'); } } });
+    
     window.addEventListener('mouseup', (e) => {
         if (!isDragging || !activeDragItem) return; isDragging = false; const currentItem = activeDragItem; activeDragItem = null; currentItem.el.classList.remove('ghost-valid', 'ghost-invalid');
         if (!hasMovedMouse && currentItem.x >= 0) { updateInventoryDisplay(); selectItemInfo(currentItem.id); return; }
         const pos = getGridPosition(e.clientX, e.clientY); const rect = gridEl.getBoundingClientRect();
-       if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) { 
+        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) { 
             currentItem.x = -1; currentItem.y = -1; 
-            currentItem.eq = false; // <-- Desequipa o item automaticamente ao atirar para a caixa
+            currentItem.eq = false; 
             if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } 
-            updateInventoryDisplay(); updateAllPericias(); save(); return; // <-- Atualiza as perícias e salva
+            updateInventoryDisplay(); updateAllPericias(); save(); return; 
         }
+        if (canPlace(pos.col, pos.row, currentItem.w, currentItem.h)) { currentItem.x = pos.col; currentItem.y = pos.row; updateInventoryDisplay(); selectItemInfo(currentItem.id); save(); } 
+        else { if (currentItem.x >= 0 && currentItem.y >= 0) { currentItem.w = currentItem.origW; currentItem.h = currentItem.origH; currentItem.rotated = currentItem.origRotated; } else { currentItem.x = -1; currentItem.y = -1; if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } } updateInventoryDisplay(); }
+    });
 
     window.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -782,47 +352,7 @@
         document.getElementById('info-stats').innerHTML = statsHTML; const chkEquip = document.getElementById('info-equip'); chkEquip.disabled = false; chkEquip.checked = item.eq; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; document.getElementById('btn-delete-item').disabled = false; document.getElementById('btn-transfer-item').disabled = false; document.getElementById('btn-edit-item').disabled = false;
     }
     function deselectItemInfo() { currentSelectedItemId = null; document.getElementById('info-name').innerText = "Nenhum Item"; document.getElementById('info-name').style.color = "var(--accent-blue)"; document.getElementById('info-img-container').style.display = 'none'; document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; document.getElementById('info-equip').disabled = true; document.getElementById('info-equip').checked = false; document.getElementById('info-equip-container').style.borderColor = '#444'; document.getElementById('btn-delete-item').disabled = true; document.getElementById('btn-transfer-item').disabled = true; document.getElementById('btn-edit-item').disabled = true; }
-   function toggleEquipSelected() { 
-        if(!currentSelectedItemId) return; const item = inventoryItems.find(i => i.id === currentSelectedItemId); if(!item) return; 
-        const isChecking = document.getElementById('info-equip').checked; const isMochila = item.n.toLowerCase().includes('mochila'); 
-        if (isMochila && isChecking) { 
-            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; document.getElementById('info-equip').checked = false; 
-        } else { 
-            item.eq = isChecking; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; 
-            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); // <-- Agora atualiza as perícias
-        } 
-    }
 
-    function confirmEquipBackpack() { 
-        const id = document.getElementById('backpack-confirm-item-id').value; const item = inventoryItems.find(i => i.id === id); 
-        if(item) { 
-            item.eq = true; if(currentSelectedItemId === id) { document.getElementById('info-equip').checked = true; document.getElementById('info-equip-container').style.borderColor = 'var(--accent-yellow)'; } 
-            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
-        } 
-        document.getElementById('modal-backpack').style.display = 'none'; 
-    }
-
-    function apagarItemSelecionado() { 
-        if(!currentSelectedItemId) return; 
-        if(confirm("Tem certeza que deseja deitar este item fora?")) { 
-            inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId); 
-            deselectItemInfo(); updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); // <-- Agora atualiza as perícias ao apagar
-        } 
-    }
-
-    function autoEquipItem(id) {
-        const item = inventoryItems.find(i => i.id === id); if (!item) return;
-        const isMochila = (item.n || "").toLowerCase().includes('mochila');
-        if (isMochila) { 
-            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; 
-        } else { 
-            let spot = findEmptySpot(item.w, item.h); 
-            if (spot) { 
-                item.x = spot.x; item.y = spot.y; item.rotated = spot.rotated; 
-                if (spot.rotated) { let temp = item.w; item.w = item.h; item.h = temp; } 
-                item.eq = true; updateWeight(); updateInventoryDisplay(); selectItemInfo(item.id); updateAllPericias(); save(); // <-- Atualiza as perícias ao equipar
-            } else { alert("Não há espaço suficiente na maleta para este item!"); } 
-        }
     function updateWeight() { const forca = parseInt(document.getElementById('attr_for').value) || 0; const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false; let baseCap = 5 + Math.floor(forca/2) + (treinadoAtletismo ? 10 : 0); let extraCap = 0; inventoryItems.forEach(item => { if(item.eq){ const n = (item.n||item.name||"").toLowerCase(); if(n.includes('mochila')) { extraCap += 16; } } }); window.currentCapacity = Math.min(60, baseCap + extraCap); let t = 0; inventoryItems.forEach(item => { if (item.x >= 0) t += (item.w * item.h); }); const fill = document.getElementById('weight-bar-fill'); if (fill) { fill.style.width = window.currentCapacity > 0 ? Math.min((t/window.currentCapacity)*100, 100)+"%" : "0%"; document.getElementById('weight-text').innerText = `${t} / ${window.currentCapacity}`; if(t > window.currentCapacity) fill.classList.add('overweight'); else fill.classList.remove('overweight'); } if (document.getElementById('inventory-grid')) { drawGridBackground(); } }
     
     function openItemPopup() { document.getElementById('popup-new-item').style.display = 'flex'; }
@@ -853,34 +383,20 @@
     
     function updateWeaponsDisplay() { equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp')); const sel = document.getElementById('active-weapon-select'); if (sel) { let currentVal = sel.value; sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join(''); sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none'; if (currentVal && equippedWeaponsData.some(w => w.id === currentVal)) { sel.value = currentVal; } else if (equippedWeaponsData.length > 0) { sel.value = equippedWeaponsData[0].id; } } renderActiveWeapon(); }
     
- function renderActiveWeapon() { 
-        const sel = document.getElementById('active-weapon-select'); 
-        const listDiv = document.getElementById('equipped-weapons-list'); 
-        if (!listDiv) return;
-        
-        if (equippedWeaponsData.length === 0 || !sel || !sel.value) { 
-            listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>'; 
-            return; 
-        }
-        
-        const activeWeaponId = sel.value; 
-        const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
-        
+    function renderActiveWeapon() { 
+        const sel = document.getElementById('active-weapon-select'); const listDiv = document.getElementById('equipped-weapons-list'); if (!listDiv) return;
+        if (equippedWeaponsData.length === 0 || !sel || !sel.value) { listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>'; return; }
+        const activeWeaponId = sel.value; const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
         if (w) {
-            // Adicionado .trim() para evitar que espaços em branco quebrem a leitura da perícia
             let safeSkill = (w.skill || "Luta").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
-            
-            // Puxa o Atributo Base (FOR, AGI, PRE, etc) automaticamente da perícia que a arma exige
             let skillReal = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_") === safeSkill);
             let attrToUse = skillReal ? skillReal.attr : ((w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI");
-            
             let safeWName = w.n.replace(/'/g, "\\'").replace(/"/g, "&quot;");
             
             let ammoHtml = "";
             if (w.ammo && w.ammo !== "Nenhuma") {
                 ammoHtml = `<div style="margin-top:10px; background:rgba(0,0,0,0.5); padding:8px; border-radius:6px; text-align:center; border:1px solid var(--accent-blue);"><b style="color:var(--text-secondary); display:block; margin-bottom:8px; font-size:0.8em;">BALAS/DISPAROS (${w.ammo})</b><div style="display:flex; justify-content:center; align-items:center; gap:15px;"><button onclick="atirarArma('${w.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding:5px 15px;">-1</button><span style="font-size:1.5em; font-weight:900; color:white;">${w.currentShots !== undefined ? w.currentShots : w.capacity}</span><button onclick="recarregarArma('${w.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width:2px;">RECARREGAR</button></div></div>`;
             }
-            
             listDiv.innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
                 <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">${w.n} <span style="color:var(--accent-yellow); font-size:0.85em;">(${w.dmg} | Crit: ${w.crit})</span></div>
                 <div style="display: flex; gap: 8px; justify-content: center;">
@@ -891,18 +407,17 @@
             </div>`;
         }
     }
+
     function hasHeavyArmorEquipped() { return inventoryItems.some(i => i.eq && i.n.toLowerCase().includes('pesada')); }
     function abrirModalTransferirJogador() { document.getElementById('modal-transfer-player').style.display = 'flex'; }
     function confirmarEnvioJogador() { document.getElementById('modal-transfer-player').style.display = 'none'; }
     function openEditItemPopup() { alert("Para editar, podes atirar este fora e criar um novo com as estatísticas corretas."); }
-    
     function atirarArma(id) { let item = inventoryItems.find(i => i.id === id); if (item && item.currentShots > 0) { item.currentShots--; updateInventoryDisplay(); selectItemInfo(id); save(); } }
     function recarregarArma(id) { 
         let item = inventoryItems.find(i => i.id === id); 
         if (item) { 
             if(item.ammo === 'Nenhuma') { item.currentShots = item.capacity || 0; updateInventoryDisplay(); selectItemInfo(id); save(); return; }
-            let ammoTypeReq = item.ammo; 
-            let ammoIndex = inventoryItems.findIndex(i => i.type === 'municao' && i.ammoType === ammoTypeReq); 
+            let ammoTypeReq = item.ammo; let ammoIndex = inventoryItems.findIndex(i => i.type === 'municao' && i.ammoType === ammoTypeReq); 
             if (ammoIndex === -1) ammoIndex = inventoryItems.findIndex(i => i.n.toLowerCase().includes('munição ' + ammoTypeReq.toLowerCase()) || i.n.toLowerCase().includes('municao ' + ammoTypeReq.toLowerCase()));
             if (ammoIndex !== -1) {
                 let ammoItem = inventoryItems[ammoIndex]; let currentQtd = ammoItem.qtd || 1;
@@ -937,110 +452,11 @@
     function addAbility(n, d) { const id = Date.now().toString()+Math.floor(Math.random()*100000).toString(); const safeD = (d||"").replace(/"/g, "'"); const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); div.style.background = 'rgba(18,18,20,0.8)'; div.style.border = '1px solid rgba(51,51,51,0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="document.getElementById('ability-${id}').remove(); save();">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; document.getElementById('abilities-list').appendChild(div); save(); }
 
     function rolarTesteD20(n, id, ak, eArma=false, qtdAtaquesForcado=null) { 
-        lastAttackWasCrit = false; 
-        let sn = id.replace("skill_", ""); 
-        let skEl = document.getElementById(id); 
-        let sk = skEl ? parseInt(skEl.value)||0 : 0; 
-        let atEl = document.getElementById("attr_"+ak.toLowerCase()); 
-        let at = atEl ? parseInt(atEl.value)||0 : 0; 
-        let chkEl = document.getElementById("chk_"+sn); 
-        let tr = chkEl ? chkEl.checked : false; 
-        
-        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
-        
-        let nivelBonus = getNivelBonus(); 
-        let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
-        
-        let tg = getAlvosD20(totalValN); 
-        let numAttacks = 1; 
-        let cMarg = 20; 
-        
-        if(eArma){ 
-            const sel=document.getElementById('active-weapon-select'); 
-            if(sel&&sel.value&&sel.style.display!=='none' || equippedWeaponsData.length > 0){ 
-                const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; 
-                const wp = equippedWeaponsData.find(w=>w.id===wpId); 
-                if(wp){ 
-                    if(wp.crit && wp.crit.toLowerCase()!=="nenhum"){ 
-                        let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); 
-                        if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0]) || 20; } 
-                        else if(cStr.includes('x')) { cMarg = 20; } 
-                        else { cMarg = parseInt(cStr) || 20; } 
-                        if (cMarg < 1) cMarg = 1; 
-                    } 
-                    if(wp.atk && parseInt(wp.atk) > 1){ 
-                        let maxAtaquesPossiveis = parseInt(wp.atk); 
-                        if(qtdAtaquesForcado === null){ 
-                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); 
-                            return; 
-                        } else { 
-                            numAttacks = qtdAtaquesForcado; 
-                        } 
-                    } 
-                } 
-            } 
-        } 
-        
-        let resultsArray = []; 
-        let anyCrit = false; 
-        let allDesastre = true; 
-        
-        for(let i=0; i<numAttacks; i++){ 
-            // O dado rola puramente de 1 a 20
-            let d20 = Math.floor(Math.random() * 20) + 1; 
-            
-            let textFormat = ""; 
-            let colorFormat = ""; 
-            
-            if(d20 === 1){ 
-                textFormat = "DESASTRE (1)"; 
-                colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; 
-            } 
-            else if(d20 >= cMarg && eArma) { 
-                allDesastre = false; 
-                anyCrit = true; 
-                textFormat = "CRÍTICO!"; 
-                colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
-            } 
-            else if(d20 >= tg.e) { 
-                allDesastre = false; 
-                textFormat = "EXTREMO"; 
-                colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
-            } 
-            else if(d20 >= tg.b) { 
-                allDesastre = false; 
-                textFormat = "BOM"; 
-                colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
-            } 
-            else if(d20 >= tg.n) { 
-                allDesastre = false; 
-                textFormat = "NORMAL"; 
-                colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
-            } 
-            else { 
-                allDesastre = false; 
-                textFormat = "FALHA"; 
-                colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
-            } 
-            
-            if(numAttacks > 1){ 
-                colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); 
-                // Mostra d20 puro no log múltiplo
-                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${d20} (${textFormat})</div>`); 
-            } else { 
-                // Mostra d20 puro no popup principal
-                showPopup(d20, `${n}<br>(${textFormat})`, colorFormat); 
-            } 
-        } 
-        
-        lastAttackWasCrit = anyCrit; 
-        
-        if(numAttacks > 1){ 
-            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">`+resultsArray.join('')+`</div>`; 
-            let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO"; 
-            if(allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>"; 
-            showPopup(numAttacks+"x", `${actionText}${finalHtml}`, "color:white; text-align:center;"); 
-        } 
+        lastAttackWasCrit = false; let sn = id.replace("skill_", ""); let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let nivelBonus = getNivelBonus(); let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); let tg = getAlvosD20(totalValN); let numAttacks = 1; let cMarg = 20; 
+        if(eArma){ const sel=document.getElementById('active-weapon-select'); if(sel&&sel.value&&sel.style.display!=='none' || equippedWeaponsData.length > 0){ const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; const wp = equippedWeaponsData.find(w=>w.id===wpId); if(wp){ if(wp.crit && wp.crit.toLowerCase()!=="nenhum"){ let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0]) || 20; } else if(cStr.includes('x')) { cMarg = 20; } else { cMarg = parseInt(cStr) || 20; } if (cMarg < 1) cMarg = 1; } if(wp.atk && parseInt(wp.atk) > 1){ let maxAtaquesPossiveis = parseInt(wp.atk); if(qtdAtaquesForcado === null){ abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); return; } else { numAttacks = qtdAtaquesForcado; } } } } } 
+        let resultsArray = []; let anyCrit = false; let allDesastre = true; 
+        for(let i=0; i<numAttacks; i++){ let d20 = Math.floor(Math.random() * 20) + 1; let textFormat = ""; let colorFormat = ""; if(d20 === 1){ textFormat = "DESASTRE"; colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; } else if(d20 >= cMarg && eArma) { allDesastre = false; anyCrit = true; textFormat = "CRÍTICO!"; colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; } else if(d20 >= tg.e) { allDesastre = false; textFormat = "EXTREMO"; colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; } else if(d20 >= tg.b) { allDesastre = false; textFormat = "BOM"; colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; } else if(d20 >= tg.n) { allDesastre = false; textFormat = "NORMAL"; colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; } else { allDesastre = false; textFormat = "FALHA"; colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; } if(numAttacks > 1){ colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${d20} (${textFormat})</div>`); } else { showPopup(d20, `${n}<br>(${textFormat})`, colorFormat); } } 
+        lastAttackWasCrit = anyCrit; if(numAttacks > 1){ let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">`+resultsArray.join('')+`</div>`; let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO"; if(allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>"; showPopup(numAttacks+"x", `${actionText}${finalHtml}`, "color:white; text-align:center;"); } 
     }
 
     function abrirModalQtdAtaques(maxAtk, n, id, ak) { document.getElementById('max-atk-display').innerText = maxAtk; const input = document.getElementById('input-qtd-ataques'); input.max = maxAtk; input.value = maxAtk; input.oninput=function(){let val=parseInt(this.value);if(val>maxAtk)this.value=maxAtk;if(val<1)this.value=1;}; document.getElementById('modal-qtd-ataques').style.display = 'flex'; document.getElementById('btn-confirm-ataques').onclick = function(){ let val = parseInt(input.value); if(isNaN(val) || val < 1) val = 1; if(val > maxAtk) val = maxAtk; fecharModalQtdAtaques(); rolarTesteD20(n, id, ak, true, val); }; }
