@@ -898,11 +898,110 @@
     function addAbility(n, d) { const id = Date.now().toString()+Math.floor(Math.random()*100000).toString(); const safeD = (d||"").replace(/"/g, "'"); const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); div.style.background = 'rgba(18,18,20,0.8)'; div.style.border = '1px solid rgba(51,51,51,0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="document.getElementById('ability-${id}').remove(); save();">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; document.getElementById('abilities-list').appendChild(div); save(); }
 
     function rolarTesteD20(n, id, ak, eArma=false, qtdAtaquesForcado=null) { 
-        lastAttackWasCrit = false; let sn = id.replace("skill_", ""); let skEl = document.getElementById(id); let sk = skEl ? parseInt(skEl.value)||0 : 0; let atEl = document.getElementById("attr_"+ak.toLowerCase()); let at = atEl ? parseInt(atEl.value)||0 : 0; let chkEl = document.getElementById("chk_"+sn); let tr = chkEl ? chkEl.checked : false; let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; let nivelBonus = getNivelBonus(); let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); let tg = getAlvosD20(totalValN); let numAttacks = 1; let cMarg = 20; 
-        if(eArma){ const sel=document.getElementById('active-weapon-select'); if(sel&&sel.value&&sel.style.display!=='none' || equippedWeaponsData.length > 0){ const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; const wp = equippedWeaponsData.find(w=>w.id===wpId); if(wp){ if(wp.crit && wp.crit.toLowerCase()!=="nenhum"){ let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0]) || 20; } else if(cStr.includes('x')) { cMarg = 20; } else { cMarg = parseInt(cStr) || 20; } if (cMarg < 1) cMarg = 1; } if(wp.atk && parseInt(wp.atk) > 1){ let maxAtaquesPossiveis = parseInt(wp.atk); if(qtdAtaquesForcado === null){ abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); return; } else { numAttacks = qtdAtaquesForcado; } } } } } 
-        let resultsArray = []; let anyCrit = false; let allDesastre = true; 
-        for(let i=0; i<numAttacks; i++){ let d20 = Math.floor(Math.random() * 20) + 1; let somaTotal = d20 + totalValN; let textFormat = ""; let colorFormat = ""; if(d20 === 1){ textFormat = "DESASTRE (1)"; colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; } else if(d20 >= cMarg && eArma) { allDesastre = false; anyCrit = true; textFormat = "CRÍTICO!"; colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; } else if(d20 >= tg.e) { allDesastre = false; textFormat = "EXTREMO"; colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; } else if(d20 >= tg.b) { allDesastre = false; textFormat = "BOM"; colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; } else if(d20 >= tg.n) { allDesastre = false; textFormat = "NORMAL"; colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; } else { allDesastre = false; textFormat = "FALHA"; colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; } if(numAttacks > 1){ colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${somaTotal} (${textFormat})</div>`); } else { showPopup(somaTotal, `${n}<br>(${textFormat})`, colorFormat); } } 
-        lastAttackWasCrit = anyCrit; if(numAttacks > 1){ let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">`+resultsArray.join('')+`</div>`; let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO"; if(allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>"; showPopup(numAttacks+"x", `${actionText}${finalHtml}`, "color:white; text-align:center;"); } 
+        lastAttackWasCrit = false; 
+        let sn = id.replace("skill_", ""); 
+        let skEl = document.getElementById(id); 
+        let sk = skEl ? parseInt(skEl.value)||0 : 0; 
+        let atEl = document.getElementById("attr_"+ak.toLowerCase()); 
+        let at = atEl ? parseInt(atEl.value)||0 : 0; 
+        let chkEl = document.getElementById("chk_"+sn); 
+        let tr = chkEl ? chkEl.checked : false; 
+        
+        let penalty = (hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) ? -5 : 0; 
+        
+        let nivelBonus = getNivelBonus(); 
+        let totalValN = Math.floor(sk + (at * 2) + (tr ? nivelBonus : 0) + penalty); 
+        
+        let tg = getAlvosD20(totalValN); 
+        let numAttacks = 1; 
+        let cMarg = 20; 
+        
+        if(eArma){ 
+            const sel=document.getElementById('active-weapon-select'); 
+            if(sel&&sel.value&&sel.style.display!=='none' || equippedWeaponsData.length > 0){ 
+                const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; 
+                const wp = equippedWeaponsData.find(w=>w.id===wpId); 
+                if(wp){ 
+                    if(wp.crit && wp.crit.toLowerCase()!=="nenhum"){ 
+                        let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); 
+                        if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0]) || 20; } 
+                        else if(cStr.includes('x')) { cMarg = 20; } 
+                        else { cMarg = parseInt(cStr) || 20; } 
+                        if (cMarg < 1) cMarg = 1; 
+                    } 
+                    if(wp.atk && parseInt(wp.atk) > 1){ 
+                        let maxAtaquesPossiveis = parseInt(wp.atk); 
+                        if(qtdAtaquesForcado === null){ 
+                            abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); 
+                            return; 
+                        } else { 
+                            numAttacks = qtdAtaquesForcado; 
+                        } 
+                    } 
+                } 
+            } 
+        } 
+        
+        let resultsArray = []; 
+        let anyCrit = false; 
+        let allDesastre = true; 
+        
+        for(let i=0; i<numAttacks; i++){ 
+            // O dado rola puramente de 1 a 20
+            let d20 = Math.floor(Math.random() * 20) + 1; 
+            
+            let textFormat = ""; 
+            let colorFormat = ""; 
+            
+            if(d20 === 1){ 
+                textFormat = "DESASTRE (1)"; 
+                colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if(d20 >= cMarg && eArma) { 
+                allDesastre = false; 
+                anyCrit = true; 
+                textFormat = "CRÍTICO!"; 
+                colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
+            } 
+            else if(d20 >= tg.e) { 
+                allDesastre = false; 
+                textFormat = "EXTREMO"; 
+                colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if(d20 >= tg.b) { 
+                allDesastre = false; 
+                textFormat = "BOM"; 
+                colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if(d20 >= tg.n) { 
+                allDesastre = false; 
+                textFormat = "NORMAL"; 
+                colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else { 
+                allDesastre = false; 
+                textFormat = "FALHA"; 
+                colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
+            } 
+            
+            if(numAttacks > 1){ 
+                colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); 
+                // Mostra d20 puro no log múltiplo
+                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${d20} (${textFormat})</div>`); 
+            } else { 
+                // Mostra d20 puro no popup principal
+                showPopup(d20, `${n}<br>(${textFormat})`, colorFormat); 
+            } 
+        } 
+        
+        lastAttackWasCrit = anyCrit; 
+        
+        if(numAttacks > 1){ 
+            let finalHtml = `<div style="margin-top:15px; display:flex; flex-direction:column; gap:5px; width:100%; align-items:center;">`+resultsArray.join('')+`</div>`; 
+            let actionText = anyCrit ? "MÚLTIPLO <span style='color:#ffcf33; font-size:0.6em; text-shadow:0 0 10px #f00;'>(CRÍTICO)</span>" : "MÚLTIPLO"; 
+            if(allDesastre) actionText = "MÚLTIPLO <span style='color:#ff5252; font-size:0.6em;'>(DESASTRE)</span>"; 
+            showPopup(numAttacks+"x", `${actionText}${finalHtml}`, "color:white; text-align:center;"); 
+        } 
     }
 
     function abrirModalQtdAtaques(maxAtk, n, id, ak) { document.getElementById('max-atk-display').innerText = maxAtk; const input = document.getElementById('input-qtd-ataques'); input.max = maxAtk; input.value = maxAtk; input.oninput=function(){let val=parseInt(this.value);if(val>maxAtk)this.value=maxAtk;if(val<1)this.value=1;}; document.getElementById('modal-qtd-ataques').style.display = 'flex'; document.getElementById('btn-confirm-ataques').onclick = function(){ let val = parseInt(input.value); if(isNaN(val) || val < 1) val = 1; if(val > maxAtk) val = maxAtk; fecharModalQtdAtaques(); rolarTesteD20(n, id, ak, true, val); }; }
