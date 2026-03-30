@@ -734,7 +734,6 @@
     function getAlvosD20(vh) {
         if (vh < 1) vh = 1;
         if (vh > 20) {
-            // Se passar de 20 (muito raro, mas pode acontecer com combos), a dificuldade cai seguindo a lógica matemática.
             return {
                 n: 1, 
                 b: Math.max(2, 21 - Math.floor(vh / 2)), 
@@ -1613,9 +1612,9 @@
         document.getElementById('popup-input-dice').style.display='none'; 
         let formula = document.getElementById('custom_dice_formula').value;
         if(formula) {
-            rolarDanoMonstro('Jogador', 'Dado Personalizado', formula);
+            rolarDanoMonstro('Jogador', 'Dado', formula);
         } else {
-            showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(PERSONALIZADO)", "color:white"); 
+            showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(LIVRE)", "color:white"); 
         }
     }
 
