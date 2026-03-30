@@ -975,30 +975,12 @@
         }
 
         // Envio Silencioso e forçado (mesmo se o jogador estiver offline)
-        function enviarParaTodos(objStr, tipo) { 
+    function enviarParaTodos(objStr, tipo) { 
             if (jogadoresPermitidos.length === 0) return;
             const objOriginal = JSON.parse(decodeURIComponent(objStr));
             
             jogadoresPermitidos.forEach(alvo => {
-                let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
-                objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
-                
-                let pData = playersDataMemoria[alvo.toUpperCase()];
-                if (pData && pData.fullData) {
-                    if (tipo === 'item') {
-                        if (!pData.fullData.inv) pData.fullData.inv = [];
-                        pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false});
-                    } else {
-                        if (!pData.fullData.rituals) pData.fullData.rituals = [];
-                        let r = objParaEnviar;
-                        pData.fullData.rituals.push({
-                            n: r.n, el: r.el, circ: r.circ, ex: r.ex, alc: r.alc, alv: r.alv, dur: r.dur, res: r.res,
-                            descGeral: r.descGeral, descDisc: r.descDisc, descVerd: r.descVerd, eq: true, img: r.img
-                        });
-                    }
-                    socket.emit('mestre_force_sync_player', { codigo: alvo.toUpperCase(), fullData: pData.fullData });
-                    fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: alvo.toUpperCase(), fichaData: pData.fullData}) }).catch(e=>{}); 
-                }
+                enviarItemParaJogador(alvo, objOriginal, tipo);
             });
         }
 
@@ -1015,15 +997,16 @@
             if (jogadoresPermitidos.length === 0) return;
             
             jogadoresPermitidos.forEach(code => { 
-                const pData = playersDataMemoria[code] || {}; 
-                const displayName = pData.nome ? pData.nome : code; 
+                const upperCode = code.toUpperCase();
+                const pData = playersDataMemoria[upperCode] || {}; 
+                const displayName = pData.nome ? pData.nome : upperCode; 
                 const displayImg = pData.foto ? pData.foto : 'https://via.placeholder.com/60';
                 
                 const card = document.createElement('div');
                 card.style.cssText = `background: rgba(18, 18, 20, 0.8); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;`;
                 card.onmouseover = function() { this.style.transform = 'scale(1.05)'; this.style.background = 'rgba(0, 176, 255, 0.2)'; };
                 card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.background = 'rgba(18, 18, 20, 0.8)'; };
-                card.onclick = () => confirmarTransferenciaUm(code);
+                card.onclick = () => confirmarTransferenciaUm(upperCode);
                 
                 card.innerHTML = `
                     <img src="${displayImg}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue);">
@@ -1035,17 +1018,32 @@
             document.getElementById('modal-transfer-obj').style.display = 'flex';
         }
 
-        // Envio Silencioso e Forçado
         function confirmarTransferenciaUm(codeAlvo) {
             const objStr = document.getElementById('transfer-obj-data').value; 
             const tipo = document.getElementById('transfer-obj-type').value; 
+            
             const objOriginal = JSON.parse(decodeURIComponent(objStr));
             if (!objOriginal || !codeAlvo) return;
             
+            enviarItemParaJogador(codeAlvo, objOriginal, tipo);
+            
+            document.getElementById('modal-transfer-obj').style.display = 'none'; 
+        }
+
+        function enviarItemParaJogador(alvoCode, objOriginal, tipo) {
+            let codeUpper = alvoCode.toUpperCase();
             let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
             objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random() * 1000);
             
-            let pData = playersDataMemoria[codeAlvo];
+            // 1. Envio em Tempo Real: Atualiza instantaneamente se o jogador estiver online na ficha
+            if (tipo === 'item') { 
+                socket.emit('comando_mestre', { tipo: 'dar_item', codigo: codeUpper, item: objParaEnviar }); 
+            } else { 
+                socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: codeUpper, ritual: objParaEnviar }); 
+            }
+
+            // 2. Dupla Garantia Offline: Escreve no banco de dados caso ele não esteja com o site aberto
+            let pData = playersDataMemoria[codeUpper];
             if (pData && pData.fullData) {
                 if (tipo === 'item') {
                     if (!pData.fullData.inv) pData.fullData.inv = [];
@@ -1058,11 +1056,14 @@
                         descGeral: r.descGeral, descDisc: r.descDisc, descVerd: r.descVerd, eq: true, img: r.img
                     });
                 }
-                socket.emit('mestre_force_sync_player', { codigo: codeAlvo, fullData: pData.fullData });
-                fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: codeAlvo, fichaData: pData.fullData}) }).catch(e=>{}); 
+                
+                // Força salvar o item nos arquivos daquele jogador específico
+                fetch('/api/guardar_ficha', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ usuario: codeUpper, fichaData: pData.fullData }) 
+                }).catch(e=>{}); 
             }
-
-            document.getElementById('modal-transfer-obj').style.display = 'none'; 
         }
 
         function mudarAba(aba) {
