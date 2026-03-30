@@ -1,141 +1,200 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Escudo do Mestre</title>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-    :root {--bg-body:#121214; --bg-card:rgba(32,32,36,0.85); --border-color:rgba(50,50,56,0.8); --text-primary:#e1e1e6; --text-secondary:#a8a8b3; --accent-blue:#00b0ff; --accent-yellow:#ffcf33; --accent-green:#00e676; --accent-red:#e53935; --accent-purple:#b82bf2;}
-    body {font-family:'Roboto',sans-serif; background-color:var(--bg-body); background-image:url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size:cover; background-attachment:fixed; background-position:center; color:var(--text-primary); margin:0; padding:20px; display:flex; flex-direction:column; height:100vh; box-sizing:border-box;}
-    .mestre-top-bar {background:var(--bg-card); border:1px solid var(--border-color); padding:15px; border-radius:12px; margin-bottom:15px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px);}
-    .code-input {padding:10px; background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; border-radius:6px; text-transform:uppercase; font-weight:bold; flex:1; min-width:200px;}
-    .btn-add {background:var(--accent-green); border:none; color:black; font-weight:bold; padding:10px 20px; border-radius:6px; cursor:pointer; transition:0.2s; flex-shrink:0;}
-    .btn-add:hover {filter:brightness(1.2);}
-    .tabs-container {display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;}
-    .tab-btn {background:var(--bg-card); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 25px; border-radius:8px 8px 0 0; cursor:pointer; font-weight:bold; font-size:1.1em; transition:0.3s; box-shadow:0 -4px 10px rgba(0,0,0,0.3); border-bottom:none; flex:1; text-align:center;}
-    .tab-btn.active {background:var(--accent-red); color:white; border-color:var(--accent-red);}
-    .tab-btn:hover:not(.active) {background:rgba(255,255,255,0.1);}
-    .content-wrapper {display:flex; gap:20px; flex:1; overflow:hidden; min-height:0;}
-    .left-panel {flex:3; display:flex; flex-direction:column; overflow:hidden;}
-    .players-container, .monsters-grid {display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; align-content:flex-start; overflow-y:auto; padding-right:10px; flex:1;}
-    .catalogo-grid-view {display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; align-content:flex-start; padding-right:5px;}
-    .player-card, .monster-card {background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:15px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px); display:flex; flex-direction:column; gap:10px; transition:0.3s; position:relative;}
-    .monster-card {border-color:var(--accent-red);}
-    .player-header {display:flex; align-items:center; gap:15px; border-bottom:1px solid var(--border-color); padding-bottom:10px; flex-wrap:wrap;}
-    .player-img {width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-blue); background:#000; flex-shrink:0;}
-    .monster-img {border-color:var(--accent-red);}
-    .player-name {font-size:1.2em; font-weight:bold; color:var(--accent-yellow); text-transform:uppercase; margin:0;}
-    .monster-name {color:var(--accent-red);}
-    .player-info {font-size:0.8em; color:var(--text-secondary); line-height:1.4;}
-    .btn-remove {position:absolute; top:10px; right:10px; background:var(--accent-red); color:white; border:none; border-radius:4px; padding:2px 8px; font-size:0.8em; font-weight:bold; cursor:pointer; z-index:10; transition:0.2s;}
-    .btn-remove:hover {filter:brightness(1.2);}
-    .btn-ctrl {background:#333; color:white; border:1px solid var(--border-color); border-radius:4px; cursor:pointer; width:28px; height:28px; font-weight:bold; display:flex; justify-content:center; align-items:center; transition:0.2s; flex-shrink:0;}
-    .btn-ctrl:hover {filter:brightness(1.5); border-color:white;}
-    .bar-container {background:rgba(0,0,0,0.8); height:25px; border-radius:4px; border:1px solid #333; position:relative; overflow:hidden; margin-top:5px; flex:1;}
-    .bar-fill {height:100%; transition:width 0.4s ease;}
-    .fill-vida {background:linear-gradient(90deg, #8b0000, var(--accent-red));}
-    .fill-sani {background:linear-gradient(90deg, #01579b, var(--accent-blue));}
-    .fill-pe {background:linear-gradient(90deg, #b38f00, var(--accent-yellow));}
-    .bar-text {position:absolute; width:100%; text-align:center; top:0; font-size:0.9em; font-weight:bold; line-height:25px; text-shadow:1px 1px 2px #000;}
-    .log-container {flex:1; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; display:flex; flex-direction:column; overflow:hidden; backdrop-filter:blur(8px); min-width:300px;}
-    .log-title {background:rgba(0,0,0,0.5); padding:15px; text-align:center; font-weight:bold; color:var(--accent-green); border-bottom:1px solid var(--border-color); flex-shrink:0;}
-    .log-messages {flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px;}
-    .log-item {background:rgba(18,18,20,0.9); border:1px solid #333; padding:10px; border-radius:8px; font-size:0.9em;}
-    .log-item .player-name {font-size:0.9em; color:var(--accent-blue); margin-bottom:5px;}
-    .log-item .roll-result {font-size:1.2em; font-weight:900; text-align:center; margin:5px 0;}
-    .modal-overlay {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column; backdrop-filter:blur(10px);}
-    .modal-content {background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:20px; width:90%; max-width:600px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.9); box-sizing:border-box;}
-    .form-group {display:flex; flex-direction:column; gap:5px; margin-bottom:12px;}
-    .form-group label {font-size:0.9em; font-weight:bold; color:var(--accent-yellow);}
-    .monster-input {padding:10px; background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; border-radius:6px; box-sizing:border-box; width:100%;}
-    .dynamic-row {display:flex; gap:5px; margin-bottom:5px; flex-wrap:wrap;}
-    .btn-roll {background:var(--accent-yellow); color:#000; border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer; transition:0.2s; font-size:0.8em; margin-top:5px; width:100%; box-sizing:border-box;}
-    .btn-roll:hover {filter:brightness(1.2);}
-    .monster-details {font-size:0.8em; color:var(--text-secondary); background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; max-height:250px; overflow-y:auto;}
-    .popup-box-dice {position:relative; width:90%; max-width:600px; height:400px; background-size:contain; background-repeat:no-repeat; background-position:center; background-color:#000; border:4px solid var(--accent-yellow); border-radius:20px; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow:hidden; text-align:center;}
-    .popup-box-dice::after {content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:1;}
-    .popup-content {position:absolute; top:0; left:0; right:0; bottom:0; z-index:10; display:none; flex-direction:column; justify-content:center; align-items:center; animation:fadeInResult 0.5s forwards; text-align:center;}
-    .popup-number {font-family:'Permanent Marker',cursive; font-size:8em; font-weight:900; color:white; text-shadow:4px 4px 0 #000; display:flex; justify-content:center; align-items:center; text-align:center; width:100%; line-height:1; margin:0; padding:0;}
-    .popup-res {font-family:'Permanent Marker',cursive; font-size:2.2em; line-height:1.1; margin:0; margin-top:5px; text-transform:uppercase; text-shadow:2px 2px 4px #000; max-height:180px; overflow-y:auto; padding:0 10px; width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; text-align:center;}
-    @keyframes fadeInResult {from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)}}
-    @keyframes shakeCrit {0%,100%{transform:translate(0,0) rotate(0)} 20%{transform:translate(-3px,0px) rotate(2deg)} 40%{transform:translate(1px,-1px) rotate(-2deg)} 60%{transform:translate(-3px,1px) rotate(2deg)} 80%{transform:translate(-1px,-1px) rotate(-2deg)}}
-    .attr-grid {display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:15px;}
-    .skill-group {display:flex; flex-direction:column; gap:4px; background:rgba(0,0,0,0.4); padding:8px; border-radius:6px; border:1px solid #333;}
-    .skill-group label {display:flex; align-items:center; gap:5px; font-size:0.8em; color:var(--text-primary);}
-    #iniciativa-board, #catalogo-board, #rmestre-board {display:none; flex-direction:column; height:100%; overflow:hidden;}
-    .ini-controls {display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;}
-    .ini-list-container {flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:10px;}
-    .ini-card {background:var(--bg-card); border:2px solid var(--border-color); border-radius:12px; padding:10px 20px; display:flex; align-items:center; gap:20px; position:relative; box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:0.3s; backdrop-filter:blur(8px); flex-wrap:wrap;}
-    .ini-card.is-player {border-left:6px solid var(--accent-blue);}
-    .ini-card.is-monster {border-left:6px solid var(--accent-red);}
-    .ini-rank {font-size:2em; font-weight:900; color:var(--accent-yellow); width:40px; text-align:center;}
-    .ini-img {width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid var(--text-secondary); background:black;}
-    .ini-info {flex:1; min-width:150px;}
-    .ini-name {font-size:1.3em; font-weight:bold; text-transform:uppercase; margin:0 0 5px 0; color:white;}
-    .ini-details {font-size:0.85em; color:var(--text-secondary);}
-    .ini-total-box {text-align:center; background:rgba(0,0,0,0.5); padding:10px 20px; border-radius:8px; border:1px solid #333;}
-    .ini-total {font-size:2em; font-weight:900; color:var(--accent-green); line-height:1;}
-    .ini-total-lbl {font-size:0.7em; color:var(--text-secondary); font-weight:bold; text-transform:uppercase;}
-    #roteiro-board {display:none; flex-direction:column; height:100%; overflow:hidden; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px);}
-    .roteiro-layout {display:flex; gap:20px; height:calc(100% - 45px); overflow:hidden;}
-    .roteiro-sidebar {width:250px; display:flex; flex-direction:column; gap:10px; border-right:1px solid var(--border-color); padding-right:15px; overflow-y:auto; flex-shrink:0;}
-    .roteiro-sidebar-right {width:250px; display:flex; flex-direction:column; gap:10px; border-left:1px solid var(--border-color); padding-left:15px; overflow-y:auto; flex-shrink:0;}
-    .roteiro-editor {flex:1; display:flex; flex-direction:column; overflow:hidden;}
-    .session-btn {background:rgba(18,18,20,0.8); color:var(--text-primary); border:1px solid var(--border-color); padding:12px; cursor:pointer; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-weight:bold; transition:0.2s;}
-    .session-btn:hover {border-color:var(--accent-blue); background:rgba(255,255,255,0.05);}
-    .session-btn.active {background:rgba(0,176,255,0.15); border-color:var(--accent-blue); color:var(--accent-blue);}
-    .session-btn.active-desc {background:rgba(184,43,242,0.15); border-color:var(--accent-purple); color:var(--accent-purple);}
-    .roteiro-titulo-input {background:transparent; border:none; border-bottom:2px solid var(--border-color); color:white; font-size:1.5em; font-weight:bold; margin-top:0; margin-bottom:15px; padding-bottom:5px; outline:none; width:100%; font-family:inherit; transition:0.2s;}
-    .roteiro-titulo-input:focus {border-color:var(--accent-yellow);}
-    .roteiro-textarea {flex:1; background:rgba(12,12,14,0.9); border:1px solid var(--border-color); color:var(--text-primary); padding:20px; font-family:'Roboto',sans-serif; font-size:1.1em; border-radius:8px; resize:none; outline:none; box-shadow:inset 0 2px 10px rgba(0,0,0,0.5); line-height:1.6;}
-    .roteiro-textarea:focus {border-color:var(--accent-blue);}
-    #mapas-board {display:none; flex-direction:column; height:100%; overflow:hidden; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.8); backdrop-filter:blur(8px);}
-    .map-list {display:flex; gap:10px; margin-bottom:15px; overflow-x:auto; padding-bottom:5px; flex-shrink:0;}
-    .map-btn {background:rgba(18,18,20,0.8); border:1px solid var(--border-color); color:white; padding:10px 20px; border-radius:6px; cursor:pointer; white-space:nowrap; font-weight:bold; transition:0.2s; display:flex; gap:10px; align-items:center;}
-    .map-btn.active {border-color:var(--accent-blue); background:rgba(0,176,255,0.15); color:var(--accent-blue);}
-    .map-view-container {flex:1; position:relative; overflow:hidden; border:2px solid var(--border-color); border-radius:8px; background:#0b0b0e; cursor:grab; display:block;}
-    .map-view-container:active {cursor:grabbing;}
-    #map-transform-wrapper {transform-origin:0 0; width:100%; height:100%; position:absolute; top:0; left:0; will-change:transform;}
-    .map-image {display:block; max-width:none; user-select:none; pointer-events:none;}
-    .map-pin-marker {position:absolute; width:26px; height:26px; border-radius:50% 50% 50% 0; transform:translate(-50%,-100%) rotate(-45deg); cursor:pointer; z-index:10; box-shadow:2px 2px 8px rgba(0,0,0,0.6); border:2px solid white; transition:transform 0.1s,filter 0.1s;}
-    .map-pin-marker:hover {filter:brightness(1.3); transform:translate(-50%,-100%) rotate(-45deg) scale(1.15);}
-    .map-pin-marker::after {content:''; width:8px; height:8px; background:white; position:absolute; border-radius:50%; top:50%; left:50%; transform:translate(-50%,-50%);}
-    .map-tooltip {position:absolute; background:rgba(10,10,12,0.95); border:1px solid var(--accent-yellow); color:white; padding:15px; border-radius:8px; z-index:20; max-width:250px; display:none; transform:translate(-50%,-120%); margin-top:-15px; pointer-events:none; box-shadow:0 4px 15px rgba(0,0,0,0.5);}
-    .map-tooltip h4 {margin:0 0 8px 0; color:var(--accent-yellow); font-size:1.1em; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:5px;}
-    .map-tooltip p {margin:0; font-size:0.9em; color:#ddd; line-height:1.4; white-space:pre-wrap;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Escudo do Mestre</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
+        :root {
+            --bg-body: #121214; 
+            --bg-card: rgba(32, 32, 36, 0.85);
+            --border-color: rgba(50, 50, 56, 0.8); 
+            --text-primary: #e1e1e6; 
+            --text-secondary: #a8a8b3;
+            --accent-blue: #00b0ff; 
+            --accent-yellow: #ffcf33; 
+            --accent-green: #00e676; 
+            --accent-red: #e53935;
+            --accent-purple: #b82bf2;
+        }
 
-    @media (max-width:900px) {.players-container, .monsters-grid {grid-template-columns:repeat(2, 1fr);}}
-    @media (max-width:768px) {
-        body {height:auto; overflow-y:auto; padding:10px;}
-        .content-wrapper {flex-direction:column; height:auto; overflow:visible;}
-        .left-panel {overflow:visible;}
-        .players-container, .monsters-grid, .catalogo-grid-view {grid-template-columns:1fr; overflow-y:visible; padding-right:0;}
-        .log-container {height:400px; margin-top:10px; min-width:100%;}
-        .tab-btn {border-radius:8px; margin-bottom:5px;}
-        .ini-card {gap:10px;}
-        .popup-box-dice {height:300px;}
-        .popup-number {font-size:6em;}
-        .popup-res {font-size:1.5em;}
-        .attr-grid {grid-template-columns:1fr;} 
-        #roteiro-board {height:auto; padding:15px;}
-        .roteiro-layout {flex-direction:column; height:auto;}
-        .roteiro-sidebar, .roteiro-sidebar-right {width:100%; flex-direction:row; overflow-x:auto; flex-wrap:nowrap; border:none; padding:0; margin-bottom:10px;}
-        #roteiro-list, #descricao-list {flex-direction:row !important; display:flex; overflow-x:auto; flex-wrap:nowrap; gap:8px; width:100%;}
-        .session-btn {flex:0 0 auto; white-space:nowrap; padding:8px 12px;}
-        .roteiro-editor {overflow-y:visible; height:350px; margin:15px 0;}
-    }
-</style>
+        body {
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg-body);
+            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
+            background-size: cover; 
+            background-attachment: fixed; 
+            background-position: center; 
+            color: var(--text-primary);
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            box-sizing: border-box;
+        }
+
+        .mestre-top-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .code-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-weight: bold; flex: 1; min-width: 200px; }
+        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .btn-add:hover { filter: brightness(1.2); }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        
+        .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 25px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center; }
+        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
+
+        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
+        .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
+
+        .players-container, .monsters-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
+        .catalogo-grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; }
+
+        .player-card, .monster-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; position: relative; }
+        .monster-card { border-color: var(--accent-red); }
+
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
+        .monster-img { border-color: var(--accent-red); }
+        
+        .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
+        .monster-name { color: var(--accent-red); }
+        .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
+        
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s;}
+        .btn-remove:hover { filter: brightness(1.2); }
+        
+        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
+        .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
+
+        .bar-container { background: rgba(0,0,0,0.8); height: 25px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; flex: 1; }
+        .bar-fill { height: 100%; transition: width 0.4s ease; }
+        
+        .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
+        .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
+        .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
+        
+        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.9em; font-weight: bold; line-height: 25px; text-shadow: 1px 1px 2px #000; }
+        .status-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+        .tag { font-size: 0.7em; padding: 4px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        
+        .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
+        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; }
+        .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
+        .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
+        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%;}
+        .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
+        
+        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box;}
+        .btn-roll:hover { filter: brightness(1.2); }
+        .monster-details { font-size: 0.8em; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto;}
+
+        .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
+        .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
+        .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
+        .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
+        .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
+
+        @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
+        
+        .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
+        .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
+        .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
+
+        #iniciativa-board, #catalogo-board, #rmestre-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
+        
+        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap; }
+        .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
+        .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
+        .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
+        .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
+        .ini-info { flex: 1; min-width: 150px; }
+        .ini-name { font-size: 1.3em; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; color: white; }
+        .ini-details { font-size: 0.85em; color: var(--text-secondary); }
+        .ini-total-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px; border: 1px solid #333; }
+        .ini-total { font-size: 2em; font-weight: 900; color: var(--accent-green); line-height: 1; }
+        .ini-total-lbl { font-size: 0.7em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; }
+
+        /* ABA DE ROTEIRO */
+        #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
+        .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
+        .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
+        .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
+        .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
+        .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
+        
+        .roteiro-titulo-input { background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px; padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s; }
+        .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
+        .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
+        .roteiro-textarea:focus { border-color: var(--accent-blue); }
+
+        /* ABA DE MAPAS */
+        #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .map-list { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
+        .map-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; display: flex; gap: 10px; align-items: center; }
+        .map-btn.active { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.15); color: var(--accent-blue); }
+        .map-view-container { flex: 1; position: relative; overflow: hidden; border: 2px solid var(--border-color); border-radius: 8px; background: #0b0b0e; cursor: grab; display: block; }
+        .map-view-container:active { cursor: grabbing; }
+        #map-transform-wrapper { transform-origin: 0 0; width: 100%; height: 100%; position: absolute; top:0; left:0; will-change: transform; }
+        .map-image { display: block; max-width: none; user-select: none; pointer-events: none; }
+        .map-pin-marker { position: absolute; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: translate(-50%, -100%) rotate(-45deg); cursor: pointer; z-index: 10; box-shadow: 2px 2px 8px rgba(0,0,0,0.6); border: 2px solid white; transition: transform 0.1s, filter 0.1s; }
+        .map-pin-marker:hover { filter: brightness(1.3); transform: translate(-50%, -100%) rotate(-45deg) scale(1.15); }
+        .map-pin-marker::after { content: ''; width: 8px; height: 8px; background: white; position: absolute; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .map-tooltip { position: absolute; background: rgba(10, 10, 12, 0.95); border: 1px solid var(--accent-yellow); color: white; padding: 15px; border-radius: 8px; z-index: 20; max-width: 250px; display: none; transform: translate(-50%, -120%); margin-top: -15px; pointer-events: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .map-tooltip h4 { margin: 0 0 8px 0; color: var(--accent-yellow); font-size: 1.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
+        .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
+
+        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; padding: 10px; }
+            .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
+            .left-panel { overflow: visible; }
+            .players-container, .monsters-grid, .catalogo-grid-view { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
+            .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
+            .tab-btn { border-radius: 8px; margin-bottom: 5px; }
+            .ini-card { gap: 10px; }
+            .popup-box-dice { height: 300px; }
+            .popup-number { font-size: 6em; }
+            .popup-res { font-size: 1.5em; }
+            .attr-grid { grid-template-columns: 1fr; } 
+
+            #roteiro-board { height: auto; padding: 15px; }
+            .roteiro-layout { flex-direction: column; height: auto; }
+            .roteiro-sidebar, .roteiro-sidebar-right { width: 100%; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; border:none; padding:0; margin-bottom:10px;}
+            #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
+            .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+            .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
+        }
+    </style>
 </head>
 <body>
 
     <div class="mestre-top-bar">
-        <span style="font-weight:bold; color:var(--accent-blue);">Conectar Jogador:</span>
+        <span style="font-weight: bold; color: var(--accent-blue);">Conectar Jogador:</span>
         <input type="text" id="add-code-input" class="code-input" placeholder="Digite o Usuário (Login)" maxlength="30">
         <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR</button>
-        <div style="flex:1;"></div>
-        <button class="btn-add" style="background:var(--accent-purple); color:white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-        <button class="btn-remove" style="position:static; padding:10px 20px; font-size:1em; background:transparent; border:1px solid var(--accent-red); color:var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
+        
+        <div style="flex: 1;"></div>
+
+        <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
+        <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
     </div>
 
     <div class="tabs-container">
@@ -152,90 +211,100 @@
         <div class="left-panel">
             <div class="players-container" id="players-board"></div>
 
-            <div id="monsters-board" style="display:none; flex-direction:column; height:100%;">
-                <div style="margin-bottom:20px;">
-                    <button class="btn-add" style="background:var(--accent-red); color:white; width:100%; font-size:1.2em; padding:15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
+            <div id="monsters-board" style="display:none; flex-direction:column; height: 100%;">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-add" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
                 </div>
                 <div class="monsters-grid" id="monsters-grid"></div>
             </div>
 
-            <div id="catalogo-board" style="display:none; flex-direction:column; height:100%;">
-                <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
-                    <button class="btn-add" style="background:var(--accent-green); color:black; flex:1; min-width:150px; font-size:1em;" onclick="abrirModalItemMestre('comum')">+ NOVO ITEM</button>
-                    <button class="btn-add" style="background:var(--accent-yellow); color:black; flex:1; min-width:150px; font-size:1em;" onclick="abrirModalItemMestre('armacc')">+ NOVA ARMA (CORPO)</button>
-                    <button class="btn-add" style="background:var(--accent-blue); color:black; flex:1; min-width:150px; font-size:1em;" onclick="abrirModalItemMestre('armadisp')">+ NOVA ARMA (DISPARO)</button>
+            <div id="catalogo-board" style="display:none; flex-direction:column; height: 100%;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn-add" style="background: var(--accent-green); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('comum')">+ NOVO ITEM</button>
+                    <button class="btn-add" style="background: var(--accent-purple); color: white; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('municao')">+ NOVA MUNIÇÃO</button>
+                    <button class="btn-add" style="background: var(--accent-yellow); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armacc')">+ NOVA ARMA (CORPO)</button>
+                    <button class="btn-add" style="background: var(--accent-blue); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armadisp')">+ NOVA ARMA (DISPARO)</button>
                 </div>
-                <div style="flex:1; overflow-y:auto; padding-right:10px; display:flex; flex-direction:column; gap:20px;">
-                    <div><h3 style="color:var(--accent-green); border-bottom:1px solid var(--border-color); padding-bottom:5px; margin-top:0; text-transform:uppercase;">🎒 Itens Comuns</h3><div class="catalogo-grid-view" id="catalogo-grid-comum"></div></div>
-                    <div><h3 style="color:var(--accent-yellow); border-bottom:1px solid var(--border-color); padding-bottom:5px; margin-top:0; text-transform:uppercase;">🗡️ Armas Corpo a Corpo</h3><div class="catalogo-grid-view" id="catalogo-grid-armacc"></div></div>
-                    <div><h3 style="color:var(--accent-blue); border-bottom:1px solid var(--border-color); padding-bottom:5px; margin-top:0; text-transform:uppercase;">🔫 Armas de Disparo</h3><div class="catalogo-grid-view" id="catalogo-grid-armadisp"></div></div>
+                <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 20px;">
+                    <div>
+                        <h3 style="color: var(--accent-green); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🎒 Itens & Munições</h3>
+                        <div class="catalogo-grid-view" id="catalogo-grid-comum"></div>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--accent-yellow); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🗡️ Armas Corpo a Corpo</h3>
+                        <div class="catalogo-grid-view" id="catalogo-grid-armacc"></div>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🔫 Armas de Disparo</h3>
+                        <div class="catalogo-grid-view" id="catalogo-grid-armadisp"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="rmestre-board" style="display:none; flex-direction:column; height:100%;">
-                <div style="margin-bottom:20px;">
-                    <button class="btn-add" style="background:var(--accent-purple); color:white; width:100%; font-size:1.2em; padding:15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button>
+            <div id="rmestre-board" style="display:none; flex-direction:column; height: 100%;">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-add" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button>
                 </div>
-                <div style="flex:1; overflow-y:auto; padding-right:10px; display:flex; flex-direction:column; gap:10px;">
-                    <div id="rituais-mestre-1-container" style="display:none;"><h3 style="color:var(--text-secondary); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1em; text-transform:uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
-                    <div id="rituais-mestre-2-container" style="display:none;"><h3 style="color:var(--text-secondary); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1em; text-transform:uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
-                    <div id="rituais-mestre-3-container" style="display:none;"><h3 style="color:var(--text-secondary); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1em; text-transform:uppercase;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
-                    <div id="rituais-mestre-4-container" style="display:none;"><h3 style="color:var(--text-secondary); border-bottom:1px solid var(--border-color); padding-bottom:5px; font-size:1em; text-transform:uppercase;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
+                <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 10px;">
+                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
+                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
+                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
+                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
                 </div>
             </div>
 
             <div id="iniciativa-board">
                 <div class="ini-controls">
-                    <button class="btn-add" style="flex:1; background:var(--accent-red); color:white;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
-                    <button class="btn-add" style="flex:2; font-size:1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
+                    <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
+                    <button class="btn-add" style="flex: 2; font-size: 1.1em;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
                 </div>
                 <div class="ini-list-container" id="iniciativa-list-container"></div>
             </div>
 
             <div id="roteiro-board">
-                <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
-                    <h2 style="color:var(--accent-blue); margin:0;">📜 Gestão da Campanha</h2>
-                    <span id="roteiro-status" style="font-size:0.8em; color:var(--text-secondary); font-style:italic;">A aguardar...</span>
+                <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                    <h2 style="color: var(--accent-blue); margin: 0;">📜 Gestão da Campanha</h2>
+                    <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar...</span>
                 </div>
                 <div class="roteiro-layout">
                     <div class="roteiro-sidebar">
-                        <button class="btn-add" style="width:100%; margin-bottom:5px; flex-shrink:0; background:var(--accent-blue); color:black;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button>
-                        <div id="roteiro-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-blue); color: black;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button>
+                        <div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
                     <div class="roteiro-editor">
                         <input type="text" id="roteiro-titulo-atual" class="roteiro-titulo-input" placeholder="Nomeie a sua anotação aqui...">
                         <textarea id="roteiro-text" class="roteiro-textarea" placeholder="O editor selecionado aparecerá aqui. Podes escrever o roteiro da sessão ou a descrição de um objeto/cenário da tua campanha... Tudo salva automaticamente!"></textarea>
                     </div>
                     <div class="roteiro-sidebar-right">
-                        <button class="btn-add" style="width:100%; margin-bottom:5px; flex-shrink:0; background:var(--accent-purple); color:white;" onclick="adicionarDescricao()">+ NOVO OBJETO / CENÁRIO</button>
-                        <div id="descricao-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+                        <button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-purple); color: white;" onclick="adicionarDescricao()">+ NOVO OBJETO / CENÁRIO</button>
+                        <div id="descricao-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
                     </div>
                 </div>
             </div>
 
             <div id="mapas-board">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
-                    <h2 style="color:var(--accent-blue); margin:0;">🗺️ Mapas Interativos</h2>
-                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                        <input type="text" id="novo-mapa-nome" class="monster-input" placeholder="Nome do Mapa" style="width:150px; padding:8px;">
-                        <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width:150px; padding:8px;">
-                        <label class="btn-add" style="padding:8px 15px; margin:0; cursor:pointer; background:var(--text-secondary); color:black;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <h2 style="color: var(--accent-blue); margin: 0;">🗺️ Mapas Interativos</h2>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="novo-mapa-nome" class="monster-input" placeholder="Nome do Mapa" style="width: 150px; padding: 8px;">
+                        <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width: 150px; padding: 8px;">
+                        <label class="btn-add" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">
                             📂 DO PC
-                            <input type="file" id="novo-mapa-file" accept="image/*" style="display:none;" onchange="carregarMapaPC(event)">
+                            <input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)">
                         </label>
-                        <button class="btn-add" style="padding:8px 15px; margin:0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
-                        <button class="btn-outline" style="padding:8px 15px; margin:0; color:var(--accent-blue); border-color:var(--accent-blue); cursor:pointer; background:transparent;" onclick="resetarMapaZoom()">🔍 CENTRAR MAPA</button>
-                        <button class="btn-remove" style="position:static; padding:8px 15px; margin:0;" onclick="apagarMapaAtual()">🗑️ APAGAR ATUAL</button>
+                        <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
+                        <button class="btn-outline" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); border-color: var(--accent-blue); cursor: pointer; background: transparent;" onclick="resetarMapaZoom()">🔍 CENTRAR MAPA</button>
+                        <button class="btn-remove" style="position: static; padding: 8px 15px; margin: 0;" onclick="apagarMapaAtual()">🗑️ APAGAR ATUAL</button>
                     </div>
                 </div>
                 <div class="map-list" id="map-list-container"></div>
-                <div style="color:var(--text-secondary); font-size:0.85em; margin-bottom:10px;">
+                <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">
                     💡 Use o <b>Scroll do rato</b> para dar zoom e <b>clique/arraste</b> para se mover. Um clique rápido adiciona um Pin!
                 </div>
                 <div class="map-view-container" id="map-view">
                     <div id="map-transform-wrapper">
-                        <div id="map-content" style="position:relative; display:inline-block;">
-                            <img id="map-image-display" class="map-image" src="" style="display:none;">
+                        <div id="map-content" style="position: relative; display: inline-block;">
+                            <img id="map-image-display" class="map-image" src="" style="display: none;">
                             <div id="pins-container"></div>
                             <div class="map-tooltip" id="map-tooltip">
                                 <h4 id="tooltip-title"></h4>
@@ -251,7 +320,7 @@
         <div class="log-container">
             <div class="log-title">🎲 Resultados</div>
             <div class="log-messages" id="log-box">
-                <div style="text-align:center; color:var(--text-secondary); font-size:0.8em; margin-top:20px;" id="aguardar-msg">A aguardar rolagens...</div>
+                <div style="text-align: center; color: var(--text-secondary); font-size: 0.8em; margin-top: 20px;" id="aguardar-msg">A aguardar rolagens...</div>
             </div>
         </div>
     </div>
@@ -266,6 +335,7 @@
                     <label>Tipo de Item</label>
                     <select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;">
                         <option value="comum">🎒 Item Comum</option>
+                        <option value="municao">📦 Munição (Empilhável)</option>
                         <option value="armacc">🗡️ Arma (Corpo a Corpo)</option>
                         <option value="armadisp">🔫 Arma (Disparo)</option>
                     </select>
@@ -277,9 +347,29 @@
             </div>
             <div class="form-group"><label>Nome do Item</label><input type="text" id="mi-nome" class="monster-input"></div>
             <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div>
+            
             <div id="mi-campos-comum">
-                <div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;" placeholder="Descreva os efeitos do item aqui..."></textarea></div>
+                <div class="form-group">
+                    <label>Descrição / Efeitos</label>
+                    <textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;" placeholder="Descreva os efeitos do item aqui..."></textarea>
+                </div>
             </div>
+
+            <div id="mi-campos-municao" style="display:none; margin-top:10px;">
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE MUNIÇÃO</label>
+                        <select id="mi-ammo-type" class="inv-input">
+                            <option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option>
+                        </select>
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size:0.8em;color:var(--text-secondary);">QUANTIDADE (1-3)</label>
+                        <input type="number" id="mi-ammo-qtd" class="inv-input" value="1" min="1" max="3">
+                    </div>
+                </div>
+            </div>
+            
             <div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div class="form-group"><label>Ataques (Qtd)</label><input type="number" id="mi-atk" class="monster-input" value="1"></div>
                 <div class="form-group"><label>Dano</label><input type="text" id="mi-dano" class="monster-input" placeholder="Ex: 1d8+2"></div>
@@ -288,7 +378,11 @@
                 <div class="form-group">
                     <label>Munição</label>
                     <select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;">
-                        <option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option>
+                        <option value="Nenhuma">Nenhuma</option>
+                        <option value="Curta">Curta</option>
+                        <option value="Longa">Longa</option>
+                        <option value="Pesada">Pesada</option>
+                        <option value="Especial">Especial</option>
                     </select>
                 </div>
                 <div class="form-group"><label>Capacidade (Balas)</label><input type="number" id="mi-cap" class="monster-input" value="0"></div>
@@ -434,11 +528,9 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         function fazerLogout() { localStorage.removeItem('campanha_atual'); window.location.href = '/index.html'; }
-        let playerCode = localStorage.getItem('usuario_logado'); 
-        let campanhaAtiva = localStorage.getItem('campanha_atual'); 
+        let playerCode = localStorage.getItem('usuario_logado'); let campanhaAtiva = localStorage.getItem('campanha_atual'); 
         if (!playerCode || !campanhaAtiva) { window.location.href = '/index.html'; }
-        const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva); 
-        if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
+        const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva); if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
 
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
@@ -448,13 +540,9 @@
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
         let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
-        
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
 
-        const URL_FICHA = "/ficha.html"; 
-        const socket = io(); 
-        const playersBoard = document.getElementById('players-board'); 
-        const logBox = document.getElementById('log-box'); 
+        const URL_FICHA = "/ficha.html"; const socket = io(); const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
 
         let debounceTimer;
         function salvarMestreNoFirebase() { 
@@ -463,6 +551,44 @@
                 const dataToSave = { roteiros: roteiros, descricoes: descricoes, monstros: monstros, iniciativa: iniciativaList, allowedCodes: jogadoresPermitidos, mapas: mapas, catalogo_itens: catalogoMestre, catalogo_rituais: catalogoRituaisMestre }; 
                 fetch('/api/salvar_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ campanha: campanhaAtiva, dados: { mestre: dataToSave } }) }); 
             }, 1500); 
+        }
+
+        const imgDictMestre = { 
+            'espada da ordem': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEju5bkRj--vXSVBbQ5BQJYn3kVz35QQD1IEf6NDnxI5Ie7eq-S-Sh6YkMr75lWI5Pw9hNlhKdenz9fzAiuiQYWN6hnxNLx9_m-B1XQDFJGwJxjrxLLCeolauP9mvD9YYaYtY9dzTFGJmoLtAKHOYnqe4Z3GCEIIxGeoQEKGsjxv-KIDHJmdnPKlc94AXRwa/s320/Espada%20da%20Ordem.png", 
+            'escopeta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhISlyZ5FTMNtk515SBRl7xa4D4yHisGG6vdqr20AA73SJWlk7H6JuN9yha2tLse3MCklAoGYUCT6FQLvsufeXZ_EuoIbHjVH8sk7Nn0PbjclXNcGQbxMZ3kxHQlcmtRuw2ksS_GDOQjP4I_vBVY6sTylIaEWNAe3oNxbz4vguqiLLtZDKHfN0fKdCXf9ZY/s320/ink.png", 
+            'soqueira': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpegg79kPPLZvXMLn_PMPUgiJfSMKpEigTxCLDkOhPKNbZsQtMqo_4SrH7JNGmOBIllXi66nizJU6WssMvrt-YgXVA0moMFKjDjmzLVqh6tR0oxocShg7IfYFHjlW25GKJCVTf4OVX2s5ZY-KGiL0qIpYTyPtwd74-48e-BTps3Bx0CMH6FFpLsqBTL91A/s320/Soqueiras.png", 
+            'faca': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMy1Auh8lIT4zHxcRwpWhzA_Jk7Qu9_ILzGAJHdi60Rvu4FfUlwWVuzHuu5HXmy0JuVIpRRBJ8xA_0WGbHIHQM_lobrl3ZUA-ZGnlwQLZs4lSGI6stfHfXCyg656-qyN-nOaTLfUwBYTDX6sdWr5XhMPs5Tb6WMM7vdLneEJuWCLm4MuOpiqaQRCw9mLhN/s320/Faca.png", 
+            'machado': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIyZF4bFM3yTMs4dPBKxXxt_-eHtSgDntPZqRc9CwWYWlCZtLyLdjTi63qCcRed-m5Ddcd4KZi5fo2guDyBGXk3B35X1lFpfJOTtNptON_eitnfUihUVehba86gRmsuD7JDSkucRcvo2cJJHAJzxDEadm6lCBwgSTNCMV4XvNGpCVVEeIUxK8-FpOfNPw8/s320/Machado.png", 
+            'machete': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwXKDbmSRGW48rlposLbMD2H4xIQwA39v6LvrnGJhOjJTis3wOfOeC4_h_yAoMqWbPgAzTsWXM6iR4yUH4SqeY-pDEYb6fuKIXDoH7z3355fW5h6tW_vnG-9OfwWkhdnmo9BZiB5wr9-uVQX4Id5OHlcNyw2vKEyOLtqjLlqo8b8Xil3zmpTquKXOhOkAr/s320/Machete.png", 
+            'martelo': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiC3r5t4TBIdSv9sMHwaIaGocHjDhnD1DYizZ8GBgi_Kba-KbtM8hljeRjg_u332wbOkCDXidt7nSh5n8MTqaA3F1BierA0tXbrfyh1V2MFxgqmWyk4D_9YKF-0NrO5TSFzClEJsh2IeTSs6pN-leKjEJogJxXqY6W4DEIdB0SzL47of_Vrxw9YkgWSFAT/s320/Martelo.png", 
+            'marreta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8gpzP0SJc9j2Zsb1K2XeoYfedZRYihBaXas_bKut2b_lwRXSqOHkjHL__pmamdVhJ9nyNTaTaIPwvW_p2ntWKvx3BExg_FK46gG_ti5Cm2ZzCXS7hP_ZVkLWRUr40H-f2okfKDuEwkZ89jOY5SIbx_c2uaAu2wUl4Of24lT3r_xHVZ5AidYwuh1aLa7_j/s320/Marreta.png", 
+            'serra elétrica': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWIytinBbLwLA9l6DyHOReFOvU5wYL6jDcwVDX92aQSjOl-8v2z-ftEv3Ur2b3wW-3BFA09eXiwOU_W7DhhescDK1cATlnj51PSsxHxRdj4l_7ZXeSGvOoh6PFG93xpzI_FE6YHFtr3YgzAylhfTkUc9ppuZWcvpKaGYTjOSsNfy-Y60DchJbW0oFywSMQ/s320/Serra%20El%C3%A9trica.png", 
+            'mochila': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmOTfY9u0Z_loviBw9gJrS9mYQ-4tQYMErCLCvrSMlj1SCj2hZI0Z4TqXBTM3SqEp31yDRglUiV0vUntoTCgw1vAFAuQ1sw1qe0oZj8acEv2KJnsu4D0iEz24N-or8dQQZNZC3WMmwMpfFbhHbYaPP1mng5m_Dcimy0wwzRenifx4uGXOd8s4dj7-XAEfT/w295-h414/Mochila.png", 
+            'lanterna': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilX9DWfY6eIGG0Gzoi-JA_2TTahiX_Mpkz1ut3qUJw82L3QZP-3x9LKk_3zOgUzP5bihX8RnetgKp-UIgjdcQ41dSKjV_YtkdLNu4XmQ8LKARChKNpcX5NmPYrLoG3PFVRR0kdpQJPhm0e1sn1ONNHsS1gCahi_qNrCkJO0pTQb-GZBBlHVs4WoeSldg-t/s1600/Lanterna.png", 
+            'proteção leve': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_4GIAm69-0y1zSykwJdvvA2-UQ-2ReN2-Qs0vSB1sHhhiOWbxSL9nl8BpZcrL2PXlkGGklLUBX5ULciy7L9xGwc7evILQX14EvqhR_Jgv8-Jpxx-wKFXbILucU_JorR32pZGdlnewBv0M_YeZu2c9gQtsiP1pYMY1SokOng8qwkSb8UHm7jn8ywi57Fo6/s320/Colete%20Leve.png", 
+            'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png" 
+        };
+
+        if (!localStorage.getItem('mestre_catalogo_migrado_' + campanhaAtiva)) {
+            let idCounter = Date.now();
+            premadeItemsMestre.forEach(p => {
+                catalogoMestre.push({ id: 'm_item_' + (idCounter++), n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: p.desc, eq: false, type: 'comum', dmg: "0", extra: "0", crit: "20/x2", skill: "Luta", img: p.img, atkType: "Corpo a corpo", atk: "1", range: "Curto", ammo: "Nenhuma", capacity: "0", currentShots: "0", visivel: true, rawType: 'comum', rawDesc: p.desc });
+            });
+            [
+                {name: "Munição Curta", w:1, h:1, type:"municao", ammoType:"Curta", qtd:3, img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjCdDvSthuqAJb6xAZmZUUh9zgqdm7LTKzGqHpagubFAEk9PJwRd-rUCG43i2pJs2uRfxaaW8DjTlg9xlXYGq6ZwGsh6Zf4vWKMeyGYAYQAZ-UTwrZTNU1YN0DLyug-lTyPynXQVwEBjcHcXu0BC_m2JbQFEt9Sxx9yaqMasE2UumF25DFmacBQZRGBPVk4/s320/Muni%C3%A7%C3%A3o%20Leve.png"},
+                {name: "Munição Longa", w:1, h:1, type:"municao", ammoType:"Longa", qtd:3, img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh2EpfpR7APs0uOJgPwpdV34e2czmK6ksJRfFihwxSNbKW4h6L9PTqObOtF_Hk2WjD4QgER_fH6xMnPB2F6ttcIcDNoC4WHFMKznpXPEL5Kckz8DPtWOz4chfECe0l80fqsghJ2zBT4cXIooPgxQzgLRUQXoFqgSxu8VN8mqU31y9L_kFW16Y0sm1Fd1k1m/s320/Muni%C3%A7%C3%A3o%20Longa.png"},
+                {name: "Munição Pesada", w:1, h:1, type:"municao", ammoType:"Pesada", qtd:3, img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNDorID1yepLoHFBZDr-5TFA3odzWbyU3hlfpH8VCqkBUS3jOW7S8v4RS0c5ACFePQ7l3bB0Dzfwkewf7MgBL0-xe3wqDHQoGFvNGnGvs17Q0cPiPAVPH6q1oS7B8oSLpxoCYpwI1f2kU3zc2LoGrVbepPhlS_1SLHNE2X4aGJp-0A1d-R4K5QNoNeMUsC/s1600/Muni%C3%A7%C3%A3o%20Pesada.png"}
+            ].forEach(p => {
+                catalogoMestre.push({ id: 'm_item_' + (idCounter++), n: p.name, w: p.w, h: p.h, type: p.type, ammoType: p.ammoType, qtd: p.qtd, d: "Munição para armas do tipo: " + p.ammoType, eq: false, visivel: true, rawType: 'municao', img: p.img });
+            });
+            premadeMeleeWeaponsMestre.forEach(p => {
+                catalogoMestre.push({ id: 'm_item_' + (idCounter++), n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0", visivel: true, rawType: 'armacc', rawDesc: "" });
+            });
+            premadeRangedWeaponsMestre.forEach(p => {
+                catalogoMestre.push({ id: 'm_item_' + (idCounter++), n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`, eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill, img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity, visivel: true, rawType: 'armadisp', rawDesc: "" });
+            });
+            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
+            localStorage.setItem('mestre_catalogo_migrado_' + campanhaAtiva, "true");
         }
 
         function sincronizarCatalogoGeral() {
@@ -527,22 +653,30 @@
                 document.getElementById('mi-tipo').value = it.rawType || (it.type === 'comum' ? 'comum' : (it.atkType === 'Disparo' ? 'armadisp' : 'armacc'));
                 document.getElementById('mi-nome').value = it.n; document.getElementById('mi-w').value = it.w || 1; document.getElementById('mi-h').value = it.h || 1; document.getElementById('mi-foto').value = it.img || ''; document.getElementById('mi-visivel').checked = it.visivel !== false;
                 if(it.type === 'comum') { document.getElementById('mi-desc').value = it.rawDesc || ''; } 
+                else if (it.type === 'municao') { document.getElementById('mi-ammo-type').value = it.ammoType || 'Curta'; document.getElementById('mi-ammo-qtd').value = it.qtd || 1; }
                 else { document.getElementById('mi-atk').value = it.atk || '1'; document.getElementById('mi-dano').value = it.dmg || '0'; document.getElementById('mi-crit').value = it.crit || '20/x2'; document.getElementById('mi-alcance').value = it.range || 'Curto'; document.getElementById('mi-ammo').value = it.ammo || 'Nenhuma'; document.getElementById('mi-cap').value = it.capacity || '0'; document.getElementById('mi-pericia').value = it.skill || 'Luta'; }
                 document.getElementById('modal-item-title').innerText = "Editar Item";
             } else {
                 document.getElementById('mi-nome').value = ''; document.getElementById('mi-w').value = '1'; document.getElementById('mi-h').value = '1'; document.getElementById('mi-foto').value = ''; document.getElementById('mi-desc').value = ''; document.getElementById('mi-atk').value = '1'; document.getElementById('mi-dano').value = ''; document.getElementById('mi-crit').value = '20/x2'; document.getElementById('mi-alcance').value = 'Curto'; document.getElementById('mi-ammo').value = 'Nenhuma'; document.getElementById('mi-cap').value = '0'; document.getElementById('mi-pericia').value = 'Luta'; document.getElementById('mi-tipo').value = tipo; document.getElementById('mi-visivel').checked = true; document.getElementById('modal-item-title').innerText = "Criar Item para Jogadores";
+                if(tipo === 'municao') { document.getElementById('mi-ammo-type').value = 'Curta'; document.getElementById('mi-ammo-qtd').value = '1'; }
             }
             toggleCamposItemMestre(); document.getElementById('modal-item-mestre').style.display = 'flex'; 
         }
 
-        function toggleCamposItemMestre() { const t = document.getElementById('mi-tipo').value; if(t === 'comum') { document.getElementById('mi-campos-comum').style.display = 'block'; document.getElementById('mi-campos-arma').style.display = 'none'; } else { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'grid'; } }
+        function toggleCamposItemMestre() { 
+            const t = document.getElementById('mi-tipo').value; 
+            if(t === 'comum') { document.getElementById('mi-campos-comum').style.display = 'block'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; } 
+            else if (t === 'municao') { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'block'; }
+            else { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'grid'; } 
+        }
         
         function salvarItemMestre() { 
-            const nome = document.getElementById('mi-nome').value.trim(); const w = parseInt(document.getElementById('mi-w').value) || 1; const h = parseInt(document.getElementById('mi-h').value) || 1; const img = document.getElementById('mi-foto').value.trim(); const rawType = document.getElementById('mi-tipo').value; if(!nome) return alert("Por favor, dê um nome ao item."); const visivel = document.getElementById('mi-visivel').checked; const type = rawType === 'comum' ? 'comum' : 'arma'; 
-            let dHTML = "", rawDesc = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0"; 
+            const nome = document.getElementById('mi-nome').value.trim(); const w = parseInt(document.getElementById('mi-w').value) || 1; const h = parseInt(document.getElementById('mi-h').value) || 1; const img = document.getElementById('mi-foto').value.trim(); const rawType = document.getElementById('mi-tipo').value; if(!nome) return alert("Por favor, dê um nome ao item."); const visivel = document.getElementById('mi-visivel').checked; const type = (rawType === 'comum' || rawType === 'municao') ? rawType : 'arma'; 
+            let dHTML = "", rawDesc = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", ammoType = "Curta", qtd = 1; 
             if (type === 'comum') { rawDesc = document.getElementById('mi-desc').value || "Sem descrição."; dHTML = rawDesc; } 
+            else if (type === 'municao') { ammoType = document.getElementById('mi-ammo-type').value; qtd = parseInt(document.getElementById('mi-ammo-qtd').value)||1; if(qtd>3) qtd=3; dHTML = "Munição para armas do tipo: " + ammoType; }
             else { atkType = rawType === 'armadisp' ? "Disparo" : "Corpo a corpo"; atk = document.getElementById('mi-atk').value || "1"; dmg = document.getElementById('mi-dano').value || "0"; crit = document.getElementById('mi-crit').value || "20/x2"; range = document.getElementById('mi-alcance').value || "Curto"; ammo = document.getElementById('mi-ammo').value || "Nenhuma"; skill = document.getElementById('mi-pericia').value || "Luta"; cap = document.getElementById('mi-cap').value || "0"; dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; } 
-            const novoItem = { id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), n: nome, w: w, h: h, d: dHTML, eq: false, type: type, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, visivel: visivel, rawType: rawType, rawDesc: rawDesc }; 
+            const novoItem = { id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), n: nome, w: w, h: h, d: dHTML, eq: false, type: type, ammoType: ammoType, qtd: qtd, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, visivel: visivel, rawType: rawType, rawDesc: rawDesc }; 
             if(editItemIndex !== null) catalogoMestre[editItemIndex] = novoItem; else catalogoMestre.push(novoItem);
             localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); document.getElementById('modal-item-mestre').style.display = 'none'; renderizarCatalogo(); sincronizarCatalogoGeral();
         }
@@ -555,9 +689,10 @@
             if(gridComum) gridComum.innerHTML = ''; if(gridArmaCC) gridArmaCC.innerHTML = ''; if(gridArmaDisp) gridArmaDisp.innerHTML = '';
             let countComum = 0, countCC = 0, countDisp = 0; 
             catalogoMestre.forEach((item, idx) => {
-                const color = item.type === 'comum' ? 'var(--accent-green)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)');
+                const color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
                 let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
-                if (item.type !== 'comum') { if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; }
+                if (item.type !== 'comum' && item.type !== 'municao') { if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; }
+                else if (item.type === 'municao') { detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Qtd: <span style="color:white; font-weight:bold;">${item.qtd} / 3</span><br>Tipo: <span style="color:white; font-weight:bold;">${item.ammoType}</span></div>`; }
                 let visIcon = item.visivel === false ? '🚫' : '👁️'; let opacity = item.visivel === false ? '0.5' : '1';
                 let btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
                 const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27"); const displayName = item.n; 
@@ -568,7 +703,9 @@
                         <button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button>
                         <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button>
                     </div>`;
-                if (item.type === 'comum' || item.rawType === 'comum') { if(gridComum) gridComum.appendChild(card); countComum++; } else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
+                if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { if(gridComum) gridComum.appendChild(card); countComum++; } 
+                else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } 
+                else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
             });
             if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
             if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
@@ -615,7 +752,20 @@
             if (pData && pData.fullData) {
                 if (tipo === 'item') {
                     if (!pData.fullData.inv) pData.fullData.inv = [];
-                    pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false});
+                    if (objParaEnviar.type === 'municao') {
+                        let stacked = false;
+                        for (let i = 0; i < pData.fullData.inv.length; i++) {
+                            let existing = pData.fullData.inv[i];
+                            if (existing.type === 'municao' && existing.ammoType === objParaEnviar.ammoType && existing.n === objParaEnviar.n) {
+                                let totalQtd = (existing.qtd || 1) + (objParaEnviar.qtd || 1);
+                                if (totalQtd <= 3) { existing.qtd = totalQtd; stacked = true; break; } 
+                                else if ((existing.qtd || 1) < 3) { let space = 3 - (existing.qtd || 1); existing.qtd = 3; objParaEnviar.qtd = (objParaEnviar.qtd || 1) - space; }
+                            }
+                        }
+                        if (!stacked && objParaEnviar.qtd > 0) pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false});
+                    } else {
+                        pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false});
+                    }
                 } else {
                     if (!pData.fullData.rituals) pData.fullData.rituals = [];
                     pData.fullData.rituals.push({ n: objParaEnviar.n, el: objParaEnviar.el, circ: objParaEnviar.circ, ex: objParaEnviar.ex, alc: objParaEnviar.alc, alv: objParaEnviar.alv, dur: objParaEnviar.dur, res: objParaEnviar.res, descGeral: objParaEnviar.descGeral, descDisc: objParaEnviar.descDisc, descVerd: objParaEnviar.descVerd, eq: true, img: objParaEnviar.img });
