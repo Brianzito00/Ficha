@@ -553,108 +553,19 @@
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
         let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
 
-        const imgDictMestre = { 
-            'espada da ordem': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEju5bkRj--vXSVBbQ5BQJYn3kVz35QQD1IEf6NDnxI5Ie7eq-S-Sh6YkMr75lWI5Pw9hNlhKdenz9fzAiuiQYWN6hnxNLx9_m-B1XQDFJGwJxjrxLLCeolauP9mvD9YYaYtY9dzTFGJmoLtAKHOYnqe4Z3GCEIIxGeoQEKGsjxv-KIDHJmdnPKlc94AXRwa/s320/Espada%20da%20Ordem.png", 
-            'escopeta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhISlyZ5FTMNtk515SBRl7xa4D4yHisGG6vdqr20AA73SJWlk7H6JuN9yha2tLse3MCklAoGYUCT6FQLvsufeXZ_EuoIbHjVH8sk7Nn0PbjclXNcGQbxMZ3kxHQlcmtRuw2ksS_GDOQjP4I_vBVY6sTylIaEWNAe3oNxbz4vguqiLLtZDKHfN0fKdCXf9ZY/s320/ink.png", 
-            'soqueira': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpegg79kPPLZvXMLn_PMPUgiJfSMKpEigTxCLDkOhPKNbZsQtMqo_4SrH7JNGmOBIllXi66nizJU6WssMvrt-YgXVA0moMFKjDjmzLVqh6tR0oxocShg7IfYFHjlW25GKJCVTf4OVX2s5ZY-KGiL0qIpYTyPtwd74-48e-BTps3Bx0CMH6FFpLsqBTL91A/s320/Soqueiras.png", 
-            'faca': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMy1Auh8lIT4zHxcRwpWhzA_Jk7Qu9_ILzGAJHdi60Rvu4FfUlwWVuzHuu5HXmy0JuVIpRRBJ8xA_0WGbHIHQM_lobrl3ZUA-ZGnlwQLZs4lSGI6stfHfXCyg656-qyN-nOaTLfUwBYTDX6sdWr5XhMPs5Tb6WMM7vdLneEJuWCLm4MuOpiqaQRCw9mLhN/s320/Faca.png", 
-            'machado': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIyZF4bFM3yTMs4dPBKxXxt_-eHtSgDntPZqRc9CwWYWlCZtLyLdjTi63qCcRed-m5Ddcd4KZi5fo2guDyBGXk3B35X1lFpfJOTtNptON_eitnfUihUVehba86gRmsuD7JDSkucRcvo2cJJHAJzxDEadm6lCBwgSTNCMV4XvNGpCVVEeIUxK8-FpOfNPw8/s320/Machado.png", 
-            'machete': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwXKDbmSRGW48rlposLbMD2H4xIQwA39v6LvrnGJhOjJTis3wOfOeC4_h_yAoMqWbPgAzTsWXM6iR4yUH4SqeY-pDEYb6fuKIXDoH7z3355fW5h6tW_vnG-9OfwWkhdnmo9BZiB5wr9-uVQX4Id5OHlcNyw2vKEyOLtqjLlqo8b8Xil3zmpTquKXOhOkAr/s320/Machete.png", 
-            'martelo': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiC3r5t4TBIdSv9sMHwaIaGocHjDhnD1DYizZ8GBgi_Kba-KbtM8hljeRjg_u332wbOkCDXidt7nSh5n8MTqaA3F1BierA0tXbrfyh1V2MFxgqmWyk4D_9YKF-0NrO5TSFzClEJsh2IeTSs6pN-leKjEJogJxXqY6W4DEIdB0SzL47of_Vrxw9YkgWSFAT/s320/Martelo.png", 
-            'marreta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8gpzP0SJc9j2Zsb1K2XeoYfedZRYihBaXas_bKut2b_lwRXSqOHkjHL__pmamdVhJ9nyNTaTaIPwvW_p2ntWKvx3BExg_FK46gG_ti5Cm2ZzCXS7hP_ZVkLWRUr40H-f2okfKDuEwkZ89jOY5SIbx_c2uaAu2wUl4Of24lT3r_xHVZ5AidYwuh1aLa7_j/s320/Marreta.png", 
-            'serra elétrica': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWIytinBbLwLA9l6DyHOReFOvU5wYL6jDcwVDX92aQSjOl-8v2z-ftEv3Ur2b3wW-3BFA09eXiwOU_W7DhhescDK1cATlnj51PSsxHxRdj4l_7ZXeSGvOoh6PFG93xpzI_FE6YHFtr3YgzAylhfTkUc9ppuZWcvpKaGYTjOSsNfy-Y60DchJbW0oFywSMQ/s320/Serra%20El%C3%A9trica.png", 
-            'mochila': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmOTfY9u0Z_loviBw9gJrS9mYQ-4tQYMErCLCvrSMlj1SCj2hZI0Z4TqXBTM3SqEp31yDRglUiV0vUntoTCgw1vAFAuQ1sw1qe0oZj8acEv2KJnsu4D0iEz24N-or8dQQZNZC3WMmwMpfFbhHbYaPP1mng5m_Dcimy0wwzRenifx4uGXOd8s4dj7-XAEfT/w295-h414/Mochila.png", 
-            'lanterna': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilX9DWfY6eIGG0Gzoi-JA_2TTahiX_Mpkz1ut3qUJw82L3QZP-3x9LKk_3zOgUzP5bihX8RnetgKp-UIgjdcQ41dSKjV_YtkdLNu4XmQ8LKARChKNpcX5NmPYrLoG3PFVRR0kdpQJPhm0e1sn1ONNHsS1gCahi_qNrCkJO0pTQb-GZBBlHVs4WoeSldg-t/s1600/Lanterna.png", 
-            'proteção leve': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_4GIAm69-0y1zSykwJdvvA2-UQ-2ReN2-Qs0vSB1sHhhiOWbxSL9nl8BpZcrL2PXlkGGklLUBX5ULciy7L9xGwc7evILQX14EvqhR_Jgv8-Jpxx-wKFXbILucU_JorR32pZGdlnewBv0M_YeZu2c9gQtsiP1pYMY1SokOng8qwkSb8UHm7jn8ywi57Fo6/s320/Colete%20Leve.png", 
-            'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png" 
-        };
-
-        const premadeItemsMestre = [ { name: "Mochila", weight: 0, h: 1, desc: "Aumenta capacidade em 2.", img: imgDictMestre['mochila'] }, { name: "Lanterna", weight: 1, h: 1, desc: "Ilumina. Ofusca 1 alvo.", img: imgDictMestre['lanterna'] }, { name: "Proteção Leve", weight: 2, h: 1, desc: "+5 Defesa.", img: imgDictMestre['proteção leve'] }, { name: "Proteção Pesada", weight: 5, h: 1, desc: "+10 Defesa, -5 em perícias.", img: imgDictMestre['proteção pesada'] } ];
-        const premadeMeleeWeaponsMestre = [ { name: "Soqueira", atk: 2, dmg: "1d6", crit: "20/x2", range: "Toque", skill: "Luta", img: imgDictMestre['soqueira'], weight: 1, h: 1 }, { name: "Faca", atk: 1, dmg: "1d4", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['faca'], weight: 1, h: 1 }, { name: "Machado", atk: 1, dmg: "1d8", crit: "20/x3", range: "Curto", skill: "Luta", img: imgDictMestre['machado'], weight: 2, h: 1 }, { name: "Machete", atk: 1, dmg: "1d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['machete'], weight: 1, h: 1 }, { name: "Martelo", atk: 1, dmg: "1d6", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['martelo'], weight: 1, h: 1 }, { name: "Marreta", atk: 1, dmg: "1d10", crit: "20/x2", range: "Curto", skill: "Luta", img: imgDictMestre['marreta'], weight: 2, h: 1 }, { name: "Espada da Ordem", atk: 1, dmg: "1d8", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['espada da ordem'], weight: 2, h: 1 }, { name: "Serra Elétrica", atk: 1, dmg: "2d6", crit: "19/x2", range: "Curto", skill: "Luta", img: imgDictMestre['serra elétrica'], weight: 2, h: 1 } ];
-        const premadeRangedWeaponsMestre = [ { name: "Pistola Antiga", atk: 1, dmg: "1d12", crit: "Nenhum", range: "Curto", ammo: "Curta", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgDY0i8BFuoSDOXaJ3zTYqOx3anc7dIEorYWqNanZJsCEUk7UECBgmTUKQdU8LdW9drMKnkPzzCz2F-AOtOIgpnQv8ZPWs2f81fXo-tdSPb4lxxdM_zC6z141vHUKggjldNQ8qhMOkJEAGGeahri_HyGDFZLXPP5bu2RtATDzRzKi9nm2ljisbyprkXIdJX/s320/Pistola%20Antiga.png", weight: 1, h: 1 }, { name: "Revolver", atk: 1, dmg: "3d6", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg_CAVF0yyZOaceRhCWHYOn3dkEUiGE4oQzV-UealE-Ha5rIHQAhb7N-buhA98tC9cv5V0W3lC14BcW6QgKqnK0ULVHAmVeQ3NFwTHechvdaZSNj11d2y8soKNvdZeuLWSdcABSF5A3ui35QM2_EbAsh7hB6U_uUz-HcRoXgCyCqHYFyf29U0TKA4C44iLB/s320/Revolver.png", weight: 1, h: 1 }, { name: "Pistola Semiautomática", atk: 2, dmg: "3d8", crit: "20/x2", range: "Curto", ammo: "Curta", capacity: 10, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHirntudWYc6qIolFlDOFXQVcyY1pV4CP5xjA9dqqAjrSIl54p3k5DS_GVvdJmMmjrB6FGP8it-2q-DVwrGiur1g-FQLceytq1-PPNZDtYlB6uL6wv1nWrKBQfvw4KA9cHZ-RJMdoGg5pi9YjjAoFFiwrlQDrxJZIDct31A-CdGTGkCcn0ao7eSNID3Amu/s320/Pistola%20Semiautomatica.png", weight: 1, h: 1 }, { name: "Escopeta", atk: 1, dmg: "4d6", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: imgDictMestre['escopeta'], weight: 2, h: 1 }, { name: "Escopeta (Cano Serrado)", atk: 1, dmg: "4d4", crit: "20/x2", range: "Curto", ammo: "Pesada", capacity: 6, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFG5240EEOcg7dllVNEKq4h06t4YRwQvLmQA-gifJEM86ECW8QNarBdO-rpF-z4qm-SBCtQn56ZGdrgKenWwUL8LhPQ5Kv9NMDb9OF68hPcou_bCltcv6ZFVM_ttO_FdSIM-ew0kp2afi7Sxf7CNS-7d7H82gGA8sOtOgLpX4wwVkDNtOGEQnvLwN23T47/s1600/Escopeta%20(Cano%20Curto).png", weight: 1, h: 1 }, { name: "Rifle de Caça", atk: 1, dmg: "2d8", crit: "20/x3", range: "Longo", ammo: "Longa", capacity: 8, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggsCPtD9E3NIeKOEWWOP9PoSksns_aujAsGCwckjwwVZWJi1qVkisPA85kxte2DVUnoz9HNpbAMtf-IfFSXfoNbbnUN3NAYEMhGth_83Kal_igjzbB-7mAcdfEN7MVK63TvBPtJIUpDINRIgFMZzfuf5DTwPk66qg5qSa-LKNXQynXF8vuDsU7HKoIIhdT/s320/Rifle%20de%20Ca%C3%A7a.png", weight: 2, h: 1 }, { name: "Rifle de Precisão", atk: 1, dmg: "3d12", crit: "20/x4", range: "Longo", ammo: "Longa", capacity: 5, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixO8xjcZa2vvcdwuN_SaWuq1vcrsjYGZH1HbMvussAGKJqEBsBy9IW9CHSNg1Q95lKnF9AvxcE7-KP8eH58kQbuvewBKegOo1RAzBX5eELigpgKfMko8h9RWYFDeBNmUF4WU9L1Q4oGVQMbiPimFEkpkHEMUB_fZ_eYE68G2uWs77GybvjgeNFnPZvEt0k/s320/Fuzil%20de%20Precis%C3%A3o.png", weight: 2, h: 1 }, { name: "Rifle de Assalto", atk: 3, dmg: "3d8", crit: "20/x2", range: "Longo", ammo: "Longa", capacity: 40, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhshxGarqLOA8U3YpKbogrMsFrGfwWOY_j02soqG_ogqPXDi79QD_oj8-NunnC0ieo6wVDDv0oReOl64aEY48yq3fUC_a3F2IXyDw3qsfdUhOuoOsC7jxPZ9vReTQDmq7-XXDpB-vAhKqHBHjTqxW06UI_9sKFgoBQ8BBfkphIYFDjUu-bCFxSp1e-N-6r3/s320/Fuzil%20de%20Assalto.png", weight: 2, h: 1 }, { name: "Balestra", atk: 1, dmg: "4d12", crit: "20/x2", range: "Longo", ammo: "Especial", capacity: 1, skill: "Pontaria", img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpGdW-ic-yI5QTUw-8hDv6X51cXuM0hAwVgwpyeepkFk9nx5e0oTbPDuZfNyWAnYtQqpKLnajKxYlvfRp9HpaCSWACJWyE7EQxnwzPXBq9IluC70uvFYQFWd5UzlXJZM1ApVisRTari6xcFdEmfUqfKSlN0mNwHYwDMxkgoC79KlM_mwNnhmOK0Wmonbf/s320/Balestra.png", weight: 2, h: 1 } ];
-
-        const URL_FICHA = "/ficha.html"; 
-        const socket = io(); 
-        const playersBoard = document.getElementById('players-board'); 
-        const logBox = document.getElementById('log-box'); 
-        let playersDataMemoria = {}; 
-
-        let debounceTimer;
         function salvarMestreNoFirebase() { 
-            clearTimeout(debounceTimer); 
-            debounceTimer = setTimeout(() => { 
-                const dataToSave = { 
-                    roteiros: JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva) || '[]'), 
-                    descricoes: JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva) || '[]'), 
-                    monstros: JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva) || '[]'), 
-                    iniciativa: JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva) || '[]'), 
-                    allowedCodes: JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva) || '[]'), 
-                    mapas: JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva) || '[]'), 
-                    catalogo_itens: JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva) || '[]'), 
-                    catalogo_rituais: JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva) || '[]') 
-                }; 
-                fetch('/api/salvar_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ campanha: campanhaAtiva, dados: { mestre: dataToSave } }) }); 
-            }, 1500); 
+            const dataToSave = { 
+                roteiros: roteiros, 
+                descricoes: descricoes, 
+                monstros: monstros, 
+                iniciativa: iniciativaList, 
+                allowedCodes: jogadoresPermitidos, 
+                mapas: mapas, 
+                catalogo_itens: catalogoMestre, 
+                catalogo_rituais: catalogoRituaisMestre 
+            }; 
+            fetch('/api/salvar_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ campanha: campanhaAtiva, dados: { mestre: dataToSave } }) }); 
         }
-
-        const originalSetItem = localStorage.setItem; 
-        localStorage.setItem = function(key, value) { 
-            originalSetItem.apply(this, arguments); 
-            if (key.startsWith('mestre_') && key.includes(campanhaAtiva)) { salvarMestreNoFirebase(); } 
-        };
-        
-        let cloudSaveStr = localStorage.getItem('mestre_save_nuvem_' + campanhaAtiva);
-        if (cloudSaveStr) { 
-            try { 
-                let cloudSave = JSON.parse(cloudSaveStr); 
-                if (cloudSave.roteiros) { roteiros = cloudSave.roteiros; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); } 
-                if (cloudSave.descricoes) { descricoes = cloudSave.descricoes; localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); } 
-                if (cloudSave.monstros) { monstros = cloudSave.monstros; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); } 
-                if (cloudSave.iniciativa) { iniciativaList = cloudSave.iniciativa; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); } 
-                if (cloudSave.allowedCodes) { jogadoresPermitidos = cloudSave.allowedCodes; localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); } 
-                if (cloudSave.mapas) { mapas = cloudSave.mapas; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); } 
-                if (cloudSave.catalogo_itens) { catalogoMestre = cloudSave.catalogo_itens; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); } 
-                if (cloudSave.catalogo_rituais) { catalogoRituaisMestre = cloudSave.catalogo_rituais; localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); } 
-            } catch(e) {} 
-            localStorage.removeItem('mestre_save_nuvem_' + campanhaAtiva); 
-        }
-
-        // --- MIGRAÇÃO: Transforma Itens Hardcoded em Editáveis ---
-        if (!localStorage.getItem('mestre_catalogo_migrado_' + campanhaAtiva)) {
-            let idCounter = Date.now();
-            premadeItemsMestre.forEach(p => {
-                catalogoMestre.push({
-                    id: 'm_item_' + (idCounter++),
-                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1, d: p.desc, eq: false,
-                    type: 'comum', dmg: "0", extra: "0", crit: "20/x2", skill: "Luta",
-                    img: p.img, atkType: "Corpo a corpo", atk: "1", range: "Curto", ammo: "Nenhuma", capacity: "0", currentShots: "0",
-                    visivel: true, rawType: 'comum', rawDesc: p.desc
-                });
-            });
-            premadeMeleeWeaponsMestre.forEach(p => {
-                catalogoMestre.push({
-                    id: 'm_item_' + (idCounter++),
-                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1,
-                    d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Corpo a corpo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> Nenhuma</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`,
-                    eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill,
-                    img: p.img, atkType: "Corpo a corpo", atk: p.atk, range: p.range, ammo: "Nenhuma", capacity: "0", currentShots: "0",
-                    visivel: true, rawType: 'armacc', rawDesc: ""
-                });
-            });
-            premadeRangedWeaponsMestre.forEach(p => {
-                catalogoMestre.push({
-                    id: 'm_item_' + (idCounter++),
-                    n: p.name, w: p.weight !== undefined ? p.weight : 1, h: p.h || 1,
-                    d: `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> Disparo (${p.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${p.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${p.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${p.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${p.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${p.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`,
-                    eq: false, type: 'arma', dmg: p.dmg, extra: "0", crit: p.crit, skill: p.skill,
-                    img: p.img, atkType: "Disparo", atk: p.atk, range: p.range, ammo: p.ammo, capacity: p.capacity, currentShots: p.capacity,
-                    visivel: true, rawType: 'armadisp', rawDesc: ""
-                });
-            });
-            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
-            localStorage.setItem('mestre_catalogo_migrado_' + campanhaAtiva, "true");
-        }
-        // -------------------------------------------------------------
 
         function sincronizarCatalogoGeral() {
             if(!socket) return;
@@ -663,7 +574,6 @@
             socket.emit('comando_mestre', { tipo: 'catalogo_sincronizado', itens: itensFiltrados, rituais: rituaisFiltrados });
         }
 
-        let editRitualIndex = null;
         function abrirModalRitualMestre(idx = null) { 
             editRitualIndex = idx;
             if(idx !== null) {
@@ -718,6 +628,7 @@
             else catalogoRituaisMestre.push(novoRitual);
 
             localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); 
+            salvarMestreNoFirebase();
             document.getElementById('modal-ritual-mestre').style.display = 'none'; 
             renderizarCatalogoRituais(); 
             sincronizarCatalogoGeral();
@@ -726,6 +637,7 @@
         function toggleVisibilidadeRitual(idx) {
             catalogoRituaisMestre[idx].visivel = catalogoRituaisMestre[idx].visivel === false ? true : false;
             localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+            salvarMestreNoFirebase();
             renderizarCatalogoRituais();
             sincronizarCatalogoGeral();
         }
@@ -803,12 +715,12 @@
             if(confirm("Tem certeza que deseja apagar este ritual do catálogo?")) { 
                 catalogoRituaisMestre.splice(idx, 1); 
                 localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); 
+                salvarMestreNoFirebase();
                 renderizarCatalogoRituais(); 
                 sincronizarCatalogoGeral(); 
             } 
         }
 
-        let editItemIndex = null;
         function abrirModalItemMestre(tipo = 'comum', idx = null) { 
             editItemIndex = idx;
             if(idx !== null) {
@@ -904,6 +816,7 @@
             else catalogoMestre.push(novoItem);
 
             localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+            salvarMestreNoFirebase();
             document.getElementById('modal-item-mestre').style.display = 'none'; 
             renderizarCatalogo(); 
             sincronizarCatalogoGeral();
@@ -912,6 +825,7 @@
         function toggleVisibilidadeItem(idx) {
             catalogoMestre[idx].visivel = catalogoMestre[idx].visivel === false ? true : false;
             localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
+            salvarMestreNoFirebase();
             renderizarCatalogo();
             sincronizarCatalogoGeral();
         }
@@ -920,12 +834,12 @@
             if(confirm("Tem certeza que deseja apagar este item do seu Catálogo?")) { 
                 catalogoMestre.splice(idx, 1); 
                 localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+                salvarMestreNoFirebase();
                 renderizarCatalogo(); 
                 sincronizarCatalogoGeral(); 
             } 
         }
 
-        // --- RENDERIZAR TODO O CATÁLOGO APENAS PELO catalogoMestre ---
         function renderizarCatalogo() {
             const gridComum = document.getElementById('catalogo-grid-comum'); 
             const gridArmaCC = document.getElementById('catalogo-grid-armacc'); 
@@ -979,11 +893,11 @@
             if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
         }
 
+        // --- ENVIOS SILENCIOSOS ---
         function enviarParaTodos(objStr, tipo) { 
-            if (jogadoresPermitidos.length === 0) return alert("Não há jogadores conectados na mesa para receber este presente!");
+            if (jogadoresPermitidos.length === 0) return;
             
             const objOriginal = JSON.parse(decodeURIComponent(objStr));
-            if (!confirm(`Deseja realmente enviar '${objOriginal.n}' para TODOS os ${jogadoresPermitidos.length} jogadores?`)) return;
             
             jogadoresPermitidos.forEach(alvo => {
                 let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
@@ -991,7 +905,6 @@
                 if (tipo === 'item') { socket.emit('comando_mestre', { tipo: 'dar_item', codigo: alvo.toUpperCase(), item: objParaEnviar }); } 
                 else { socket.emit('comando_mestre', { tipo: 'dar_ritual', codigo: alvo.toUpperCase(), ritual: objParaEnviar }); }
             });
-            alert(`🌟 O ${tipo === 'item' ? 'item' : 'ritual'} '${objOriginal.n}' foi enviado com sucesso para TODOS os jogadores!`);
         }
 
         function abrirModalTransferir(objStr, tipo) {
@@ -1005,7 +918,6 @@
             grid.innerHTML = '';
             
             if (jogadoresPermitidos.length === 0) {
-                alert("Não tem nenhum jogador ligado à sua mesa no momento!");
                 return;
             }
             
@@ -1047,7 +959,6 @@
             }
             
             document.getElementById('modal-transfer-obj').style.display = 'none'; 
-            alert(`O ${tipo} '${objOriginal.n}' foi enviado com sucesso!`);
         }
 
         function mudarAba(aba) {
@@ -1076,6 +987,7 @@
             if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { 
                 jogadoresPermitidos.push(codigo); 
                 localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
+                salvarMestreNoFirebase();
                 socket.emit('request_player', codigo); 
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
             } 
@@ -1086,6 +998,7 @@
             const codPuro = codigo.toUpperCase(); 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); 
             localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
+            salvarMestreNoFirebase();
             
             const card = document.getElementById(`player-${codPuro}`); 
             if (card) card.remove(); 
@@ -1178,6 +1091,7 @@
                 if (!jogadoresPermitidos.includes(c)) { 
                     jogadoresPermitidos.push(c); 
                     localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
+                    salvarMestreNoFirebase();
                     socket.emit('request_player', c); 
                     socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
                 } else { 
@@ -1329,6 +1243,7 @@
             currentMapaIdMap = novoMapa.id; 
             
             localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); 
+            salvarMestreNoFirebase();
             document.getElementById('novo-mapa-nome').value = ''; 
             document.getElementById('novo-mapa-url').value = ''; 
             document.getElementById('novo-mapa-url').disabled = false; 
@@ -1344,6 +1259,7 @@
                 mapas = mapas.filter(m => m.id !== currentMapaIdMap); 
                 currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; 
                 localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); 
+                salvarMestreNoFirebase();
                 renderizarMapasList(); 
                 renderizarMapaAtual(); 
             } 
@@ -1444,6 +1360,7 @@
             } 
             
             localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); 
+            salvarMestreNoFirebase();
             renderizarMapaAtual(); 
             fecharModalPin(); 
         }
@@ -1456,6 +1373,7 @@
                 if(confirm("Deseja apagar este Pin?")) { 
                     mapa.pins = mapa.pins.filter(p => p.id !== idEdit); 
                     localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); 
+                    salvarMestreNoFirebase();
                     renderizarMapaAtual(); 
                     fecharModalPin(); 
                 } 
@@ -1531,10 +1449,10 @@
             }); 
         }
         
-        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); renderRoteiros(); carregarRoteiro(novo.id); }
-        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); renderDescricoes(); carregarDescricao(novo.id); }
-        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
-        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
+        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); renderRoteiros(); carregarRoteiro(novo.id); }
+        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); renderDescricoes(); carregarDescricao(novo.id); }
+        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
+        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
         function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
         function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
         
@@ -1572,6 +1490,7 @@
                     item.texto = val; 
                     if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); 
                     else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); 
+                    salvarMestreNoFirebase();
                 } 
                 status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; 
                 setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); 
@@ -1647,6 +1566,7 @@
             } 
             
             localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+            salvarMestreNoFirebase();
             fecharModalCriatura(); renderizarMonstros(); 
         }
         
@@ -1673,6 +1593,7 @@
             if(confirm("Deseja apagar esta criatura?")) { 
                 monstros = monstros.filter(m => m.id !== id); 
                 localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+                salvarMestreNoFirebase();
                 renderizarMonstros(); 
             } 
         }
@@ -1714,6 +1635,7 @@
             if(idx > -1) { 
                 monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; 
                 localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+                salvarMestreNoFirebase();
                 renderizarMonstros(); 
             } 
         }
@@ -1776,18 +1698,20 @@
                 showPopup(t, `INICIATIVA`, "color:white", m.nome); 
             }); 
             localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); 
+            salvarMestreNoFirebase();
             renderizarIniciativa(); 
         }
         
         function removerIniciativa(id) { 
             iniciativaList = iniciativaList.filter(i => i.id !== id); 
             localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); 
+            salvarMestreNoFirebase();
             renderizarIniciativa(); 
         }
         
         function limparIniciativa() { 
             if(confirm("Deseja apagar a tabela de iniciativa?")) { 
-                iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); renderizarIniciativa(); 
+                iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); 
             } 
         }
         
