@@ -814,20 +814,34 @@
     
     function updateWeaponsDisplay() { equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp')); const sel = document.getElementById('active-weapon-select'); if (sel) { let currentVal = sel.value; sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join(''); sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none'; if (currentVal && equippedWeaponsData.some(w => w.id === currentVal)) { sel.value = currentVal; } else if (equippedWeaponsData.length > 0) { sel.value = equippedWeaponsData[0].id; } } renderActiveWeapon(); }
     
-   function renderActiveWeapon() { 
-        const sel = document.getElementById('active-weapon-select'); const listDiv = document.getElementById('equipped-weapons-list'); if (!listDiv) return;
-        if (equippedWeaponsData.length === 0 || !sel || !sel.value) { listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>'; return; }
-        const activeWeaponId = sel.value; const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
+ function renderActiveWeapon() { 
+        const sel = document.getElementById('active-weapon-select'); 
+        const listDiv = document.getElementById('equipped-weapons-list'); 
+        if (!listDiv) return;
+        
+        if (equippedWeaponsData.length === 0 || !sel || !sel.value) { 
+            listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:0.8em; font-style:italic;">Nenhuma arma equipada.</div>'; 
+            return; 
+        }
+        
+        const activeWeaponId = sel.value; 
+        const w = equippedWeaponsData.find(wp => wp.id === activeWeaponId);
+        
         if (w) {
-            let safeSkill = (w.skill || "Luta").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
-            let attrToUse = (w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI";
+            // Adicionado .trim() para evitar que espaços em branco quebrem a leitura da perícia
+            let safeSkill = (w.skill || "Luta").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_");
+            
+            // Puxa o Atributo Base (FOR, AGI, PRE, etc) automaticamente da perícia que a arma exige
+            let skillReal = periciasBase.find(p => p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_") === safeSkill);
+            let attrToUse = skillReal ? skillReal.attr : ((w.atkType || "").toLowerCase().includes("corpo") ? "FOR" : "AGI");
+            
             let safeWName = w.n.replace(/'/g, "\\'").replace(/"/g, "&quot;");
             
             let ammoHtml = "";
             if (w.ammo && w.ammo !== "Nenhuma") {
-                // Aqui removemos o " / capacidade", deixando apenas as balas atuais
                 ammoHtml = `<div style="margin-top:10px; background:rgba(0,0,0,0.5); padding:8px; border-radius:6px; text-align:center; border:1px solid var(--accent-blue);"><b style="color:var(--text-secondary); display:block; margin-bottom:8px; font-size:0.8em;">BALAS/DISPAROS (${w.ammo})</b><div style="display:flex; justify-content:center; align-items:center; gap:15px;"><button onclick="atirarArma('${w.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding:5px 15px;">-1</button><span style="font-size:1.5em; font-weight:900; color:white;">${w.currentShots !== undefined ? w.currentShots : w.capacity}</span><button onclick="recarregarArma('${w.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width:2px;">RECARREGAR</button></div></div>`;
             }
+            
             listDiv.innerHTML = `<div style="background: rgba(18, 18, 20, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px;">
                 <div style="color:var(--text-secondary); text-align:center; font-size:0.9em; text-transform:uppercase; margin-bottom:8px;">${w.n} <span style="color:var(--accent-yellow); font-size:0.85em;">(${w.dmg} | Crit: ${w.crit})</span></div>
                 <div style="display: flex; gap: 8px; justify-content: center;">
