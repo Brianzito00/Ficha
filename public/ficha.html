@@ -750,10 +750,12 @@
         if (!isDragging || !activeDragItem) return; isDragging = false; const currentItem = activeDragItem; activeDragItem = null; currentItem.el.classList.remove('ghost-valid', 'ghost-invalid');
         if (!hasMovedMouse && currentItem.x >= 0) { updateInventoryDisplay(); selectItemInfo(currentItem.id); return; }
         const pos = getGridPosition(e.clientX, e.clientY); const rect = gridEl.getBoundingClientRect();
-        if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) { currentItem.x = -1; currentItem.y = -1; if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } updateInventoryDisplay(); save(); return; }
-        if (canPlace(pos.col, pos.row, currentItem.w, currentItem.h)) { currentItem.x = pos.col; currentItem.y = pos.row; updateInventoryDisplay(); selectItemInfo(currentItem.id); save(); } 
-        else { if (currentItem.x >= 0 && currentItem.y >= 0) { currentItem.w = currentItem.origW; currentItem.h = currentItem.origH; currentItem.rotated = currentItem.origRotated; } else { currentItem.x = -1; currentItem.y = -1; if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } } updateInventoryDisplay(); }
-    });
+       if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) { 
+            currentItem.x = -1; currentItem.y = -1; 
+            currentItem.eq = false; // <-- Desequipa o item automaticamente ao atirar para a caixa
+            if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } 
+            updateInventoryDisplay(); updateAllPericias(); save(); return; // <-- Atualiza as perícias e salva
+        }
 
     window.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -780,10 +782,47 @@
         document.getElementById('info-stats').innerHTML = statsHTML; const chkEquip = document.getElementById('info-equip'); chkEquip.disabled = false; chkEquip.checked = item.eq; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; document.getElementById('btn-delete-item').disabled = false; document.getElementById('btn-transfer-item').disabled = false; document.getElementById('btn-edit-item').disabled = false;
     }
     function deselectItemInfo() { currentSelectedItemId = null; document.getElementById('info-name').innerText = "Nenhum Item"; document.getElementById('info-name').style.color = "var(--accent-blue)"; document.getElementById('info-img-container').style.display = 'none'; document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; document.getElementById('info-equip').disabled = true; document.getElementById('info-equip').checked = false; document.getElementById('info-equip-container').style.borderColor = '#444'; document.getElementById('btn-delete-item').disabled = true; document.getElementById('btn-transfer-item').disabled = true; document.getElementById('btn-edit-item').disabled = true; }
-    function toggleEquipSelected() { if(!currentSelectedItemId) return; const item = inventoryItems.find(i => i.id === currentSelectedItemId); if(!item) return; const isChecking = document.getElementById('info-equip').checked; const isMochila = item.n.toLowerCase().includes('mochila'); if (isMochila && isChecking) { document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; document.getElementById('info-equip').checked = false; } else { item.eq = isChecking; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; updateWeight(); updateInventoryDisplay(); save(); } }
-    function confirmEquipBackpack() { const id = document.getElementById('backpack-confirm-item-id').value; const item = inventoryItems.find(i => i.id === id); if(item) { item.eq = true; if(currentSelectedItemId === id) { document.getElementById('info-equip').checked = true; document.getElementById('info-equip-container').style.borderColor = 'var(--accent-yellow)'; } updateWeight(); updateInventoryDisplay(); save(); } document.getElementById('modal-backpack').style.display = 'none'; }
-    function apagarItemSelecionado() { if(!currentSelectedItemId) return; if(confirm("Tem certeza que deseja deitar este item fora?")) { inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId); deselectItemInfo(); updateWeight(); updateInventoryDisplay(); save(); } }
-    
+   function toggleEquipSelected() { 
+        if(!currentSelectedItemId) return; const item = inventoryItems.find(i => i.id === currentSelectedItemId); if(!item) return; 
+        const isChecking = document.getElementById('info-equip').checked; const isMochila = item.n.toLowerCase().includes('mochila'); 
+        if (isMochila && isChecking) { 
+            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; document.getElementById('info-equip').checked = false; 
+        } else { 
+            item.eq = isChecking; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; 
+            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); // <-- Agora atualiza as perícias
+        } 
+    }
+
+    function confirmEquipBackpack() { 
+        const id = document.getElementById('backpack-confirm-item-id').value; const item = inventoryItems.find(i => i.id === id); 
+        if(item) { 
+            item.eq = true; if(currentSelectedItemId === id) { document.getElementById('info-equip').checked = true; document.getElementById('info-equip-container').style.borderColor = 'var(--accent-yellow)'; } 
+            updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
+        } 
+        document.getElementById('modal-backpack').style.display = 'none'; 
+    }
+
+    function apagarItemSelecionado() { 
+        if(!currentSelectedItemId) return; 
+        if(confirm("Tem certeza que deseja deitar este item fora?")) { 
+            inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId); 
+            deselectItemInfo(); updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); // <-- Agora atualiza as perícias ao apagar
+        } 
+    }
+
+    function autoEquipItem(id) {
+        const item = inventoryItems.find(i => i.id === id); if (!item) return;
+        const isMochila = (item.n || "").toLowerCase().includes('mochila');
+        if (isMochila) { 
+            document.getElementById('backpack-confirm-item-id').value = item.id; document.getElementById('modal-backpack').style.display = 'flex'; 
+        } else { 
+            let spot = findEmptySpot(item.w, item.h); 
+            if (spot) { 
+                item.x = spot.x; item.y = spot.y; item.rotated = spot.rotated; 
+                if (spot.rotated) { let temp = item.w; item.w = item.h; item.h = temp; } 
+                item.eq = true; updateWeight(); updateInventoryDisplay(); selectItemInfo(item.id); updateAllPericias(); save(); // <-- Atualiza as perícias ao equipar
+            } else { alert("Não há espaço suficiente na maleta para este item!"); } 
+        }
     function updateWeight() { const forca = parseInt(document.getElementById('attr_for').value) || 0; const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false; let baseCap = 5 + Math.floor(forca/2) + (treinadoAtletismo ? 10 : 0); let extraCap = 0; inventoryItems.forEach(item => { if(item.eq){ const n = (item.n||item.name||"").toLowerCase(); if(n.includes('mochila')) { extraCap += 16; } } }); window.currentCapacity = Math.min(60, baseCap + extraCap); let t = 0; inventoryItems.forEach(item => { if (item.x >= 0) t += (item.w * item.h); }); const fill = document.getElementById('weight-bar-fill'); if (fill) { fill.style.width = window.currentCapacity > 0 ? Math.min((t/window.currentCapacity)*100, 100)+"%" : "0%"; document.getElementById('weight-text').innerText = `${t} / ${window.currentCapacity}`; if(t > window.currentCapacity) fill.classList.add('overweight'); else fill.classList.remove('overweight'); } if (document.getElementById('inventory-grid')) { drawGridBackground(); } }
     
     function openItemPopup() { document.getElementById('popup-new-item').style.display = 'flex'; }
