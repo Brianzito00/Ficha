@@ -1363,7 +1363,7 @@
     function abrirModalTransferirJogador() { document.getElementById('modal-transfer-player').style.display = 'flex'; }
     function confirmarEnvioJogador() { 
         document.getElementById('modal-transfer-player').style.display = 'none'; 
-        alert("Item enviado (Lógica de servidor precisa estar implementada)");
+        // Lógica de servidor para enviar de jogador para jogador (se implementada no futuro)
     }
     
     function openEditItemPopup() { alert("Para editar, podes atirar este fora e criar um novo com as estatísticas corretas."); }
@@ -1553,6 +1553,7 @@
         
         for(let i=0; i<numAttacks; i++){ 
             let d20 = Math.floor(Math.random() * 20) + 1;
+            let somaTotal = d20 + totalValN;
             
             let textFormat = ""; 
             let colorFormat = ""; 
@@ -1590,9 +1591,9 @@
             
             if(numAttacks > 1){ 
                 colorFormat=colorFormat.replace("text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;","text-shadow:2px 2px 4px #000;"); 
-                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${d20} (${textFormat})</div>`); 
+                resultsArray.push(`<div style="${colorFormat} font-family: 'Permanent Marker', cursive; font-size:0.7em; line-height:1.2;">ATQ ${i+1}: ${somaTotal} (${textFormat})</div>`); 
             } else { 
-                showPopup(d20, `${n}<br>(${textFormat})`, colorFormat); 
+                showPopup(somaTotal, `${n}<br>(${textFormat})`, colorFormat); 
             } 
         } 
         
@@ -1613,7 +1614,7 @@
         document.getElementById('popup-input-dice').style.display='none'; 
         let formula = document.getElementById('custom_dice_formula').value;
         if(formula) {
-            rolarDanoMonstro('Jogador', 'Dado', formula);
+            rolarDanoMonstro('Jogador', 'Dado Personalizado', formula);
         } else {
             showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(LIVRE)", "color:white"); 
         }
@@ -1736,6 +1737,8 @@
         if(viewCode){ if(socket){ socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } return; } 
         localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d)); 
         fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: playerCode, fichaData: d}) }).catch(e=>{}); 
+        
+        // PING-PONG: Informa de volta para o Mestre a atualização da barra!
         if(socket){ socket.emit('status_change', { codigo: myUpperCode, origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
     }
 
@@ -1746,14 +1749,14 @@
             const periciasContainer = document.getElementById('pericias-container'); if(periciasContainer){ periciasContainer.innerHTML = ''; periciasBase.forEach(p=>{ let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); periciasContainer.innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}')"><div class="skill-header" style="margin-bottom:8px;"><span style="font-size:0.7em; font-weight:bold; text-transform:uppercase; pointer-events:none;">${p.nome}</span></div><div style="display:flex;justify-content:center;margin-bottom:8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}', false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:20px;height:20px;filter:invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; }); }
             if (viewCode) { const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; if(socket) { socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); socket.emit('request_player', viewCode); }); socket.on('update_mestre', (dados) => { if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { isLoadingData = true; populateData(dados.fullData); } }); } } else { load(); }
             
-            // OUVINTE DE SINCRONIZAÇÃO DO MESTRE (NOVA CORREÇÃO)
+            // OUVINTE DE SINCRONIZAÇÃO DO MESTRE CORRIGIDO (Ping-Pong)
             socket.on('mestre_force_sync_player', (dados) => { 
                 const incCode = (dados.codigo||"").trim().toUpperCase(); 
                 if (incCode === myUpperCode && dados.fullData) { 
                     isLoadingData = true; 
                     populateData(dados.fullData); 
                     localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); 
-                    save(); // <--- Re-emite o status para o painel do Mestre se atualizar!
+                    save(); 
                 } 
             });
 
@@ -1763,7 +1766,15 @@
                 socket.on('comando_mestre', (dados) => { 
                     const incCode = (dados.codigo||"").trim().toUpperCase(); 
                     if (dados.tipo === 'catalogo_sincronizado') { let mudouLocal = false; let dataCatItems = dados.itens || []; let dataCatRits = dados.rituais || []; customCatalog = { items: [], melee: [], ranged: [], rituals: [] }; dataCatItems.forEach(serverItem => { let tipoList = serverItem.type === 'comum' ? 'items' : (serverItem.atkType === 'Disparo' ? 'ranged' : 'melee'); customCatalog[tipoList].push(serverItem); mudouLocal = true; }); dataCatRits.forEach(serverRit => { customCatalog.rituals.push(serverRit); mudouLocal = true; }); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); if (document.getElementById('popup-new-item').style.display === 'flex') renderPremadeCatalogs(); return; }
-                    if (incCode === myUpperCode) { if (dados.tipo === 'vida') changeStatus('vida', dados.delta); else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); else if (dados.tipo === 'status') toggleStatus(dados.status); else if (dados.tipo === 'expulsar_jogador') { alert("Você foi removido da mesa pelo Mestre."); localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); localStorage.removeItem('ordem_save_local_'+campanhaAtiva); fazerLogout(); } else if (dados.tipo === 'dar_item') { const itemRecebido = {...dados.item, x:-1, y:-1, rotated:false, eq:false}; inventoryItems.push(itemRecebido); updateInventoryDisplay(); save(); alert("Recebeu um item do Mestre: " + itemRecebido.n); } else if (dados.tipo === 'dar_ritual') { let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; if(dados.ritual.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; if(dados.ritual.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(dados.ritual.n,dados.ritual.el,dHTML,dados.ritual.circ,dados.ritual.ex,dados.ritual.alc,dados.ritual.alv,dados.ritual.dur,dados.ritual.res,dados.ritual.descGeral,dados.ritual.descDisc,dados.ritual.descVerd,true,dados.ritual.img); save(); } } 
+                    if (incCode === myUpperCode) { 
+                        if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
+                        else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
+                        else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); 
+                        else if (dados.tipo === 'status') toggleStatus(dados.status); 
+                        else if (dados.tipo === 'expulsar_jogador') { alert("Você foi removido da mesa pelo Mestre."); localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); localStorage.removeItem('ordem_save_local_'+campanhaAtiva); fazerLogout(); } 
+                        else if (dados.tipo === 'dar_item') { const itemRecebido = {...dados.item, x:-1, y:-1, rotated:false, eq:false}; inventoryItems.push(itemRecebido); updateInventoryDisplay(); save(); } 
+                        else if (dados.tipo === 'dar_ritual') { let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; if(dados.ritual.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; if(dados.ritual.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(dados.ritual.n,dados.ritual.el,dHTML,dados.ritual.circ,dados.ritual.ex,dados.ritual.alc,dados.ritual.alv,dados.ritual.dur,dados.ritual.res,dados.ritual.descGeral,dados.ritual.descDisc,dados.ritual.descVerd,true,dados.ritual.img); save(); } 
+                    } 
                 });
             }
         } catch(e){}
