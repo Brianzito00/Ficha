@@ -366,166 +366,76 @@
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
-    // Configurações de Conectividade
+    // CONFIGURAÇÃO DE IDENTIDADE
     let baseUser = localStorage.getItem('usuario_logado') || ""; 
     let myUpperCode = baseUser.trim().toUpperCase(); 
     let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
     
-    const urlParams = new URLSearchParams(window.location.search); 
-    const viewCode = urlParams.get('view'); 
-    let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
+    // CONEXÃO SOCKET
+    const socket = io(); 
 
-    let socket = null;
-    if (typeof io !== 'undefined') {
-        socket = io();
-        
-        socket.on('connect', () => {
-            socket.emit('join_campaign', campanhaAtiva);
-            if (!viewCode) {
-                // Sincroniza estado inicial com o mestre
-                setTimeout(() => {
-                    socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode});
-                    save(); 
-                }, 1000);
+    socket.on('connect', () => {
+        socket.emit('join_campaign', campanhaAtiva);
+        // Avisa o mestre que o jogador entrou
+        socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode});
+        save(); 
+    });
+
+    // ESCUTAR COMANDOS DO MESTRE (Receber Itens, Vida, etc)
+    socket.on('comando_mestre', (dados) => {
+        const incCode = (dados.codigo || "").trim().toUpperCase();
+        if (incCode === myUpperCode) {
+            if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
+            if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
+            if (dados.tipo === 'pe') changeStatus('pe', dados.delta);
+            if (dados.tipo === 'dar_item') {
+                inventoryItems.push({...dados.item, x:-1, y:-1});
+                updateInventoryDisplay();
+                save();
             }
-        });
-
-        // Ouvinte de Comandos do Mestre (Receber itens, vida, etc)
-        socket.on('comando_mestre', (dados) => {
-            const incCode = (dados.codigo || "").trim().toUpperCase();
-            if (incCode === myUpperCode && !viewCode) {
-                if (dados.tipo === 'vida') changeStatus('vida', dados.delta);
-                if (dados.tipo === 'sani') changeStatus('sani', dados.delta);
-                if (dados.tipo === 'dar_item') {
-                    inventoryItems.push({...dados.item, x:-1, y:-1, rotated:false, eq:false});
-                    updateInventoryDisplay();
-                    save();
-                }
-                if (dados.tipo === 'dar_ritual') {
-                    // Lógica para adicionar ritual recebido
-                    save();
-                }
-            }
-        });
-    }
-
-    // Variáveis Globais de Ficha
-    let inventoryItems = [];
-    let charStatus = { lesionado: false, inconsciente: false, morrendo: false, enlouquecendo: false };
-    let isLoadingData = false;
-
-    // Funções de Status
-    function changeStatus(type, amount) {
-        let el = document.getElementById(type + '_atual');
-        if(el) {
-            el.value = parseInt(el.value) + amount;
-            updateStatusBars();
-            save();
         }
-    }
+    });
 
-    function updateStatusBars() {
-        const bars = ['vida', 'sani', 'pe'];
-        bars.forEach(b => {
-            let cur = parseInt(document.getElementById(b+'_atual').value);
-            let max = parseInt(document.getElementById(b+'_max').value);
-            let perc = (cur/max) * 100;
-            document.getElementById('bar_'+b).style.width = Math.min(Math.max(perc, 0), 100) + '%';
-        });
-    }
-
-    function toggleStatus(s) {
-        charStatus[s] = !charStatus[s];
-        save();
-    }
-
-    // Função de Salvar e Sincronizar (CORREÇÃO DE CONECTIVIDADE)
+    // FUNÇÃO DE SALVAMENTO E SINCRONIZAÇÃO ATIVA
     function save() {
-        if (isLoadingData) return;
-        
-        const fichaData = {
+        if (typeof isLoadingData !== 'undefined' && isLoadingData) return;
+
+        const d = {
             info: {
-                char_nome: document.getElementById('char_nome').value,
-                char_nex: document.getElementById('char_nex').value,
-                vida_atual: document.getElementById('vida_atual').value,
-                vida_max: document.getElementById('vida_max').value,
-                sani_atual: document.getElementById('sani_atual').value,
-                sani_max: document.getElementById('sani_max').value,
-                pe_atual: document.getElementById('pe_atual').value,
-                pe_max: document.getElementById('pe_max').value
+                char_nome: document.getElementById('char_nome')?.value || "",
+                char_nex: document.getElementById('char_nex')?.value || 0,
+                vida_atual: document.getElementById('vida_atual')?.value || 0,
+                vida_max: document.getElementById('vida_max')?.value || 1,
+                sani_atual: document.getElementById('sani_atual')?.value || 0,
+                sani_max: document.getElementById('sani_max')?.value || 1,
+                pe_atual: document.getElementById('pe_atual')?.value || 0,
+                pe_max: document.getElementById('pe_max')?.value || 1
             },
-            attrs: {},
-            skills: {},
-            charStatus: charStatus,
-            inv: inventoryItems
+            charStatus: typeof charStatus !== 'undefined' ? charStatus : {},
+            inv: typeof inventoryItems !== 'undefined' ? inventoryItems : []
         };
 
-        // Coleta atributos e pericias
-        document.querySelectorAll('.attr-input').forEach(i => fichaData.attrs[i.id] = i.value);
-        
-        // Salva Local
-        localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(fichaData));
+        // Salva Localmente
+        localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d));
 
-        // Envia para o Mestre via Socket
-        if(socket) {
-            socket.emit('status_change', {
-                codigo: myUpperCode,
-                id: playerCode,
-                nome: fichaData.info.char_nome,
-                vida_atual: fichaData.info.vida_atual,
-                vida_max: fichaData.info.vida_max,
-                sani_atual: fichaData.info.sani_atual,
-                pe_atual: fichaData.info.pe_atual,
-                status: charStatus,
-                fullData: fichaData
-            });
-        }
+        // ENVIA PARA O MESTRE EM TEMPO REAL
+        socket.emit('status_change', {
+            codigo: myUpperCode,
+            nome: d.info.char_nome,
+            vida_atual: d.info.vida_atual,
+            vida_max: d.info.vida_max,
+            sani_atual: d.info.sani_atual,
+            sani_max: d.info.sani_max,
+            pe_atual: d.info.pe_atual,
+            pe_max: d.info.pe_max,
+            status: d.charStatus,
+            fullData: d
+        });
     }
 
-    // Rolagens de Dados
-    function rolarTeste(label, formula) {
-        // Lógica de cálculo de d20 + bônus
-        let resultado = Math.floor(Math.random() * 20) + 1;
-        showPopup(resultado, label);
-        
-        if(socket) {
-            socket.emit('rolagem_feita', {
-                codigo: myUpperCode,
-                jogador: document.getElementById('char_nome').value,
-                acao: label,
-                resultado: resultado
-            });
-        }
-    }
-
-    function showPopup(num, txt) {
-        document.getElementById('popup-num').innerText = num;
-        document.getElementById('popup-res').innerText = txt;
-        document.getElementById('popup-dice').style.display = 'flex';
-        document.getElementById('popup-content').style.display = 'flex';
-    }
-
-    function closeDice() {
-        document.getElementById('popup-dice').style.display = 'none';
-    }
-
-    // Inicialização
-    window.onload = () => {
-        // Carregar dados salvos
-        let saved = localStorage.getItem('ordem_save_local_' + campanhaAtiva);
-        if(saved) {
-            isLoadingData = true;
-            let d = JSON.parse(saved);
-            // Preencher campos (Lógica de populate omitida para brevidade)
-            isLoadingData = false;
-        }
-        updateStatusBars();
-    };
-
-    function fazerLogout() {
-        localStorage.removeItem('campanha_atual');
-        window.location.href = 'index.html';
-    }
+    // DISPARAR SAVE EM QUALQUER INPUT
+    document.addEventListener('input', () => {
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(save, 500); 
+    });
 </script>
-</body>
-</html>
