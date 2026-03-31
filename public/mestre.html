@@ -60,108 +60,75 @@
         </div>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <script>
-        const campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
-        let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
-        let playersDataMemoria = {}; // Memória volátil para status em tempo real
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script>
+    const campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
+    let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
+    let playersDataMemoria = {}; 
 
-        const socket = io();
+    const socket = io();
 
-        socket.on('connect', () => {
-            socket.emit('join_campaign', campanhaAtiva);
-            // Solicita que todos os jogadores online enviem suas fichas atuais
-            jogadoresPermitidos.forEach(code => socket.emit('mestre_pede_ficha', code));
-        });
+    socket.on('connect', () => {
+        socket.emit('join_campaign', campanhaAtiva);
+        // Pede a ficha de todos quando o mestre conecta
+        jogadoresPermitidos.forEach(cod => socket.emit('mestre_pede_ficha', cod));
+    });
 
-        // ESCUTA: Atualização de Ficha do Jogador
-        socket.on('status_change', (dados) => {
-            const code = (dados.codigo || "").toUpperCase();
-            if (jogadoresPermitidos.includes(code)) {
-                playersDataMemoria[code] = dados;
-                renderizarJogadores();
-            }
-        });
-
-        // ESCUTA: Rolagens de Dados
-        socket.on('rolagem_feita', (dados) => {
-            const log = document.getElementById('log-box');
-            const item = document.createElement('div');
-            item.style.padding = "8px";
-            item.style.borderBottom = "1px solid #333";
-            item.innerHTML = `<b style="color:var(--accent-blue)">${dados.jogador}:</b> ${dados.acao} ➔ <span style="font-size:1.2em; color:var(--accent-yellow)">${dados.resultado}</span>`;
-            log.prepend(item);
-        });
-
-        function adicionarJogador() {
-            const input = document.getElementById('add-code-input');
-            const code = input.value.trim().toUpperCase();
-            if (code && !jogadoresPermitidos.includes(code)) {
-                jogadoresPermitidos.push(code);
-                localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos));
-                socket.emit('mestre_pede_ficha', code); // Pede a ficha assim que adiciona
-                renderizarJogadores();
-            }
-            input.value = "";
+    // ATUALIZAÇÃO EM TEMPO REAL RECEBIDA DO JOGADOR
+    socket.on('status_change', (dados) => {
+        const cod = (dados.codigo || "").toUpperCase();
+        if (jogadoresPermitidos.includes(cod)) {
+            playersDataMemoria[cod] = dados;
+            renderizarJogadores(); 
         }
+    });
 
-        function removerJogador(code) {
-            jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== code);
+    // LOG DE ROLAGENS
+    socket.on('rolagem_feita', (dados) => {
+        const log = document.getElementById('log-box');
+        const msg = document.createElement('div');
+        msg.innerHTML = `<b>${dados.jogador}:</b> ${dados.acao} ➔ ${dados.resultado}`;
+        log.prepend(msg);
+    });
+
+    function adicionarJogador() {
+        const code = document.getElementById('add-code-input').value.toUpperCase().trim();
+        if (code && !jogadoresPermitidos.includes(code)) {
+            jogadoresPermitidos.push(code);
             localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos));
-            delete playersDataMemoria[code];
+            socket.emit('mestre_pede_ficha', code);
             renderizarJogadores();
         }
+    }
 
-        function renderizarJogadores() {
-            const board = document.getElementById('players-board');
-            board.innerHTML = "";
+    function renderizarJogadores() {
+        const board = document.getElementById('players-board');
+        board.innerHTML = "";
 
-            jogadoresPermitidos.forEach(code => {
-                const data = playersDataMemoria[code];
-                const card = document.createElement('div');
-                card.className = "player-card";
+        jogadoresPermitidos.forEach(cod => {
+            const d = playersDataMemoria[cod];
+            const card = document.createElement('div');
+            card.className = "player-card";
 
-                if (!data) {
-                    card.innerHTML = `<div style="color:gray">Aguardando conexão de <b>${code}</b>...</div>
-                                      <button onclick="removerJogador('${code}')" style="margin-top:10px; background:none; border:1px solid red; color:red; cursor:pointer;">Remover</button>`;
-                } else {
-                    const pV = (data.vida_atual / data.vida_max) * 100;
-                    const pS = (data.sani_atual / data.sani_max) * 100;
+            if (!d) {
+                card.innerHTML = `<div>Aguardando ${cod}...</div>`;
+            } else {
+                // Cálculo das barras de vida/sanidade para o mestre ver
+                const pV = (d.vida_atual / d.vida_max) * 100;
+                card.innerHTML = `
+                    <h3>${d.nome || cod}</h3>
+                    <div class="bar-container"><div class="bar-fill fill-vida" style="width:${pV}%"></div></div>
+                    <div>PV: ${d.vida_atual}/${d.vida_max}</div>
+                    <button onclick="enviarDano('${cod}')">Dar -1 de Vida</button>
+                `;
+            }
+            board.appendChild(card);
+        });
+    }
 
-                    card.innerHTML = `
-                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-                            <img src="${data.foto || 'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent-blue);">
-                            <b style="color:var(--accent-yellow)">${data.nome || code}</b>
-                        </div>
-                        <div class="bar-container"><div class="bar-fill fill-vida" style="width:${pV}%"></div><div class="bar-text">PV: ${data.vida_atual}/${data.vida_max}</div></div>
-                        <div class="bar-container"><div class="bar-fill fill-sani" style="width:${pS}%"></div><div class="bar-text">SAN: ${data.sani_atual}/${data.sani_max}</div></div>
-                        <div style="display:flex; gap:5px; margin-top:10px;">
-                             <button onclick="enviarComando('${code}', 'vida', -1)" style="flex:1">- Vida</button>
-                             <button onclick="enviarComando('${code}', 'vida', 1)" style="flex:1">+ Vida</button>
-                        </div>
-                        <button onclick="removerJogador('${code}')" style="position:absolute; top:5px; right:5px; background:none; border:none; color:red; cursor:pointer;">X</button>
-                    `;
-                }
-                board.appendChild(card);
-            });
-        }
-
-        // Função para interagir diretamente com a ficha do jogador
-        function enviarComando(playerCode, tipo, delta) {
-            socket.emit('comando_mestre', {
-                tipo: tipo,
-                codigo: playerCode,
-                delta: delta
-            });
-        }
-
-        function mudarAba(aba) {
-            // Lógica simples de troca de abas para manter o exemplo conciso
-            console.log("Mudando para aba:", aba);
-        }
-
-        // Inicialização
-        renderizarJogadores();
-    </script>
+    function enviarDano(cod) {
+        socket.emit('comando_mestre', { tipo: 'vida', codigo: cod, delta: -1 });
+    }
+</script>
 </body>
 </html>
