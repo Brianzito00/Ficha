@@ -37,369 +37,90 @@
             box-sizing: border-box;
         }
 
-        /* Efeitos e Animações */
         @keyframes slideInUp { 
             from { opacity: 0; transform: translateY(20px) scale(0.98); } 
             to { opacity: 1; transform: translateY(0) scale(1); } 
         }
-        .fade-in { 
-            animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
-        }
+        .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        .player-card, .monster-card, .ini-card { 
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
-        }
-        .player-card:hover, .monster-card:hover, .ini-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
-        }
+        .player-card, .monster-card, .ini-card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+        .player-card:hover, .monster-card:hover, .ini-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); }
         .player-card:hover { border-color: var(--accent-blue); }
         .monster-card:hover { border-color: var(--accent-red); }
 
-        /* Top Bar */
-        .mestre-top-bar { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            padding: 15px 25px; 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8); 
-            backdrop-filter: blur(8px); 
-        }
+        .mestre-top-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .code-input { padding: 8px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.8em; width: 150px; margin-left: 20px; }
+        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .btn-add:hover { filter: brightness(1.2); transform: scale(1.02); }
         
-        .btn-add { 
-            background: var(--accent-green); 
-            border: none; 
-            color: black; 
-            font-weight: bold; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            flex-shrink: 0; 
-        }
-        .btn-add:hover { 
-            filter: brightness(1.2); 
-            transform: scale(1.02); 
-        }
-        
-        /* Abas Navegação */
-        .tabs-container { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 20px; 
-            flex-wrap: wrap; 
-        }
-        .tab-btn { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-primary); 
-            padding: 10px 20px; 
-            border-radius: 8px 8px 0 0; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1em; 
-            transition: 0.3s; 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.3); 
-            border-bottom: none; 
-            flex: 1; 
-            text-align: center; 
-        }
-        .tab-btn.active { 
-            background: var(--accent-red); 
-            color: white; 
-            border-color: var(--accent-red); 
-            transform: translateY(-2px); 
-        }
-        .tab-btn:hover:not(.active) { 
-            background: rgba(255,255,255,0.1); 
-        }
+        .tabs-container { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center; }
+        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); transform: translateY(-2px); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
-        /* Painel Central */
-        .content-wrapper { 
-            display: flex; 
-            gap: 20px; 
-            flex: 1; 
-            overflow: hidden; 
-            min-height: 0; 
-        }
-        .left-panel { 
-            flex: 3; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
+        .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Grelhas (Grids) */
-        .players-container, .monsters-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 20px; 
-            align-content: flex-start; 
-            overflow-y: auto; 
-            padding-right: 10px; 
-            flex: 1; 
-        }
-        .catalogo-grid-view { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 10px; 
-            align-content: flex-start; 
-            padding-right: 5px; 
-        }
+        .players-container, .monsters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
+        .catalogo-grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; }
 
-        /* Cartões Base */
-        .player-card, .monster-card { 
-            background: var(--bg-card); 
-            border: 2px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 15px; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8); 
-            backdrop-filter: blur(8px); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            position: relative; 
-        }
+        .player-card, .monster-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 10px; position: relative; }
         .monster-card { border-color: var(--accent-red); }
 
-        .player-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            border-bottom: 1px solid var(--border-color); 
-            padding-bottom: 10px; 
-            flex-wrap: wrap; 
-        }
-        .player-img { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--accent-blue); 
-            background: #000; 
-            flex-shrink: 0; 
-        }
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
         .monster-img { border-color: var(--accent-red); }
-        .player-name { 
-            font-size: 1.2em; 
-            font-weight: bold; 
-            color: var(--accent-yellow); 
-            text-transform: uppercase; 
-            margin: 0; 
-        }
+        .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
-        .player-info { 
-            font-size: 0.8em; 
-            color: var(--text-secondary); 
-            line-height: 1.4; 
-        }
+        .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
         
-        /* Botões internos */
-        .btn-remove { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            background: var(--accent-red); 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            padding: 2px 8px; 
-            font-size: 0.8em; 
-            font-weight: bold; 
-            cursor: pointer; 
-            z-index: 10; 
-            transition: 0.2s;
-        }
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s;}
         .btn-remove:hover { filter: brightness(1.2); }
-        
-        .btn-ctrl { 
-            background: #333; 
-            color: white; 
-            border: 1px solid var(--border-color); 
-            border-radius: 4px; 
-            cursor: pointer; 
-            width: 28px; 
-            height: 28px; 
-            font-weight: bold; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            transition: 0.2s; 
-            flex-shrink: 0; 
-        }
+        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
         .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
-        
-        .btn-roll { 
-            background: var(--accent-yellow); 
-            color: #000; 
-            border: none; 
-            padding: 6px 12px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            font-size: 0.8em; 
-            margin-top: 5px; 
-            width: 100%; 
-            box-sizing: border-box;
-        }
+        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box;}
         .btn-roll:hover { filter: brightness(1.2); transform: scale(1.02);}
 
-        /* Barras de Status Suaves */
-        .bar-container { 
-            background: rgba(0,0,0,0.8); 
-            height: 25px; 
-            border-radius: 4px; 
-            border: 1px solid #333; 
-            position: relative; 
-            overflow: hidden; 
-            margin-top: 5px; 
-            flex: 1; 
-        }
-        .bar-fill { 
-            height: 100%; 
-            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); 
-        }
+        .bar-container { background: rgba(0,0,0,0.8); height: 25px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; flex: 1; }
+        .bar-fill { height: 100%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
         .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
         .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
-        .bar-text { 
-            position: absolute; 
-            width: 100%; 
-            text-align: center; 
-            top: 0; 
-            font-size: 0.9em; 
-            font-weight: bold; 
-            line-height: 25px; 
-            text-shadow: 1px 1px 2px #000; 
-            z-index: 2;
-        }
+        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.9em; font-weight: bold; line-height: 25px; text-shadow: 1px 1px 2px #000; z-index: 2;}
 
-        /* Log de Rolagens */
-        .log-container { 
-            flex: 1; 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            backdrop-filter: blur(8px); 
-            min-width: 300px; 
-        }
-        .log-title { 
-            background: rgba(0,0,0,0.5); 
-            padding: 15px; 
-            text-align: center; 
-            font-weight: bold; 
-            color: var(--accent-green); 
-            border-bottom: 1px solid var(--border-color); 
-            flex-shrink: 0; 
-        }
-        .log-messages { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
-        .log-item { 
-            background: rgba(18, 18, 20, 0.9); 
-            border: 1px solid #333; 
-            padding: 10px; 
-            border-radius: 8px; 
-            font-size: 0.9em; 
-            animation: slideInUp 0.3s ease-out; 
-        }
+        .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
+        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; animation: slideInUp 0.3s ease-out; }
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
         .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
 
-        /* Modais */
-        .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0, 0, 0, 0.9); 
-            z-index: 9999; 
-            justify-content: center; 
-            align-items: center; 
-            flex-direction: column; 
-            backdrop-filter: blur(10px); 
-        }
-        .modal-content { 
-            background: var(--bg-card); 
-            border: 2px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 25px; 
-            width: 90%; 
-            max-width: 700px; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.9); 
-            box-sizing: border-box; 
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
         
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
         .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
-        .monster-input { 
-            padding: 10px; 
-            background: rgba(18,18,20,0.8); 
-            border: 1px solid var(--border-color); 
-            color: white; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            width: 100%; 
-            transition: 0.2s;
-        }
+        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%; transition: 0.2s;}
         .monster-input:focus { border-color: var(--accent-blue); outline: none;}
         .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
         .monster-details { font-size: 0.85em; color: var(--text-primary); background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; max-height: 280px; overflow-y: auto;}
 
-        /* Popup Dados */
-        .popup-box-dice { 
-            position: relative; 
-            width: 90%; 
-            max-width: 600px; 
-            height: 400px; 
-            background-size: contain; 
-            background-repeat: no-repeat; 
-            background-position: center; 
-            background-color: #000; 
-            border: 4px solid var(--accent-yellow); 
-            border-radius: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden; 
-            text-align: center; 
-        }
+        .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
 
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit { 0% { transform: translate(2px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-2deg); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(2deg); } 50% { transform: translate(-1px, 2px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-2deg); } 80% { transform: translate(-1px, -1px) rotate(2deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-2deg); } }
+        @keyframes shakeCrit { 0%,100%{transform:translate(0,0) rotate(0);} 20%{transform:translate(-3px,0) rotate(2deg);} 40%{transform:translate(1px,-1px) rotate(-2deg);} 60%{transform:translate(-3px,1px) rotate(2deg);} 80%{transform:translate(-1px,-1px) rotate(-2deg);} }
         
         .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
         .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
 
-        /* Abas Internas */
         #iniciativa-board, #catalogo-board, #rmestre-board, #pistas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
-        
         .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap; }
         .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
         .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
@@ -417,12 +138,10 @@
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
         .session-btn { background: rgba(18,18,20,0.8); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; transition: 0.2s; }
         .session-btn:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
         .session-btn.active { background: rgba(0, 176, 255, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
         .session-btn.active-desc { background: rgba(184, 43, 242, 0.15); border-color: var(--accent-purple); color: var(--accent-purple); }
-        
         .roteiro-titulo-input { background: transparent; border: none; border-bottom: 2px solid var(--border-color); color: white; font-size: 1.5em; font-weight: bold; margin-top: 0; margin-bottom: 15px; padding-bottom: 5px; outline: none; width: 100%; font-family: inherit; transition: 0.2s; }
         .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
         .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
@@ -470,8 +189,8 @@
     <div class="mestre-top-bar">
         <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-weight: 900; color: var(--accent-red); font-size: 1.4em; letter-spacing: 1px;">🛡️ ESCUDO DO MESTRE</span>
-            <input type="text" id="add-code-input" class="code-input" placeholder="Login do Jogador..." maxlength="30" style="width: 150px; padding: 8px; font-size: 0.8em; margin-left: 20px;">
-            <button class="btn-add" onclick="adicionarJogador()" style="padding: 8px 15px;">+ MANUAL</button>
+            <input type="text" id="add-code-input" class="code-input" placeholder="Login do Jogador..." maxlength="30">
+            <button class="btn-add" onclick="adicionarJogador()">+ MANUAL</button>
         </div>
         
         <div style="flex: 1;"></div>
@@ -520,10 +239,10 @@
             <div id="rmestre-board" style="display:none; flex-direction:column; height: 100%;">
                 <div style="margin-bottom: 20px;"><button class="btn-add" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button></div>
                 <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 10px;">
-                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
-                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
-                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
-                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
+                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
+                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
+                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
+                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
                 </div>
             </div>
 
@@ -663,7 +382,10 @@
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
 
-        const URL_FICHA = "/ficha.html"; const socket = io(); const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
+        const URL_FICHA = "/ficha.html"; 
+        const socket = io(); 
+        const playersBoard = document.getElementById('players-board'); 
+        const logBox = document.getElementById('log-box'); 
 
         const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
         function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
@@ -677,16 +399,62 @@
             }, 1500); 
         }
 
+        // ================= CONEXÃO E SOCKETS =================
+        socket.on('connect', () => {
+            socket.emit('join_campaign', campanhaAtiva);
+            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo));
+            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
+        });
+
+        socket.on('update_mestre', (dados) => {
+            const codPuro = (dados.codigo || "").toUpperCase();
+            if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
+            playersDataMemoria[codPuro] = dados;
+            localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
+            renderizarJogadores();
+        });
+
+        socket.on('comando_mestre', (dados) => {
+            const incCode = (dados.codigo||"").trim().toUpperCase();
+            if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
+            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
+            if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
+            
+            if (dados.tipo === 'jogador_entrou' && dados.codigo) {
+                const c = dados.codigo.toUpperCase().trim();
+                if (!jogadoresPermitidos.includes(c)) { 
+                    jogadoresPermitidos.push(c); 
+                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
+                    salvarMestreNoFirebase(); 
+                    socket.emit('request_player', c); 
+                    socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
+                    renderizarJogadores(); 
+                } else { 
+                    socket.emit('request_player', c); 
+                }
+                if (playersDataMemoria[c] && playersDataMemoria[c].fullData) { 
+                    socket.emit('mestre_force_sync_player', { codigo: c, fullData: playersDataMemoria[c].fullData }); 
+                }
+            }
+            if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
+        });
+
+        socket.on('novo_log', (dados) => {
+            const incCode = (dados.codigo || "").toUpperCase();
+            if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return;
+            adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
+            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
+        });
+        // =====================================================
+
         function mudarAba(aba) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+aba).classList.add('active');
             
-            // Esconde todos
             ['players-board', 'monsters-board', 'iniciativa-board', 'roteiro-board', 'mapas-board', 'catalogo-board', 'rmestre-board', 'pistas-board'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
 
-            // Mostra o correto
             if(aba === 'jogadores') { document.getElementById('players-board').style.display = 'grid'; document.getElementById('players-board').classList.add('fade-in'); renderizarJogadores(); }
             else if(aba === 'monstros') { document.getElementById('monsters-board').style.display = 'flex'; document.getElementById('monsters-board').classList.add('fade-in'); renderizarMonstros(); }
             else if(aba === 'iniciativa') { document.getElementById('iniciativa-board').style.display = 'flex'; document.getElementById('iniciativa-board').classList.add('fade-in'); renderizarIniciativa(); }
@@ -986,6 +754,29 @@
         function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); }
         function limparIniciativa() { if(confirm("Deseja apagar a tabela de iniciativa?")) { iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); } }
         
+        function processarIniciativa(dados, upperCode) {
+            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
+            if (isPlayer) {
+                let pData = playersDataMemoria[upperCode];
+                if (pData && pData.fullData) {
+                    let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0;
+                    if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; }
+                    bonusCalc = Math.floor(skillInic + (agiBase * 2) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto;
+                }
+            } else {
+                let monstro = monstros.find(m => m.nome === dados.jogador);
+                if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 2) + (sData.treinado ? 5 : 0)); } foto = monstro.foto || foto; }
+            }
+            let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
+            if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
+            if (document.getElementById('tab-iniciativa').classList.contains('active')) { renderizarIniciativa(); }
+        }
+
+        function adicionarAoLog(nome, acao, resultado, corStr = '') {
+            const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove();
+            const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)'); logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem);
+        }
+
         window.onload = () => { renderizarCatalogoRituais(); renderizarCatalogo(); mudarAba('jogadores'); if (mapas.length > 0) { renderizarMapasList(); renderizarMapaAtual(); } };
     </script>
 </body>
