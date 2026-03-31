@@ -662,6 +662,7 @@
 
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
+    // 1. DADOS DE LOGIN E VARIÁVEIS
     let baseUser = localStorage.getItem('usuario_logado') || ""; 
     let myUpperCode = baseUser.trim().toUpperCase(); 
     let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
@@ -671,14 +672,134 @@
     let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
     
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva); 
-    if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
+    if(customWP && customWP.trim() !== '') { 
+        document.body.style.backgroundImage = `url('${customWP}')`; 
+    }
 
-    function fazerLogout() { localStorage.removeItem('campanha_atual'); window.location.href = '/index.html'; }
+    function fazerLogout() { 
+        localStorage.removeItem('campanha_atual'); 
+        window.location.href = '/index.html'; 
+    }
 
+    // 2. LIGAÇÃO AO SERVIDOR (SOCKET.IO) - CORRIGIDA!
     let socket = null; 
-    if (typeof io !== 'undefined') { try { socket = io(); } catch (e) {} }
-    
-    let isLoadingData = false; let currentOccupation = "Nenhuma"; let lastAttackWasCrit = false; let editingItemId = null;
+    if (typeof io !== 'undefined') { 
+        socket = io(); 
+        
+        // Garante que entra na sala assim que conecta
+        socket.on('connect', () => {
+            socket.emit('join_campaign', campanhaAtiva);
+            
+            if (!viewCode) {
+                // Jogador Real
+                setTimeout(() => {
+                    if(!campanhaAtiva.includes("SOLO_")){
+                        socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode});
+                        socket.emit('comando_mestre', {tipo: 'pedir_catalogo'});
+                    }
+                    save(); // Avisa o mestre instantaneamente
+                }, 500);
+            } else {
+                // Iframe do Mestre
+                socket.emit('comando_mestre', { tipo: 'pedir_ficha', codigo: viewCode });
+            }
+        });
+
+        // Escuta os Comandos do Mestre
+        socket.on('comando_mestre', (dados) => { 
+            const incCode = (dados.codigo||"").trim().toUpperCase(); 
+            
+            // Atualiza catálogo
+            if (dados.tipo === 'catalogo_sincronizado') { 
+                let dataCatItems = dados.itens || []; 
+                let dataCatRits = dados.rituais || []; 
+                customCatalog = { items: [], melee: [], ranged: [], rituals: [] }; 
+                dataCatItems.forEach(serverItem => { 
+                    let tipoList = serverItem.type === 'comum' ? 'items' : (serverItem.atkType === 'Disparo' ? 'ranged' : 'melee'); 
+                    customCatalog[tipoList].push(serverItem); 
+                }); 
+                dataCatRits.forEach(serverRit => { customCatalog.rituals.push(serverRit); }); 
+                localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); 
+                if (document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); 
+                return; 
+            }
+
+            // O Mestre pediu a ficha ativamente
+            if (dados.tipo === 'pedir_ficha' && incCode === myUpperCode && !viewCode) {
+                save();
+            }
+            
+            // Modificações Diretas
+            if (incCode === myUpperCode && !viewCode) { 
+                if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
+                else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
+                else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); 
+                else if (dados.tipo === 'status') toggleStatus(dados.status); 
+                else if (dados.tipo === 'expulsar_jogador') { 
+                    alert("Você foi removido da mesa pelo Mestre."); 
+                    localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); 
+                    fazerLogout(); 
+                } 
+                else if (dados.tipo === 'dar_pista') { 
+                    pistasRecebidas.push(dados.pista); renderPistas(); save(); 
+                }
+                else if (dados.tipo === 'dar_item' && !isDragging) { 
+                    let itemRecebido = {...dados.item, x:-1, y:-1, rotated:false, eq:false}; 
+                    if (itemRecebido.type === 'municao') {
+                        let stacked = false;
+                        for (let i = 0; i < inventoryItems.length; i++) {
+                            let existing = inventoryItems[i];
+                            if (existing.type === 'municao' && existing.ammoType === itemRecebido.ammoType && existing.n === itemRecebido.n) {
+                                let totalQtd = (existing.qtd || 1) + (itemRecebido.qtd || 1);
+                                if (totalQtd <= 3) { existing.qtd = totalQtd; stacked = true; break; } 
+                                else if ((existing.qtd || 1) < 3) { let space = 3 - (existing.qtd || 1); existing.qtd = 3; itemRecebido.qtd = (itemRecebido.qtd || 1) - space; }
+                            }
+                        }
+                        if (!stacked && itemRecebido.qtd > 0) inventoryItems.push(itemRecebido);
+                    } else { 
+                        inventoryItems.push(itemRecebido); 
+                    }
+                    updateInventoryDisplay(); save(); 
+                } 
+                else if (dados.tipo === 'dar_ritual') { 
+                    let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; 
+                    if(dados.ritual.descDisc !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; 
+                    if(dados.ritual.descVerd !== "-") descHTML += `<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; 
+                    const dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; 
+                    addRitual(dados.ritual.n, dados.ritual.el, dHTML, dados.ritual.circ, dados.ritual.ex, dados.ritual.alc, dados.ritual.alv, dados.ritual.dur, dados.ritual.res, dados.ritual.descGeral, dados.ritual.descDisc, dados.ritual.descVerd, true, dados.ritual.img); 
+                    save(); 
+                } 
+            } 
+        });
+
+        // Sincronização Forçada
+        socket.on('mestre_force_sync_player', (dados) => { 
+            const incCode = (dados.codigo||"").trim().toUpperCase(); 
+            if (incCode === myUpperCode && dados.fullData && !isDragging && !viewCode) { 
+                isLoadingData = true; 
+                populateData(dados.fullData); 
+                localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); 
+                save(); 
+            } 
+        });
+
+        // Atualização do Mestre para Iframe
+        socket.on('update_mestre', (dados) => { 
+            if (viewCode && dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { 
+                if(!isDragging) { isLoadingData = true; populateData(dados.fullData); } 
+            } 
+        });
+        
+        socket.on('mestre_pede_ficha', (codigoPedido) => { 
+            if((codigoPedido||"").trim().toUpperCase() === myUpperCode && !viewCode) save(); 
+        });
+    }
+
+    // 3. VARIÁVEIS DO JOGO E SISTEMA
+    let isLoadingData = false; 
+    let currentOccupation = "Nenhuma"; 
+    let lastAttackWasCrit = false; 
+    let editingItemId = null;
     let pistasRecebidas = [];
     
     const keyCatalog = 'ordem_custom_catalog_' + campanhaAtiva; 
@@ -696,10 +817,10 @@
     ];
 
     const tbSucesso = { 
-        1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},
-        7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},
-        13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},
-        19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} 
+        1:{n:20,b:99,e:99}, 2:{n:19,b:20,e:99}, 3:{n:18,b:20,e:99}, 4:{n:17,b:19,e:99}, 5:{n:16,b:19,e:20}, 
+        6:{n:15,b:18,e:20}, 7:{n:14,b:18,e:20}, 8:{n:13,b:17,e:20}, 9:{n:12,b:17,e:20}, 10:{n:11,b:16,e:19}, 
+        11:{n:10,b:16,e:19}, 12:{n:9,b:15,e:19}, 13:{n:8,b:15,e:19}, 14:{n:7,b:14,e:19}, 15:{n:6,b:14,e:18}, 
+        16:{n:5,b:13,e:18}, 17:{n:4,b:13,e:18}, 18:{n:3,b:12,e:18}, 19:{n:2,b:12,e:18}, 20:{n:1,b:11,e:18} 
     };
 
     function getAlvosD20(vh) { 
@@ -719,6 +840,7 @@
         return 2; 
     }
 
+    // 4. SISTEMA DE INVENTÁRIO RE4
     const CELL_SIZE = 50; const GRID_COLS = 10; const GRID_ROWS = 6;
     let gridMatrix = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(0));
     let inventoryItems = []; let activeDragItem = null; let isDragging = false; let hasMovedMouse = false; let offsetX = 0; let offsetY = 0; let currentSelectedItemId = null; 
@@ -744,6 +866,7 @@
         document.querySelectorAll('body > .grid-item, body > .pool-item').forEach(el => el.remove());
         gridMatrix = Array(GRID_ROWS).fill().map(() => Array(GRID_COLS).fill(0));
         gridEl.innerHTML = ''; inboxEl.innerHTML = ''; drawGridBackground();
+        
         inventoryItems.forEach(item => {
             if(!item.el) { const el = document.createElement('div'); item.el = el; }
             let qtdBadgePool = (item.type === 'municao' && item.qtd > 1) ? ` <span style="color:white; font-weight:900;">x${item.qtd}</span>` : '';
@@ -895,9 +1018,19 @@
         }
         document.getElementById('info-stats').innerHTML = statsHTML; const chkEquip = document.getElementById('info-equip'); chkEquip.disabled = false; chkEquip.checked = item.eq; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; document.getElementById('btn-delete-item').disabled = false; document.getElementById('btn-transfer-item').disabled = false; document.getElementById('btn-edit-item').disabled = false;
     }
-    function deselectItemInfo() { currentSelectedItemId = null; document.getElementById('info-name').innerText = "Nenhum Item"; document.getElementById('info-name').style.color = "var(--accent-blue)"; document.getElementById('info-img-container').style.display = 'none'; document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; document.getElementById('info-equip').disabled = true; document.getElementById('info-equip').checked = false; document.getElementById('info-equip-container').style.borderColor = '#444'; document.getElementById('btn-delete-item').disabled = true; document.getElementById('btn-transfer-item').disabled = true; document.getElementById('btn-edit-item').disabled = true; }
+    
+    function deselectItemInfo() { 
+        currentSelectedItemId = null; document.getElementById('info-name').innerText = "Nenhum Item"; document.getElementById('info-name').style.color = "var(--accent-blue)"; document.getElementById('info-img-container').style.display = 'none'; document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; document.getElementById('info-equip').disabled = true; document.getElementById('info-equip').checked = false; document.getElementById('info-equip-container').style.borderColor = '#444'; document.getElementById('btn-delete-item').disabled = true; document.getElementById('btn-transfer-item').disabled = true; document.getElementById('btn-edit-item').disabled = true; 
+    }
 
-    function updateWeight() { const forca = parseInt(document.getElementById('attr_for').value) || 0; const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false; let baseCap = 5 + Math.floor(forca/2) + (treinadoAtletismo ? 10 : 0); let extraCap = 0; inventoryItems.forEach(item => { if(item.eq){ const n = (item.n||item.name||"").toLowerCase(); if(n.includes('mochila')) { extraCap += 16; } } }); window.currentCapacity = Math.min(60, baseCap + extraCap); let t = 0; inventoryItems.forEach(item => { if (item.x >= 0) t += (item.w * item.h); }); const fill = document.getElementById('weight-bar-fill'); if (fill) { fill.style.width = window.currentCapacity > 0 ? Math.min((t/window.currentCapacity)*100, 100)+"%" : "0%"; document.getElementById('weight-text').innerText = `${t} / ${window.currentCapacity}`; if(t > window.currentCapacity) fill.classList.add('overweight'); else fill.classList.remove('overweight'); } if (document.getElementById('inventory-grid')) { drawGridBackground(); } }
+    function updateWeight() { 
+        const forca = parseInt(document.getElementById('attr_for').value) || 0; const treinadoAtletismo = document.getElementById('chk_atletismo') ? document.getElementById('chk_atletismo').checked : false; 
+        let baseCap = 5 + Math.floor(forca/2) + (treinadoAtletismo ? 10 : 0); let extraCap = 0; 
+        inventoryItems.forEach(item => { if(item.eq){ const n = (item.n||item.name||"").toLowerCase(); if(n.includes('mochila')) { extraCap += 16; } } }); 
+        window.currentCapacity = Math.min(60, baseCap + extraCap); let t = 0; inventoryItems.forEach(item => { if (item.x >= 0) t += (item.w * item.h); }); 
+        const fill = document.getElementById('weight-bar-fill'); if (fill) { fill.style.width = window.currentCapacity > 0 ? Math.min((t/window.currentCapacity)*100, 100)+"%" : "0%"; document.getElementById('weight-text').innerText = `${t} / ${window.currentCapacity}`; if(t > window.currentCapacity) fill.classList.add('overweight'); else fill.classList.remove('overweight'); } 
+        if (document.getElementById('inventory-grid')) { drawGridBackground(); } 
+    }
     
     function openItemPopup() { document.getElementById('popup-new-item').style.display = 'flex'; }
     function closeItemPopup() { document.getElementById('popup-new-item').style.display = 'none'; }
@@ -925,7 +1058,16 @@
         updateInventoryDisplay(); closeItemPopup(); save(); 
     }
     
-    function updateWeaponsDisplay() { equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp')); const sel = document.getElementById('active-weapon-select'); if (sel) { let currentVal = sel.value; sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join(''); sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none'; if (currentVal && equippedWeaponsData.some(w => w.id === currentVal)) { sel.value = currentVal; } else if (equippedWeaponsData.length > 0) { sel.value = equippedWeaponsData[0].id; } } renderActiveWeapon(); }
+    function updateWeaponsDisplay() { 
+        equippedWeaponsData = inventoryItems.filter(i => i.eq === true && (i.type === 'arma' || i.type === 'armacc' || i.type === 'armadisp')); 
+        const sel = document.getElementById('active-weapon-select'); 
+        if (sel) { 
+            let currentVal = sel.value; sel.innerHTML = equippedWeaponsData.map(w => `<option value="${w.id}">${w.n}</option>`).join(''); sel.style.display = equippedWeaponsData.length > 0 ? 'block' : 'none'; 
+            if (currentVal && equippedWeaponsData.some(w => w.id === currentVal)) { sel.value = currentVal; } 
+            else if (equippedWeaponsData.length > 0) { sel.value = equippedWeaponsData[0].id; } 
+        } 
+        renderActiveWeapon(); 
+    }
     
     function renderActiveWeapon() { 
         const sel = document.getElementById('active-weapon-select'); const listDiv = document.getElementById('equipped-weapons-list'); if (!listDiv) return;
@@ -972,6 +1114,7 @@
         } 
     }
 
+    // 5. RESTANTES SISTEMAS (Status, Rituais, Pistas, Dados)
     function openCharImgPopup() { document.getElementById('img-normal').value=charImages.normal||''; document.getElementById('img-lesionado').value=charImages.lesionado||''; document.getElementById('img-inconsciente').value=charImages.inconsciente||''; document.getElementById('img-morrendo').value=charImages.morrendo||''; document.getElementById('img-enlouquecendo').value=charImages.enlouquecendo||''; document.getElementById('img-les-enlouq').value=charImages.les_enlouq||''; document.getElementById('popup-char-imgs').style.display='flex'; }
     function closeCharImgPopup() { document.getElementById('popup-char-imgs').style.display='none'; }
     function saveCharImgPopup() { charImages.normal=document.getElementById('img-normal').value; charImages.lesionado=document.getElementById('img-lesionado').value; charImages.inconsciente=document.getElementById('img-inconsciente').value; charImages.morrendo=document.getElementById('img-morrendo').value; charImages.enlouquecendo=document.getElementById('img-enlouquecendo').value; charImages.les_enlouq=document.getElementById('img-les-enlouq').value; updateProfilePicture(); save(); closeCharImgPopup(); }
@@ -1003,7 +1146,8 @@
         if(eArma){ const sel=document.getElementById('active-weapon-select'); if(sel&&sel.value&&sel.style.display!=='none' || equippedWeaponsData.length > 0){ const wpId = sel && sel.value ? sel.value : equippedWeaponsData[0].id; const wp = equippedWeaponsData.find(w=>w.id===wpId); if(wp){ if(wp.crit && wp.crit.toLowerCase()!=="nenhum"){ let cStr = wp.crit.toLowerCase().replace(/\s/g, ''); if(cStr.includes('/')) { cMarg = parseInt(cStr.split('/')[0]) || 20; } else if(cStr.includes('x')) { cMarg = 20; } else { cMarg = parseInt(cStr) || 20; } if (cMarg < 1) cMarg = 1; } if(wp.atk && parseInt(wp.atk) > 1){ let maxAtaquesPossiveis = parseInt(wp.atk); if(qtdAtaquesForcado === null){ abrirModalQtdAtaques(maxAtaquesPossiveis, n, id, ak); return; } else { numAttacks = qtdAtaquesForcado; } } } } } 
         let resultsArray = []; let anyCrit = false; let allDesastre = true; 
         for(let i=0; i<numAttacks; i++){ 
-            let d20 = Math.floor(Math.random() * 20) + 1; let textFormat = ""; let colorFormat = ""; 
+            let d20 = Math.floor(Math.random() * 20) + 1; 
+            let textFormat = ""; let colorFormat = ""; 
             if(d20 === 1){ textFormat = "DESASTRE"; colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; } 
             else if(d20 >= cMarg && eArma) { allDesastre = false; anyCrit = true; textFormat = "CRÍTICO!"; colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; } 
             else if(d20 >= tg.e) { allDesastre = false; textFormat = "EXTREMO"; colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; } 
@@ -1021,18 +1165,17 @@
     function fecharModalQtdAtaques() { document.getElementById('modal-qtd-ataques').style.display = 'none'; }
     function rolarDadoPersonalizado() { document.getElementById('popup-input-dice').style.display='none'; let formula = document.getElementById('custom_dice_formula').value; if(formula) { rolarDanoMonstro('Jogador', 'Dado', formula); } else { showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(LIVRE)", "color:white"); } }
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
-    
     function showPopup(n, r="TOTAL", st="color:white") { 
         const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
-        if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')){ textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText=`font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; 
-        setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
+        if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; 
+        let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')){ textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; 
+        resEl.style.cssText=`font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
         if (socket) { const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido'; const emissionCode = typeof viewCode!=='undefined'&&viewCode ? viewCode : myUpperCode; socket.emit('rolagem_feita', {codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' ').replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st}); } 
     }
     
     function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { 
         try { if (!formula) formula = '0'; let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) { if (lastAttackWasCrit) { t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else { t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } } } else t += parseInt(cur)*sign; }); } let title = lastAttackWasCrit ? `DANO CRÍTICO<br>(${nomeAtaque})` : `DANO<br>(${nomeAtaque})`; let color = lastAttackWasCrit ? "color:#ffcf33; text-shadow:0 0 15px #ff0000, 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; showPopup(t, title, color); lastAttackWasCrit = false; } catch(e) { alert("Fórmula de dano inválida!"); } 
     }
-    
     function updateDanoDesarmado() { const tipo = document.getElementById('char_tipo_corpo').value; const display = document.getElementById('display-dano-corpo'); if(display){ if(tipo === 'Pequeno') display.innerText = '1d6'; else if(tipo === 'Grande') display.innerText = '1d10'; else display.innerText = '1d8'; } }
     function rolarAtaqueDesarmado() { let skillObj = periciasBase.find(p=>p.nome==="Luta"); if(!skillObj) return; rolarTesteD20(skillObj.nome, "skill_luta", skillObj.attr, false); }
     function rolarDanoDesarmado() { const tipo = document.getElementById('char_tipo_corpo').value; let faces = 8; if(tipo === 'Pequeno') faces = 6; if(tipo === 'Grande') faces = 10; let roll = Math.floor(Math.random()*faces)+1; let isCrit = lastAttackWasCrit; let total = roll; if(isCrit){ let roll2 = Math.floor(Math.random()*faces)+1; total += roll2; } if(total<0) total=0; let title = isCrit ? `DANO CRÍTICO<br>(DESARMADO)` : `DANO<br>(DESARMADO)`; let color = isCrit ? "color:#ffcf33; text-shadow:0 0 15px #ff0000, 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; showPopup(total, title, color); lastAttackWasCrit = false; }
@@ -1065,8 +1208,6 @@
     }
     function closePista() { document.getElementById('popup-pista').style.display = 'none'; }
 
-    window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
-
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
     function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
 
@@ -1080,62 +1221,12 @@
         const d = { attrs:{}, skills:{}, inv:inventoryItems.map(i=>({id:i.id, n:i.n, w:i.w, h:i.h, d:i.d, eq:i.eq, type:i.type, ammoType:i.ammoType, qtd:i.qtd, dmg:i.dmg, extra:i.extra, crit:i.crit, skill:i.skill, img:i.img, atkType:i.atkType, atk:i.atk, range:i.range, ammo:i.ammo, capacity:i.capacity, currentShots:i.currentShots, x:i.x, y:i.y, rotated:i.rotated})), ammo:{}, abilities:[], rituals:[], pistas: pistasRecebidas, defense: document.getElementById('defense_val').value, info:{}, charImages:charImages, charStatus:charStatus }; 
         ["char_nome", "char_nex", "char_ocupacao", "char_origem", "char_nivel", "char_credito", "char_tipo_corpo", "vida_atual", "vida_max", "sani_atual", "sani_max", "pe_atual", "pe_max"].forEach(id=>{ if(document.getElementById(id)) d.info[id] = document.getElementById(id).value; }); 
         const activeWeaponSelect = document.getElementById('active-weapon-select'); d.arma_ativa_id = activeWeaponSelect ? activeWeaponSelect.value : null; d.info['char_img'] = currentImgUrl; 
-        document.querySelectorAll('.attr-input').forEach(i=>d.attrs[i.id]=i.value); 
-        document.querySelectorAll('[id^="skill_"]').forEach(i=>d.skills[i.id]=i.value); 
-        document.querySelectorAll('[id^="chk_"]').forEach(i=>d.skills[i.id]=i.checked); 
+        document.querySelectorAll('.attr-input').forEach(i=>d.attrs[i.id]=i.value); document.querySelectorAll('[id^="skill_"]').forEach(i=>d.skills[i.id]=i.value); document.querySelectorAll('[id^="chk_"]').forEach(i=>d.skills[i.id]=i.checked); 
         document.querySelectorAll('.ability-item').forEach(ab=>{ d.abilities.push({ n: ab.getAttribute('data-n'), d: ab.getAttribute('data-d') }); }); 
         document.querySelectorAll('.hidden-ritual').forEach(hr=>{ const eq = hr.closest('div[id^="rit-row-"]').querySelector('.rit-equipped').checked; d.rituals.push({ n: hr.getAttribute('data-n'), el: hr.getAttribute('data-el'), circ: hr.getAttribute('data-circ'), ex: hr.getAttribute('data-ex'), alc: hr.getAttribute('data-alc'), alv: hr.getAttribute('data-alv'), dur: hr.getAttribute('data-dur'), res: hr.getAttribute('data-res'), descGeral: hr.getAttribute('data-desc-geral'), descDisc: hr.getAttribute('data-desc-disc'), descVerd: hr.getAttribute('data-desc-verd'), eq: eq, img: hr.getAttribute('data-img') }); }); 
         if(viewCode){ if(window.parent !== window) { window.parent.postMessage({tipo: 'sync_offline_edit', codigo: viewCode, fullData: d, charStatus: charStatus}, '*'); } if(socket){ socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } return; } 
         localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(d)); fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: playerCode, fichaData: d}) }).catch(e=>{}); 
         if(socket){ socket.emit('status_change', { codigo: myUpperCode, origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
-    }
-
-    function init() {
-        try {
-            const nexSel = document.getElementById('char_nex'); if(nexSel){ let nexHtml = ''; for(let i=0; i<=95; i+=5) nexHtml += `<option value="${i}">${i}</option>`; nexHtml += `<option value="99">99</option>`; nexSel.innerHTML = nexHtml; }
-            const attrContainer = document.getElementById('atributos-container'); if(attrContainer){ attrContainer.innerHTML = ''; ["Agilidade", "Força", "Intelecto", "Presença", "Vigor"].forEach(a=>{ let id = "attr_" + a.toLowerCase().substring(0,3); attrContainer.innerHTML += `<div class="attr-box"><label>${a}</label><input type="number" id="${id}" class="attr-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0; updateAllPericias(); updateWeight(); updateDanoDesarmado(); save();"><div class="attr-targets" id="${id}_targets"></div></div>`; }); }
-            const periciasContainer = document.getElementById('pericias-container'); if(periciasContainer){ periciasContainer.innerHTML = ''; periciasBase.forEach(p=>{ let sn = p.nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\W/g, "_"); periciasContainer.innerHTML += `<div class="skill-card" id="card_${sn}" onclick="openSkillPopup('${sn}', '${p.nome}', '${p.attr}')"><div class="skill-header" style="margin-bottom:8px;"><span style="font-size:0.7em; font-weight:bold; text-transform:uppercase; pointer-events:none;">${p.nome}</span></div><div style="display:flex;justify-content:center;margin-bottom:8px;"><button onclick="event.stopPropagation(); rolarTesteD20('${p.nome}','skill_${sn}','${p.attr}', false)" class="btn-roll" style="width:100%;border-color:var(--accent-blue); background:rgba(0,176,255,0.1); padding:6px 0;"><img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width:20px;height:20px;filter:invert(1);"></button></div><div class="skill-targets" id="skill_${sn}_targets"></div><input type="checkbox" id="chk_${sn}" style="display:none;"><input type="number" id="skill_${sn}" value="0" style="display:none;"></div>`; }); }
-            if (viewCode) { const topBtns = document.getElementById('main-top-buttons'); if(topBtns) topBtns.style.display = 'none'; if(socket) { socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); socket.emit('request_player', viewCode); }); socket.on('update_mestre', (dados) => { if (dados.codigo === viewCode && dados.fullData && dados.origin !== socket.id) { if(!isDragging) { isLoadingData = true; populateData(dados.fullData); } } }); } } else { load(); }
-            
-            socket.on('mestre_force_sync_player', (dados) => { 
-                const incCode = (dados.codigo||"").trim().toUpperCase(); 
-                if (incCode === myUpperCode && dados.fullData && !isDragging) { isLoadingData = true; populateData(dados.fullData); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(dados.fullData)); save(); } 
-            });
-
-            if (socket && !viewCode) {
-                socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); setTimeout(() => { if(!campanhaAtiva.includes("SOLO_")){ socket.emit('comando_mestre', {tipo: 'jogador_entrou', codigo: myUpperCode}); socket.emit('comando_mestre', {tipo: 'pedir_catalogo'}); } save(); }, 500); }); 
-                socket.on('mestre_pede_ficha', (codigoPedido) => { if((codigoPedido||"").trim().toUpperCase() === myUpperCode) save(); });
-                socket.on('comando_mestre', (dados) => { 
-                    const incCode = (dados.codigo||"").trim().toUpperCase(); 
-                    if (dados.tipo === 'catalogo_sincronizado') { let mudouLocal = false; let dataCatItems = dados.itens || []; let dataCatRits = dados.rituais || []; customCatalog = { items: [], melee: [], ranged: [], rituals: [] }; dataCatItems.forEach(serverItem => { let tipoList = serverItem.type === 'comum' ? 'items' : (serverItem.atkType === 'Disparo' ? 'ranged' : 'melee'); customCatalog[tipoList].push(serverItem); mudouLocal = true; }); dataCatRits.forEach(serverRit => { customCatalog.rituals.push(serverRit); mudouLocal = true; }); localStorage.setItem(keyCatalog, JSON.stringify(customCatalog)); if (document.getElementById('popup-new-ritual').style.display === 'flex') renderRitualsCatalog(); return; }
-                    if (incCode === myUpperCode) { 
-                        if (dados.tipo === 'vida') changeStatus('vida', dados.delta); 
-                        else if (dados.tipo === 'sani') changeStatus('sani', dados.delta); 
-                        else if (dados.tipo === 'pe') changeStatus('pe', dados.delta); 
-                        else if (dados.tipo === 'status') toggleStatus(dados.status); 
-                        else if (dados.tipo === 'expulsar_jogador') { alert("Você foi removido da mesa pelo Mestre."); localStorage.removeItem('ficha_vinculada_'+campanhaAtiva); localStorage.removeItem('ordem_save_local_'+campanhaAtiva); fazerLogout(); } 
-                        else if (dados.tipo === 'dar_pista') { pistasRecebidas.push(dados.pista); renderPistas(); save(); }
-                        else if (dados.tipo === 'dar_item' && !isDragging) { 
-                            let itemRecebido = {...dados.item, x:-1, y:-1, rotated:false, eq:false}; 
-                            if (itemRecebido.type === 'municao') {
-                                let stacked = false;
-                                for (let i = 0; i < inventoryItems.length; i++) {
-                                    let existing = inventoryItems[i];
-                                    if (existing.type === 'municao' && existing.ammoType === itemRecebido.ammoType && existing.n === itemRecebido.n) {
-                                        let totalQtd = (existing.qtd || 1) + (itemRecebido.qtd || 1);
-                                        if (totalQtd <= 3) { existing.qtd = totalQtd; stacked = true; break; } 
-                                        else if ((existing.qtd || 1) < 3) { let space = 3 - (existing.qtd || 1); existing.qtd = 3; itemRecebido.qtd = (itemRecebido.qtd || 1) - space; }
-                                    }
-                                }
-                                if (!stacked && itemRecebido.qtd > 0) inventoryItems.push(itemRecebido);
-                            } else { inventoryItems.push(itemRecebido); }
-                            updateInventoryDisplay(); save(); 
-                        } 
-                        else if (dados.tipo === 'dar_ritual') { let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${dados.ritual.descGeral}`; if(dados.ritual.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${dados.ritual.descDisc}`; if(dados.ritual.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${dados.ritual.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${dados.ritual.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${dados.ritual.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${dados.ritual.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${dados.ritual.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${dados.ritual.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${dados.ritual.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(dados.ritual.n,dados.ritual.el,dHTML,dados.ritual.circ,dados.ritual.ex,dados.ritual.alc,dados.ritual.alv,dados.ritual.dur,dados.ritual.res,dados.ritual.descGeral,dados.ritual.descDisc,dados.ritual.descVerd,true,dados.ritual.img); save(); } 
-                    } 
-                });
-            }
-        } catch(e){}
     }
 
     function load() { isLoadingData = true; let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } try { populateData(JSON.parse(s)); } catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } }
@@ -1166,7 +1257,8 @@
         isLoadingData = false; 
     }
     
-    init();
+    // Inicia e força carregar ficha caso seja o player local
+    if (!viewCode) { load(); }
 </script>
 </body>
 </html>
