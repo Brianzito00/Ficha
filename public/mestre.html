@@ -1110,7 +1110,6 @@
         function abrirModalCriatura() { 
             editMonstroId = null; 
             
-            // LIMPAR TUDO ANTES DE ABRIR (EVITA MISTURA DE STATUS)
             document.getElementById('c-nome').value = ''; 
             document.getElementById('c-foto').value = ''; 
             document.getElementById('c-presenca').value = 'ND / 0'; 
@@ -1143,7 +1142,6 @@
             
             let periciaVal = atq.pericia || 'luta';
             let bonusVal = atq.bonusExtra || 0;
-            // Se o monstro for muito antigo e só possuir "teste", joga visualmente para o Bônus
             if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; }
 
             div.innerHTML = `
@@ -1190,7 +1188,6 @@
                 m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; 
             }); 
             
-            // Usando Array.from e .children evita erros se o HTML gerar nós de texto (whitespaces)
             Array.from(document.getElementById('c-ataques-list').children).forEach(row => { 
                 const inputs = row.querySelectorAll('input, select'); 
                 if(inputs[0] && inputs[0].value) { 
@@ -1263,14 +1260,13 @@
                 grid.appendChild(card); 
             }); 
         }
-        
+
         function apagarMonstro(id) { if(confirm("Deseja apagar esta criatura da mesa?")) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
-        
+
         function editarMonstro(id) { 
             const m = monstros.find(x => x.id === id); if(!m) return; 
             editMonstroId = m.id; 
             
-            // LIMPAR O ESTADO ANTERIOR DO MODAL
             ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; });
             listaPericiasMonstro.forEach(s => { 
                 const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
@@ -1307,9 +1303,9 @@
             
             document.getElementById('modal-criatura').style.display = 'flex'; 
         }
-        
+
         function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
-        
+
         function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { try { if (!formula) formula = '0'; let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } showPopup(t, `DANO: ${nomeAtaque}`, "color:var(--accent-red)", nomeMonstro); } catch(e) { alert("Fórmula de dano inválida!"); } }
 
         function rolarD20Mestre(nomeMonstro, nomeAcao, totalVal, isAtaque = false) {
