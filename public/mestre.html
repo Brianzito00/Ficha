@@ -239,10 +239,10 @@
             <div id="rmestre-board" style="display:none; flex-direction:column; height: 100%;">
                 <div style="margin-bottom: 20px;"><button class="btn-add" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button></div>
                 <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 10px;">
-                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
-                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
-                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
-                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
+                    <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
+                    <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
+                    <div id="rituais-mestre-3-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">3º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-3-body"></div></div>
+                    <div id="rituais-mestre-4-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">4º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-4-body"></div></div>
                 </div>
             </div>
 
@@ -297,7 +297,7 @@
 
     <div id="modal-item-mestre" class="modal-overlay" style="z-index: 10000;">
         <div class="modal-content" style="max-width: 500px;">
-            <h2 id="modal-item-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Item</h2>
+            <h2 id="modal-item-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Item para Jogadores</h2>
             <div style="display:flex; gap:10px;">
                 <div class="form-group" style="flex:1;"><label>Largura (X)</label><input type="number" id="mi-w" class="monster-input" value="1" min="1"></div>
                 <div class="form-group" style="flex:1;"><label>Altura (Y)</label><input type="number" id="mi-h" class="monster-input" value="1" min="1"></div>
@@ -329,6 +329,22 @@
             <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="pista-foto" class="monster-input" placeholder="https://..."></div>
             <div class="form-group"><label>Descrição / Segredo</label><textarea id="pista-desc" class="monster-input" style="height: 120px; resize: none;" placeholder="A pista revelada..."></textarea></div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-pista').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPista()">Salvar Pista</button></div>
+        </div>
+    </div>
+
+    <div id="popup-pista" class="modal-overlay" onclick="closePista()">
+        <div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()">
+            <h3 id="pista-view-title" style="color:var(--accent-blue); text-align:center; margin-top:0; text-transform:uppercase;">TITULO</h3>
+            <div id="pista-img-wrapper" style="display:none; position:relative; width:100%; height:350px; background:#000; border-radius:8px; margin-bottom:15px; overflow:hidden; border:1px solid var(--border-color); cursor:grab; touch-action:none;">
+                <img id="pista-view-img" src="" style="width:100%; height:100%; object-fit:contain; transform-origin:center; pointer-events:none;">
+                <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px; z-index:10;">
+                    <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(0.2)">➕</button>
+                    <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(-0.2)">➖</button>
+                    <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="resetPistaZoom()">🔄</button>
+                </div>
+            </div>
+            <div id="pista-view-desc" style="color:white; font-size:0.9em; line-height:1.5; white-space:pre-wrap; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px;"></div>
+            <button class="btn-remove" style="position:static; width:100%; margin-top:15px; padding:12px; font-size:1.1em;" onclick="closePista()">FECHAR</button>
         </div>
     </div>
 
@@ -382,10 +398,7 @@
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
 
-        const URL_FICHA = "/ficha.html"; 
-        const socket = io(); 
-        const playersBoard = document.getElementById('players-board'); 
-        const logBox = document.getElementById('log-box'); 
+        const URL_FICHA = "/ficha.html"; const socket = io(); const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
 
         const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
         function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
@@ -445,8 +458,8 @@
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
             if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
         });
-        // =====================================================
 
+        // ================= FUNÇÕES DE NAVEGAÇÃO =================
         function mudarAba(aba) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+aba).classList.add('active');
@@ -499,8 +512,49 @@
             });
         }
 
-        // ---------- PISTAS ----------
+        // ---------- PISTAS (COM ZOOM) ----------
         let editPistaIndex = null;
+        let pistaScale = 1; let pistaTx = 0; let pistaTy = 0; let isDraggingPista = false; let startPX = 0; let startPY = 0;
+        
+        function applyPistaTransform() { 
+            const img = document.getElementById('pista-view-img');
+            if(img) img.style.transform = `translate(${pistaTx}px, ${pistaTy}px) scale(${pistaScale})`; 
+        }
+        function zoomPista(delta) { 
+            pistaScale += delta; 
+            if(pistaScale < 0.5) pistaScale = 0.5; if(pistaScale > 5) pistaScale = 5; 
+            applyPistaTransform(); 
+        }
+        function resetPistaZoom() { pistaScale = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); }
+        
+        // Eventos de Zoom/Pan para Pistas
+        setTimeout(() => {
+            const pistaWrapper = document.getElementById('pista-img-wrapper');
+            if(pistaWrapper) {
+                pistaWrapper.addEventListener('wheel', (e) => { e.preventDefault(); zoomPista(e.deltaY < 0 ? 0.15 : -0.15); });
+                pistaWrapper.addEventListener('mousedown', (e) => {
+                    if(e.target.tagName === 'BUTTON') return;
+                    isDraggingPista = true; startPX = e.clientX - pistaTx; startPY = e.clientY - pistaTy; 
+                    pistaWrapper.style.cursor = 'grabbing';
+                });
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDraggingPista) return; e.preventDefault();
+                    pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; applyPistaTransform();
+                });
+                window.addEventListener('mouseup', () => { isDraggingPista = false; if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; });
+                
+                pistaWrapper.addEventListener('touchstart', (e) => {
+                    if(e.target.tagName === 'BUTTON' || e.touches.length !== 1) return;
+                    isDraggingPista = true; startPX = e.touches[0].clientX - pistaTx; startPY = e.touches[0].clientY - pistaTy;
+                }, {passive: false});
+                window.addEventListener('touchmove', (e) => {
+                    if (!isDraggingPista || e.touches.length !== 1) return; e.preventDefault();
+                    pistaTx = e.touches[0].clientX - startPX; pistaTy = e.touches[0].clientY - startPY; applyPistaTransform();
+                }, {passive: false});
+                window.addEventListener('touchend', () => { isDraggingPista = false; });
+            }
+        }, 1000);
+
         function abrirModalPista(idx = null) {
             editPistaIndex = idx;
             if(idx !== null) { const p = pistasMestre[idx]; document.getElementById('pista-titulo').value = p.titulo; document.getElementById('pista-foto').value = p.foto || ''; document.getElementById('pista-desc').value = p.desc || ''; document.getElementById('pista-visivel').checked = p.visivel !== false; document.getElementById('modal-pista-title').innerText = "Editar Pista"; } 
@@ -521,7 +575,7 @@
             pistasMestre.forEach((p, idx) => {
                 let visIcon = p.visivel === false ? '🚫' : '👁️'; let opacity = p.visivel === false ? '0.5' : '1'; let imgSrc = p.foto || "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
                 const card = document.createElement('div'); card.style.cssText = `position:relative; padding:15px; border:1px solid rgba(255,207,51,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
-                card.innerHTML = `<button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="toggleVisibilidadePista(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="abrirModalPista(${idx})">✏️</button><button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="apagarPista(${idx})">X</button><img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px;"><div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase;">${p.titulo}</div><div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div><button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:10px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AGORA</button>`;
+                card.innerHTML = `<button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="toggleVisibilidadePista(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="abrirModalPista(${idx})">✏️</button><button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="apagarPista(${idx})">X</button><img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px; cursor:pointer;" onclick="openPistaView(${idx})"><div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div><div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div><button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>`;
                 grid.appendChild(card);
             });
         }
@@ -532,6 +586,26 @@
             jogadoresPermitidos.forEach(alvo => { const upperCode = alvo.toUpperCase(); socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pista }); let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { if (!pData.fullData.pistas) pData.fullData.pistas = []; let exists = pData.fullData.pistas.find(x => x.id === pista.id); if(!exists) { pData.fullData.pistas.push(pista); localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); socket.emit('mestre_force_sync_player', { codigo: upperCode, fullData: pData.fullData }); fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: upperCode, fichaData: pData.fullData }) }).catch(e=>{}); } } });
             alert("Pista enviada para os jogadores!");
         }
+
+        function openPistaView(idx) {
+            const p = pistasMestre[idx];
+            if(!p) return;
+            document.getElementById('pista-view-title').innerText = p.titulo;
+            document.getElementById('pista-view-desc').innerText = p.desc || 'Nenhum texto associado.';
+            const imgEl = document.getElementById('pista-view-img');
+            const wrapper = document.getElementById('pista-img-wrapper');
+            
+            if(p.foto && p.foto.trim() !== '') { 
+                imgEl.src = p.foto; 
+                wrapper.style.display = 'block'; 
+                resetPistaZoom();
+            } else { 
+                wrapper.style.display = 'none'; 
+            }
+            document.getElementById('popup-pista').style.display = 'flex';
+        }
+        function closePista() { document.getElementById('popup-pista').style.display = 'none'; }
+
 
         // ---------- ITENS E CATÁLOGO ----------
         const imgDictMestre = { 'espada da ordem': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEju5bkRj--vXSVBbQ5BQJYn3kVz35QQD1IEf6NDnxI5Ie7eq-S-Sh6YkMr75lWI5Pw9hNlhKdenz9fzAiuiQYWN6hnxNLx9_m-B1XQDFJGwJxjrxLLCeolauP9mvD9YYaYtY9dzTFGJmoLtAKHOYnqe4Z3GCEIIxGeoQEKGsjxv-KIDHJmdnPKlc94AXRwa/s320/Espada%20da%20Ordem.png", 'escopeta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhISlyZ5FTMNtk515SBRl7xa4D4yHisGG6vdqr20AA73SJWlk7H6JuN9yha2tLse3MCklAoGYUCT6FQLvsufeXZ_EuoIbHjVH8sk7Nn0PbjclXNcGQbxMZ3kxHQlcmtRuw2ksS_GDOQjP4I_vBVY6sTylIaEWNAe3oNxbz4vguqiLLtZDKHfN0fKdCXf9ZY/s320/ink.png", 'soqueira': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpegg79kPPLZvXMLn_PMPUgiJfSMKpEigTxCLDkOhPKNbZsQtMqo_4SrH7JNGmOBIllXi66nizJU6WssMvrt-YgXVA0moMFKjDjmzLVqh6tR0oxocShg7IfYFHjlW25GKJCVTf4OVX2s5ZY-KGiL0qIpYTyPtwd74-48e-BTps3Bx0CMH6FFpLsqBTL91A/s320/Soqueiras.png", 'faca': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMy1Auh8lIT4zHxcRwpWhzA_Jk7Qu9_ILzGAJHdi60Rvu4FfUlwWVuzHuu5HXmy0JuVIpRRBJ8xA_0WGbHIHQM_lobrl3ZUA-ZGnlwQLZs4lSGI6stfHfXCyg656-qyN-nOaTLfUwBYTDX6sdWr5XhMPs5Tb6WMM7vdLneEJuWCLm4MuOpiqaQRCw9mLhN/s320/Faca.png", 'machado': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIyZF4bFM3yTMs4dPBKxXxt_-eHtSgDntPZqRc9CwWYWlCZtLyLdjTi63qCcRed-m5Ddcd4KZi5fo2guDyBGXk3B35X1lFpfJOTtNptON_eitnfUihUVehba86gRmsuD7JDSkucRcvo2cJJHAJzxDEadm6lCBwgSTNCMV4XvNGpCVVEeIUxK8-FpOfNPw8/s320/Machado.png", 'machete': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhwXKDbmSRGW48rlposLbMD2H4xIQwA39v6LvrnGJhOjJTis3wOfOeC4_h_yAoMqWbPgAzTsWXM6iR4yUH4SqeY-pDEYb6fuKIXDoH7z3355fW5h6tW_vnG-9OfwWkhdnmo9BZiB5wr9-uVQX4Id5OHlcNyw2vKEyOLtqjLlqo8b8Xil3zmpTquKXOhOkAr/s320/Machete.png", 'martelo': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgiC3r5t4TBIdSv9sMHwaIaGocHjDhnD1DYizZ8GBgi_Kba-KbtM8hljeRjg_u332wbOkCDXidt7nSh5n8MTqaA3F1BierA0tXbrfyh1V2MFxgqmWyk4D_9YKF-0NrO5TSFzClEJsh2IeTSs6pN-leKjEJogJxXqY6W4DEIdB0SzL47of_Vrxw9YkgWSFAT/s320/Martelo.png", 'marreta': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8gpzP0SJc9j2Zsb1K2XeoYfedZRYihBaXas_bKut2b_lwRXSqOHkjHL__pmamdVhJ9nyNTaTaIPwvW_p2ntWKvx3BExg_FK46gG_ti5Cm2ZzCXS7hP_ZVkLWRUr40H-f2okfKDuEwkZ89jOY5SIbx_c2uaAu2wUl4Of24lT3r_xHVZ5AidYwuh1aLa7_j/s320/Marreta.png", 'serra elétrica': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhWIytinBbLwLA9l6DyHOReFOvU5wYL6jDcwVDX92aQSjOl-8v2z-ftEv3Ur2b3wW-3BFA09eXiwOU_W7DhhescDK1cATlnj51PSsxHxRdj4l_7ZXeSGvOoh6PFG93xpzI_FE6YHFtr3YgzAylhfTkUc9ppuZWcvpKaGYTjOSsNfy-Y60DchJbW0oFywSMQ/s320/Serra%20El%C3%A9trica.png", 'mochila': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgmOTfY9u0Z_loviBw9gJrS9mYQ-4tQYMErCLCvrSMlj1SCj2hZI0Z4TqXBTM3SqEp31yDRglUiV0vUntoTCgw1vAFAuQ1sw1qe0oZj8acEv2KJnsu4D0iEz24N-or8dQQZNZC3WMmwMpfFbhHbYaPP1mng5m_Dcimy0wwzRenifx4uGXOd8s4dj7-XAEfT/w295-h414/Mochila.png", 'lanterna': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilX9DWfY6eIGG0Gzoi-JA_2TTahiX_Mpkz1ut3qUJw82L3QZP-3x9LKk_3zOgUzP5bihX8RnetgKp-UIgjdcQ41dSKjV_YtkdLNu4XmQ8LKARChKNpcX5NmPYrLoG3PFVRR0kdpQJPhm0e1sn1ONNHsS1gCahi_qNrCkJO0pTQb-GZBBlHVs4WoeSldg-t/s1600/Lanterna.png", 'proteção leve': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_4GIAm69-0y1zSykwJdvvA2-UQ-2ReN2-Qs0vSB1sHhhiOWbxSL9nl8BpZcrL2PXlkGGklLUBX5ULciy7L9xGwc7evILQX14EvqhR_Jgv8-Jpxx-wKFXbILucU_JorR32pZGdlnewBv0M_YeZu2c9gQtsiP1pYMY1SokOng8qwkSb8UHm7jn8ywi57Fo6/s320/Colete%20Leve.png", 'proteção pesada': "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzFeBeCIAz5UqlsRz0e5gwVXpxeUxn4pZWiyB1dNqP4l-HBXSnavJ4Ddrs6HCB4fqYY47kKLwGAAsNT-yZFCF0ea_vyFlOusAnTwoh2itETvnCgWHb6YQ3sGZ1EoEyZXEC2efj9n8Opvr_BAeGgud2jk7tvU6_D-kixItArC991PX-FLbF0mtMnO1G2zgp/s320/Colete%20Pesado.png" };
@@ -775,6 +849,15 @@
         function adicionarAoLog(nome, acao, resultado, corStr = '') {
             const waitMsg = document.getElementById('aguardar-msg'); if (waitMsg) waitMsg.remove();
             const logItem = document.createElement('div'); logItem.className = 'log-item'; const colorStyle = corStr.replace('color:white', 'color:var(--text-primary)'); logItem.innerHTML = `<div class="player-name">${nome || 'Mestre'}:</div><div style="font-size: 0.8em; color: var(--text-secondary); text-align: center;">${acao}</div><div class="roll-result" style="${colorStyle}">${resultado}</div>`; logBox.prepend(logItem);
+        }
+
+        function closeDice() { document.getElementById('popup-dice').style.display='none'; }
+        
+        function showPopup(n, r="TOTAL", st="color:white", jogador="Mestre") { 
+            const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
+            if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; 
+            setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
+            if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r.replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st }); } 
         }
 
         window.onload = () => { renderizarCatalogoRituais(); renderizarCatalogo(); mudarAba('jogadores'); if (mapas.length > 0) { renderizarMapasList(); renderizarMapaAtual(); } };
