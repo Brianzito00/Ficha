@@ -1220,6 +1220,111 @@
         }
 
         // =========================================
+        // CATÁLOGO DE RITUAIS
+        // =========================================
+        let editRitualIndex = null;
+
+        function abrirModalRitualMestre(idx = null) {
+            editRitualIndex = idx;
+            if(idx !== null) {
+                const rit = catalogoRituaisMestre[idx];
+                document.getElementById('mr-name').value = rit.n || '';
+                document.getElementById('mr-circ').value = rit.circ || '1º';
+                document.getElementById('mr-elem').value = rit.el || 'Conhecimento';
+                document.getElementById('mr-exec').value = rit.ex || '';
+                document.getElementById('mr-range').value = rit.alc || '';
+                document.getElementById('mr-target').value = rit.alv || '';
+                document.getElementById('mr-dur').value = rit.dur || '';
+                document.getElementById('mr-res').value = rit.res || '';
+                document.getElementById('mr-img').value = rit.img || '';
+                document.getElementById('mr-desc-geral').value = rit.descGeral || '';
+                document.getElementById('mr-desc-discente').value = rit.descDisc || '';
+                document.getElementById('mr-desc-verdadeiro').value = rit.descVerd || '';
+                document.getElementById('modal-ritual-title').innerText = "Editar Ritual";
+            } else {
+                document.getElementById('mr-name').value = '';
+                document.getElementById('mr-circ').value = '1º';
+                document.getElementById('mr-elem').value = 'Conhecimento';
+                document.getElementById('mr-exec').value = 'Padrão';
+                document.getElementById('mr-range').value = 'Curto';
+                document.getElementById('mr-target').value = '1 Ser';
+                document.getElementById('mr-dur').value = 'Instantânea';
+                document.getElementById('mr-res').value = 'Nenhuma';
+                document.getElementById('mr-img').value = '';
+                document.getElementById('mr-desc-geral').value = '';
+                document.getElementById('mr-desc-discente').value = '';
+                document.getElementById('mr-desc-verdadeiro').value = '';
+                document.getElementById('modal-ritual-title').innerText = "Criar Ritual";
+            }
+            document.getElementById('modal-ritual-mestre').style.display = 'flex';
+        }
+
+        function salvarRitualMestre() {
+            const n = document.getElementById('mr-name').value.trim();
+            if(!n) return alert("Por favor, dê um nome ao ritual.");
+            
+            const novoRitual = {
+                id: editRitualIndex !== null ? catalogoRituaisMestre[editRitualIndex].id : 'm_rit_' + Date.now(),
+                n: n,
+                circ: document.getElementById('mr-circ').value,
+                el: document.getElementById('mr-elem').value,
+                ex: document.getElementById('mr-exec').value,
+                alc: document.getElementById('mr-range').value,
+                alv: document.getElementById('mr-target').value,
+                dur: document.getElementById('mr-dur').value,
+                res: document.getElementById('mr-res').value,
+                img: document.getElementById('mr-img').value,
+                descGeral: document.getElementById('mr-desc-geral').value,
+                descDisc: document.getElementById('mr-desc-discente').value,
+                descVerd: document.getElementById('mr-desc-verdadeiro').value,
+                visivel: true
+            };
+            
+            if(editRitualIndex !== null) catalogoRituaisMestre[editRitualIndex] = novoRitual;
+            else catalogoRituaisMestre.push(novoRitual);
+            
+            localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+            salvarMestreNoFirebase();
+            document.getElementById('modal-ritual-mestre').style.display = 'none';
+            renderizarCatalogoRituais();
+            sincronizarCatalogoGeral();
+        }
+
+        function apagarRitualCatalogo(idx) {
+            if(confirm("Tem certeza que deseja apagar este ritual do Catálogo?")) {
+                catalogoRituaisMestre.splice(idx, 1);
+                localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+                salvarMestreNoFirebase();
+                renderizarCatalogoRituais();
+                sincronizarCatalogoGeral();
+            }
+        }
+
+        function renderizarCatalogoRituais() {
+            const circles = ['1º', '2º', '3º', '4º'];
+            circles.forEach((circ, i) => {
+                const body = document.getElementById(`rituais-mestre-${i+1}-body`);
+                const container = document.getElementById(`rituais-mestre-${i+1}-container`);
+                if(!body) return; body.innerHTML = '';
+                let count = 0;
+                catalogoRituaisMestre.forEach((rit, idx) => {
+                    if(rit.circ === circ) {
+                        count++;
+                        const card = document.createElement('div'); card.className = 'fade-in';
+                        card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(184,43,242,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); display:flex; flex-direction:column; justify-content:space-between;`;
+                        
+                        let btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${idx})">X</button>
+                        <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue); color:black;" onclick="event.stopPropagation(); abrirModalRitualMestre(${idx})">✏️</button>`;
+
+                        card.innerHTML = `${btnCtrl}<img src="${rit.img || ''}" style="width:100%; height:50px; object-fit:contain; margin-top:20px; margin-bottom:5px;"><div style="font-weight:bold; color:var(--accent-purple); font-size:0.75em; margin-bottom:10px; text-transform:uppercase;">${rit.n}</div><button class="btn-roll" style="background:var(--accent-purple); color:white; font-size:0.7em;" onclick="abrirModalTransferir('${encodeURIComponent(JSON.stringify(rit))}', 'ritual')">ENSINAR JOGADOR</button>`;
+                        body.appendChild(card);
+                    }
+                });
+                container.style.display = count > 0 ? 'block' : 'none';
+            });
+        }
+
+        // =========================================
         // SISTEMA AVANÇADO DE MONSTROS
         // =========================================
         
@@ -1457,26 +1562,6 @@
             const img = document.getElementById('map-image-display');
             const mapa = mapas.find(x => x.id === currentMapaIdMap);
             if(mapa) { img.src = mapa.url; img.style.display = 'block'; }
-        }
-
-        function renderizarCatalogoRituais() {
-            const circles = ['1º', '2º', '3º', '4º'];
-            circles.forEach((circ, i) => {
-                const body = document.getElementById(`rituais-mestre-${i+1}-body`);
-                const container = document.getElementById(`rituais-mestre-${i+1}-container`);
-                if(!body) return; body.innerHTML = '';
-                let count = 0;
-                catalogoRituaisMestre.forEach(rit => {
-                    if(rit.circ === circ) {
-                        count++;
-                        const card = document.createElement('div'); card.className = 'fade-in';
-                        card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(184,43,242,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8);`;
-                        card.innerHTML = `<img src="${rit.img || ''}" style="width:100%; height:50px; object-fit:contain;"><div style="font-weight:bold; color:var(--accent-purple); font-size:0.7em;">${rit.n}</div><button class="btn-roll" style="background:var(--accent-purple); color:white; font-size:0.6em;" onclick="abrirModalTransferir('${encodeURIComponent(JSON.stringify(rit))}', 'ritual')">ENSINAR</button>`;
-                        body.appendChild(card);
-                    }
-                });
-                container.style.display = count > 0 ? 'block' : 'none';
-            });
         }
 
         function adicionarAoLog(nome, acao, res, cor) {
