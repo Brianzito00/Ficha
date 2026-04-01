@@ -1109,15 +1109,29 @@
         
         function abrirModalCriatura() { 
             editMonstroId = null; 
-            document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; 
-            document.getElementById('c-presenca').value = 'ND / 0'; document.getElementById('c-defesa').value = '10'; 
+            
+            // LIMPAR TUDO ANTES DE ABRIR (EVITA MISTURA DE STATUS)
+            document.getElementById('c-nome').value = ''; 
+            document.getElementById('c-foto').value = ''; 
+            document.getElementById('c-presenca').value = 'ND / 0'; 
+            document.getElementById('c-defesa').value = '10'; 
             document.getElementById('c-vida').value = '100'; 
-            ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; }); 
-            listaPericiasMonstro.forEach(s => { 
-                const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
-                if(chk) chk.checked = false; if(bns) bns.value = '0'; 
+            
+            ['agi','for','pre','int','vig'].forEach(a => { 
+                const el = document.getElementById('c-'+a); 
+                if(el) el.value = '1'; 
             }); 
-            document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; 
+            
+            listaPericiasMonstro.forEach(s => { 
+                const chk = document.getElementById('c-treino-'+s); 
+                const bns = document.getElementById('c-bonus-'+s); 
+                if(chk) chk.checked = false; 
+                if(bns) bns.value = '0'; 
+            }); 
+            
+            document.getElementById('c-ataques-list').innerHTML = ''; 
+            document.getElementById('c-poderes-list').innerHTML = ''; 
+            
             document.getElementById('modal-criatura').style.display = 'flex'; 
         }
         
@@ -1129,6 +1143,7 @@
             
             let periciaVal = atq.pericia || 'luta';
             let bonusVal = atq.bonusExtra || 0;
+            // Se o monstro for muito antigo e só possuir "teste", joga visualmente para o Bônus
             if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; }
 
             div.innerHTML = `
@@ -1175,14 +1190,15 @@
                 m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; 
             }); 
             
-            document.getElementById('c-ataques-list').childNodes.forEach(row => { 
+            // Usando Array.from e .children evita erros se o HTML gerar nós de texto (whitespaces)
+            Array.from(document.getElementById('c-ataques-list').children).forEach(row => { 
                 const inputs = row.querySelectorAll('input, select'); 
                 if(inputs[0] && inputs[0].value) { 
                     m.ataques.push({ nome: inputs[0].value, pericia: inputs[1].value, bonusExtra: parseInt(inputs[2].value) || 0, dano: inputs[3].value }); 
                 } 
             }); 
             
-            document.getElementById('c-poderes-list').childNodes.forEach(row => { 
+            Array.from(document.getElementById('c-poderes-list').children).forEach(row => { 
                 const inputs = row.querySelectorAll('input, textarea'); 
                 if(inputs[0] && inputs[0].value) { m.poderes.push({ nome: inputs[0].value, desc: inputs[1].value }); } 
             }); 
@@ -1253,11 +1269,20 @@
         function editarMonstro(id) { 
             const m = monstros.find(x => x.id === id); if(!m) return; 
             editMonstroId = m.id; 
+            
+            // LIMPAR O ESTADO ANTERIOR DO MODAL
+            ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; });
+            listaPericiasMonstro.forEach(s => { 
+                const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
+                if(chk) chk.checked = false; if(bns) bns.value = '0'; 
+            });
+
             document.getElementById('c-nome').value = m.nome; 
             document.getElementById('c-foto').value = m.foto || ''; 
             document.getElementById('c-presenca').value = m.presenca || ''; 
             document.getElementById('c-defesa').value = m.defesa || '10'; 
             document.getElementById('c-vida').value = m.vida_max; 
+            
             if(m.attrs) { 
                 document.getElementById('c-agi').value = m.attrs.agi || 1; 
                 document.getElementById('c-for').value = m.attrs.for || 1; 
@@ -1267,13 +1292,19 @@
             } 
             if(m.skills) { 
                 listaPericiasMonstro.forEach(s => { 
-                    if(m.skills[s]) { document.getElementById('c-treino-'+s).checked = m.skills[s].treinado; document.getElementById('c-bonus-'+s).value = m.skills[s].bonus; } 
+                    if(m.skills[s]) { 
+                        const chk = document.getElementById('c-treino-'+s);
+                        const bns = document.getElementById('c-bonus-'+s);
+                        if(chk) chk.checked = m.skills[s].treinado; 
+                        if(bns) bns.value = m.skills[s].bonus; 
+                    } 
                 }); 
             } 
             document.getElementById('c-ataques-list').innerHTML = ''; 
             if(m.ataques) m.ataques.forEach(a => addCampoAtaque('c-ataques-list', a)); 
             document.getElementById('c-poderes-list').innerHTML = ''; 
             if(m.poderes) m.poderes.forEach(p => addCampoPoder('c-poderes-list', p)); 
+            
             document.getElementById('modal-criatura').style.display = 'flex'; 
         }
         
