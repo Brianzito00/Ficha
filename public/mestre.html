@@ -655,7 +655,9 @@
 
     <div id="modal-transfer-obj" class="modal-overlay" style="z-index: 10001;"><div class="modal-content" style="max-width: 600px; text-align: center;"><h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir</h2><p style="color: var(--text-secondary);">Clique no jogador para enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b>:</p><input type="hidden" id="transfer-obj-data"><input type="hidden" id="transfer-obj-type"><div id="transfer-player-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 5px;"></div><div style="display: flex; gap: 10px;"><button class="btn-remove" style="position: static; width: 100%; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button></div></div></div>
     <div id="modal-ficha" class="modal-overlay"><div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end;"><button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1.2em; margin-bottom: 10px;" onclick="fecharFicha()">X FECHAR FICHA</button></div><iframe id="iframe-ficha" src="" style="width: 95%; max-width: 1400px; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe></div>
+    
     <div id="popup-dice" class="modal-overlay" onclick="closeDice()" style="z-index: 10000;"><div class="popup-box-dice" onclick="event.stopPropagation()"><div id="popup-content" class="popup-content"><div id="popup-num" class="popup-number">00</div><div id="popup-res" class="popup-res">RESULTADO</div></div></div></div>
+    
     <div id="modal-pin" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 400px;"><h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Pin</h2><div class="form-group"><label>Título</label><input type="text" id="pin-title" class="monster-input"></div><div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group"><label>Cor</label><select id="pin-color" class="monster-input" style="color: white; padding: 12px;"><option value="#e53935">🔴 Vermelho</option><option value="#00b0ff">🔵 Azul</option><option value="#ffcf33">🟡 Amarelo</option><option value="#00e676">🟢 Verde</option><option value="#b82bf2">🟣 Roxo</option></select></div><input type="hidden" id="pin-id-edit"><input type="hidden" id="pin-temp-x"><input type="hidden" id="pin-temp-y"><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;"><button class="btn-remove" id="btn-delete-pin" style="position: static; flex: 1; display: none;" onclick="apagarPin()">APAGAR</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPin()">GUARDAR PIN</button><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalPin()">Cancelar</button></div></div></div>
 
     <div id="modal-criatura" class="modal-overlay">
@@ -1570,18 +1572,43 @@
             logBox.prepend(logItem);
         }
 
-        function showPopup(n, r, st, jog) {
-            const dice = document.getElementById('popup-dice');
-            document.getElementById('popup-num').innerText = n;
-            document.getElementById('popup-res').innerHTML = r;
-            document.getElementById('popup-content').style.display = 'flex';
-            dice.style.display = 'flex';
+        function showPopup(n, r="TOTAL", st="color:white", jog="Mestre") { 
+            const box = document.querySelector('.popup-box-dice'); 
+            box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; 
             
-            // Corrige possível envio indefinido na primeira renderização sem conexão
-            if (typeof socket !== 'undefined' && socket) {
-                socket.emit('rolagem_feita', { jogador: jog, acao: r, resultado: n, cor: st });
-            }
+            let numEl = document.getElementById('popup-num'); 
+            numEl.innerHTML = n; 
+            if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; 
+            else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; 
+            
+            let resEl = document.getElementById('popup-res'); 
+            let textoFinal = r; 
+            if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { 
+                textoFinal = r.replace(' (', '<br>('); 
+            } 
+            resEl.innerHTML = textoFinal; 
+            resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; 
+            
+            box.style.animation = 'none'; 
+            box.style.boxShadow = 'none'; 
+            box.style.borderColor = 'var(--accent-yellow)'; 
+            document.getElementById('popup-content').style.display = 'none'; 
+            document.getElementById('popup-dice').style.display = 'flex'; 
+            
+            setTimeout(() => { 
+                document.getElementById('popup-content').style.display = 'flex'; 
+                if (r.includes('CRÍTICO')) { 
+                    box.style.animation = 'shakeCrit 0.4s infinite'; 
+                    box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
+                    box.style.borderColor = '#ff0000'; 
+                } 
+            }, 1500); 
+            
+            if (typeof socket !== 'undefined' && socket) { 
+                socket.emit('rolagem_feita', { jogador: jog, acao: r.replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st }); 
+            } 
         }
+
         function closeDice() { document.getElementById('popup-dice').style.display = 'none'; }
 
         // MANTER INICIATIVA FUNCIONAL
