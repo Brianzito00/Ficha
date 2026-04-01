@@ -348,7 +348,7 @@
                     </label>
                     <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -745,7 +745,15 @@
     }
 
     function deselectItemInfo() { 
-        currentSelectedItemId = null; document.getElementById('info-name').innerText = "Nenhum Item"; document.getElementById('info-name').style.color = "var(--accent-blue)"; document.getElementById('info-img-container').style.display = 'none'; document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; document.getElementById('info-equip').disabled = true; document.getElementById('info-equip').checked = false; document.getElementById('info-equip-container').style.borderColor = '#444'; document.getElementById('btn-delete-item').disabled = true; 
+        currentSelectedItemId = null; 
+        document.getElementById('info-name').innerText = "Nenhum Item"; 
+        document.getElementById('info-name').style.color = "var(--accent-blue)"; 
+        document.getElementById('info-img-container').style.display = 'none'; 
+        document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; 
+        document.getElementById('info-equip').disabled = true; 
+        document.getElementById('info-equip').checked = false; 
+        document.getElementById('info-equip-container').style.borderColor = '#444'; 
+        document.getElementById('btn-delete-item').disabled = true; 
     }
 
     function updateWeight() { 
@@ -1040,7 +1048,7 @@
         if (viewCode) { 
             if(window.parent !== window) { window.parent.postMessage({tipo: 'sync_offline_edit', codigo: viewCode, fullData: d, charStatus: charStatus}, '*'); } 
             if(socket){ socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
-            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: playerCode, fichaData: d}) }).catch(e=>{});
+            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: viewCode, fichaData: d}) }).catch(e=>{});
             return; 
         } 
         
@@ -1050,11 +1058,44 @@
         if (socket) { socket.emit('status_change', { codigo: myUpperCode, origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
     }
 
-    function load() { 
+    // --- LOGICA DE PERSISTENCIA CORRIGIDA ---
+    async function load() { 
         isLoadingData = true; 
+        
+        // 1. TENTA CARREGAR DO SERVIDOR (CROSS-DEVICE)
+        try {
+            const response = await fetch('/api/carregar_personagem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario: playerCode })
+            });
+            const result = await response.json();
+            
+            if (result.sucesso && result.ficha) {
+                populateData(result.ficha);
+                localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(result.ficha));
+                isLoadingData = false;
+                return;
+            }
+        } catch (e) {
+            console.error("Erro ao carregar do servidor, tentando local...");
+        }
+
+        // 2. FALLBACK PARA LOCALSTORAGE (MESMO NAVEGADOR)
         let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
-        if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
-        try { populateData(JSON.parse(s)); } catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } 
+        if (!s) { 
+            isLoadingData = false; 
+            updateDanoDesarmado(); 
+            return updateAllPericias(); 
+        } 
+        try { 
+            populateData(JSON.parse(s)); 
+        } catch(e){ 
+            isLoadingData = false; 
+            updateAllPericias(); 
+            updateDanoDesarmado(); 
+        } 
+        isLoadingData = false;
     }
 
     function populateData(d) {
