@@ -850,14 +850,33 @@
         }
     }, 1000);
 
-    function renderPistas() {
+   function renderPistas() {
         const list = document.getElementById('pistas-list'); list.innerHTML = '';
         if(pistasRecebidas.length === 0) { list.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-style:italic; grid-column:1/-1;">Nenhuma pista encontrada ainda...</div>`; return; }
+        
         pistasRecebidas.forEach((p, idx) => {
-            const card = document.createElement('div'); card.className = 'pista-card fade-in'; card.onclick = () => openPistaView(idx);
-            card.innerHTML = `<div style="font-weight:bold; color:var(--accent-yellow); font-size:1.1em; margin-bottom:5px;">🔍 ${p.titulo}</div><div style="font-size:0.8em; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-height:20px;">${p.desc}</div>`;
+            const card = document.createElement('div'); card.className = 'pista-card fade-in'; 
+            
+            // Se a pista tiver foto, mostra na miniatura. Se não, usa uma imagem padrão de "Pista"
+            let imgSrc = (p.foto && p.foto.trim() !== '') ? p.foto : "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
+            
+            // Apenas o botão de fechar (X), a Foto e o Título. Clicar na foto ou título abre a inspeção.
+            card.innerHTML = `
+                <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarPistaJogador(${idx})">X</button>
+                <img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; cursor:pointer;" onclick="openPistaView(${idx})">
+                <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
+            `;
             list.appendChild(card);
         });
+    }
+
+    // Função nova para o jogador conseguir apagar uma pista que já não precisa
+    function apagarPistaJogador(idx) {
+        if(confirm("Tem certeza que deseja apagar esta pista do seu mural?")) {
+            pistasRecebidas.splice(idx, 1);
+            save(); // Guarda a remoção na base de dados
+            renderPistas(); // Atualiza a tela imediatamente
+        }
     }
     function openPistaView(idx) {
         const p = pistasRecebidas[idx]; if(!p) return;
