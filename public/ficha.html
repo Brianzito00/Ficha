@@ -214,7 +214,6 @@
         <button class="btn-del" style="width:100%; margin-top:15px; padding:12px; font-size:1.1em;" onclick="closePista()">FECHAR</button>
     </div>
 </div>
-
 <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 <script>
     // 1. DADOS DE LIGAÇÃO
@@ -561,52 +560,52 @@
     }
     function zoomPista(delta) { 
         pistaScale += delta; 
-        if(pistaScale < 0.5) pistaScale = 0.5; 
-        if(pistaScale > 5) pistaScale = 5; 
+        if(pistaScale < 0.5) pistaScale = 0.5; if(pistaScale > 5) pistaScale = 5; 
         applyPistaTransform(); 
     }
     function resetPistaZoom() { pistaScale = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); }
     
-    function startDragPista(e) {
-        if(e.type === 'touchstart') {
-            if(e.touches.length === 1) { isDraggingPista = true; startPX = e.touches[0].clientX - pistaTx; startPY = e.touches[0].clientY - pistaTy; }
-            else if(e.touches.length === 2) { isDraggingPista = false; }
-            return;
+    // Eventos de Mouse/Touch para o Wrapper da Pista
+    setTimeout(() => {
+        const pistaWrapper = document.getElementById('pista-img-wrapper');
+        if(pistaWrapper) {
+            pistaWrapper.addEventListener('wheel', (e) => { e.preventDefault(); zoomPista(e.deltaY < 0 ? 0.15 : -0.15); });
+            pistaWrapper.addEventListener('mousedown', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                isDraggingPista = true; startPX = e.clientX - pistaTx; startPY = e.clientY - pistaTy; 
+                pistaWrapper.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingPista) return; e.preventDefault();
+                pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; applyPistaTransform();
+            });
+            window.addEventListener('mouseup', () => { isDraggingPista = false; if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; });
+            
+            // Suporte Touch (Telemóvel)
+            pistaWrapper.addEventListener('touchstart', (e) => {
+                if(e.target.tagName === 'BUTTON' || e.touches.length !== 1) return;
+                isDraggingPista = true; startPX = e.touches[0].clientX - pistaTx; startPY = e.touches[0].clientY - pistaTy;
+            }, {passive: false});
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingPista || e.touches.length !== 1) return; e.preventDefault();
+                pistaTx = e.touches[0].clientX - startPX; pistaTy = e.touches[0].clientY - startPY; applyPistaTransform();
+            }, {passive: false});
+            window.addEventListener('touchend', () => { isDraggingPista = false; });
         }
-        isDraggingPista = true; startPX = e.clientX - pistaTx; startPY = e.clientY - pistaTy; 
-        document.getElementById('pista-img-wrapper').style.cursor = 'grabbing';
-    }
-    function dragPista(e) {
-        if (!isDraggingPista) return;
-        e.preventDefault();
-        if(e.type === 'touchmove') { pistaTx = e.touches[0].clientX - startPX; pistaTy = e.touches[0].clientY - startPY; }
-        else { pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; }
-        applyPistaTransform();
-    }
-    function stopDragPista() { isDraggingPista = false; document.getElementById('pista-img-wrapper').style.cursor = 'grab'; }
-    function zoomPistaWheel(e) { e.preventDefault(); zoomPista(e.deltaY < 0 ? 0.15 : -0.15); }
+    }, 1000);
 
-    function renderPistas() {
-        const list = document.getElementById('pistas-list'); list.innerHTML = '';
-        if(pistasRecebidas.length === 0) { list.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-style:italic; grid-column:1/-1;">Nenhuma pista encontrada ainda...</div>`; return; }
-        pistasRecebidas.forEach((p, idx) => {
-            const card = document.createElement('div'); card.className = 'pista-card fade-in'; card.onclick = () => openPistaView(idx);
-            card.innerHTML = `<div style="font-weight:bold; color:var(--accent-yellow); font-size:1.1em; margin-bottom:5px;">🔍 ${p.titulo}</div><div style="font-size:0.8em; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-height:20px;">${p.desc}</div>`;
-            list.appendChild(card);
-        });
-    }
-    
     function openPistaView(idx) {
-        const p = pistasRecebidas[idx]; if(!p) return;
-        document.getElementById('pista-view-title').innerText = p.titulo; 
+        const p = pistasRecebidas[idx]; // Na ficha usa pistasRecebidas
+        if(!p) return;
+        document.getElementById('pista-view-title').innerText = p.titulo;
         document.getElementById('pista-view-desc').innerText = p.desc || 'Nenhum texto associado.';
-        const imgEl = document.getElementById('pista-view-img'); 
+        const imgEl = document.getElementById('pista-view-img');
         const wrapper = document.getElementById('pista-img-wrapper');
         
         if(p.foto && p.foto.trim() !== '') { 
             imgEl.src = p.foto; 
             wrapper.style.display = 'block'; 
-            resetPistaZoom();
+            resetPistaZoom(); // Reseta o zoom sempre que abre uma pista nova
         } else { 
             wrapper.style.display = 'none'; 
         }
