@@ -596,6 +596,12 @@
             </div>
             <div class="form-group"><label>Nome do Item</label><input type="text" id="mi-nome" class="monster-input"></div>
             <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div>
+            
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="mi-visivel" checked style="width: 18px; height: 18px; cursor: pointer;">
+                <label style="margin: 0; color: var(--text-secondary); font-size: 0.85em;">Visível no Catálogo de Jogadores</label>
+            </div>
+
             <div id="mi-campos-comum"><div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;"></textarea></div></div>
             <div id="mi-campos-municao" style="display:none; margin-top:10px;"><div style="display:flex; gap:10px;"><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE MUNIÇÃO</label><select id="mi-ammo-type" class="monster-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">QTD (1-3)</label><input type="number" id="mi-ammo-qtd" class="monster-input" value="1" min="1" max="3"></div></div></div>
             <div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;">
@@ -1034,18 +1040,128 @@
         function closePista() { document.getElementById('popup-pista').style.display = 'none'; }
 
         // ---------- ITENS E CATÁLOGO ----------
+        function toggleVisibilidadeItem(idx) { 
+            catalogoMestre[idx].visivel = catalogoMestre[idx].visivel === false ? true : false; 
+            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+            salvarMestreNoFirebase(); 
+            renderizarCatalogo(); 
+            sincronizarCatalogoGeral(); 
+        }
+
+        function apagarItemCatalogo(idx) { 
+            if(confirm("Tem certeza que deseja apagar este item do seu Catálogo?")) { 
+                catalogoMestre.splice(idx, 1); 
+                localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+                salvarMestreNoFirebase(); 
+                renderizarCatalogo(); 
+                sincronizarCatalogoGeral(); 
+            } 
+        }
+
         function renderizarCatalogo() {
             const gridComum = document.getElementById('catalogo-grid-comum'); const gridArmaCC = document.getElementById('catalogo-grid-armacc'); const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
             if(gridComum) gridComum.innerHTML = ''; if(gridArmaCC) gridArmaCC.innerHTML = ''; if(gridArmaDisp) gridArmaDisp.innerHTML = '';
+            let countComum = 0, countCC = 0, countDisp = 0;
+            
             catalogoMestre.forEach((item, idx) => {
                 const color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
+                
+                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
+                if (item.type !== 'comum' && item.type !== 'municao') { 
+                    if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; 
+                    else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; 
+                } else if (item.type === 'municao') { 
+                    detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Qtd: <span style="color:white; font-weight:bold;">${item.qtd} / 3</span><br>Tipo: <span style="color:white; font-weight:bold;">${item.ammoType}</span></div>`; 
+                }
+
+                let visIcon = item.visivel === false ? '🚫' : '👁️'; 
+                let opacity = item.visivel === false ? '0.5' : '1';
+                let btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
+                
                 const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
-                const card = document.createElement('div'); card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8);`;
-                card.innerHTML = `<img src="${item.img || ''}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px;"><div style="font-weight:bold; color:${color}; font-size:0.85em;">${item.n}</div><div style="display:flex; gap:5px; margin-top:10px;"><button class="btn-roll" style="background:${color}; color:black; flex:1; font-size:0.65em;" onclick="abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; font-size:0.65em;" onclick="enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button></div>`;
-                if (item.type === 'comum' || item.type === 'municao') gridComum.appendChild(card);
-                else if (item.atkType === 'Disparo') gridArmaDisp.appendChild(card);
-                else gridArmaCC.appendChild(card);
+                const displayName = item.n; 
+
+                const card = document.createElement('div'); 
+                card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
+                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; 
+                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+                
+                card.innerHTML = `${btnCtrl}<img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px; margin-top: 15px;"><div style="font-weight:bold; color:${color}; font-size:0.85em; margin-bottom:5px; text-transform:uppercase;">${displayName}</div>${detailsHtml}<div style="display:flex; gap:5px; margin-top:10px; width:100%;"><button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button></div>`;
+                
+                if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { 
+                    if(gridComum) gridComum.appendChild(card); countComum++; 
+                } else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { 
+                    if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; 
+                } else { 
+                    if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; 
+                }
             });
+
+            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
+            if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+            if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+        }
+
+        let editItemIndex = null;
+        function abrirModalItemMestre(tipo = 'comum', idx = null) { 
+            editItemIndex = idx;
+            if(idx !== null) { 
+                const it = catalogoMestre[idx]; 
+                document.getElementById('mi-tipo').value = it.rawType || (it.type === 'comum' ? 'comum' : (it.atkType === 'Disparo' ? 'armadisp' : 'armacc')); 
+                document.getElementById('mi-nome').value = it.n; 
+                document.getElementById('mi-w').value = it.w || 1; 
+                document.getElementById('mi-h').value = it.h || 1; 
+                document.getElementById('mi-foto').value = it.img || ''; 
+                
+                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = it.visivel !== false;
+                
+                if(it.type === 'comum') { document.getElementById('mi-desc').value = it.rawDesc || ''; } 
+                else if (it.type === 'municao') { document.getElementById('mi-ammo-type').value = it.ammoType || 'Curta'; document.getElementById('mi-ammo-qtd').value = it.qtd || 1; } 
+                else { document.getElementById('mi-atk').value = it.atk || '1'; document.getElementById('mi-dano').value = it.dmg || '0'; document.getElementById('mi-crit').value = it.crit || '20/x2'; document.getElementById('mi-alcance').value = it.range || 'Curto'; document.getElementById('mi-ammo').value = it.ammo || 'Nenhuma'; document.getElementById('mi-cap').value = it.capacity || '0'; document.getElementById('mi-pericia').value = it.skill || 'Luta'; } 
+                document.getElementById('modal-item-title').innerText = "Editar Item"; 
+            } else { 
+                document.getElementById('mi-nome').value = ''; document.getElementById('mi-w').value = '1'; document.getElementById('mi-h').value = '1'; document.getElementById('mi-foto').value = ''; document.getElementById('mi-desc').value = ''; document.getElementById('mi-atk').value = '1'; document.getElementById('mi-dano').value = ''; document.getElementById('mi-crit').value = '20/x2'; document.getElementById('mi-alcance').value = 'Curto'; document.getElementById('mi-ammo').value = 'Nenhuma'; document.getElementById('mi-cap').value = '0'; document.getElementById('mi-pericia').value = 'Luta'; document.getElementById('mi-tipo').value = tipo; 
+                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = true;
+                document.getElementById('modal-item-title').innerText = "Criar Item para Jogadores"; 
+                if(tipo === 'municao') { document.getElementById('mi-ammo-type').value = 'Curta'; document.getElementById('mi-ammo-qtd').value = '1'; } 
+            }
+            toggleCamposItemMestre(); document.getElementById('modal-item-mestre').style.display = 'flex'; 
+        }
+
+        function toggleCamposItemMestre() { const t = document.getElementById('mi-tipo').value; if(t === 'comum') { document.getElementById('mi-campos-comum').style.display = 'block'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; } else if (t === 'municao') { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'block'; } else { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'grid'; } }
+
+        function salvarItemMestre() { 
+            const nome = document.getElementById('mi-nome').value.trim(); 
+            const w = parseInt(document.getElementById('mi-w').value) || 1; 
+            const h = parseInt(document.getElementById('mi-h').value) || 1; 
+            const img = document.getElementById('mi-foto').value.trim(); 
+            const rawType = document.getElementById('mi-tipo').value; 
+            if(!nome) return alert("Por favor, dê um nome ao item."); 
+            
+            const visivel = document.getElementById('mi-visivel') ? document.getElementById('mi-visivel').checked : true;
+            
+            const type = (rawType === 'comum' || rawType === 'municao') ? rawType : 'arma'; 
+            let dHTML = "", rawDesc = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", ammoType = "Curta", qtd = 1; 
+            
+            if (type === 'comum') { 
+                rawDesc = document.getElementById('mi-desc').value || "Sem descrição."; dHTML = rawDesc; 
+            } else if (type === 'municao') { 
+                ammoType = document.getElementById('mi-ammo-type').value; qtd = parseInt(document.getElementById('mi-ammo-qtd').value)||1; if(qtd>3) qtd=3; dHTML = "Munição para armas do tipo: " + ammoType; 
+            } else { 
+                atkType = rawType === 'armadisp' ? "Disparo" : "Corpo a corpo"; atk = document.getElementById('mi-atk').value || "1"; dmg = document.getElementById('mi-dano').value || "0"; crit = document.getElementById('mi-crit').value || "20/x2"; range = document.getElementById('mi-alcance').value || "Curto"; ammo = document.getElementById('mi-ammo').value || "Nenhuma"; skill = document.getElementById('mi-pericia').value || "Luta"; cap = document.getElementById('mi-cap').value || "0"; 
+                dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; 
+            } 
+            
+            const novoItem = { id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), n: nome, w: w, h: h, d: dHTML, eq: false, type: type, ammoType: ammoType, qtd: qtd, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, visivel: visivel, rawType: rawType, rawDesc: rawDesc }; 
+            
+            if(editItemIndex !== null) catalogoMestre[editItemIndex] = novoItem; 
+            else catalogoMestre.push(novoItem);
+            
+            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+            salvarMestreNoFirebase(); 
+            document.getElementById('modal-item-mestre').style.display = 'none'; 
+            renderizarCatalogo(); 
+            sincronizarCatalogoGeral();
         }
 
         function abrirModalTransferir(objStr, tipo) {
@@ -1110,6 +1226,7 @@
         function abrirModalCriatura() { 
             editMonstroId = null; 
             
+            // LIMPAR TUDO ANTES DE ABRIR (EVITA MISTURA DE STATUS)
             document.getElementById('c-nome').value = ''; 
             document.getElementById('c-foto').value = ''; 
             document.getElementById('c-presenca').value = 'ND / 0'; 
@@ -1142,6 +1259,7 @@
             
             let periciaVal = atq.pericia || 'luta';
             let bonusVal = atq.bonusExtra || 0;
+            // Se o monstro for muito antigo e só possuir "teste", joga visualmente para o Bônus
             if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; }
 
             div.innerHTML = `
@@ -1188,6 +1306,7 @@
                 m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; 
             }); 
             
+            // Usando Array.from e .children evita erros se o HTML gerar nós de texto (whitespaces)
             Array.from(document.getElementById('c-ataques-list').children).forEach(row => { 
                 const inputs = row.querySelectorAll('input, select'); 
                 if(inputs[0] && inputs[0].value) { 
@@ -1267,6 +1386,7 @@
             const m = monstros.find(x => x.id === id); if(!m) return; 
             editMonstroId = m.id; 
             
+            // LIMPAR O ESTADO ANTERIOR DO MODAL
             ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; });
             listaPericiasMonstro.forEach(s => { 
                 const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
