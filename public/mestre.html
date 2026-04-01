@@ -615,7 +615,15 @@
         <div class="modal-content" style="max-width: 500px;">
             <h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Pista</h2>
             <div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input" placeholder="Ex: Diário do Cultista"></div>
-            <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="pista-foto" class="monster-input" placeholder="https://..."></div>
+            <div class="form-group">
+                <label>Imagem da Pista</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="pista-foto" class="monster-input" placeholder="https://...">
+                    <label class="btn-add" style="padding: 10px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black; display: flex; align-items: center; justify-content: center;">
+                        📂 <input type="file" id="pista-file-upload" accept="image/*" style="display: none;" onchange="carregarFotoPistaPC(event)">
+                    </label>
+                </div>
+            </div>
             <div class="form-group"><label>Descrição / Segredo</label><textarea id="pista-desc" class="monster-input" style="height: 120px; resize: none;" placeholder="A pista revelada..."></textarea></div>
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-pista').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPista()">Salvar Pista</button></div>
         </div>
@@ -795,7 +803,8 @@
             
             // Esconde todos
             ['players-board', 'monsters-board', 'iniciativa-board', 'roteiro-board', 'mapas-board', 'catalogo-board', 'rmestre-board', 'pistas-board'].forEach(id => {
-                document.getElementById(id).style.display = 'none';
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
             });
 
             // Mostra o correto
@@ -892,17 +901,51 @@
             }
         }, 1000);
 
+        function carregarFotoPistaPC(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width;
+                    let h = img.height;
+                    const MAX_DIM = 1080;
+                    if (w > MAX_DIM || h > MAX_DIM) {
+                        if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; }
+                    }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const base64 = canvas.toDataURL('image/jpeg', 0.7);
+                    const inputUrl = document.getElementById('pista-foto');
+                    inputUrl.value = "ARQUIVO CARREGADO";
+                    inputUrl.dataset.base64 = base64;
+                    inputUrl.disabled = true;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         function abrirModalPista(idx = null) {
             editPistaIndex = idx;
+            const inputFoto = document.getElementById('pista-foto');
+            inputFoto.disabled = false;
+            delete inputFoto.dataset.base64;
+            const fileUpload = document.getElementById('pista-file-upload');
+            if(fileUpload) fileUpload.value = '';
+
             if(idx !== null) { 
                 const p = pistasMestre[idx]; 
                 document.getElementById('pista-titulo').value = p.titulo; 
-                document.getElementById('pista-foto').value = p.foto || ''; 
+                inputFoto.value = p.foto || ''; 
                 document.getElementById('pista-desc').value = p.desc || ''; 
                 document.getElementById('modal-pista-title').innerText = "Editar Pista"; 
             } else { 
                 document.getElementById('pista-titulo').value = ''; 
-                document.getElementById('pista-foto').value = ''; 
+                inputFoto.value = ''; 
                 document.getElementById('pista-desc').value = ''; 
                 document.getElementById('modal-pista-title').innerText = "Criar Nova Pista"; 
             }
@@ -911,7 +954,11 @@
         
         function salvarPista() {
             const titulo = document.getElementById('pista-titulo').value.trim(); 
-            const foto = document.getElementById('pista-foto').value.trim(); 
+            const inputFoto = document.getElementById('pista-foto');
+            let foto = inputFoto.value.trim(); 
+            if (inputFoto.dataset.base64 && foto === "ARQUIVO CARREGADO") {
+                foto = inputFoto.dataset.base64;
+            }
             const desc = document.getElementById('pista-desc').value.trim(); 
             
             if(!titulo) return alert("A pista precisa de um título.");
@@ -922,6 +969,10 @@
             
             localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
             salvarMestreNoFirebase(); 
+            
+            inputFoto.disabled = false;
+            delete inputFoto.dataset.base64;
+            
             document.getElementById('modal-pista').style.display = 'none'; 
             renderizarPistas(); 
         }
@@ -1161,7 +1212,7 @@
         
         // ---------- MONSTROS ----------
         let editMonstroId = null;
-        function abrirModalCriatura() { editMonstroId = null; document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; document.getElementById('c-presenca').value = 'Perturbadora'; document.getElementById('c-defesa').value = '10'; document.getElementById('c-vida').value = '100'; ['agi','for','pre'].forEach(a => document.getElementById('c-'+a).value = '1'); ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { document.getElementById('c-treino-'+s).checked = false; document.getElementById('c-bonus-'+s).value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; document.getElementById('modal-criatura').style.display = 'flex'; }
+        function abrirModalCriatura() { editMonstroId = null; document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; document.getElementById('c-presenca').value = 'Perturbadora'; document.getElementById('c-defesa').value = '10'; document.getElementById('c-vida').value = '100'; ['agi','for','pre'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; }); ['luta','pontaria','iniciativa','reflexos','percepcao','vontade'].forEach(s => { const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); if(chk) chk.checked = false; if(bns) bns.value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; document.getElementById('modal-criatura').style.display = 'flex'; }
         function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
         function addCampoAtaque(containerId, atq = {nome:'', teste:'', dano:''}) { const c = document.getElementById(containerId); const id = Date.now() + Math.floor(Math.random() * 1000); const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; div.innerHTML = `<input type="text" class="monster-input" placeholder="Nome Atq" value="${atq.nome}" style="flex:2;"><input type="text" class="monster-input" placeholder="Teste" value="${atq.teste}" style="flex:1;"><input type="text" class="monster-input" placeholder="Dano" value="${atq.dano}" style="flex:1;"><button class="btn-remove" style="position:static;" onclick="document.getElementById('row-${id}').remove()">X</button>`; c.appendChild(div); }
         function addCampoPoder(containerId, pod = {nome:'', desc:''}) { const c = document.getElementById(containerId); const id = Date.now() + Math.floor(Math.random() * 1000); const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; div.innerHTML = `<input type="text" class="monster-input" placeholder="Nome do Poder" value="${pod.nome}" style="width:100%; margin-bottom:5px;"><textarea class="monster-input" placeholder="Descrição do efeito..." style="height:60px; resize:none;">${pod.desc}</textarea><button class="btn-remove" style="position:static; width:100%; margin-top:5px;" onclick="document.getElementById('row-${id}').remove()">Remover Poder</button>`; c.appendChild(div); }
@@ -1252,6 +1303,28 @@
             if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; 
             setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
             if (socket) { socket.emit('rolagem_feita', { codigo: null, jogador: jogador, acao: r.replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st }); } 
+        }
+
+        // Funções para Catálogo de Rituais (Adicionadas para compatibilidade)
+        function renderizarCatalogoRituais() {
+            const circles = ['1º', '2º', '3º', '4º'];
+            circles.forEach((circ, i) => {
+                const container = document.getElementById(`rituais-mestre-${i+1}-container`);
+                const body = document.getElementById(`rituais-mestre-${i+1}-body`);
+                if(!body || !container) return;
+                body.innerHTML = '';
+                let count = 0;
+                catalogoRituaisMestre.forEach((rit, idx) => {
+                    if(rit.circ === circ) {
+                        count++;
+                        const card = document.createElement('div');
+                        card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(184,43,242,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8);`;
+                        card.innerHTML = `<img src="${rit.img || ''}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px;"><div style="font-weight:bold; color:var(--accent-purple); font-size:0.85em;">${rit.n}</div><button class="btn-roll" style="background:var(--accent-purple); color:white; font-size:0.7em;" onclick="abrirModalTransferir('${encodeURIComponent(JSON.stringify(rit))}', 'ritual')">ENSINAR</button>`;
+                        body.appendChild(card);
+                    }
+                });
+                container.style.display = count > 0 ? 'block' : 'none';
+            });
         }
 
         window.onload = () => { renderizarCatalogoRituais(); renderizarCatalogo(); mudarAba('jogadores'); if (mapas.length > 0) { renderizarMapasList(); renderizarMapaAtual(); } };
