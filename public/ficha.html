@@ -348,7 +348,7 @@
                     </label>
                     <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 </div>
@@ -435,11 +435,38 @@
     
     const urlParams = new URLSearchParams(window.location.search); 
     const viewCode = urlParams.get('view'); 
-    let playerCode = viewCode ? viewCode : (baseUser + '_' + campanhaAtiva);
+    
+    // O Mestre deve salvar no documento correto do banco de dados (COM O NOME DA CAMPANHA)
+    let playerCode = viewCode ? (viewCode.toUpperCase() + '_' + campanhaAtiva) : (baseUser + '_' + campanhaAtiva);
 
     if (socket) {
         socket.on('connect', () => {
-            if (!viewCode) socket.emit('join_campaign', campanhaAtiva);
+            // O Iframe do mestre TAMBÉM precisa entrar na sala para conseguir enviar broadcasts para os jogadores
+            socket.emit('join_campaign', campanhaAtiva);
+        });
+
+        // Ouve a edição forçada que o Mestre faz pela tela dele
+        socket.on('mestre_force_sync_player', (dados) => {
+            if (viewCode) return; // Se eu for o iframe do mestre, não faço nada aqui
+            if (dados.codigo && dados.codigo.toUpperCase() === myUpperCode) {
+                if (dados.fullData) {
+                    // Impede que a população de dados dispare novos saves e cause loops
+                    let wasLoading = isLoadingData;
+                    isLoadingData = true;
+                    populateData(dados.fullData);
+                    isLoadingData = wasLoading;
+                    
+                    const statusTxt = document.getElementById('save-status');
+                    if (statusTxt) {
+                        statusTxt.innerText = "Atualizado pelo Mestre!";
+                        statusTxt.style.color = "var(--accent-blue)";
+                        setTimeout(() => {
+                            statusTxt.innerText = "Sincronizado ✔️";
+                            statusTxt.style.color = "var(--text-secondary)";
+                        }, 3000);
+                    }
+                }
+            }
         });
 
         socket.on('comando_mestre', (dados) => {
@@ -1013,7 +1040,7 @@
         if (viewCode) { 
             if(window.parent !== window) { window.parent.postMessage({tipo: 'sync_offline_edit', codigo: viewCode, fullData: d, charStatus: charStatus}, '*'); } 
             if(socket){ socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
-            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: viewCode, fichaData: d}) }).catch(e=>{});
+            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: playerCode, fichaData: d}) }).catch(e=>{});
             return; 
         } 
         
