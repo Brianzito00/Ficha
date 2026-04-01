@@ -1613,11 +1613,50 @@
         document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
         function salvarTextoEditor() { if(!currentRoteiroId) return; const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)'; clearTimeout(roteiroEditorTimeout); roteiroEditorTimeout = setTimeout(() => { const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId); if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; } if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); } status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); }, 1000); }
 
-        window.onload = () => {
+        window.onload = async () => {
             mudarAba('jogadores');
+            
+            // CARREGAR DADOS DA CAMPANHA DO SERVIDOR (CROSS-DEVICE)
+            try {
+                const response = await fetch('/api/carregar_campanha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ campanha: campanhaAtiva })
+                });
+                const result = await response.json();
+                
+                if (result.sucesso && result.dados && result.dados.mestre) {
+                    const d = result.dados.mestre;
+                    // Atualiza as variáveis globais com o que está na nuvem
+                    roteiros = d.roteiros || [];
+                    descricoes = d.descricoes || [];
+                    monstros = d.monstros || [];
+                    iniciativaList = d.iniciativa || [];
+                    jogadoresPermitidos = d.allowedCodes || [];
+                    mapas = d.mapas || [];
+                    catalogoMestre = d.catalogo_itens || [];
+                    catalogoRituaisMestre = d.catalogo_rituais || [];
+                    pistasMestre = d.pistas || [];
+                    
+                    // Sincroniza o localStorage para cache rápido
+                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos));
+                    localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros));
+                    localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas));
+                    localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
+                    localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+                    localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre));
+                }
+            } catch (e) {
+                console.error("Erro ao carregar campanha do servidor.");
+            }
+
+            // Renderiza tudo após carregar
             renderizarCatalogo();
             renderizarCatalogoRituais();
-            // Evitar erro se não houver mapas criados
+            renderizarPistas();
+            renderizarMonstros();
+            renderizarIniciativa();
+            
             if (typeof mapas !== 'undefined' && mapas.length > 0) { 
                 currentMapaIdMap = mapas[0].id; 
                 renderizarMapasList(); 
