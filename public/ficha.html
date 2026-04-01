@@ -316,7 +316,6 @@
                 <h4 style="text-align: center; color: var(--accent-yellow); margin-top: 0; text-transform: uppercase;">Caixa de Entrada</h4>
                 <p style="font-size: 0.7em; color: var(--text-secondary); text-align: center; margin-bottom: 15px;">Itens recebidos aparecem aqui.<br>Clique neles para equipar.</p>
                 <div id="inbox-items" style="display: flex; flex-direction: column; gap: 10px; min-height: 100px;"></div>
-                <button class="btn-add" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="openItemPopup()">+ CRIAR ITEM</button>
                 <div id="weight-bar-container" style="margin-top: 15px; background: rgba(0,0,0,0.8); height: 20px; border-radius: 10px; border: 1px solid #444; overflow: hidden; position: relative;">
                     <div id="weight-bar-fill" style="height: 100%; width: 0%; background: var(--accent-blue); transition: width 0.3s;"></div>
                     <span id="weight-text" style="position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 0.8em; font-weight: bold; line-height: 20px; color: white;">0 / 5</span>
@@ -356,7 +355,6 @@
 <div id="tab-rituais" class="main-container">
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
-        <button class="btn-add" style="background: #b82bf2; color: white; width: 100%;" onclick="openRitualPopup()">+ Aprender Ritual (Catálogo do Mestre)</button>
         <div style="text-align: center; margin-top: 10px;">
             <span style="color: var(--text-secondary); font-size: 0.9em;">Total Aprendidos: <span id="rituals-text" style="color: white; font-weight: bold;">0</span></span>
         </div>
@@ -430,14 +428,16 @@
 <script>
     const socket = typeof io !== 'undefined' ? io() : null;
     let baseUser = localStorage.getItem('usuario_logado') || ""; 
-    let myUpperCode = baseUser.trim().toUpperCase(); 
+    
+    // NORMALIZAÇÃO DO NOME DO JOGADOR PARA EVITAR BUGS DE MAIÚSCULAS/ACENTOS (Ex: João -> JOAO)
+    let myUpperCode = baseUser.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim(); 
     let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
     
     const urlParams = new URLSearchParams(window.location.search); 
     const viewCode = urlParams.get('view'); 
     
     // O Mestre deve salvar no documento correto do banco de dados (COM O NOME DA CAMPANHA)
-    let playerCode = viewCode ? (viewCode.toUpperCase() + '_' + campanhaAtiva) : (baseUser + '_' + campanhaAtiva);
+    let playerCode = viewCode ? (viewCode.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim() + '_' + campanhaAtiva) : (myUpperCode + '_' + campanhaAtiva);
 
     if (socket) {
         socket.on('connect', () => {
