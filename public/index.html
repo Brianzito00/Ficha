@@ -208,7 +208,7 @@
         });
 
         let mesaPendenteUrl = null;
-        let lobbySynced = false; // A TRAVA DE SEGURANÇA (NOVO)
+        let lobbySynced = false;
 
         // FUNÇÃO QUE PUXA E MESCLA OS DADOS COM A NUVEM
         async function syncLobbyComNuvem() {
@@ -226,7 +226,6 @@
 
                     let precisaSalvarNaNuvem = false;
 
-                    // Se a memória do PC tiver algo que a nuvem não tem, adicionamos à nuvem! (MESCLAGEM)
                     minhasFichas.forEach(f => { 
                         if(!nuvemFichas.some(nf => nf.id === f.id)) { nuvemFichas.push(f); precisaSalvarNaNuvem = true; } 
                     });
@@ -245,10 +244,10 @@
                     localStorage.setItem('mesas_' + userLogado, JSON.stringify(minhasMesas));
                     localStorage.setItem('campanhas_jogadas_' + userLogado, JSON.stringify(minhasCampanhasJogadas));
                     
-                    lobbySynced = true; // Sincronização concluída com segurança
+                    lobbySynced = true;
 
                     if (precisaSalvarNaNuvem) {
-                        salvarLobbyNaNuvemForcado(); // Envia os dados do PC antigo para restaurar a nuvem
+                        salvarLobbyNaNuvemForcado(); 
                     }
 
                     if(document.getElementById('view-jogador').style.display !== 'none') {
@@ -258,7 +257,7 @@
                         renderMesas();
                     }
                 } else {
-                    lobbySynced = true; // Se falhar a leitura, liberta na mesma
+                    lobbySynced = true; 
                 }
             } catch(e) { 
                 console.error("Erro ao puxar da nuvem", e); 
@@ -266,12 +265,11 @@
             }
         }
         
-        // Arranca a sincronização
         syncLobbyComNuvem();
 
         let debounceLobbyTimer;
         function salvarLobbyNaNuvem() {
-            if (!lobbySynced) return; // Se a sincronização não acabou, NÃO APAGA A NUVEM!
+            if (!lobbySynced) return; 
             
             clearTimeout(debounceLobbyTimer);
             debounceLobbyTimer = setTimeout(() => {
@@ -288,7 +286,6 @@
             }, 1000);
         }
 
-        // Usado para restaurar os dados do PC antigo logo que entra
         function salvarLobbyNaNuvemForcado() {
             fetch('/api/salvar_lobby', {
                 method: 'POST',
@@ -415,7 +412,7 @@
                                 <div style="font-size: 0.7em; color: var(--text-muted); margin-top: 4px; word-break: break-all;">Cód: ${c.id}</div>
                             </div>
                             <div class="card-actions">
-                                <button class="btn-action btn-sm" style="background: var(--player); color: black;" onclick="prepararEntradaMesa('${c.id}')">▶ JOGAR</button>
+                                <button class="btn-action btn-sm" style="background: var(--player); color: black;" onclick="prepararEntradaMesa('${c.id}', this)">▶ JOGAR</button>
                                 <button class="btn-cancel btn-icon text-danger" onclick="removerCampanhaJogada('${c.id}')">X</button>
                             </div>
                         </div>
@@ -425,6 +422,7 @@
         }
 
         function syncFichas() {
+            // Ignorar falhas aqui para não limpar metadata se o localstorage estiver vazio.
             minhasFichas.forEach(f => {
                 let saved = localStorage.getItem('ordem_save_local_SOLO_' + f.id);
                 if (saved) {
@@ -493,12 +491,46 @@
             window.location.href = '/ficha.html';
         }
 
-        function prepararEntradaMesa(codigoMesa) {
-            const fichaVinculada = localStorage.getItem('ficha_vinculada_' + codigoMesa);
-            if (fichaVinculada === 'true') {
+        async function prepararEntradaMesa(codigoMesa, btnElement = null) {
+            if (btnElement) {
+                btnElement.innerText = "A VERIFICAR...";
+                btnElement.disabled = true;
+            }
+
+            let myUpperCode = userLogado.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
+            let pCode = myUpperCode + '_' + codigoMesa;
+
+            try {
+                // 1. Pergunta à nuvem se já temos uma ficha salva nesta mesa
+                const res = await fetch('/api/carregar_personagem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: pCode })
+                });
+                const data = await res.json();
+                
+                if (data.sucesso && data.ficha) {
+                    // Já existe ficha na nuvem! Entra direto.
+                    localStorage.setItem('ficha_vinculada_' + codigoMesa, 'true');
+                    localStorage.setItem('campanha_atual', codigoMesa);
+                    window.location.href = '/ficha.html';
+                    return;
+                }
+            } catch(e) {
+                console.error(e);
+            }
+
+            // 2. Fallback: Se a nuvem não respondeu, mas temos localmente
+            if (localStorage.getItem('ficha_vinculada_' + codigoMesa) === 'true') {
                 localStorage.setItem('campanha_atual', codigoMesa);
                 window.location.href = '/ficha.html';
                 return;
+            }
+
+            // Se chegou aqui, não tem ficha vinculada e precisamos perguntar
+            if (btnElement) {
+                btnElement.innerText = "▶ JOGAR";
+                btnElement.disabled = false;
             }
 
             mesaPendenteUrl = codigoMesa;
@@ -518,11 +550,12 @@
 
         async function confirmarEntradaMesa() {
             const btn = document.getElementById('btn-confirm-join');
-            btn.innerText = "A Conectar..."; btn.disabled = true;
+            btn.innerText = "A CONECTAR..."; btn.disabled = true;
 
             const fichaId = document.getElementById('select-ficha-join').value;
             const code = mesaPendenteUrl;
 
+            // Busca wallpaper da mesa se houver
             try {
                 const campRes = await fetch('/api/carregar_campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({campanha:code}) });
                 const campData = await campRes.json();
@@ -531,11 +564,46 @@
                 }
             } catch(e) {}
 
+            let myUpperCode = userLogado.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
+            let newCampCode = myUpperCode + '_' + code;
+
             if (fichaId !== 'NOVA') {
-                let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
-                if (dataRaw) {
-                    localStorage.setItem('ordem_save_local_' + code, dataRaw);
+                // Tenta puxar a ficha SOLO da nuvem para clonar para a Mesa
+                let soloCode = myUpperCode + '_SOLO_' + fichaId;
+                let fichaClonada = null;
+
+                try {
+                    const resSolo = await fetch('/api/carregar_personagem', {
+                        method: 'POST', headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({usuario: soloCode})
+                    });
+                    const dataSolo = await resSolo.json();
+                    if (dataSolo.sucesso && dataSolo.ficha) {
+                        fichaClonada = dataSolo.ficha;
+                    }
+                } catch(e) {}
+
+                // Se não achou na nuvem, tenta pelo LocalStorage (fallback)
+                if (!fichaClonada) {
+                    let dataRaw = localStorage.getItem('ordem_save_local_SOLO_' + fichaId);
+                    if (dataRaw) {
+                        fichaClonada = JSON.parse(dataRaw);
+                        localStorage.setItem('ordem_save_local_' + code, dataRaw);
+                    }
+                } else {
+                    localStorage.setItem('ordem_save_local_' + code, JSON.stringify(fichaClonada));
                 }
+
+                // Salva a ficha clonada na nova mesa na Nuvem
+                if (fichaClonada) {
+                    try {
+                        await fetch('/api/guardar_ficha', {
+                            method: 'POST', headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify({usuario: newCampCode, fichaData: fichaClonada})
+                        });
+                    } catch(e) {}
+                }
+
             } else {
                 localStorage.removeItem('ordem_save_local_' + code);
             }
