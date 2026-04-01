@@ -37,6 +37,7 @@
             box-sizing: border-box;
         }
 
+        /* Efeitos e Animações (mantidos apenas nas abas, retirados dos cartões) */
         @keyframes slideInUp { 
             from { opacity: 0; transform: translateY(20px) scale(0.98); } 
             to { opacity: 1; transform: translateY(0) scale(1); } 
@@ -324,7 +325,6 @@
     <div id="modal-pista" class="modal-overlay" style="z-index: 10000;">
         <div class="modal-content" style="max-width: 500px;">
             <h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Pista</h2>
-            <div class="form-group" style="flex-direction:row; align-items:center; margin-bottom:15px; background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; border:1px solid #444;"><input type="checkbox" id="pista-visivel" style="width:20px; height:20px; cursor:pointer; accent-color:var(--accent-yellow);"><label style="color:white; cursor:pointer; margin-left:8px; font-weight:normal;" for="pista-visivel">Visível para os Jogadores</label></div>
             <div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input" placeholder="Ex: Diário do Cultista"></div>
             <div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="pista-foto" class="monster-input" placeholder="https://..."></div>
             <div class="form-group"><label>Descrição / Segredo</label><textarea id="pista-desc" class="monster-input" style="height: 120px; resize: none;" placeholder="A pista revelada..."></textarea></div>
@@ -458,8 +458,8 @@
             adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
             if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
         });
+        // =====================================================
 
-        // ================= FUNÇÕES DE NAVEGAÇÃO =================
         function mudarAba(aba) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+aba).classList.add('active');
@@ -512,7 +512,7 @@
             });
         }
 
-        // ---------- PISTAS (COM ZOOM) ----------
+        // ---------- PISTAS ----------
         let editPistaIndex = null;
         let pistaScale = 1; let pistaTx = 0; let pistaTy = 0; let isDraggingPista = false; let startPX = 0; let startPY = 0;
         
@@ -557,33 +557,90 @@
 
         function abrirModalPista(idx = null) {
             editPistaIndex = idx;
-            if(idx !== null) { const p = pistasMestre[idx]; document.getElementById('pista-titulo').value = p.titulo; document.getElementById('pista-foto').value = p.foto || ''; document.getElementById('pista-desc').value = p.desc || ''; document.getElementById('pista-visivel').checked = p.visivel !== false; document.getElementById('modal-pista-title').innerText = "Editar Pista"; } 
-            else { document.getElementById('pista-titulo').value = ''; document.getElementById('pista-foto').value = ''; document.getElementById('pista-desc').value = ''; document.getElementById('pista-visivel').checked = false; document.getElementById('modal-pista-title').innerText = "Criar Nova Pista"; }
+            if(idx !== null) { 
+                const p = pistasMestre[idx]; 
+                document.getElementById('pista-titulo').value = p.titulo; 
+                document.getElementById('pista-foto').value = p.foto || ''; 
+                document.getElementById('pista-desc').value = p.desc || ''; 
+                document.getElementById('modal-pista-title').innerText = "Editar Pista"; 
+            } else { 
+                document.getElementById('pista-titulo').value = ''; 
+                document.getElementById('pista-foto').value = ''; 
+                document.getElementById('pista-desc').value = ''; 
+                document.getElementById('modal-pista-title').innerText = "Criar Nova Pista"; 
+            }
             document.getElementById('modal-pista').style.display = 'flex';
         }
+        
         function salvarPista() {
-            const titulo = document.getElementById('pista-titulo').value.trim(); const foto = document.getElementById('pista-foto').value.trim(); const desc = document.getElementById('pista-desc').value.trim(); const visivel = document.getElementById('pista-visivel').checked;
+            const titulo = document.getElementById('pista-titulo').value.trim(); 
+            const foto = document.getElementById('pista-foto').value.trim(); 
+            const desc = document.getElementById('pista-desc').value.trim(); 
+            
             if(!titulo) return alert("A pista precisa de um título.");
-            const novaPista = { id: editPistaIndex !== null ? pistasMestre[editPistaIndex].id : 'pista_' + Date.now(), titulo, foto, desc, visivel };
-            if(editPistaIndex !== null) pistasMestre[editPistaIndex] = novaPista; else pistasMestre.push(novaPista);
-            localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); document.getElementById('modal-pista').style.display = 'none'; renderizarPistas(); 
-            if(visivel) enviarPistaParaTodosPorId(novaPista.id);
+            const novaPista = { id: editPistaIndex !== null ? pistasMestre[editPistaIndex].id : 'pista_' + Date.now(), titulo, foto, desc };
+            
+            if(editPistaIndex !== null) pistasMestre[editPistaIndex] = novaPista; 
+            else pistasMestre.push(novaPista);
+            
+            localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
+            salvarMestreNoFirebase(); 
+            document.getElementById('modal-pista').style.display = 'none'; 
+            renderizarPistas(); 
         }
+        
         function renderizarPistas() {
             const grid = document.getElementById('pistas-grid'); grid.innerHTML = '';
             if(pistasMestre.length === 0) { grid.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma pista criada.</span>`; return; }
+            
             pistasMestre.forEach((p, idx) => {
-                let visIcon = p.visivel === false ? '🚫' : '👁️'; let opacity = p.visivel === false ? '0.5' : '1'; let imgSrc = p.foto || "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
-                const card = document.createElement('div'); card.style.cssText = `position:relative; padding:15px; border:1px solid rgba(255,207,51,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
-                card.innerHTML = `<button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="toggleVisibilidadePista(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="abrirModalPista(${idx})">✏️</button><button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="apagarPista(${idx})">X</button><img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px; cursor:pointer;" onclick="openPistaView(${idx})"><div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div><div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div><button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>`;
+                let imgSrc = p.foto || "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
+                const card = document.createElement('div'); 
+                card.className = 'pista-card';
+                card.style.cssText = `position:relative; padding:15px; border:1px solid rgba(255,207,51,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
+                
+                card.innerHTML = `
+                    <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="abrirModalPista(${idx})">✏️</button>
+                    <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="apagarPista(${idx})">X</button>
+                    
+                    <img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px; cursor:pointer;" onclick="openPistaView(${idx})">
+                    <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
+                    <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div>
+                    
+                    <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button>
+                    <button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>
+                `;
                 grid.appendChild(card);
             });
         }
-        function toggleVisibilidadePista(idx) { pistasMestre[idx].visivel = !pistasMestre[idx].visivel; localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); if(pistasMestre[idx].visivel) enviarPistaParaTodosPorId(pistasMestre[idx].id); }
-        function apagarPista(idx) { if(confirm("Tem certeza que deseja apagar esta pista?")) { pistasMestre.splice(idx, 1); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); } }
+        
+        function apagarPista(idx) { 
+            if(confirm("Tem certeza que deseja apagar esta pista?")) { 
+                pistasMestre.splice(idx, 1); 
+                localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
+                salvarMestreNoFirebase(); 
+                renderizarPistas(); 
+            } 
+        }
+        
         function enviarPistaParaTodosPorId(id) {
-            const pista = pistasMestre.find(x => x.id === id); if(!pista) return; if (jogadoresPermitidos.length === 0) return;
-            jogadoresPermitidos.forEach(alvo => { const upperCode = alvo.toUpperCase(); socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pista }); let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { if (!pData.fullData.pistas) pData.fullData.pistas = []; let exists = pData.fullData.pistas.find(x => x.id === pista.id); if(!exists) { pData.fullData.pistas.push(pista); localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); socket.emit('mestre_force_sync_player', { codigo: upperCode, fullData: pData.fullData }); fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: upperCode, fichaData: pData.fullData }) }).catch(e=>{}); } } });
+            const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
+            if (jogadoresPermitidos.length === 0) return;
+            jogadoresPermitidos.forEach(alvo => { 
+                const upperCode = alvo.toUpperCase(); 
+                socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pista }); 
+                let pData = playersDataMemoria[upperCode]; 
+                if (pData && pData.fullData) { 
+                    if (!pData.fullData.pistas) pData.fullData.pistas = []; 
+                    let exists = pData.fullData.pistas.find(x => x.id === pista.id); 
+                    if(!exists) { 
+                        pData.fullData.pistas.push(pista); 
+                        localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); 
+                        socket.emit('mestre_force_sync_player', { codigo: upperCode, fullData: pData.fullData }); 
+                        fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: upperCode, fichaData: pData.fullData }) }).catch(e=>{}); 
+                    } 
+                } 
+            });
             alert("Pista enviada para os jogadores!");
         }
 
@@ -651,7 +708,7 @@
                 let visIcon = item.visivel === false ? '🚫' : '👁️'; let opacity = item.visivel === false ? '0.5' : '1';
                 let btnCtrl = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
                 const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27"); const displayName = item.n; 
-                const card = document.createElement('div'); card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
+                const card = document.createElement('div'); card.className = 'fade-in'; card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
                 card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
                 card.innerHTML = `${btnCtrl}<img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px; margin-top: 15px;"><div style="font-weight:bold; color:${color}; font-size:0.85em; margin-bottom:5px; text-transform:uppercase;">${displayName}</div>${detailsHtml}<div style="display:flex; gap:5px; margin-top:10px; width:100%;"><button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button></div>`;
                 if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { if(gridComum) gridComum.appendChild(card); countComum++; } 
@@ -812,7 +869,7 @@
                 let htmlPoderes = ''; 
                 if(m.poderes) { m.poderes.forEach(p => { let safePName = p.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); htmlPoderes += `<div style="margin-top:8px;"><strong style="color:var(--accent-purple)">${safePName}:</strong><br>${p.desc}</div>`; }); }
                 
-               const card = document.createElement('div'); card.className = 'monster-card';
+                const card = document.createElement('div'); card.className = 'monster-card'; 
                 card.innerHTML = `<button class="btn-remove" onclick="apagarMonstro('${m.id}')">X</button><button class="btn-ctrl" style="position:absolute; top:10px; right:40px; font-size:0.8em;" onclick="editarMonstro('${m.id}')">✏️</button><div class="player-header"><img src="${m.foto || 'https://via.placeholder.com/60'}" class="player-img monster-img"><div><h3 class="player-name monster-name">${m.nome}</h3><div class="player-info">DEF: ${m.defesa} | Presença: ${m.presenca}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">PONTOS DE VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100)}%"></div><div class="bar-text">${m.vida_atual} / ${m.vida_max}</div></div><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button></div></div><div class="monster-details">${htmlSkills}${htmlAtaques}${htmlPoderes}</div>`; 
                 grid.appendChild(card); 
             }); 
@@ -823,7 +880,7 @@
         function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
         function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { try { if (!formula) formula = '0'; let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } showPopup(t, `DANO: ${nomeAtaque}`, "color:var(--accent-red)", nomeMonstro); } catch(e) { alert("Fórmula de dano inválida!"); } }
 
-        function renderizarIniciativa() { const c = document.getElementById('iniciativa-list-container'); c.innerHTML = ''; iniciativaList.sort((a,b) => { if(b.total !== a.total) return b.total - a.total; if(b.dano !== a.dano) return b.dano - a.dano; return b.agi - a.agi; }); iniciativaList.forEach((ini, idx) => {const card = document.createElement('div'); card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; card.innerHTML = `<button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button><div class="ini-rank">#${idx+1}</div><img src="${ini.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${ini.nome}</h3><div class="ini-details">D20: ${ini.dado} | Bônus: ${ini.bonus}</div></div><div class="ini-total-box"><div class="ini-total-lbl">TOTAL</div><div class="ini-total">${ini.total}</div></div>`; c.appendChild(card); }); }
+        function renderizarIniciativa() { const c = document.getElementById('iniciativa-list-container'); c.innerHTML = ''; iniciativaList.sort((a,b) => { if(b.total !== a.total) return b.total - a.total; if(b.dano !== a.dano) return b.dano - a.dano; return b.agi - a.agi; }); iniciativaList.forEach((ini, idx) => { const card = document.createElement('div'); card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; card.innerHTML = `<button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button><div class="ini-rank">#${idx+1}</div><img src="${ini.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${ini.nome}</h3><div class="ini-details">D20: ${ini.dado} | Bônus: ${ini.bonus}</div></div><div class="ini-total-box"><div class="ini-total-lbl">TOTAL</div><div class="ini-total">${ini.total}</div></div>`; c.appendChild(card); }); }
         function rolarMonstrosIniciativa() { monstros.forEach(m => { let a = m.attrs ? (parseInt(m.attrs.agi)||1) : 1; let b = 0; if(m.skills && m.skills['iniciativa']) b = Math.floor(m.skills['iniciativa'].bonus + (a * 2) + (m.skills['iniciativa'].treinado ? 5 : 0)); let d = Math.floor(Math.random()*20)+1; let t = d+b; let idx = iniciativaList.findIndex(i => i.id === m.id); if(idx > -1) { iniciativaList[idx].dado = d; iniciativaList[idx].total = t; } else { iniciativaList.push({ id: m.id, isPlayer: false, nome: m.nome, foto: m.foto || 'https://via.placeholder.com/60', dado: d, bonus: b, agi: a, total: t }); } showPopup(t, `INICIATIVA`, "color:white", m.nome); }); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); }
         function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); }
         function limparIniciativa() { if(confirm("Deseja apagar a tabela de iniciativa?")) { iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); } }
