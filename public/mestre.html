@@ -653,27 +653,52 @@
     <div id="modal-pin" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 400px;"><h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Pin</h2><div class="form-group"><label>Título</label><input type="text" id="pin-title" class="monster-input"></div><div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group"><label>Cor</label><select id="pin-color" class="monster-input" style="color: white; padding: 12px;"><option value="#e53935">🔴 Vermelho</option><option value="#00b0ff">🔵 Azul</option><option value="#ffcf33">🟡 Amarelo</option><option value="#00e676">🟢 Verde</option><option value="#b82bf2">🟣 Roxo</option></select></div><input type="hidden" id="pin-id-edit"><input type="hidden" id="pin-temp-x"><input type="hidden" id="pin-temp-y"><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;"><button class="btn-remove" id="btn-delete-pin" style="position: static; flex: 1; display: none;" onclick="apagarPin()">APAGAR</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPin()">GUARDAR PIN</button><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalPin()">Cancelar</button></div></div></div>
 
     <div id="modal-criatura" class="modal-overlay">
-        <div class="modal-content" style="max-width: 700px;">
-            <h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Criatura</h2>
-            <div class="form-group"><label>Nome</label><input type="text" id="c-nome" class="monster-input"></div>
-            <div class="form-group"><label>Foto URL</label><input type="text" id="c-foto" class="monster-input"></div>
-            <div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:1; min-width: 150px;"><label>Presença</label><input type="text" id="c-presenca" class="monster-input"></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input"></div></div>
-            <div class="form-group"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input"></div>
-            <div class="form-group"><label>Atributos</label><div class="attr-grid"><div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div></div></div>
+        <div class="modal-content" style="max-width: 750px;">
+            <h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2>
+            
+            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                <div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div>
+                <div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div>
+            </div>
+
+            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
+                <div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div>
+                <div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div>
+                <div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div>
+            </div>
+
             <div class="form-group">
-                <label>Perícias Principais</label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                <label>Atributos Principais</label>
+                <div class="attr-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div>
+                    <div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Perícias Base</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div>
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div>
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div>
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div>
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div>
                     <div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div>
+                    <div class="skill-group"><label><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div>
                 </div>
             </div>
-            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button></label><div id="c-ataques-list"></div></div>
-            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Adicionar</button></label><div id="c-poderes-list"></div></div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1;" onclick="fecharModalCriatura()">Cancelar</button><button class="btn-add" style="background: var(--accent-green); flex: 2;" onclick="salvarCriatura()">Guardar Criatura</button></div>
+
+            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div>
+            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div>
+            
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalCriatura()">Cancelar</button>
+                <button class="btn-add" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button>
+            </div>
         </div>
     </div>
 
@@ -699,6 +724,10 @@
 
         const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
         function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
+
+        let editMonstroId = null;
+        const listaPericiasMonstro = ['luta','pontaria','iniciativa','reflexos','percepcao','vontade','fortitude','ocultismo'];
+        const attrMapMonstro = { 'luta': 'for', 'pontaria': 'agi', 'iniciativa': 'agi', 'reflexos': 'agi', 'percepcao': 'pre', 'vontade': 'pre', 'fortitude': 'vig', 'ocultismo': 'int' };
 
         let debounceTimer;
         function salvarMestreNoFirebase() { 
@@ -756,9 +785,6 @@
             if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
         });
 
-        // ==========================================================
-        // RECEBER EDIÇÕES DA FICHA (MESMO COM JOGADOR OFFLINE)
-        // ==========================================================
         window.addEventListener('message', (event) => {
             if (event.data && event.data.tipo === 'sync_offline_edit') {
                 const codPuro = event.data.codigo.toUpperCase();
@@ -801,12 +827,10 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-'+aba).classList.add('active');
             
-            // Esconde todos
             ['players-board', 'monsters-board', 'iniciativa-board', 'roteiro-board', 'mapas-board', 'catalogo-board', 'rmestre-board', 'pistas-board'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
 
-            // Mostra o correto
             if(aba === 'jogadores') { document.getElementById('players-board').style.display = 'grid'; document.getElementById('players-board').classList.add('fade-in'); renderizarJogadores(); }
             else if(aba === 'monstros') { document.getElementById('monsters-board').style.display = 'flex'; document.getElementById('monsters-board').classList.add('fade-in'); renderizarMonstros(); }
             else if(aba === 'iniciativa') { document.getElementById('iniciativa-board').style.display = 'flex'; document.getElementById('iniciativa-board').classList.add('fade-in'); renderizarIniciativa(); }
@@ -872,7 +896,6 @@
         }
         function resetPistaZoom() { pistaScale = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); }
         
-        // Upload de Pistas Local
         function carregarFotoPistaPC(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -900,7 +923,6 @@
             reader.readAsDataURL(file);
         }
 
-        // Eventos de Zoom/Pan para Pistas
         setTimeout(() => {
             const pistaWrapper = document.getElementById('pista-img-wrapper');
             if(pistaWrapper) {
@@ -1060,7 +1082,6 @@
             let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
             objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random()*100);
             
-            // Sincronização em tempo real via socket
             socket.emit('comando_mestre', { 
                 tipo: tipo === 'item' ? 'dar_item' : 'dar_ritual', 
                 codigo: alvoCode, 
@@ -1068,7 +1089,6 @@
                 ritual: tipo === 'item' ? null : objParaEnviar
             });
 
-            // Atualização do banco de dados (persistência)
             let pData = playersDataMemoria[alvoCode];
             if (pData && pData.fullData) {
                 if (tipo === 'item') {
@@ -1083,20 +1103,199 @@
             }
         }
 
-        // ---------- RESTO DO CÓDIGO (MONSTROS, MAPAS, INICIATIVA, LOG) ----------
-        // ... (Mantendo sua lógica original sem alterações para monstros, mapas e iniciativa)
+        // =========================================
+        // SISTEMA AVANÇADO DE MONSTROS
+        // =========================================
         
+        function abrirModalCriatura() { 
+            editMonstroId = null; 
+            document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; 
+            document.getElementById('c-presenca').value = 'ND / 0'; document.getElementById('c-defesa').value = '10'; 
+            document.getElementById('c-vida').value = '100'; 
+            ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; }); 
+            listaPericiasMonstro.forEach(s => { 
+                const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
+                if(chk) chk.checked = false; if(bns) bns.value = '0'; 
+            }); 
+            document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; 
+            document.getElementById('modal-criatura').style.display = 'flex'; 
+        }
+        
+        function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
+
+        function addCampoAtaque(containerId, atq = {nome:'', pericia:'luta', bonusExtra:0, dano:''}) { 
+            const c = document.getElementById(containerId); const id = Date.now() + Math.floor(Math.random() * 1000); 
+            const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; 
+            
+            let periciaVal = atq.pericia || 'luta';
+            let bonusVal = atq.bonusExtra || 0;
+            if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; }
+
+            div.innerHTML = `
+                <input type="text" class="monster-input" placeholder="Ação/Atq" value="${atq.nome}" style="flex:2; min-width:120px;">
+                <select class="monster-input" style="flex:1.5; min-width:110px;">
+                    <option value="luta" ${periciaVal === 'luta' ? 'selected' : ''}>Luta (FOR)</option>
+                    <option value="pontaria" ${periciaVal === 'pontaria' ? 'selected' : ''}>Pontaria (AGI)</option>
+                    <option value="ocultismo" ${periciaVal === 'ocultismo' ? 'selected' : ''}>Ocultismo (INT)</option>
+                </select>
+                <input type="number" class="monster-input" placeholder="+Bônus" value="${bonusVal}" style="flex:1; min-width:60px;" title="Bônus Extra">
+                <input type="text" class="monster-input" placeholder="Dano (ex: 2d8+5)" value="${atq.dano}" style="flex:1.5; min-width:100px;">
+                <button class="btn-remove" style="position:static;" onclick="document.getElementById('row-${id}').remove()">X</button>
+            `; 
+            c.appendChild(div); 
+        }
+
+        function addCampoPoder(containerId, pod = {nome:'', desc:''}) { 
+            const c = document.getElementById(containerId); const id = Date.now() + Math.floor(Math.random() * 1000); 
+            const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; 
+            div.innerHTML = `<input type="text" class="monster-input" placeholder="Nome do Poder / Passiva" value="${pod.nome}" style="width:100%; margin-bottom:5px;"><textarea class="monster-input" placeholder="Descrição do efeito..." style="height:60px; resize:none;">${pod.desc}</textarea><button class="btn-remove" style="position:static; width:100%; margin-top:5px; padding:8px;" onclick="document.getElementById('row-${id}').remove()">Remover Poder</button>`; 
+            c.appendChild(div); 
+        }
+
+        function salvarCriatura() { 
+            const m = { 
+                id: editMonstroId || ('monstro_' + Date.now()), 
+                nome: document.getElementById('c-nome').value || 'Criatura Desconhecida', 
+                foto: document.getElementById('c-foto').value, 
+                presenca: document.getElementById('c-presenca').value, 
+                defesa: document.getElementById('c-defesa').value, 
+                vida_atual: document.getElementById('c-vida').value, 
+                vida_max: document.getElementById('c-vida').value, 
+                attrs: { 
+                    agi: document.getElementById('c-agi').value, 
+                    for: document.getElementById('c-for').value, 
+                    pre: document.getElementById('c-pre').value,
+                    int: document.getElementById('c-int').value || 1,
+                    vig: document.getElementById('c-vig').value || 1
+                }, 
+                skills: {}, ataques: [], poderes: [] 
+            }; 
+            
+            listaPericiasMonstro.forEach(s => { 
+                m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; 
+            }); 
+            
+            document.getElementById('c-ataques-list').childNodes.forEach(row => { 
+                const inputs = row.querySelectorAll('input, select'); 
+                if(inputs[0] && inputs[0].value) { 
+                    m.ataques.push({ nome: inputs[0].value, pericia: inputs[1].value, bonusExtra: parseInt(inputs[2].value) || 0, dano: inputs[3].value }); 
+                } 
+            }); 
+            
+            document.getElementById('c-poderes-list').childNodes.forEach(row => { 
+                const inputs = row.querySelectorAll('input, textarea'); 
+                if(inputs[0] && inputs[0].value) { m.poderes.push({ nome: inputs[0].value, desc: inputs[1].value }); } 
+            }); 
+            
+            if (editMonstroId) { const idx = monstros.findIndex(x => x.id === editMonstroId); if(idx > -1) monstros[idx] = m; } 
+            else { monstros.push(m); } 
+            
+            localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+            salvarMestreNoFirebase(); fecharModalCriatura(); renderizarMonstros(); 
+        }
+
         function renderizarMonstros() { 
             const grid = document.getElementById('monsters-grid'); grid.innerHTML = ''; 
             monstros.forEach(m => { 
+                let htmlSkills = '<div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">';
+                listaPericiasMonstro.forEach(s => { 
+                    if (m.skills && m.skills[s] && (m.skills[s].treinado || m.skills[s].bonus > 0)) {
+                        let attrKey = attrMapMonstro[s] || 'agi';
+                        let attrVal = parseInt(m.attrs?.[attrKey] || 1);
+                        let totalV = Math.floor(parseInt(m.skills[s].bonus||0) + (attrVal * 2) + (m.skills[s].treinado ? 5 : 0));
+                        let sName = s.charAt(0).toUpperCase() + s.slice(1);
+                        htmlSkills += `<button class="btn-roll" style="background:rgba(0,176,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); flex:1 1 30%; font-size:0.75em;" onclick="rolarD20Mestre('${m.nome.replace(/'/g,"\\'").replace(/"/g,"&quot;")}', '${sName}', ${totalV}, false)">${sName} (${totalV})</button>`;
+                    }
+                });
+                htmlSkills += '</div>';
+
+                let htmlAtaques = ''; 
+                if(m.ataques) {
+                    m.ataques.forEach(a => { 
+                        let safeMName = m.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
+                        let safeAName = a.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
+                        
+                        let atqTotal = 0;
+                        if (a.teste !== undefined) {
+                            atqTotal = parseInt(a.teste) || 0; 
+                        } else {
+                            let pName = a.pericia || 'luta';
+                            let attrKey = attrMapMonstro[pName] || 'for';
+                            let attrVal = parseInt(m.attrs?.[attrKey] || 1);
+                            let skillData = m.skills?.[pName] || { treinado: false, bonus: 0 };
+                            atqTotal = Math.floor(parseInt(skillData.bonus||0) + (attrVal * 2) + (skillData.treinado ? 5 : 0)) + (parseInt(a.bonusExtra) || 0);
+                        }
+
+                        htmlAtaques += `<div style="margin-top:10px; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid rgba(255,207,51,0.3);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:var(--accent-yellow); text-transform:uppercase; font-size:0.9em;">${a.nome}</strong> 
+                                <span style="font-size:0.75em; color:gray; font-weight:bold;">Atq: +${atqTotal} | Dano: ${a.dano}</span>
+                            </div>
+                            <div style="display:flex; gap:5px; margin-top:8px;">
+                                <button class="btn-roll" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;" onclick="rolarD20Mestre('${safeMName}', '${safeAName} (Ataque)', ${atqTotal}, true)">ATQ</button>
+                                <button class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); flex:1;" onclick="rolarDanoMonstro('${safeMName}', '${safeAName}', '${a.dano}')">DANO</button>
+                            </div>
+                        </div>`; 
+                    }); 
+                }
+                
+                let htmlPoderes = ''; 
+                if(m.poderes) { m.poderes.forEach(p => { let safePName = p.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); htmlPoderes += `<div style="margin-top:8px;"><strong style="color:var(--accent-purple)">${safePName}:</strong><br>${p.desc}</div>`; }); }
+                
                 const card = document.createElement('div'); card.className = 'monster-card'; 
-                card.innerHTML = `<button class="btn-remove" onclick="apagarMonstro('${m.id}')">X</button><div class="player-header"><img src="${m.foto || 'https://via.placeholder.com/60'}" class="player-img monster-img"><div><h3 class="player-name monster-name">${m.nome}</h3></div></div><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${(m.vida_atual/m.vida_max)*100}%"></div><div class="bar-text">${m.vida_atual}/${m.vida_max}</div></div><button class="btn-roll" onclick="alterarVidaMonstro('${m.id}', -10)">DANO -10</button>`; 
+                card.innerHTML = `<button class="btn-remove" onclick="apagarMonstro('${m.id}')">X</button><button class="btn-ctrl" style="position:absolute; top:10px; right:40px; font-size:0.8em; background:var(--accent-blue); color:black; border-color:var(--accent-blue);" onclick="editarMonstro('${m.id}')">✏️</button><div class="player-header"><img src="${m.foto || 'https://via.placeholder.com/60'}" class="player-img monster-img"><div><h3 class="player-name monster-name">${m.nome}</h3><div class="player-info">DEF: ${m.defesa} | Presença: ${m.presenca}</div></div></div><div><div style="font-size: 0.75em; color: var(--accent-red); font-weight: bold; margin-bottom: 2px;">PONTOS DE VIDA</div><div style="display: flex; align-items: center; gap: 5px;"><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button><div class="bar-container"><div class="bar-fill fill-vida" style="width: ${Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100)}%"></div><div class="bar-text">${m.vida_atual} / ${m.vida_max}</div></div><button class="btn-ctrl" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button></div></div><div class="monster-details">${htmlSkills}${htmlAtaques}${htmlPoderes}</div>`; 
                 grid.appendChild(card); 
             }); 
         }
+        
+        function apagarMonstro(id) { if(confirm("Deseja apagar esta criatura da mesa?")) { monstros = monstros.filter(m => m.id !== id); localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
+        
+        function editarMonstro(id) { 
+            const m = monstros.find(x => x.id === id); if(!m) return; 
+            editMonstroId = m.id; 
+            document.getElementById('c-nome').value = m.nome; 
+            document.getElementById('c-foto').value = m.foto || ''; 
+            document.getElementById('c-presenca').value = m.presenca || ''; 
+            document.getElementById('c-defesa').value = m.defesa || '10'; 
+            document.getElementById('c-vida').value = m.vida_max; 
+            if(m.attrs) { 
+                document.getElementById('c-agi').value = m.attrs.agi || 1; 
+                document.getElementById('c-for').value = m.attrs.for || 1; 
+                document.getElementById('c-pre').value = m.attrs.pre || 1; 
+                document.getElementById('c-int').value = m.attrs.int || 1; 
+                document.getElementById('c-vig').value = m.attrs.vig || 1; 
+            } 
+            if(m.skills) { 
+                listaPericiasMonstro.forEach(s => { 
+                    if(m.skills[s]) { document.getElementById('c-treino-'+s).checked = m.skills[s].treinado; document.getElementById('c-bonus-'+s).value = m.skills[s].bonus; } 
+                }); 
+            } 
+            document.getElementById('c-ataques-list').innerHTML = ''; 
+            if(m.ataques) m.ataques.forEach(a => addCampoAtaque('c-ataques-list', a)); 
+            document.getElementById('c-poderes-list').innerHTML = ''; 
+            if(m.poderes) m.poderes.forEach(p => addCampoPoder('c-poderes-list', p)); 
+            document.getElementById('modal-criatura').style.display = 'flex'; 
+        }
+        
+        function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
+        
+        function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { try { if (!formula) formula = '0'; let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } showPopup(t, `DANO: ${nomeAtaque}`, "color:var(--accent-red)", nomeMonstro); } catch(e) { alert("Fórmula de dano inválida!"); } }
 
-        function apagarMonstro(id) { monstros = monstros.filter(x => x.id !== id); renderizarMonstros(); salvarMestreNoFirebase(); }
-        function alterarVidaMonstro(id, v) { const m = monstros.find(x => x.id === id); if(m) { m.vida_atual = Math.max(0, parseInt(m.vida_atual) + v); renderizarMonstros(); } }
+        function rolarD20Mestre(nomeMonstro, nomeAcao, totalVal, isAtaque = false) {
+            let tg = getAlvosD20(totalVal); let d20 = Math.floor(Math.random() * 20) + 1; let textFormat = ""; let colorFormat = "";
+            if (d20 === 1) { textFormat = "DESASTRE"; colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; }
+            else if (d20 >= 20 && isAtaque) { textFormat = "CRÍTICO!"; colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; }
+            else if (d20 >= tg.e) { textFormat = "EXTREMO"; colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; }
+            else if (d20 >= tg.b) { textFormat = "BOM"; colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; }
+            else if (d20 >= tg.n) { textFormat = "NORMAL"; colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; }
+            else { textFormat = "FALHA"; colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; }
+            showPopup(d20, `${nomeAcao}<br>(${textFormat})`, colorFormat, nomeMonstro);
+        }
+
+        // =========================================
+        // (FIM DO SISTEMA AVANÇADO DE MONSTROS)
+        // =========================================
+
 
         function renderizarMapasList() {
             const list = document.getElementById('map-list-container'); list.innerHTML = '';
@@ -1145,15 +1344,53 @@
             document.getElementById('popup-res').innerHTML = r;
             document.getElementById('popup-content').style.display = 'flex';
             dice.style.display = 'flex';
-            socket.emit('rolagem_feita', { jogador: jog, acao: r, resultado: n, cor: st });
+            
+            // Corrige possível envio indefinido na primeira renderização sem conexão
+            if (typeof socket !== 'undefined' && socket) {
+                socket.emit('rolagem_feita', { jogador: jog, acao: r, resultado: n, cor: st });
+            }
         }
         function closeDice() { document.getElementById('popup-dice').style.display = 'none'; }
+
+        // MANTER INICIATIVA FUNCIONAL
+        function renderizarIniciativa() { const c = document.getElementById('iniciativa-list-container'); c.innerHTML = ''; iniciativaList.sort((a,b) => { if(b.total !== a.total) return b.total - a.total; if(b.dano !== a.dano) return b.dano - a.dano; return b.agi - a.agi; }); iniciativaList.forEach((ini, idx) => { const card = document.createElement('div'); card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; card.innerHTML = `<button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button><div class="ini-rank">#${idx+1}</div><img src="${ini.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${ini.nome}</h3><div class="ini-details">D20: ${ini.dado} | Bônus: ${ini.bonus}</div></div><div class="ini-total-box"><div class="ini-total-lbl">TOTAL</div><div class="ini-total">${ini.total}</div></div>`; c.appendChild(card); }); }
+        function rolarMonstrosIniciativa() { monstros.forEach(m => { let a = m.attrs ? (parseInt(m.attrs.agi)||1) : 1; let b = 0; if(m.skills && m.skills['iniciativa']) b = Math.floor(m.skills['iniciativa'].bonus + (a * 2) + (m.skills['iniciativa'].treinado ? 5 : 0)); let d = Math.floor(Math.random()*20)+1; let t = d+b; let idx = iniciativaList.findIndex(i => i.id === m.id); if(idx > -1) { iniciativaList[idx].dado = d; iniciativaList[idx].total = t; } else { iniciativaList.push({ id: m.id, isPlayer: false, nome: m.nome, foto: m.foto || 'https://via.placeholder.com/60', dado: d, bonus: b, agi: a, total: t }); } showPopup(t, `INICIATIVA`, "color:white", m.nome); }); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); }
+        function removerIniciativa(id) { iniciativaList = iniciativaList.filter(i => i.id !== id); localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); }
+        function limparIniciativa() { if(confirm("Deseja apagar a tabela de iniciativa?")) { iniciativaList = []; localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); salvarMestreNoFirebase(); renderizarIniciativa(); } }
+        function processarIniciativa(dados, upperCode) {
+            let dadoPuro = parseInt(dados.resultado) || 0; let isPlayer = dados.codigo !== null; let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); let bonusCalc = 0; let agiBase = 0; let foto = 'https://via.placeholder.com/60'; let nomeStr = dados.jogador;
+            if (isPlayer) { let pData = playersDataMemoria[upperCode]; if (pData && pData.fullData) { let fd = pData.fullData; agiBase = parseInt(fd.attrs['attr_agi']) || 1; let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; let isTreinado = fd.skills['chk_iniciativa'] === true; let penalty = 0; if (fd.inv) { let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); if (hasHeavy) penalty = -5; } bonusCalc = Math.floor(skillInic + (agiBase * 2) + (isTreinado ? 10 : 0) + penalty); foto = pData.foto || foto; } } else { let monstro = monstros.find(m => m.nome === dados.jogador); if (monstro) { idUnico = monstro.id; agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; let sData = monstro.skills ? monstro.skills['iniciativa'] : null; if (sData) { bonusCalc = Math.floor(sData.bonus + (agiBase * 2) + (sData.treinado ? 5 : 0)); } foto = monstro.foto || foto; } }
+            let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
+            if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
+            if (document.getElementById('tab-iniciativa').classList.contains('active')) { renderizarIniciativa(); }
+        }
+
+        // ROTEIRO (Restaurando Funções Básicas Necessárias)
+        let currentRoteiroId = null; let roteiroEditorTimeout; 
+        if (!roteiros || roteiros.length === 0) { roteiros = [{ id: 'sessao_1', titulo: 'Sessão 1', texto: '' }]; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+        function renderRoteiros() { const list = document.getElementById('roteiro-list'); list.innerHTML = ''; roteiros.forEach(r => { const btn = document.createElement('div'); btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`; btn.onclick = () => carregarRoteiro(r.id); btn.innerHTML = `<span>${r.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>`; list.appendChild(btn); }); }
+        function renderDescricoes() { const list = document.getElementById('descricao-list'); list.innerHTML = ''; descricoes.forEach(d => { const btn = document.createElement('div'); btn.className = `session-btn ${d.id === currentRoteiroId ? 'active-desc' : ''}`; btn.onclick = () => carregarDescricao(d.id); btn.innerHTML = `<span>${d.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em; background: #333;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>`; list.appendChild(btn); }); }
+        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); renderRoteiros(); carregarRoteiro(novo.id); }
+        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); renderDescricoes(); carregarDescricao(novo.id); }
+        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
+        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
+        function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function atualizarEditor() { const inputTitulo = document.getElementById('roteiro-titulo-atual'); const areaTexto = document.getElementById('roteiro-text'); if(!currentRoteiroId) { inputTitulo.value = ''; inputTitulo.disabled = true; areaTexto.value = ''; areaTexto.disabled = true; return; } inputTitulo.disabled = false; areaTexto.disabled = false; let item = roteiros.find(r => r.id === currentRoteiroId) || descricoes.find(d => d.id === currentRoteiroId); if(item) { inputTitulo.value = item.titulo; areaTexto.value = item.texto; } }
+        document.getElementById('roteiro-titulo-atual').addEventListener('input', (e) => { if(!currentRoteiroId) return; const val = e.target.value; let item = roteiros.find(r => r.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderRoteiros(); } else { item = descricoes.find(d => d.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderDescricoes(); } } salvarTextoEditor(); });
+        document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
+        function salvarTextoEditor() { if(!currentRoteiroId) return; const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)'; clearTimeout(roteiroEditorTimeout); roteiroEditorTimeout = setTimeout(() => { const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId); if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; } if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); } status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); }, 1000); }
 
         window.onload = () => {
             mudarAba('jogadores');
             renderizarCatalogo();
             renderizarCatalogoRituais();
-            if(mapas.length > 0) { currentMapaIdMap = mapas[0].id; renderizarMapasList(); renderizarMapaAtual(); }
+            // Evitar erro se não houver mapas criados
+            if (typeof mapas !== 'undefined' && mapas.length > 0) { 
+                currentMapaIdMap = mapas[0].id; 
+                renderizarMapasList(); 
+                renderizarMapaAtual(); 
+            }
         };
     </script>
 </body>
