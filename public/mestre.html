@@ -77,9 +77,9 @@
         }
         .monster-skill-tag {
             background: rgba(0, 176, 255, 0.05); border: 1px solid rgba(0, 176, 255, 0.3);
-            color: var(--text-primary); padding: 6px 10px; border-radius: 6px; cursor: pointer;
-            font-size: 0.75em; font-weight: bold; display: flex; justify-content: space-between;
-            align-items: center; transition: 0.2s; flex: 1 1 calc(33% - 10px);
+            color: var(--text-primary); padding: 6px 8px; border-radius: 6px; cursor: pointer;
+            font-size: 0.7em; font-weight: bold; display: flex; justify-content: space-between;
+            align-items: center; transition: 0.2s; flex: 1 1 calc(50% - 6px); box-sizing: border-box;
         }
         .monster-skill-tag:hover { background: rgba(0, 176, 255, 0.2); border-color: var(--accent-blue); transform: translateY(-2px); }
         .monster-skill-tag .skill-val { color: var(--accent-blue); background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; }
@@ -97,7 +97,7 @@
         .monster-attack-card:hover { border-color: rgba(229,57,53,0.5); background: rgba(229,57,53,0.05); }
         .atk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px;}
         .atk-name { color: var(--accent-yellow); font-weight: 900; font-size: 0.9em; text-transform: uppercase; }
-        .atk-stats { font-size: 0.75em; color: var(--text-primary); background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 4px; border: 1px solid #444; }
+        .atk-stats { font-size: 0.75em; color: var(--text-primary); background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 4px; border: 1px solid #444; white-space: nowrap; }
         .atk-actions { display: flex; gap: 8px; }
         .btn-atk, .btn-dmg {
             flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: 900; font-size: 0.75em; cursor: pointer; transition: 0.2s; text-transform: uppercase;
@@ -442,7 +442,7 @@
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
 
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit { 0%,100%{transform:translate(0,0) rotate(0);} 20%{transform:translate(-3px,0) rotate(2deg);} 40%{transform:translate(1px,-1px) rotate(-2deg);} 60%{transform:translate(-3px,1px) rotate(2deg);} 80%{transform:translate(-1px,-1px) rotate(-2deg);} }
+        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
         
         .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
@@ -984,16 +984,6 @@
                     pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; applyPistaTransform();
                 });
                 window.addEventListener('mouseup', () => { isDraggingPista = false; if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; });
-                
-                pistaWrapper.addEventListener('touchstart', (e) => {
-                    if(e.target.tagName === 'BUTTON' || e.touches.length !== 1) return;
-                    isDraggingPista = true; startPX = e.touches[0].clientX - pistaTx; startPY = e.touches[0].clientY - pistaTy;
-                }, {passive: false});
-                window.addEventListener('touchmove', (e) => {
-                    if (!isDraggingPista || e.touches.length !== 1) return; e.preventDefault();
-                    pistaTx = e.touches[0].clientX - startPX; pistaTy = e.touches[0].clientY - startPY; applyPistaTransform();
-                }, {passive: false});
-                window.addEventListener('touchend', () => { isDraggingPista = false; });
             }
         }, 1000);
 
@@ -1382,7 +1372,6 @@
         function abrirModalCriatura() { 
             editMonstroId = null; 
             
-            // LIMPAR TUDO ANTES DE ABRIR (EVITA MISTURA DE STATUS)
             document.getElementById('c-nome').value = ''; 
             document.getElementById('c-foto').value = ''; 
             document.getElementById('c-presenca').value = 'ND / 0'; 
@@ -1415,7 +1404,6 @@
             
             let periciaVal = atq.pericia || 'luta';
             let bonusVal = atq.bonusExtra || 0;
-            // Se o monstro for muito antigo e só possuir "teste", joga visualmente para o Bônus
             if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; }
 
             div.innerHTML = `
@@ -1462,7 +1450,6 @@
                 m.skills[s] = { treinado: document.getElementById('c-treino-'+s).checked, bonus: parseInt(document.getElementById('c-bonus-'+s).value) || 0 }; 
             }); 
             
-            // Usando Array.from e .children evita erros se o HTML gerar nós de texto (whitespaces)
             Array.from(document.getElementById('c-ataques-list').children).forEach(row => { 
                 const inputs = row.querySelectorAll('input, select'); 
                 if(inputs[0] && inputs[0].value) { 
@@ -1527,7 +1514,7 @@
                         <div class="monster-attack-card">
                             <div class="atk-header">
                                 <span class="atk-name">⚔️ ${a.nome}</span>
-                                <span class="atk-stats">Atq: +${atqTotal} | Dano: ${a.dano}</span>
+                                <span class="atk-stats" style="white-space: nowrap;">Atq: +${atqTotal} | Dano: ${a.dano}</span>
                             </div>
                             <div class="atk-actions">
                                 <button class="btn-atk" onclick="rolarD20Mestre('${safeMName}', '${safeAName} (Ataque)', ${atqTotal}, true)">🎯 ATACAR</button>
@@ -1556,9 +1543,9 @@
                     <img src="${m.foto || 'https://via.placeholder.com/80'}" class="player-img monster-img" style="width: 75px; height: 75px; border-width: 3px;">
                     <div class="monster-header-info">
                         <h3 class="player-name monster-name" style="font-size: 1.4em;">${m.nome}</h3>
-                        <div class="player-info" style="margin-top: 4px;">
-                            <span style="background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #444;">🛡️ DEF: <b style="color:white;">${m.defesa}</b></span>
-                            <span style="background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #444; margin-left: 5px;">👁️ PRE: <b style="color:white;">${m.presenca}</b></span>
+                        <div class="player-info" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 5px;">
+                            <span style="background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #444; white-space: nowrap;">🛡️ DEF: <b style="color:white;">${m.defesa}</b></span>
+                            <span style="background: rgba(0,0,0,0.5); padding: 3px 6px; border-radius: 4px; border: 1px solid #444; white-space: nowrap;">👁️ PRE: <b style="color:white;">${m.presenca}</b></span>
                         </div>
                     </div>
                 </div>
@@ -1568,13 +1555,13 @@
                         <span style="font-size: 0.75em; color: var(--accent-red); font-weight: 900; letter-spacing: 1px;">PONTOS DE VIDA</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px;">
-                        <button class="btn-ctrl" style="height: 30px; width: 35px; border-radius: 6px;" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button>
-                        <button class="btn-ctrl" style="height: 30px; width: 35px; border-radius: 6px;" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button>
+                        <button class="btn-ctrl" style="height: 30px; min-width: 35px; width: auto; padding: 0 8px; border-radius: 6px; font-size: 0.85em;" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button>
+                        <button class="btn-ctrl" style="height: 30px; min-width: 35px; width: auto; padding: 0 8px; border-radius: 6px; font-size: 0.85em;" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button>
                         <div class="bar-container" style="height: 30px; border-radius: 8px; margin-top: 0; border-width: 2px;">
                             <div class="bar-fill fill-vida" style="width: ${Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100)}%; box-shadow: 0 0 10px rgba(229,57,53,0.5);"></div>
                             <div class="bar-text" style="line-height: 30px; font-size: 1em;">${m.vida_atual} / ${m.vida_max}</div>
                         </div>
-                        <button class="btn-ctrl" style="height: 30px; width: 35px; border-radius: 6px;" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button>
+                        <button class="btn-ctrl" style="height: 30px; min-width: 35px; width: auto; padding: 0 8px; border-radius: 6px; font-size: 0.85em;" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button>
                     </div>
                 </div>
                 
@@ -1593,7 +1580,6 @@
             const m = monstros.find(x => x.id === id); if(!m) return; 
             editMonstroId = m.id; 
             
-            // LIMPAR O ESTADO ANTERIOR DO MODAL
             ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; });
             listaPericiasMonstro.forEach(s => { 
                 const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); 
@@ -1672,19 +1658,43 @@
             logBox.prepend(logItem);
         }
 
-        function showPopup(n, r, st, jog) {
-            const dice = document.getElementById('popup-dice');
-            document.getElementById('popup-num').innerText = n;
-            document.getElementById('popup-res').innerHTML = r;
-            document.getElementById('popup-content').style.display = 'flex';
-            dice.style.display = 'flex';
+        function showPopup(n, r="TOTAL", st="color:white", jog="Mestre") { 
+            const box = document.querySelector('.popup-box-dice'); 
+            box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; 
+            
+            let numEl = document.getElementById('popup-num'); 
+            numEl.innerHTML = n; 
+            if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; 
+            else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; 
+            
+            let resEl = document.getElementById('popup-res'); 
+            let textoFinal = r; 
+            if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')) { 
+                textoFinal = r.replace(' (', '<br>('); 
+            } 
+            resEl.innerHTML = textoFinal; 
+            resEl.style.cssText = `font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; 
+            
+            box.style.animation = 'none'; 
+            box.style.boxShadow = 'none'; 
+            box.style.borderColor = 'var(--accent-yellow)'; 
+            document.getElementById('popup-content').style.display = 'none'; 
+            document.getElementById('popup-dice').style.display = 'flex'; 
             
             setTimeout(() => { 
-                if (typeof socket !== 'undefined' && socket) {
-                    socket.emit('rolagem_feita', { jogador: jog, acao: r, resultado: n, cor: st });
-                }
-            }, 1500);
+                document.getElementById('popup-content').style.display = 'flex'; 
+                if (r.includes('CRÍTICO')) { 
+                    box.style.animation = 'shakeCrit 0.4s infinite'; 
+                    box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; 
+                    box.style.borderColor = '#ff0000'; 
+                } 
+            }, 1500); 
+            
+            if (typeof socket !== 'undefined' && socket) { 
+                socket.emit('rolagem_feita', { jogador: jog, acao: r.replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st }); 
+            } 
         }
+
         function closeDice() { document.getElementById('popup-dice').style.display = 'none'; }
 
         // MANTER INICIATIVA FUNCIONAL
