@@ -8,8 +8,9 @@ const app = express();
 const server = http.createServer(app); 
 const io = new Server(server);
 
-// Aumenta o limite para suportar fichas com imagens em base64 ou textos grandes
-app.use(express.json({ limit: '10mb' })); 
+// ADIÇÃO 1: Aumentado para 50mb e adicionado urlencoded para suportar imagens Base64 grandes sem dar erro 413.
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ==========================================
@@ -51,7 +52,6 @@ app.post('/api/google_login', async (req, res) => {
 
 app.post('/api/set_username', async (req, res) => {
     const { uid, username } = req.body;
-    // Agora permite espaços! Remove acentos e converte tudo em letras maiúsculas (ex: "JOÃO SILVA" -> "JOAO SILVA")
     const cleanName = username.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
     
     if (!cleanName) return res.json({ sucesso: false, erro: "Nome inválido." });
@@ -107,7 +107,8 @@ app.post('/api/carregar_lobby', async (req, res) => {
 // ROTAS DAS FICHAS E CAMPANHAS
 // ----------------------------------------------------
 
-// Puxar Ficha de uma Campanha Específica
+const playersData = {}; // Cache de memória RAM
+
 app.post('/api/carregar_personagem', async (req, res) => {
     const { usuario } = req.body;
     try {
@@ -117,17 +118,35 @@ app.post('/api/carregar_personagem', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// Guardar Ficha numa Campanha Específica
 app.post('/api/guardar_ficha', async (req, res) => {
     const { usuario, fichaData } = req.body;
     try {
         await db.collection('fichas_campanha').doc(usuario).set({ ficha: fichaData }, { merge: true }); 
+        
+        // ADIÇÃO 2: Atualizar o cache da memória RAM do Servidor!
+        // Se não fizermos isso, o mestre pode carregar dados antigos ao dar F5 na página.
+        if (playersData[usuario]) {
+            playersData[usuario].fullData = fichaData;
+            if (fichaData.info) {
+                playersData[usuario].vida_atual = fichaData.info.vida_atual;
+                playersData[usuario].vida_max = fichaData.info.vida_max;
+                playersData[usuario].sani_atual = fichaData.info.sani_atual;
+                playersData[usuario].sani_max = fichaData.info.sani_max;
+                playersData[usuario].pe_atual = fichaData.info.pe_atual;
+                playersData[usuario].pe_max = fichaData.info.pe_max;
+                playersData[usuario].nome = fichaData.info.char_nome;
+                playersData[usuario].nex = fichaData.info.char_nex;
+                playersData[usuario].foto = fichaData.info.char_img;
+            }
+            if (fichaData.defense) playersData[usuario].defesa = fichaData.defense;
+            if (fichaData.charStatus) playersData[usuario].status = fichaData.charStatus;
+        }
+
         console.log(`💾 Ficha [${usuario}] salva na nuvem.`);
         res.json({ sucesso: true });
     } catch (error) { res.json({ sucesso: false }); }
 });
 
-// Carregar Dados do Mestre e Wallpaper
 app.post('/api/carregar_campanha', async (req, res) => {
     const { campanha } = req.body;
     try {
@@ -137,7 +156,6 @@ app.post('/api/carregar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// Salvar Dados do Mestre e Wallpaper
 app.post('/api/salvar_campanha', async (req, res) => {
     const { campanha, dados } = req.body;
     try {
@@ -146,14 +164,13 @@ app.post('/api/salvar_campanha', async (req, res) => {
     } catch(e) { res.json({ sucesso: false }); }
 });
 
-// Remover os dados de vínculo quando o jogador é expulso pelo mestre ou sai pelo lobby
 app.post('/api/sair_campanha', async (req, res) => {
     const { usuario, campanha } = req.body;
     const idUnico = usuario + '_' + campanha;
     
     try {
         await db.collection('fichas_campanha').doc(idUnico).delete(); 
-        if (typeof playersData !== 'undefined') { delete playersData[idUnico]; }
+        if (playersData[idUnico]) { delete playersData[idUnico]; }
         io.to(campanha).emit('comando_mestre', { tipo: 'jogador_saiu', codigo: usuario });
         console.log(`🗑️ O jogador [${usuario}] saiu/foi expulso da campanha [${campanha}]. Dados limpos.`);
         res.json({ sucesso: true });
@@ -166,8 +183,6 @@ app.post('/api/sair_campanha', async (req, res) => {
 // ==========================================
 // 3. COMUNICAÇÃO EM TEMPO REAL (SOCKET.IO)
 // ==========================================
-
-const playersData = {}; 
 
 io.on('connection', (socket) => {
     console.log(`🟢 Utilizador ligou-se: ${socket.id}`);
@@ -199,11 +214,22 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Sincronização forçada enviada pela Ficha
     socket.on('mestre_force_sync', (dados) => {
         if(dados.codigo) {
             playersData[dados.codigo + '_' + socket.campanha] = dados;
             socket.broadcast.to(socket.campanha).emit('update_mestre', dados); 
             socket.broadcast.to(socket.campanha).emit('mestre_force_sync_player', dados); 
+        }
+    });
+
+    // ADIÇÃO 3: Sincronização forçada enviada pelo Mestre (Quando o mestre dá um item)
+    socket.on('mestre_force_sync_player', (dados) => {
+        if (dados.codigo && socket.campanha) {
+            const idUnico = dados.codigo + '_' + socket.campanha;
+            if (playersData[idUnico] && dados.fullData) {
+                playersData[idUnico].fullData = dados.fullData;
+            }
         }
     });
 
