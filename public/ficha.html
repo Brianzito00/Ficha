@@ -437,48 +437,46 @@
     const socket = typeof io !== 'undefined' ? io() : null;
     let baseUser = localStorage.getItem('usuario_logado') || ""; 
     
-    // NORMALIZAÇÃO DO NOME DO JOGADOR PARA EVITAR BUGS DE MAIÚSCULAS/ACENTOS (Ex: João -> JOAO)
     let myUpperCode = baseUser.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim(); 
     let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
     
     const urlParams = new URLSearchParams(window.location.search); 
     const viewCode = urlParams.get('view'); 
     
-    // O Mestre deve salvar no documento correto do banco de dados (COM O NOME DA CAMPANHA)
     let playerCode = viewCode ? (viewCode.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim() + '_' + campanhaAtiva) : (myUpperCode + '_' + campanhaAtiva);
+
+    function notificarRecebimento(mensagem) {
+        const statusTxt = document.getElementById('save-status');
+        if (statusTxt) {
+            statusTxt.innerText = mensagem;
+            statusTxt.style.color = "var(--accent-blue)";
+            setTimeout(() => {
+                statusTxt.innerText = "Sincronizado ✔️";
+                statusTxt.style.color = "var(--text-secondary)";
+            }, 4000);
+        }
+    }
 
     if (socket) {
         socket.on('connect', () => {
-            // O Iframe do mestre TAMBÉM precisa entrar na sala para conseguir enviar broadcasts para os jogadores
             socket.emit('join_campaign', campanhaAtiva);
         });
 
-        // Ouve a edição forçada que o Mestre faz pela tela dele
         socket.on('mestre_force_sync_player', (dados) => {
-            if (viewCode) return; // Se eu for o iframe do mestre, não faço nada aqui
+            if (viewCode) return; 
             if (dados.codigo && dados.codigo.toUpperCase() === myUpperCode) {
                 if (dados.fullData) {
-                    // Impede que a população de dados dispare novos saves e cause loops
                     let wasLoading = isLoadingData;
                     isLoadingData = true;
                     populateData(dados.fullData);
                     isLoadingData = wasLoading;
-                    
-                    const statusTxt = document.getElementById('save-status');
-                    if (statusTxt) {
-                        statusTxt.innerText = "Atualizado pelo Mestre!";
-                        statusTxt.style.color = "var(--accent-blue)";
-                        setTimeout(() => {
-                            statusTxt.innerText = "Sincronizado ✔️";
-                            statusTxt.style.color = "var(--text-secondary)";
-                        }, 3000);
-                    }
+                    notificarRecebimento("Atualizado pelo Mestre!");
                 }
             }
         });
 
         socket.on('comando_mestre', (dados) => {
-            if (viewCode) return; // O visualizador do mestre não deve reagir a si mesmo como jogador
+            if (viewCode) return; 
             if (dados.codigo && dados.codigo.toUpperCase() !== myUpperCode) return;
 
             switch(dados.tipo) {
@@ -489,13 +487,13 @@
                         updateWeight();
                         updateAllPericias();
                         save();
-                        alert(`Recebeste um item: ${dados.item.n}`);
+                        notificarRecebimento(`Recebeste um item!`);
                     }
                     break;
                 case 'dar_ritual':
                     if (dados.ritual) {
                         addCatalogRitual(JSON.stringify(dados.ritual));
-                        alert(`Aprendeste um novo ritual: ${dados.ritual.n || dados.ritual.name}`);
+                        notificarRecebimento(`Aprendeu um novo ritual!`);
                     }
                     break;
                 case 'dar_pista':
@@ -505,7 +503,7 @@
                             pistasRecebidas.push(dados.pista);
                             renderPistas();
                             save();
-                            alert(`Nova pista adicionada ao mural: ${dados.pista.titulo}`);
+                            notificarRecebimento(`Nova pista no mural!`);
                         }
                     }
                     break;
@@ -622,7 +620,6 @@
                 let origH = item.rotated ? item.w : item.h; 
                 let rotation = item.rotated ? "rotate(90deg)" : "rotate(0deg)";
                 
-                // LÓGICA DE TAMANHO E ROTAÇÃO PARA NÃO ESMAGAR A IMAGEM
                 item.el.innerHTML = `<div style="position:absolute; top:50%; left:50%; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: translate(-50%, -50%) ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" style="max-width:90%; max-height:90%; object-fit:contain; filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.8));"></div>${qtdBadge}`;
                 
                 item.el.style.width = (item.w * CELL_SIZE) + 'px'; item.el.style.height = (item.h * CELL_SIZE) + 'px'; item.el.style.left = (item.x * CELL_SIZE) + 'px'; item.el.style.top = (item.y * CELL_SIZE) + 'px'; item.el.style.zIndex = 10;
@@ -667,17 +664,18 @@
         } 
     }
 
-    // NOVA FUNÇÃO: SEPARAR MUNIÇÃO
     function separarMunicao(id) {
         let item = inventoryItems.find(i => i.id === id);
         if (item && item.type === 'municao' && item.qtd > 1) {
             item.qtd -= 1;
-            let newItem = JSON.parse(JSON.stringify(item));
-            newItem.id = 'inv_' + Date.now() + Math.floor(Math.random() * 1000);
-            newItem.qtd = 1;
-            newItem.eq = false;
-            newItem.x = -1;
-            newItem.y = -1;
+            let newItem = {
+                id: 'inv_' + Date.now() + Math.floor(Math.random() * 1000),
+                n: item.n, w: item.w, h: item.h, type: item.type, ammoType: item.ammoType,
+                qtd: 1, dmg: item.dmg, extra: item.extra, crit: item.crit, skill: item.skill,
+                img: item.img, atkType: item.atkType, atk: item.atk, range: item.range, ammo: item.ammo, capacity: item.capacity, currentShots: item.currentShots,
+                d: item.d,
+                x: -1, y: -1, rotated: false, eq: false
+            };
             inventoryItems.push(newItem);
             updateInventoryDisplay();
             selectItemInfo(id);
@@ -751,7 +749,6 @@
             updateInventoryDisplay(); updateAllPericias(); save(); return; 
         }
 
-        // LÓGICA PARA JUNTAR MUNIÇÕES (DRAG & DROP)
         if (currentItem.type === 'municao') {
             let targetItem = null;
             for (let i = 0; i < inventoryItems.length; i++) {
@@ -780,7 +777,6 @@
                 }
             }
         }
-        // FIM DA LÓGICA DE JUNTAR MUNIÇÕES
         
         if (canPlace(pos.col, pos.row, currentItem.w, currentItem.h)) { 
             currentItem.x = pos.col; currentItem.y = pos.row; updateInventoryDisplay(); selectItemInfo(currentItem.id); save(); 
@@ -834,7 +830,6 @@
         }
         document.getElementById('info-stats').innerHTML = statsHTML; 
 
-        // Adiciona botão "Separar" se for uma munição com mais de 1 carga
         let btnSplitHtml = "";
         if (item.type === 'municao' && item.qtd > 1) {
             btnSplitHtml = `<button class="btn-roll" style="flex: 1; padding: 10px; border: 2px solid var(--accent-yellow); background: transparent; color: var(--accent-yellow); font-weight: bold;" onclick="separarMunicao('${item.id}')">✂️ Separar 1</button>`;
@@ -1087,7 +1082,6 @@
 
     async function load() { 
         isLoadingData = true; 
-        
         try {
             const response = await fetch('/api/carregar_personagem', {
                 method: 'POST',
@@ -1102,23 +1096,11 @@
                 isLoadingData = false;
                 return;
             }
-        } catch (e) {
-            console.error("Erro ao carregar do servidor, tentando local...");
-        }
+        } catch (e) { console.error("Erro ao carregar do servidor, tentando local..."); }
 
         let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
-        if (!s) { 
-            isLoadingData = false; 
-            updateDanoDesarmado(); 
-            return updateAllPericias(); 
-        } 
-        try { 
-            populateData(JSON.parse(s)); 
-        } catch(e){ 
-            isLoadingData = false; 
-            updateAllPericias(); 
-            updateDanoDesarmado(); 
-        } 
+        if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
+        try { populateData(JSON.parse(s)); } catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } 
         isLoadingData = false;
     }
 
