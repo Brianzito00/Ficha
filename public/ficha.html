@@ -344,7 +344,7 @@
                     <div style="text-align: center; color: var(--text-secondary); font-style: italic;">Selecione um item na maleta para ver os detalhes.</div>
                 </div>
                 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <div id="info-actions-container" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <label style="display: flex; align-items: center; gap: 5px; background: rgba(18,18,20,0.8); padding: 8px; border-radius: 4px; flex: 1; justify-content: center; cursor: pointer; border: 2px solid #444; transition: 0.2s;" id="info-equip-container">
                         <input type="checkbox" id="info-equip" style="cursor: pointer;" onchange="toggleEquipSelected()" disabled>
                         <span style="font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white;">Equipar</span>
@@ -622,6 +622,7 @@
                 let origH = item.rotated ? item.w : item.h; 
                 let rotation = item.rotated ? "rotate(90deg)" : "rotate(0deg)";
                 
+                // LÓGICA DE TAMANHO E ROTAÇÃO PARA NÃO ESMAGAR A IMAGEM
                 item.el.innerHTML = `<div style="position:absolute; top:50%; left:50%; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: translate(-50%, -50%) ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" style="max-width:90%; max-height:90%; object-fit:contain; filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.8));"></div>${qtdBadge}`;
                 
                 item.el.style.width = (item.w * CELL_SIZE) + 'px'; item.el.style.height = (item.h * CELL_SIZE) + 'px'; item.el.style.left = (item.x * CELL_SIZE) + 'px'; item.el.style.top = (item.y * CELL_SIZE) + 'px'; item.el.style.zIndex = 10;
@@ -664,6 +665,24 @@
             inventoryItems = inventoryItems.filter(i => i.id !== currentSelectedItemId); 
             deselectItemInfo(); updateWeight(); updateInventoryDisplay(); updateAllPericias(); save(); 
         } 
+    }
+
+    // NOVA FUNÇÃO: SEPARAR MUNIÇÃO
+    function separarMunicao(id) {
+        let item = inventoryItems.find(i => i.id === id);
+        if (item && item.type === 'municao' && item.qtd > 1) {
+            item.qtd -= 1;
+            let newItem = JSON.parse(JSON.stringify(item));
+            newItem.id = 'inv_' + Date.now() + Math.floor(Math.random() * 1000);
+            newItem.qtd = 1;
+            newItem.eq = false;
+            newItem.x = -1;
+            newItem.y = -1;
+            inventoryItems.push(newItem);
+            updateInventoryDisplay();
+            selectItemInfo(id);
+            save();
+        }
     }
 
     function autoEquipItem(id) {
@@ -731,6 +750,38 @@
             if(currentItem.rotated) { const oldW = currentItem.w; currentItem.w = currentItem.h; currentItem.h = oldW; currentItem.rotated = false; } 
             updateInventoryDisplay(); updateAllPericias(); save(); return; 
         }
+
+        // LÓGICA PARA JUNTAR MUNIÇÕES (DRAG & DROP)
+        if (currentItem.type === 'municao') {
+            let targetItem = null;
+            for (let i = 0; i < inventoryItems.length; i++) {
+                let it = inventoryItems[i];
+                if (it.eq && it.id !== currentItem.id) {
+                    let w = it.rotated ? it.h : it.w;
+                    let h = it.rotated ? it.w : it.h;
+                    if (pos.col >= it.x && pos.col < it.x + w && pos.row >= it.y && pos.row < it.y + h) {
+                        targetItem = it;
+                        break;
+                    }
+                }
+            }
+
+            if (targetItem && targetItem.type === 'municao' && targetItem.ammoType === currentItem.ammoType && targetItem.n === currentItem.n) {
+                let total = (currentItem.qtd || 1) + (targetItem.qtd || 1);
+                if (total <= 3) {
+                    targetItem.qtd = total;
+                    inventoryItems = inventoryItems.filter(i => i.id !== currentItem.id);
+                    if (currentSelectedItemId === currentItem.id) deselectItemInfo();
+                    updateInventoryDisplay(); selectItemInfo(targetItem.id); save(); return;
+                } else if ((targetItem.qtd || 1) < 3) {
+                    let space = 3 - (targetItem.qtd || 1);
+                    targetItem.qtd = 3;
+                    currentItem.qtd -= space;
+                }
+            }
+        }
+        // FIM DA LÓGICA DE JUNTAR MUNIÇÕES
+        
         if (canPlace(pos.col, pos.row, currentItem.w, currentItem.h)) { 
             currentItem.x = pos.col; currentItem.y = pos.row; updateInventoryDisplay(); selectItemInfo(currentItem.id); save(); 
         } else { 
@@ -781,7 +832,22 @@
             statsHTML = `<div style="background:rgba(18,18,20,0.8); padding:10px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:1fr 1fr; gap:6px;"><div><b style='color:var(--text-secondary);'>Atq:</b> ${item.atkType} (${item.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${item.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${item.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${item.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${item.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${item.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${item.extra}</div></div>`;
             if (item.ammo !== 'Nenhuma') { statsHTML += `<div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:6px; text-align:center; margin-top:10px; border:1px solid var(--accent-blue);"><b style="color:var(--text-secondary); display:block; margin-bottom:8px; font-size:0.9em;">BALAS/DISPAROS (${item.ammo})</b><div style="display:flex; justify-content:center; align-items:center; gap:15px;"><button onclick="atirarArma('${item.id}')" class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); font-size:1.2em; padding:5px 15px;">-1</button><span style="font-size:1.5em; font-weight:900; color:white;">${item.currentShots !== undefined ? item.currentShots : item.capacity}</span><button onclick="recarregarArma('${item.id}')" class="btn-roll" style="border-color:var(--accent-blue); color:var(--accent-blue); font-weight:bold; border-width:2px;">RECARREGAR</button></div></div>`; }
         }
-        document.getElementById('info-stats').innerHTML = statsHTML; const chkEquip = document.getElementById('info-equip'); chkEquip.disabled = false; chkEquip.checked = item.eq; document.getElementById('info-equip-container').style.borderColor = item.eq ? 'var(--accent-yellow)' : '#444'; document.getElementById('btn-delete-item').disabled = false; 
+        document.getElementById('info-stats').innerHTML = statsHTML; 
+
+        // Adiciona botão "Separar" se for uma munição com mais de 1 carga
+        let btnSplitHtml = "";
+        if (item.type === 'municao' && item.qtd > 1) {
+            btnSplitHtml = `<button class="btn-roll" style="flex: 1; padding: 10px; border: 2px solid var(--accent-yellow); background: transparent; color: var(--accent-yellow); font-weight: bold;" onclick="separarMunicao('${item.id}')">✂️ Separar 1</button>`;
+        }
+
+        document.getElementById('info-actions-container').innerHTML = `
+            <label style="display: flex; align-items: center; gap: 5px; background: rgba(18,18,20,0.8); padding: 8px; border-radius: 4px; flex: 1; justify-content: center; cursor: pointer; border: 2px solid ${item.eq ? 'var(--accent-yellow)' : '#444'}; transition: 0.2s;" id="info-equip-container">
+                <input type="checkbox" id="info-equip" style="cursor: pointer;" onchange="toggleEquipSelected()" ${item.eq ? 'checked' : ''}>
+                <span style="font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white;">Equipar</span>
+            </label>
+            ${btnSplitHtml}
+            <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item">🗑️ Atirar Fora</button>
+        `;
     }
 
     function deselectItemInfo() { 
@@ -790,10 +856,14 @@
         document.getElementById('info-name').style.color = "var(--accent-blue)"; 
         document.getElementById('info-img-container').style.display = 'none'; 
         document.getElementById('info-stats').innerHTML = "<div style='text-align:center; color:var(--text-secondary); font-style:italic;'>Selecione um item na maleta para ver os detalhes.</div>"; 
-        document.getElementById('info-equip').disabled = true; 
-        document.getElementById('info-equip').checked = false; 
-        document.getElementById('info-equip-container').style.borderColor = '#444'; 
-        document.getElementById('btn-delete-item').disabled = true; 
+        
+        document.getElementById('info-actions-container').innerHTML = `
+            <label style="display: flex; align-items: center; gap: 5px; background: rgba(18,18,20,0.8); padding: 8px; border-radius: 4px; flex: 1; justify-content: center; cursor: pointer; border: 2px solid #444; transition: 0.2s;" id="info-equip-container">
+                <input type="checkbox" id="info-equip" style="cursor: pointer;" onchange="toggleEquipSelected()" disabled>
+                <span style="font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white;">Equipar</span>
+            </label>
+            <button class="btn-del" style="flex: 1; padding: 10px; border: 2px solid var(--accent-red); background: transparent; color: var(--accent-red); font-weight: bold;" onclick="apagarItemSelecionado()" id="btn-delete-item" disabled>🗑️ Atirar Fora</button>
+        `;
     }
 
     function updateWeight() { 
@@ -967,109 +1037,6 @@
     function openRitualInfo(id, color) { const row = document.getElementById('rit-row-'+id); if(!row) return; const hr = row.querySelector('.hidden-ritual'), htmlDiv=row.querySelector('div[id^="rit-html-"]'); if(!hr || !htmlDiv) return; document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n'); document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)'; const imgUrl = hr.getAttribute('data-img'); const imgEl = document.getElementById('info-rit-img'); if(imgUrl && imgUrl.trim()!==''){ imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } document.getElementById('info-rit-details').innerHTML = `<div style="background:rgba(18,18,20,0.8); border:1px solid ${color||'rgba(51,51,51,0.5)'}; border-radius:8px; padding:15px;">${htmlDiv.innerHTML}</div>`; document.getElementById('popup-ritual-info').style.display = 'flex'; }
     function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
 
-    // --- PISTAS INTERATIVAS (ZOOM & DRAG) ---
-    let pistaScale = 1; let pistaTx = 0; let pistaTy = 0; let isDraggingPista = false; let startPX = 0; let startPY = 0;
-    
-    function applyPistaTransform() { 
-        const img = document.getElementById('pista-view-img');
-        if(img) img.style.transform = `translate(${pistaTx}px, ${pistaTy}px) scale(${pistaScale})`; 
-    }
-    function zoomPista(delta) { 
-        pistaScale += delta; 
-        if(pistaScale < 0.5) pistaScale = 0.5; if(pistaScale > 5) pistaScale = 5; 
-        applyPistaTransform(); 
-    }
-    function resetPistaZoom() { pistaScale = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); }
-    
-    setTimeout(() => {
-        const pistaWrapper = document.getElementById('pista-img-wrapper');
-        if(pistaWrapper) {
-            pistaWrapper.addEventListener('wheel', (e) => { e.preventDefault(); zoomPista(e.deltaY < 0 ? 0.15 : -0.15); });
-            pistaWrapper.addEventListener('mousedown', (e) => {
-                if(e.target.tagName === 'BUTTON') return;
-                isDraggingPista = true; startPX = e.clientX - pistaTx; startPY = e.clientY - pistaTy; 
-                pistaWrapper.style.cursor = 'grabbing';
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!isDraggingPista) return; e.preventDefault();
-                pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; applyPistaTransform();
-            });
-            window.addEventListener('mouseup', () => { isDraggingPista = false; if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; });
-            
-            pistaWrapper.addEventListener('touchstart', (e) => {
-                if(e.target.tagName === 'BUTTON' || e.touches.length !== 1) return;
-                isDraggingPista = true; startPX = e.touches[0].clientX - pistaTx; startPY = e.touches[0].clientY - pistaTy;
-            }, {passive: false});
-            window.addEventListener('touchmove', (e) => {
-                if (!isDraggingPista || e.touches.length !== 1) return; e.preventDefault();
-                pistaTx = e.touches[0].clientX - startPX; pistaTy = e.touches[0].clientY - startPY; applyPistaTransform();
-            }, {passive: false});
-            window.addEventListener('touchend', () => { isDraggingPista = false; });
-        }
-    }, 1000);
-
-    function renderPistas() {
-        const list = document.getElementById('pistas-list'); list.innerHTML = '';
-        if(pistasRecebidas.length === 0) { list.innerHTML = `<div style="text-align:center; color:var(--text-secondary); font-style:italic; grid-column:1/-1;">Nenhuma pista encontrada ainda...</div>`; return; }
-        
-        pistasRecebidas.forEach((p, idx) => {
-            const card = document.createElement('div'); card.className = 'pista-card'; 
-            
-            let imgSrc = (p.foto && p.foto.trim() !== '') ? p.foto : "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
-            
-            card.innerHTML = `
-                <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarPistaJogador(${idx})">X</button>
-                <img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; cursor:pointer;" onclick="openPistaView(${idx})">
-                <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
-            `;
-            list.appendChild(card);
-        });
-    }
-
-    function apagarPistaJogador(idx) {
-        if(confirm("Tem certeza que deseja apagar esta pista do seu mural?")) {
-            pistasRecebidas.splice(idx, 1);
-            save();
-            renderPistas();
-        }
-    }
-
-    function openPistaView(idx) {
-        const p = pistasRecebidas[idx]; if(!p) return;
-        document.getElementById('pista-view-title').innerText = p.titulo;
-        document.getElementById('pista-view-desc').innerText = p.desc || 'Nenhum texto associado.';
-        
-        const wrapper = document.getElementById('pista-img-wrapper');
-        const imgEl = document.getElementById('pista-view-img');
-        const modelEl = document.getElementById('pista-view-3d');
-        const controls2D = document.getElementById('pista-controls-2d');
-        
-        if(p.foto && p.foto.trim() !== '') { 
-            wrapper.style.display = 'block';
-            
-            // Verifica se o link é um modelo 3D
-            if (p.foto.toLowerCase().endsWith('.glb') || p.foto.toLowerCase().endsWith('.gltf')) {
-                // Modo 3D
-                imgEl.style.display = 'none';
-                controls2D.style.display = 'none';
-                modelEl.style.display = 'block';
-                modelEl.src = p.foto;
-            } else {
-                // Modo 2D normal
-                modelEl.style.display = 'none';
-                imgEl.style.display = 'block';
-                controls2D.style.display = 'flex';
-                imgEl.src = p.foto; 
-                resetPistaZoom(); 
-            }
-        }
-        else { 
-            wrapper.style.display = 'none'; 
-        }
-        document.getElementById('popup-pista').style.display = 'flex';
-    }
-    function closePista() { document.getElementById('popup-pista').style.display = 'none'; }
-
     // --- SAVE E EVENTOS ---
     window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
@@ -1118,11 +1085,9 @@
         if (socket) { socket.emit('status_change', { codigo: myUpperCode, origin: socket.id, id: playerCode, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
     }
 
-    // --- LOGICA DE PERSISTENCIA CORRIGIDA ---
     async function load() { 
         isLoadingData = true; 
         
-        // 1. TENTA CARREGAR DO SERVIDOR (CROSS-DEVICE)
         try {
             const response = await fetch('/api/carregar_personagem', {
                 method: 'POST',
@@ -1141,7 +1106,6 @@
             console.error("Erro ao carregar do servidor, tentando local...");
         }
 
-        // 2. FALLBACK PARA LOCALSTORAGE (MESMO NAVEGADOR)
         let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
         if (!s) { 
             isLoadingData = false; 
