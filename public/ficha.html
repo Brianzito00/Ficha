@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ficha de Jogador</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -316,6 +319,7 @@
                 <h4 style="text-align: center; color: var(--accent-yellow); margin-top: 0; text-transform: uppercase;">Caixa de Entrada</h4>
                 <p style="font-size: 0.7em; color: var(--text-secondary); text-align: center; margin-bottom: 15px;">Itens recebidos aparecem aqui.<br>Clique neles para equipar.</p>
                 <div id="inbox-items" style="display: flex; flex-direction: column; gap: 10px; min-height: 100px;"></div>
+                <button class="btn-add" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="openItemPopup()">+ CRIAR ITEM</button>
                 <div id="weight-bar-container" style="margin-top: 15px; background: rgba(0,0,0,0.8); height: 20px; border-radius: 10px; border: 1px solid #444; overflow: hidden; position: relative;">
                     <div id="weight-bar-fill" style="height: 100%; width: 0%; background: var(--accent-blue); transition: width 0.3s;"></div>
                     <span id="weight-text" style="position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 0.8em; font-weight: bold; line-height: 20px; color: white;">0 / 5</span>
@@ -355,6 +359,7 @@
 <div id="tab-rituais" class="main-container">
     <div class="panel">
         <div class="panel-title">Grimório e Conhecimento</div>
+        <button class="btn-add" style="background: #b82bf2; color: white; width: 100%;" onclick="openRitualPopup()">+ Aprender Ritual (Catálogo do Mestre)</button>
         <div style="text-align: center; margin-top: 10px;">
             <span style="color: var(--text-secondary); font-size: 0.9em;">Total Aprendidos: <span id="rituals-text" style="color: white; font-weight: bold;">0</span></span>
         </div>
@@ -392,8 +397,6 @@
 
 <div id="popup-new-item" class="popup-overlay"><div class="popup-box" style="width: 550px;"><h3 id="popup-new-item-title" style="color: var(--accent-green); text-align: center; margin-top: 0;">Criar / Adicionar Item</h3><div style="display: flex; gap: 10px; margin-bottom: 15px;"><button id="btn-type-item" class="tab-btn active" style="flex: 1; padding: 10px; margin: 0;" onclick="selectItemType('item')">Comum</button><button id="btn-type-municao" class="tab-btn" style="flex: 1; padding: 10px; margin: 0;" onclick="selectItemType('municao')">Munição</button><button id="btn-type-armacc" class="tab-btn" style="flex: 1; padding: 10px; margin: 0;" onclick="selectItemType('armacc')">Arma Corpo</button><button id="btn-type-armadisp" class="tab-btn" style="flex: 1; padding: 10px; margin: 0;" onclick="selectItemType('armadisp')">Arma Fogo</button></div><input type="hidden" id="new-item-type" value="item"><div id="generic-item-fields"><div style="display: flex; gap: 10px; margin-bottom: 10px;"><div style="flex: 2;"><label style="font-size: 0.8em; color: var(--text-secondary);">NOME</label><input type="text" id="new-item-name" class="inv-input"></div><div style="flex: 1;"><label style="font-size: 0.8em; color: var(--text-secondary);">LARGURA(X)</label><input type="number" id="new-item-w" class="inv-input" value="1" min="1" max="10"></div><div style="flex: 1;"><label style="font-size: 0.8em; color: var(--text-secondary);">ALTURA(Y)</label><input type="number" id="new-item-h" class="inv-input" value="1" min="1" max="6"></div></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">FOTO URL</label><input type="text" id="new-item-img" class="inv-input"></div></div><div id="fields-comum" style="margin-top: 10px;"><label style="font-size: 0.8em; color: var(--text-secondary);">DESCRIÇÃO</label><textarea id="new-item-desc" class="inv-input" style="height: 80px; resize: none;"></textarea></div><div id="fields-municao" style="display: none; margin-top: 10px;"><div style="display: flex; gap: 10px;"><div style="flex: 1;"><label style="font-size: 0.8em; color: var(--text-secondary);">TIPO DE MUNIÇÃO</label><select id="new-item-ammo-type" class="inv-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex: 1;"><label style="font-size: 0.8em; color: var(--text-secondary);">QUANTIDADE (1-3)</label><input type="number" id="new-item-ammo-qtd" class="inv-input" value="1" min="1" max="3"></div></div></div><div id="fields-arma" style="display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;"><div><label style="font-size: 0.8em; color: var(--text-secondary);">TIPO DE ATQ</label><input type="text" id="wp-atk-type" class="inv-input" placeholder="Ex: Corpo a Corpo"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">ATAQUES(QTD)</label><input type="number" id="wp-atk" class="inv-input" value="1"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">DANO</label><input type="text" id="wp-dmg" class="inv-input" placeholder="Ex: 1d8+1"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">CRÍTICO</label><input type="text" id="wp-crit" class="inv-input" value="20/x2"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">ALCANCE</label><input type="text" id="wp-range" class="inv-input" value="Curto"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">MUNIÇÃO</label><select id="wp-ammo" class="inv-input" style="padding: 7px; color: white;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">CAPACIDADE (BALAS)</label><input type="number" id="wp-capacity" class="inv-input" value="0"></div><div><label style="font-size: 0.8em; color: var(--text-secondary);">PERÍCIA (Nome Exato)</label><input type="text" id="wp-skill" class="inv-input" value="Luta"></div><div style="grid-column: span 2;"><label style="font-size: 0.8em; color: var(--text-secondary);">EXTRA</label><input type="text" id="wp-extra" class="inv-input" value="-"></div></div><div style="display: flex; gap: 10px; margin-top: 15px;"><button class="btn-add" id="btn-confirm-add-item" style="flex: 1; margin: 0;" onclick="confirmAddItem()">CRIAR E COLOCAR NA CAIXA</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeItemPopup()">CANCELAR</button></div></div></div>
 
-<div id="modal-transfer-player" class="popup-overlay"><div class="popup-box" style="width: 400px; text-align: center;"><h2 style="color: var(--accent-purple); margin-top: 0;">Enviar Item</h2><p style="color: var(--text-secondary);">Para quem enviar <b id="transfer-player-item-name" style="color: white;"></b>?</p><input type="text" id="transfer-target-code" class="inv-input" placeholder="LOGIN DO JOGADOR" style="text-transform: uppercase; font-size: 1.2em; text-align: center; margin-bottom: 20px;"><div style="display: flex; gap: 10px;"><button class="btn-remove" style="flex: 1; padding: 12px; border-radius: 6px; background: #333; border: none; color: white; font-weight: bold; cursor: pointer;" onclick="document.getElementById('modal-transfer-player').style.display='none'">CANCELAR</button><button class="btn-add" style="background: var(--accent-purple); color: white; flex: 1; margin: 0;" onclick="confirmarEnvioJogador()">ENVIAR</button></div></div></div>
-
 <div id="popup-new-ability" class="popup-overlay" onclick="closeAbilityPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color: var(--accent-green); text-align: center; margin-top: 0;">Nova Habilidade</h3><label style="font-size: 0.8em; color: var(--text-secondary);">NOME</label><input type="text" id="new-ability-name" class="inv-input" style="margin-bottom: 10px;"><label style="font-size: 0.8em; color: var(--text-secondary);">DESCRIÇÃO</label><textarea id="new-ability-desc" class="inv-input" style="height: 100px; margin-bottom: 15px; resize: none;"></textarea><div style="display: flex; gap: 10px;"><button class="btn-add" style="flex: 1; margin: 0;" onclick="confirmAddAbility()">ADICIONAR</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeAbilityPopup()">CANCELAR</button></div></div></div>
 
 <div id="popup-new-ritual" class="popup-overlay" onclick="closeRitualPopup()"><div class="popup-box" style="width: 550px;" onclick="event.stopPropagation()"><h3 style="color: var(--accent-purple); text-align: center; margin-top: 0;">Aprender Ritual</h3><p style="text-align: center; color: var(--text-secondary);">Escolha do catálogo do Mestre</p><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="ritual-grid-container"></div><button class="btn-del" style="width: 100%; margin-top: 15px; padding: 12px; border-radius: 6px; background: #333;" onclick="closeRitualPopup()">FECHAR</button></div></div>
@@ -411,9 +414,14 @@
 <div id="popup-pista" class="popup-overlay" onclick="closePista()">
     <div class="popup-box" style="width: 600px; max-width: 95%;" onclick="event.stopPropagation()">
         <h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase;">TITULO</h3>
+        
         <div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 350px; background: #000; border-radius: 8px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: grab; touch-action: none;">
+            
             <img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;">
-            <div style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
+            
+            <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: #121214; outline: none;"></model-viewer>
+
+            <div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
                 <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="zoomPista(0.2)">➕</button>
                 <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="zoomPista(-0.2)">➖</button>
                 <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="resetPistaZoom()">🔄</button>
@@ -608,8 +616,14 @@
                 item.el.className = 'grid-item'; if(item.id === currentSelectedItemId) item.el.classList.add('selected');
                 item.el.classList.remove('item-border-comum', 'item-border-arma'); item.el.classList.add((item.type === 'comum' || item.type === 'municao') ? 'item-border-comum' : 'item-border-arma');
                 if(item.type === 'municao') item.el.style.borderColor = 'var(--accent-purple)';
-                const imgSrc = item.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; let origW = item.rotated ? item.h : item.w; let origH = item.rotated ? item.w : item.h; let rotation = item.rotated ? "rotate(90deg)" : "none";
-                item.el.innerHTML = `<div style="position:relative; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" class="grid-item-img" style="max-width:100%; max-height:100%;">${qtdBadge}</div>`;
+                
+                const imgSrc = item.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; 
+                let origW = item.rotated ? item.h : item.w; 
+                let origH = item.rotated ? item.w : item.h; 
+                let rotation = item.rotated ? "rotate(90deg)" : "rotate(0deg)";
+                
+                item.el.innerHTML = `<div style="position:absolute; top:50%; left:50%; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: translate(-50%, -50%) ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" style="max-width:90%; max-height:90%; object-fit:contain; filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.8));"></div>${qtdBadge}`;
+                
                 item.el.style.width = (item.w * CELL_SIZE) + 'px'; item.el.style.height = (item.h * CELL_SIZE) + 'px'; item.el.style.left = (item.x * CELL_SIZE) + 'px'; item.el.style.top = (item.y * CELL_SIZE) + 'px'; item.el.style.zIndex = 10;
                 item.el.onmousedown = (e) => startDrag(e, item, true); gridEl.appendChild(item.el);
                 for (let r = item.y; r < item.y + item.h; r++) { for (let c = item.x; c < item.x + item.w; c++) { if(r < GRID_ROWS && c < GRID_COLS) gridMatrix[r][c] = 1; } }
@@ -670,13 +684,20 @@
     function startDrag(e, item, fromGrid) {
         if(e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return; e.preventDefault(); e.stopPropagation();
         activeDragItem = item; isDragging = true; hasMovedMouse = false;
+        
+        let qtdBadge = (item.type === 'municao' && item.qtd > 1) ? `<div style="position:absolute; bottom:2px; right:2px; background:var(--accent-blue); color:black; font-weight:900; border-radius:50%; width:20px; height:20px; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:20;">x${item.qtd}</div>` : '';
+
         if (fromGrid) {
             activeDragItem.origW = item.w; activeDragItem.origH = item.h; activeDragItem.origRotated = item.rotated;
             for (let r = item.y; r < item.y + item.h; r++) { for (let c = item.x; c < item.x + item.w; c++) { if(r < GRID_ROWS && c < GRID_COLS) gridMatrix[r][c] = 0; } }
             const rect = item.el.getBoundingClientRect(); offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
         } else {
-            item.el.className = 'grid-item'; const imgSrc = item.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; let origW = item.rotated ? item.h : item.w; let origH = item.rotated ? item.w : item.h; let rotation = item.rotated ? "rotate(90deg)" : "none";
-            item.el.innerHTML = `<div style="width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" class="grid-item-img" style="max-width:100%; max-height:100%;"></div>`;
+            item.el.className = 'grid-item'; 
+            const imgSrc = item.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; 
+            let origW = item.rotated ? item.h : item.w; let origH = item.rotated ? item.w : item.h; let rotation = item.rotated ? "rotate(90deg)" : "rotate(0deg)";
+            
+            item.el.innerHTML = `<div style="position:absolute; top:50%; left:50%; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: translate(-50%, -50%) ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" style="max-width:90%; max-height:90%; object-fit:contain; filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.8));"></div>${qtdBadge}`;
+            
             item.el.classList.remove('item-border-comum', 'item-border-arma'); item.el.classList.add((item.type === 'comum' || item.type === 'municao') ? 'item-border-comum' : 'item-border-arma');
             item.el.style.width = (item.w * CELL_SIZE) + 'px'; item.el.style.height = (item.h * CELL_SIZE) + 'px'; offsetX = (item.w * CELL_SIZE) / 2; offsetY = (item.h * CELL_SIZE) / 2;
         }
@@ -722,10 +743,26 @@
     window.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if ((e.key === 'r' || e.key === 'R') && isDragging && activeDragItem) {
-            hasMovedMouse = true; const oldW = activeDragItem.w; activeDragItem.w = activeDragItem.h; activeDragItem.h = oldW; activeDragItem.rotated = !activeDragItem.rotated; activeDragItem.el.style.width = (activeDragItem.w * CELL_SIZE) + 'px'; activeDragItem.el.style.height = (activeDragItem.h * CELL_SIZE) + 'px';
-            const imgSrc = activeDragItem.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; let origW = activeDragItem.rotated ? activeDragItem.h : activeDragItem.w; let origH = activeDragItem.rotated ? activeDragItem.w : activeDragItem.h; let rotation = activeDragItem.rotated ? "rotate(90deg)" : "none";
-            activeDragItem.el.innerHTML = `<div style="width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" class="grid-item-img" style="max-width:100%; max-height:100%;"></div>`;
-            const oldOffsetX = offsetX; offsetX = offsetY; offsetY = oldOffsetX; const pos = getGridPosition(window.event ? window.event.clientX : 0, window.event ? window.event.clientY : 0); activeDragItem.el.classList.remove('ghost-valid', 'ghost-invalid'); if (canPlace(pos.col, pos.row, activeDragItem.w, activeDragItem.h)) activeDragItem.el.classList.add('ghost-valid'); else activeDragItem.el.classList.add('ghost-invalid');
+            hasMovedMouse = true; 
+            const oldW = activeDragItem.w; activeDragItem.w = activeDragItem.h; activeDragItem.h = oldW; 
+            activeDragItem.rotated = !activeDragItem.rotated; 
+            activeDragItem.el.style.width = (activeDragItem.w * CELL_SIZE) + 'px'; activeDragItem.el.style.height = (activeDragItem.h * CELL_SIZE) + 'px';
+            
+            const imgSrc = activeDragItem.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; 
+            let origW = activeDragItem.rotated ? activeDragItem.h : activeDragItem.w; 
+            let origH = activeDragItem.rotated ? activeDragItem.w : activeDragItem.h; 
+            let rotation = activeDragItem.rotated ? "rotate(90deg)" : "rotate(0deg)";
+            
+            let qtdBadge = (activeDragItem.type === 'municao' && activeDragItem.qtd > 1) ? `<div style="position:absolute; bottom:2px; right:2px; background:var(--accent-blue); color:black; font-weight:900; border-radius:50%; width:20px; height:20px; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:20;">x${activeDragItem.qtd}</div>` : '';
+            
+            activeDragItem.el.innerHTML = `<div style="position:absolute; top:50%; left:50%; width: ${origW * CELL_SIZE}px; height: ${origH * CELL_SIZE}px; transform: translate(-50%, -50%) ${rotation}; display: flex; justify-content: center; align-items: center; pointer-events: none;"><img src="${imgSrc}" style="max-width:90%; max-height:90%; object-fit:contain; filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.8));"></div>${qtdBadge}`;
+            
+            const oldOffsetX = offsetX; offsetX = offsetY; offsetY = oldOffsetX; 
+            const pos = getGridPosition(window.event ? window.event.clientX : 0, window.event ? window.event.clientY : 0); 
+            activeDragItem.el.classList.remove('ghost-valid', 'ghost-invalid'); 
+            
+            if (canPlace(pos.col, pos.row, activeDragItem.w, activeDragItem.h)) activeDragItem.el.classList.add('ghost-valid'); 
+            else activeDragItem.el.classList.add('ghost-invalid');
         }
     });
 
@@ -734,8 +771,11 @@
         const item = inventoryItems.find(i => i.id === id); if(!item) return deselectItemInfo(); if(item.el && item.x >= 0) item.el.classList.add('selected');
         document.getElementById('info-name').innerText = item.n; document.getElementById('info-name').style.color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
         const imgEl = document.getElementById('info-img'); const imgCont = document.getElementById('info-img-container'); if(item.img) { imgEl.src = item.img; imgCont.style.display = 'block'; } else { imgCont.style.display = 'none'; }
+        
         let statsHTML = ""; 
-        if (item.type === 'comum') { statsHTML = `<div style="background:rgba(18,18,20,0.8); padding:10px; border-radius:6px; border:1px solid var(--border-color);">${(item.d||"").replace(/&quot;/g, '"')}</div>`; } 
+        if (item.type === 'comum') { 
+            statsHTML = `<div style="background:rgba(18,18,20,0.8); padding:10px; border-radius:6px; border:1px solid var(--border-color);">${(item.d||"").replace(/&quot;/g, '"').replace(/\n/g, '<br>')}</div>`; 
+        } 
         else if (item.type === 'municao') { statsHTML = `<div style="background:rgba(18,18,20,0.8); padding:10px; border-radius:6px; border:1px solid var(--border-color); text-align:center;"><b style="color:var(--accent-yellow)">MUNIÇÃO:</b> ${item.ammoType} <br><b style="color:var(--text-primary)">Quantidade:</b> ${item.qtd} / 3 <br><br><span style="font-size:0.85em; color:var(--text-secondary);">${item.d||""}</span></div>`; }
         else {
             statsHTML = `<div style="background:rgba(18,18,20,0.8); padding:10px; border-radius:6px; border:1px solid var(--border-color); display:grid; grid-template-columns:1fr 1fr; gap:6px;"><div><b style='color:var(--text-secondary);'>Atq:</b> ${item.atkType} (${item.atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${item.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${item.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${item.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${item.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${item.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> ${item.extra}</div></div>`;
@@ -772,7 +812,9 @@
     function confirmAddItem() { 
         const id = Date.now().toString(); const type = document.getElementById('new-item-type').value; const name = document.getElementById('new-item-name').value || 'Novo Item'; const w = parseInt(document.getElementById('new-item-w').value) || 1; const h = parseInt(document.getElementById('new-item-h').value) || 1; const img = document.getElementById('new-item-img').value; 
         let newItem = { id, n: name, w, h, type, img, x: -1, y: -1, rotated: false, eq: false }; 
-        if (type === 'item') { newItem.d = document.getElementById('new-item-desc').value; } 
+        if (type === 'item') { 
+            newItem.d = document.getElementById('new-item-desc').value.replace(/\n/g, '<br>'); 
+        } 
         else if (type === 'municao') { newItem.ammoType = document.getElementById('new-item-ammo-type').value; newItem.qtd = parseInt(document.getElementById('new-item-ammo-qtd').value) || 1; if(newItem.qtd > 3) newItem.qtd = 3; newItem.d = "Munição para armas do tipo: " + newItem.ammoType; }
         else { newItem.atkType = document.getElementById('wp-atk-type').value; newItem.atk = parseInt(document.getElementById('wp-atk').value) || 1; newItem.dmg = document.getElementById('wp-dmg').value; newItem.crit = document.getElementById('wp-crit').value; newItem.range = document.getElementById('wp-range').value; newItem.ammo = document.getElementById('wp-ammo').value; newItem.capacity = parseInt(document.getElementById('wp-capacity').value) || 0; newItem.currentShots = newItem.capacity; newItem.skill = document.getElementById('wp-skill').value; newItem.extra = document.getElementById('wp-extra').value; } 
         
@@ -996,14 +1038,32 @@
         const p = pistasRecebidas[idx]; if(!p) return;
         document.getElementById('pista-view-title').innerText = p.titulo;
         document.getElementById('pista-view-desc').innerText = p.desc || 'Nenhum texto associado.';
-        const imgEl = document.getElementById('pista-view-img');
+        
         const wrapper = document.getElementById('pista-img-wrapper');
+        const imgEl = document.getElementById('pista-view-img');
+        const modelEl = document.getElementById('pista-view-3d');
+        const controls2D = document.getElementById('pista-controls-2d');
         
         if(p.foto && p.foto.trim() !== '') { 
-            imgEl.src = p.foto; 
-            wrapper.style.display = 'block'; 
-            resetPistaZoom(); 
-        } else { 
+            wrapper.style.display = 'block';
+            
+            // Verifica se o link é um modelo 3D
+            if (p.foto.toLowerCase().endsWith('.glb') || p.foto.toLowerCase().endsWith('.gltf')) {
+                // Modo 3D
+                imgEl.style.display = 'none';
+                controls2D.style.display = 'none';
+                modelEl.style.display = 'block';
+                modelEl.src = p.foto;
+            } else {
+                // Modo 2D normal
+                modelEl.style.display = 'none';
+                imgEl.style.display = 'block';
+                controls2D.style.display = 'flex';
+                imgEl.src = p.foto; 
+                resetPistaZoom(); 
+            }
+        }
+        else { 
             wrapper.style.display = 'none'; 
         }
         document.getElementById('popup-pista').style.display = 'flex';
