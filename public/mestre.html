@@ -227,7 +227,7 @@
         }
         .monsters-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* Grelha Aumentada para não esmagar botões */
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
             gap: 20px; 
             align-content: flex-start; 
             overflow-y: auto; 
@@ -703,7 +703,10 @@
             <h3 id="pista-view-title" style="color:var(--accent-blue); text-align:center; margin-top:0; text-transform:uppercase;">TITULO</h3>
             <div id="pista-img-wrapper" style="display:none; position:relative; width:100%; height:350px; background:#000; border-radius:8px; margin-bottom:15px; overflow:hidden; border:1px solid var(--border-color); cursor:grab; touch-action:none;">
                 <img id="pista-view-img" src="" style="width:100%; height:100%; object-fit:contain; transform-origin:center; pointer-events:none;">
-                <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px; z-index:10;">
+                
+                <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: #121214; outline: none;"></model-viewer>
+
+                <div id="pista-controls-2d" style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px; z-index:10;">
                     <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(0.2)">➕</button>
                     <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(-0.2)">➖</button>
                     <button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="resetPistaZoom()">🔄</button>
@@ -788,9 +791,64 @@
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
-        let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
+
+        // INJEÇÃO DOS RITUAIS DO LIVRO
+        let defaultRituais = [
+            {id:'def_1',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 em um teste de resistência ou Defesa.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''},
+            {id:'def_2',n:'Alterar Memória',circ:'3º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Instantânea',res:'Vontade anula',descGeral:'Altera ou apaga memórias de até uma hora atrás. O alvo recupera após 1d4 dias.',descDisc:'-',descVerd:'Altera memórias de até 24 horas.',visivel:true,img:''},
+            {id:'def_3',n:'Amaldiçoar Arma',circ:'1º',el:'Qualquer',ex:'Padrão',alc:'Toque',alv:'1 arma ou pacote de munição',dur:'Cena',res:'Nenhuma',descGeral:'A arma causa +1d6 de dano do elemento escolhido.',descDisc:'Muda o bônus de dano para +2d6.',descVerd:'Muda o bônus de dano para +4d6.',visivel:true,img:''},
+            {id:'def_4',n:'Amaldiçoar Tecnologia',circ:'1º',el:'Energia',ex:'Padrão',alc:'Toque',alv:'1 acessório ou arma',dur:'Cena',res:'Nenhuma',descGeral:'O item recebe uma modificação a sua escolha.',descDisc:'Muda para duas modificações.',descVerd:'Muda para três modificações.',visivel:true,img:''},
+            {id:'def_5',n:'Âncora Temporal',circ:'3º',el:'Morte',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Cena',res:'Vontade parcial',descGeral:'Cria uma aura espiralada. O alvo deve fazer teste de Vontade para se deslocar.',descDisc:'-',descVerd:'Muda o alvo para seres a sua escolha.',visivel:true,img:''},
+            {id:'def_6',n:'Aprimorar Físico',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Cena',res:'Nenhuma',descGeral:'Recebe +1 em Agilidade ou Força.',descDisc:'Muda o bônus para +2.',descVerd:'Muda o bônus para +3.',visivel:true,img:''},
+            {id:'def_7',n:'Aprimorar Mente',circ:'2º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Cena',res:'Nenhuma',descGeral:'Recebe +1 em Intelecto ou Presença.',descDisc:'Muda o bônus para +2.',descVerd:'Muda o bônus para +3.',visivel:true,img:''},
+            {id:'def_8',n:'Arma Atroz',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 arma corpo a corpo',dur:'Sustentada',res:'Nenhuma',descGeral:'Fornece +2 em testes de ataque e +1 na margem de ameaça.',descDisc:'Muda o bônus para +5 em testes de ataque.',descVerd:'Muda o bônus para +5 em ataque e +2 na margem e multiplicador.',visivel:true,img:''},
+            {id:'def_9',n:'Armadura de Sangue',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Fornece +5 em Defesa.',descDisc:'Fornece +10 na Defesa e resistência 5 a danos físicos.',descVerd:'Fornece +15 na Defesa e resistência 10 a danos físicos.',visivel:true,img:''},
+            {id:'def_10',n:'Canalizar o Medo',circ:'4º',el:'Medo',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Permanente',res:'Nenhuma',descGeral:'Transfere um ritual de até 3º círculo para outra pessoa.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_11',n:'Capturar o Coração',circ:'4º',el:'Sangue',ex:'Padrão',alc:'Curto',alv:'1 pessoa',dur:'Cena',res:'Vontade parcial',descGeral:'O alvo desenvolve uma paixão doentia. Vontade no início do turno para não o ajudar.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_12',n:'Chamas do Caos',circ:'2º',el:'Energia',ex:'Padrão',alc:'Curto',alv:'Varia',dur:'Cena',res:'Reflexos',descGeral:'Manipula calor (Chamejar, Esquentar, Extinguir ou Modelar).',descDisc:'Projeta labaredas causando 4d6 de Energia.',descVerd:'Projeta labaredas causando 8d6 de Energia.',visivel:true,img:''},
+            {id:'def_13',n:'Cicatrização',circ:'1º',el:'Morte',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Nenhuma',descGeral:'O alvo recupera 3d8+3 PV e envelhece 1 ano.',descDisc:'Aumenta a cura para 5d8+5.',descVerd:'Aumenta para 7d8+7 em alcance curto para múltiplos alvos.',visivel:true,img:''},
+            {id:'def_14',n:'Cinerária',circ:'1º',el:'Medo',ex:'Padrão',alc:'Curto',alv:'Esfera 6m',dur:'Cena',res:'Nenhuma',descGeral:'Cria uma névoa. Rituais conjurados dentro têm +5 na DT.',descDisc:'Rituais conjurados na névoa custam -2 PE.',descVerd:'Rituais conjurados na névoa causam dano maximizado.',visivel:true,img:''},
+            {id:'def_15',n:'Coincidência Forçada',circ:'1º',el:'Energia',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Cena',res:'Nenhuma',descGeral:'O alvo recebe +2 em testes de perícias.',descDisc:'Muda o alvo para aliados a sua escolha.',descVerd:'Muda o bônus para +5.',visivel:true,img:''},
+            {id:'def_16',n:'Compreensão Paranormal',circ:'1º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 ser ou objeto',dur:'Cena',res:'Vontade anula',descGeral:'Entende qualquer linguagem escrita ou falada humana.',descDisc:'Permite se comunicar no alcance curto com alvos.',descVerd:'Pode falar, entender e escrever qualquer idioma humano.',visivel:true,img:''},
+            {id:'def_17',n:'Conhecendo o Medo',circ:'4º',el:'Medo',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Instantânea',res:'Vontade parcial',descGeral:'Se o alvo falhar, Sanidade reduz a 0. Se passar, sofre 10d6 de dano mental e fica apavorado.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_18',n:'Consumir Manancial',circ:'1º',el:'Morte',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Fortitude metade',descGeral:'Suga a vida do ambiente recebendo 3d6 PV temporários.',descDisc:'Muda os PV temporários para 6d6.',descVerd:'Drena área de 6m, causando 3d6 de Morte em todos e curando PV temp igual ao dano.',visivel:true,img:''},
+            {id:'def_19',n:'Contato Paranormal',circ:'3º',el:'Conhecimento',ex:'Completa',alc:'Pessoal',alv:'Você',dur:'1 dia',res:'Nenhuma',descGeral:'Recebe seis dados d6 para adicionar a testes. Rolar 6 custa 2 Sanidade.',descDisc:'Muda para d8 (perde 3 Sanidade ao rolar 8).',descVerd:'Muda para d12 (perde 5 Sanidade ao rolar 12).',visivel:true,img:''},
+            {id:'def_20',n:'Contenção Fantasmagórica',circ:'2º',el:'Energia',ex:'Padrão',alc:'Médio',alv:'1 ser',dur:'Cena',res:'Reflexos anula',descGeral:'Três laços de energia agarram o alvo.',descDisc:'Aumenta para 6 laços.',descVerd:'A destruição de um laço causa 2d6+2 de Energia no alvo.',visivel:true,img:''},
+            {id:'def_21',n:'Controle Mental',circ:'4º',el:'Conhecimento',ex:'Padrão',alc:'Médio',alv:'1 pessoa ou animal',dur:'Sustentada',res:'Vontade parcial',descGeral:'Domina a mente do alvo completamente.',descDisc:'Afeta até cinco alvos.',descVerd:'Afeta até dez alvos.',visivel:true,img:''},
+            {id:'def_22',n:'Convocação Instantânea',circ:'3º',el:'Energia',ex:'Padrão',alc:'Ilimitado',alv:'Objeto 2 espaços',dur:'Instantânea',res:'Vontade anula',descGeral:'Invoca um objeto de qualquer lugar para a sua mão.',descDisc:'Objeto de até 10 espaços.',descVerd:'Convoca recipiente Médio escondido no Outro Lado.',visivel:true,img:''},
+            {id:'def_23',n:'Convocar o Algoz',circ:'4º',el:'Morte',ex:'Padrão',alc:'1,5m',alv:'1 pessoa',dur:'Sustentada',res:'Vontade e Fortitude',descGeral:'Cria um algoz do medo. Pode causar 6d6 de Morte ou reduzir a 0 PV.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_24',n:'Corpo Adaptado',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Cena',res:'Nenhuma',descGeral:'Ignora extremos de clima, respira debaixo de água, imune a asfixia em fumaça.',descDisc:'Muda a duração para 1 dia.',descVerd:'Alvos escolhidos em alcance curto.',visivel:true,img:''},
+            {id:'def_25',n:'Decadência',circ:'1º',el:'Morte',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Fortitude metade',descGeral:'O alvo sofre 2d8+2 de dano de Morte.',descDisc:'Causa 3d8+3 somado a um ataque corpo a corpo.',descVerd:'Explosão 6m que causa 8d8+8 a todos.',visivel:true,img:''},
+            {id:'def_26',n:'Definhar',circ:'1º',el:'Morte',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Cena',res:'Fortitude parcial',descGeral:'O alvo fica fatigado (ou vulnerável se passar no teste).',descDisc:'O alvo fica exausto.',descVerd:'Afeta até 5 seres.',visivel:true,img:''},
+            {id:'def_27',n:'Deflagração de Energia',circ:'4º',el:'Energia',ex:'Completa',alc:'Pessoal',alv:'Explosão 15m',dur:'Instantânea',res:'Fortitude parcial',descGeral:'Causa 3d10x10 de Energia e quebra eletrônicos na área.',descDisc:'-',descVerd:'Afeta apenas os alvos escolhidos.',visivel:true,img:''},
+            {id:'def_28',n:'Desacelerar Impacto',circ:'2º',el:'Morte',ex:'Reação',alc:'Curto',alv:'1 ser ou objeto',dur:'Queda',res:'Nenhuma',descGeral:'Evita dano de queda ou corta dano de projétil pela metade.',descDisc:'-',descVerd:'Aumenta para alvos somando 100 espaços.',visivel:true,img:''},
+            {id:'def_29',n:'Descarnar',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Fortitude parcial',descGeral:'Causa 6d8 de dano e hemorragia grave (2d8/turno).',descDisc:'Muda para 10d8 de dano e 4d8 de hemorragia.',descVerd:'Ataques corpo a corpo causam +4d8 e ativam hemorragia.',visivel:true,img:''},
+            {id:'def_30',n:'Detecção de Ameaças',circ:'2º',el:'Conhecimento',ex:'Padrão',alc:'Pessoal',alv:'Esfera 18m',dur:'Cena',res:'Nenhuma',descGeral:'Sente perigos na área e pode testar Percepção para localizar.',descDisc:'Não fica desprevenido e ganha +5 contra armadilhas.',descVerd:'Duração estendida para 1 dia.',visivel:true,img:''},
+            {id:'def_31',n:'Dissipar Ritual',circ:'3º',el:'Medo',ex:'Padrão',alc:'Médio',alv:'Alvo ou Área',dur:'Instantânea',res:'Vontade',descGeral:'Teste de Ocultismo para anular rituais ou itens amaldiçoados temporariamente.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_32',n:'Dissonância Acústica',circ:'2º',el:'Energia',ex:'Padrão',alc:'Médio',alv:'Esfera 6m',dur:'Sustentada',res:'Nenhuma',descGeral:'Todos ficam surdos e são impedidos de conjurar rituais.',descDisc:'Alvo 1 objeto com 3m de silêncio contínuo.',descVerd:'Nenhum som pode sair da área, mas dentro funciona normalmente.',visivel:true,img:''},
+            {id:'def_33',n:'Distorção Temporal',circ:'4º',el:'Morte',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'3 rodadas',res:'Nenhuma',descGeral:'Age num bolsão temporal durante 3 rodadas isolado do resto do mundo.',descDisc:'-',descVerd:'-',visivel:true,img:''},
+            {id:'def_34',n:'Distorcer Aparência',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Vontade desacredita',descGeral:'Muda a sua aparência fisicamente. Ganha +10 em Enganação.',descDisc:'Afeta 1 ser em alcance curto.',descVerd:'Afeta vários seres a sua escolha.',visivel:true,img:''},
+            {id:'def_35',n:'Eco Espiral',circ:'2º',el:'Morte',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'2 rodadas',res:'Fortitude metade',descGeral:'Concentra dano no 1º turno, descarrega a cópia do dano no 2º turno.',descDisc:'Afeta até 5 seres simultaneamente.',descVerd:'Pode concentrar por até 2 turnos seguidos antes de descarregar.',visivel:true,img:''},
+            {id:'def_36',n:'Eletrocussão',circ:'1º',el:'Energia',ex:'Padrão',alc:'Curto',alv:'1 ser ou objeto',dur:'Instantânea',res:'Fortitude parcial',descGeral:'Dispara raio causando 3d6 e deixando vulnerável.',descDisc:'Linha de 30m causando 6d6.',descVerd:'Alvos escolhidos com múltiplos raios de 8d6.',visivel:true,img:''},
+            {id:'def_37',n:'Embaralhar',circ:'1º',el:'Energia',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Cria 3 cópias de si mesmo, concedendo +6 em Defesa.',descDisc:'Cria 5 cópias (+10 Defesa).',descVerd:'Cria 8 cópias (+16 Defesa) que ofuscam quando destruídas.',visivel:true,img:''},
+            {id:'def_38',n:'Enfeitiçar',circ:'1º',el:'Conhecimento',ex:'Padrão',alc:'Curto',alv:'1 pessoa',dur:'Cena',res:'Vontade anula',descGeral:'O alvo fica prestativo e você tem +10 em Diplomacia.',descDisc:'O alvo obedece a uma sugestão aceitável.',descVerd:'Afeta todas as pessoas no alcance.',visivel:true,img:''},
+            {id:'def_39',n:'Esconder dos Olhos',circ:'2º',el:'Conhecimento',ex:'Livre',alc:'Pessoal',alv:'Você',dur:'1 rodada',res:'Nenhuma',descGeral:'Invisibilidade (+15 Furtividade). Quebra ao atacar.',descDisc:'Esfera de 3m que invisibiliza aliados. Sustentada.',descVerd:'A invisibilidade não se dissipa mesmo ao atacar o inimigo.',visivel:true,img:''},
+            {id:'def_40',n:'Espirais da Perdição',circ:'1º',el:'Morte',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Cena',res:'Nenhuma',descGeral:'Reduz acerto dos inimigos (penalidade em ataques).',descDisc:'Aumenta a penalidade.',descVerd:'Aumenta para múltiplos alvos escolhidos.',visivel:true,img:''},
+            {id:'def_41',n:'Ferver Sangue',circ:'3º',el:'Sangue',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Sustentada',res:'Fortitude parcial',descGeral:'Causa 4d8 de dano a cada rodada e deixa alvo fraco.',descDisc:'-',descVerd:'Afeta múltiplos seres escolhidos.',visivel:true,img:''},
+            {id:'def_42',n:'Fim Inevitável',circ:'4º',el:'Morte',ex:'Completa',alc:'Extremo',alv:'Buraco negro',dur:'4 rodadas',res:'Fortitude parcial',descGeral:'Atrai todos a 90m (puxa 30m). Contato causa 100 de dano.',descDisc:'Aumenta para 5 rodadas e você fica imune.',descVerd:'Aumenta para 6 rodadas e aliados escolhidos ficam imunes.',visivel:true,img:''},
+            {id:'def_43',n:'Flagelo de Sangue',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Cena',res:'Fortitude parcial',descGeral:'Desobedecer a ordem dói 10d6 de Sangue e deixa enjoado.',descDisc:'Afeta qualquer ser que não seja de Sangue.',descVerd:'Aumenta a duração do controle para 1 dia.',visivel:true,img:''},
+            {id:'def_44',n:'Forma Monstruosa',circ:'3º',el:'Sangue',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Ganha tamanho Grande, +5 em atq/dano, 30 PV temporários. Ataca com fúria cega.',descDisc:'Concede imunidades a condições diversas.',descVerd:'Ganha +10 em atq/dano e 50 PV temporários.',visivel:true,img:''},
+            {id:'def_45',n:'Fortalecimento Sensorial',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Recebe bônus em Investigação, Luta, Percepção e Pontaria.',descDisc:'Inimigos sofrem penalidade ao atacá-lo.',descVerd:'Imunidade a desprevenido/surpreso e +10 de Defesa.',visivel:true,img:''},
+            {id:'def_46',n:'Hemofagia',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Fortitude metade',descGeral:'Causa 6d6 de dano e cura você na metade do valor.',descDisc:'Realiza um ataque corpo-a-corpo gratuito junto.',descVerd:'Duração muda para cena, permitindo sugar vida todo turno.',visivel:true,img:''}
+        ];
+
+        let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
+        if (catalogoRituaisMestre.length === 0) {
+            catalogoRituaisMestre = defaultRituais;
+            localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+        }
 
         const URL_FICHA = "/ficha.html"; const socket = io(); const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
 
@@ -1090,7 +1148,6 @@
                     } 
                 } 
             });
-            alert("Pista enviada!");
         }
 
         function openPistaView(idx) {
@@ -1099,8 +1156,26 @@
             document.getElementById('pista-view-desc').innerText = p.desc || '';
             const imgEl = document.getElementById('pista-view-img');
             const wrapper = document.getElementById('pista-img-wrapper');
-            if(p.foto && p.foto.trim() !== '') { imgEl.src = p.foto; wrapper.style.display = 'block'; resetPistaZoom(); }
-            else { wrapper.style.display = 'none'; }
+            const modelEl = document.getElementById('pista-view-3d');
+            const controls2D = document.getElementById('pista-controls-2d');
+
+            if(p.foto && p.foto.trim() !== '') { 
+                wrapper.style.display = 'block';
+                if (p.foto.toLowerCase().endsWith('.glb') || p.foto.toLowerCase().endsWith('.gltf')) {
+                    imgEl.style.display = 'none';
+                    controls2D.style.display = 'none';
+                    modelEl.style.display = 'block';
+                    modelEl.src = p.foto;
+                } else {
+                    modelEl.style.display = 'none';
+                    imgEl.style.display = 'block';
+                    controls2D.style.display = 'flex';
+                    imgEl.src = p.foto; 
+                    resetPistaZoom(); 
+                }
+            } else { 
+                wrapper.style.display = 'none'; 
+            }
             document.getElementById('popup-pista').style.display = 'flex';
         }
         function closePista() { document.getElementById('popup-pista').style.display = 'none'; }
@@ -1566,7 +1641,7 @@
                     <img src="${m.foto || 'https://via.placeholder.com/80'}" class="player-img monster-img" style="width: 75px; height: 75px; border-width: 3px;">
                     <div class="monster-header-info">
                         <h3 class="player-name monster-name" style="font-size: 1.4em;">${m.nome}</h3>
-                        <div class="player-info" style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px;">
+                        <div class="player-info" style="margin-top: 6px; display: flex; gap: 8px;">
                             <span style="background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid #444; font-size: 0.9em; white-space: nowrap;">🛡️ DEF: <b style="color:white;">${m.defesa}</b></span>
                             <span style="background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid #444; font-size: 0.9em; white-space: nowrap;">👁️ PRE: <b style="color:white;">${m.presenca}</b></span>
                         </div>
@@ -1658,7 +1733,6 @@
         // =========================================
         // (FIM DO SISTEMA AVANÇADO DE MONSTROS)
         // =========================================
-
 
         function renderizarMapasList() {
             const list = document.getElementById('map-list-container'); list.innerHTML = '';
@@ -1779,7 +1853,10 @@
                     localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros));
                     localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas));
                     localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre));
+                    
+                    if(catalogoRituaisMestre.length === 0) catalogoRituaisMestre = defaultRituais;
                     localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
+                    
                     localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre));
                 }
             } catch (e) {
