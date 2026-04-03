@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escudo do Mestre</title>
+
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -37,16 +40,13 @@
             box-sizing: border-box;
         }
 
-        /* Efeitos e Animações */
         @keyframes slideInUp { 
             from { opacity: 0; transform: translateY(20px) scale(0.98); } 
             to { opacity: 1; transform: translateY(0) scale(1); } 
         }
-        .fade-in { 
-            animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
-        }
+        .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        .player-card, .ini-card { 
+        .player-card, .monster-card, .ini-card { 
             background: var(--bg-card); 
             border: 2px solid var(--border-color); 
             border-radius: 12px; 
@@ -59,73 +59,14 @@
             position: relative; 
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
         }
-        .player-card:hover, .ini-card:hover { 
+        .monster-card { border-color: var(--accent-red); }
+        .player-card:hover, .monster-card:hover, .ini-card:hover { 
             transform: translateY(-5px); 
             box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
         }
         .player-card:hover { border-color: var(--accent-blue); }
+        .monster-card:hover { border-color: var(--accent-red); }
 
-        /* NOVO DESIGN DOS CARTÕES DE MONSTRO */
-        .monster-card {
-            background: linear-gradient(180deg, rgba(32,32,36,0.95) 0%, rgba(18,18,20,0.95) 100%);
-            border: 2px solid #333;
-            border-top: 4px solid var(--accent-red);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border-radius: 12px; 
-            padding: 18px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            position: relative; 
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
-        }
-        .monster-card:hover {
-            transform: translateY(-5px); 
-            border-color: var(--accent-red);
-            box-shadow: 0 15px 40px rgba(229,57,53,0.3);
-        }
-        .monster-header-info {
-            display: flex; flex-direction: column; flex: 1; justify-content: center; min-width: 0;
-        }
-        .monster-skill-tag {
-            background: rgba(0, 176, 255, 0.05); border: 1px solid rgba(0, 176, 255, 0.3);
-            color: var(--text-primary); padding: 8px 10px; border-radius: 6px; cursor: pointer;
-            font-size: 0.8em; font-weight: bold; display: flex; justify-content: space-between;
-            align-items: center; transition: 0.2s; width: 100%; box-sizing: border-box;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .monster-skill-tag:hover { background: rgba(0, 176, 255, 0.2); border-color: var(--accent-blue); transform: translateY(-2px); }
-        .monster-skill-tag span:first-child { overflow: hidden; text-overflow: ellipsis; }
-        
-        .monster-section-title {
-            font-size: 0.8em; font-weight: 900; color: var(--text-secondary); text-transform: uppercase;
-            letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
-            margin: 15px 0 5px 0;
-        }
-        
-        .monster-attack-card {
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(229,57,53,0.3); border-radius: 8px;
-            padding: 12px; margin-bottom: 10px; transition: 0.2s;
-        }
-        .monster-attack-card:hover { border-color: rgba(229,57,53,0.6); background: rgba(229,57,53,0.08); }
-        .atk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px;}
-        .atk-name { color: var(--accent-yellow); font-weight: 900; font-size: 1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .atk-stats { font-size: 0.8em; color: var(--text-primary); background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid #444; white-space: nowrap; }
-        
-        .btn-atk, .btn-dmg {
-            padding: 10px; border: none; border-radius: 6px; font-weight: 900; font-size: 0.8em; cursor: pointer; transition: 0.2s; text-transform: uppercase; text-align: center;
-        }
-        .btn-atk { background: rgba(255,207,51,0.1); color: var(--accent-yellow); border: 1px solid rgba(255,207,51,0.3); }
-        .btn-atk:hover { background: var(--accent-yellow); color: black; }
-        .btn-dmg { background: rgba(229,57,53,0.1); color: var(--accent-red); border: 1px solid rgba(229,57,53,0.3); }
-        .btn-dmg:hover { background: var(--accent-red); color: white; }
-
-        .monster-power-card {
-            background: rgba(184,43,242,0.05); border-left: 4px solid var(--accent-purple);
-            padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Top Bar */
         .mestre-top-bar { 
             background: var(--bg-card); 
             border: 1px solid var(--border-color); 
@@ -140,344 +81,78 @@
             backdrop-filter: blur(8px); 
         }
         
-        .code-input { 
-            padding: 8px; 
-            background: rgba(18,18,20,0.8); 
-            border: 1px solid var(--border-color); 
-            color: white; 
-            border-radius: 6px; 
-            text-transform: uppercase; 
-            font-size: 0.8em; 
-            width: 150px; 
-            margin-left: 20px; 
-        }
-
-        .btn-add { 
-            background: var(--accent-green); 
-            border: none; 
-            color: black; 
-            font-weight: bold; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            flex-shrink: 0; 
-        }
-        .btn-add:hover { 
-            filter: brightness(1.2); 
-            transform: scale(1.02); 
-        }
+        .code-input { padding: 8px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.8em; width: 150px; margin-left: 20px; }
+        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .btn-add:hover { filter: brightness(1.2); transform: scale(1.02); }
         
-        /* Abas Navegação */
-        .tabs-container { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 20px; 
-            flex-wrap: wrap; 
-        }
-        .tab-btn { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-primary); 
-            padding: 10px 20px; 
-            border-radius: 8px 8px 0 0; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.1em; 
-            transition: 0.3s; 
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.3); 
-            border-bottom: none; 
-            flex: 1; 
-            text-align: center; 
-        }
-        .tab-btn.active { 
-            background: var(--accent-red); 
-            color: white; 
-            border-color: var(--accent-red); 
-            transform: translateY(-2px); 
-        }
-        .tab-btn:hover:not(.active) { 
-            background: rgba(255,255,255,0.1); 
-        }
+        .tabs-container { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center; }
+        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); transform: translateY(-2px); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
-        /* Painel Central */
-        .content-wrapper { 
-            display: flex; 
-            gap: 20px; 
-            flex: 1; 
-            overflow: hidden; 
-            min-height: 0; 
-        }
-        .left-panel { 
-            flex: 3; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
+        .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Grelhas (Grids) */
-        .players-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 20px; 
-            align-content: flex-start; 
-            overflow-y: auto; 
-            padding-right: 10px; 
-            flex: 1; 
-        }
-        .monsters-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
-            gap: 20px; 
-            align-content: flex-start; 
-            overflow-y: auto; 
-            padding-right: 10px; 
-            flex: 1; 
-        }
-        .catalogo-grid-view { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 10px; 
-            align-content: flex-start; 
-            padding-right: 5px; 
-        }
+        .players-container, .monsters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
+        .catalogo-grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; align-content: flex-start; padding-right: 5px; }
 
-        .player-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            border-bottom: 1px solid var(--border-color); 
-            padding-bottom: 10px; 
-            flex-wrap: wrap; 
-        }
-        .player-img { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--accent-blue); 
-            background: #000; 
-            flex-shrink: 0; 
-        }
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
         .monster-img { border-color: var(--accent-red); }
-        .player-name { 
-            font-size: 1.2em; 
-            font-weight: bold; 
-            color: var(--accent-yellow); 
-            text-transform: uppercase; 
-            margin: 0; 
-        }
+        .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
-        .player-info { 
-            font-size: 0.8em; 
-            color: var(--text-secondary); 
-            line-height: 1.4; 
-        }
+        .player-info { font-size: 0.8em; color: var(--text-secondary); line-height: 1.4; }
         
-        /* Botões internos */
-        .btn-remove { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            background: var(--accent-red); 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            padding: 2px 8px; 
-            font-size: 0.8em; 
-            font-weight: bold; 
-            cursor: pointer; 
-            z-index: 10; 
-            transition: 0.2s;
-        }
+        .btn-remove { position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s; }
         .btn-remove:hover { filter: brightness(1.2); }
         
-        .btn-ctrl { 
-            background: #333; 
-            color: white; 
-            border: 1px solid var(--border-color); 
-            border-radius: 4px; 
-            cursor: pointer; 
-            width: 28px; 
-            height: 28px; 
-            font-weight: bold; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            transition: 0.2s; 
-            flex-shrink: 0; 
-        }
+        .btn-ctrl { background: #333; color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; width: 28px; height: 28px; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: 0.2s; flex-shrink: 0; }
         .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
         
-        .btn-roll { 
-            background: var(--accent-yellow); 
-            color: #000; 
-            border: none; 
-            padding: 6px 12px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            font-size: 0.8em; 
-            margin-top: 5px; 
-            width: 100%; 
-            box-sizing: border-box;
-        }
-        .btn-roll:hover { filter: brightness(1.2); transform: scale(1.02);}
+        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box; }
+        .btn-roll:hover { filter: brightness(1.2); transform: scale(1.02); }
 
-        /* Barras de Status Suaves */
-        .bar-container { 
-            background: rgba(0,0,0,0.8); 
-            height: 25px; 
-            border-radius: 4px; 
-            border: 1px solid #333; 
-            position: relative; 
-            overflow: hidden; 
-            margin-top: 5px; 
-            flex: 1; 
-        }
-        .bar-fill { 
-            height: 100%; 
-            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); 
-        }
+        .bar-container { background: rgba(0,0,0,0.8); height: 25px; border-radius: 4px; border: 1px solid #333; position: relative; overflow: hidden; margin-top: 5px; flex: 1; }
+        .bar-fill { height: 100%; transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
         .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
         .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
-        .bar-text { 
-            position: absolute; 
-            width: 100%; 
-            text-align: center; 
-            top: 0; 
-            font-size: 0.9em; 
-            font-weight: bold; 
-            line-height: 25px; 
-            text-shadow: 1px 1px 2px #000; 
-            z-index: 2;
-        }
+        .bar-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.9em; font-weight: bold; line-height: 25px; text-shadow: 1px 1px 2px #000; z-index: 2; }
 
-        /* Log de Rolagens */
-        .log-container { 
-            flex: 1; 
-            background: var(--bg-card); 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-            backdrop-filter: blur(8px); 
-            min-width: 300px; 
-        }
-        .log-title { 
-            background: rgba(0,0,0,0.5); 
-            padding: 15px; 
-            text-align: center; 
-            font-weight: bold; 
-            color: var(--accent-green); 
-            border-bottom: 1px solid var(--border-color); 
-            flex-shrink: 0; 
-        }
-        .log-messages { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
-        .log-item { 
-            background: rgba(18, 18, 20, 0.9); 
-            border: 1px solid #333; 
-            padding: 10px; 
-            border-radius: 8px; 
-            font-size: 0.9em; 
-            animation: slideInUp 0.3s ease-out; 
-        }
+        .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
+        .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; animation: slideInUp 0.3s ease-out; }
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
         .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
 
-        /* Modais */
-        .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0, 0, 0, 0.9); 
-            z-index: 9999; 
-            justify-content: center; 
-            align-items: center; 
-            flex-direction: column; 
-            backdrop-filter: blur(10px); 
-        }
-        .modal-content { 
-            background: var(--bg-card); 
-            border: 2px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 25px; 
-            width: 90%; 
-            max-width: 700px; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.9); 
-            box-sizing: border-box; 
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
+        .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
         
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
         .form-group label { font-size: 0.9em; font-weight: bold; color: var(--accent-yellow); }
-        .monster-input { 
-            padding: 10px; 
-            background: rgba(18,18,20,0.8); 
-            border: 1px solid var(--border-color); 
-            color: white; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            width: 100%; 
-            transition: 0.2s;
-        }
-        .monster-input:focus { border-color: var(--accent-blue); outline: none;}
+        .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%; transition: 0.2s; }
+        .monster-input:focus { border-color: var(--accent-blue); outline: none; }
         .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
-        .monster-details { font-size: 0.85em; color: var(--text-primary); background: transparent; padding: 0; border-radius: 6px; max-height: 350px; overflow-y: auto; padding-right: 5px;}
+        .monster-details { font-size: 0.85em; color: var(--text-primary); background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; max-height: 280px; overflow-y: auto; }
 
-        /* Popup Dados */
-        .popup-box-dice { 
-            position: relative; 
-            width: 90%; 
-            max-width: 600px; 
-            height: 400px; 
-            background-size: contain; 
-            background-repeat: no-repeat; 
-            background-position: center; 
-            background-color: #000; 
-            border: 4px solid var(--accent-yellow); 
-            border-radius: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            overflow: hidden; 
-            text-align: center; 
-        }
+        .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
 
         @keyframes fadeInResult { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
+        @keyframes shakeCrit { 0%,100%{transform:translate(0,0) rotate(0);} 20%{transform:translate(-3px,0) rotate(2deg);} 40%{transform:translate(1px,-1px) rotate(-2deg);} 60%{transform:translate(-3px,1px) rotate(2deg);} 80%{transform:translate(-1px,-1px) rotate(-2deg);} }
         
         .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; } 
-        .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
+        .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333; }
         .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
 
-        /* Abas Internas */
         #iniciativa-board, #catalogo-board, #rmestre-board, #pistas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
         
-        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; gap: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: wrap; }
-        .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
-        .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
         .ini-rank { font-size: 2em; font-weight: 900; color: var(--accent-yellow); width: 40px; text-align: center; }
         .ini-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--text-secondary); background: black; }
         .ini-info { flex: 1; min-width: 150px; }
@@ -516,7 +191,7 @@
         .map-tooltip h4 { margin: 0 0 8px 0; color: var(--accent-yellow); font-size: 1.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;}
         .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
 
-        @media (max-width: 900px) { .players-container { grid-template-columns: repeat(2, 1fr); } .monsters-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; padding: 10px; }
             .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
@@ -653,7 +328,7 @@
 
     <div id="modal-pista" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 500px;"><h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Pista</h2><div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input" placeholder="Ex: Diário do Cultista"></div><div class="form-group"><label>Imagem da Pista</label><div style="display: flex; gap: 5px;"><input type="text" id="pista-foto" class="monster-input" placeholder="https://..."><label class="btn-add" style="padding: 10px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black; display: flex; align-items: center; justify-content: center;">📂 <input type="file" id="pista-file-upload" accept="image/*" style="display: none;" onchange="carregarFotoPistaPC(event)"></label></div></div><div class="form-group"><label>Descrição / Segredo</label><textarea id="pista-desc" class="monster-input" style="height: 120px; resize: none;" placeholder="A pista revelada..."></textarea></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-pista').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPista()">Salvar Pista</button></div></div></div>
 
-    <div id="popup-pista" class="modal-overlay" onclick="closePista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h3 id="pista-view-title" style="color:var(--accent-blue); text-align:center; margin-top:0; text-transform:uppercase;">TITULO</h3><div id="pista-img-wrapper" style="display:none; position:relative; width:100%; height:350px; background:#000; border-radius:8px; margin-bottom:15px; overflow:hidden; border:1px solid var(--border-color); cursor:grab; touch-action:none;"><img id="pista-view-img" src="" style="width:100%; height:100%; object-fit:contain; transform-origin:center; pointer-events:none;"><div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px; z-index:10;"><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(0.2)">➕</button><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(-0.2)">➖</button><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="resetPistaZoom()">🔄</button></div></div><div id="pista-view-desc" style="color:white; font-size:0.9em; line-height:1.5; white-space:pre-wrap; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px;"></div><button class="btn-remove" style="position:static; width:100%; margin-top:15px; padding:12px; font-size:1.1em;" onclick="closePista()">FECHAR</button></div></div>
+    <div id="popup-pista" class="modal-overlay" onclick="closePista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h3 id="pista-view-title" style="color:var(--accent-blue); text-align:center; margin-top:0; text-transform:uppercase;">TITULO</h3><div id="pista-img-wrapper" style="display:none; position:relative; width:100%; height:350px; background:#000; border-radius:8px; margin-bottom:15px; overflow:hidden; border:1px solid var(--border-color); cursor:grab; touch-action:none;"><img id="pista-view-img" src="" style="width:100%; height:100%; object-fit:contain; transform-origin:center; pointer-events:none;"><model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: #121214; outline: none;"></model-viewer><div id="pista-controls-2d" style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px; z-index:10;"><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(0.2)">➕</button><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="zoomPista(-0.2)">➖</button><button class="btn-ctrl" style="background:rgba(0,0,0,0.7); border-color:var(--accent-yellow); color:white;" onclick="resetPistaZoom()">🔄</button></div></div><div id="pista-view-desc" style="color:white; font-size:0.9em; line-height:1.5; white-space:pre-wrap; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px;"></div><button class="btn-remove" style="position:static; width:100%; margin-top:15px; padding:12px; font-size:1.1em;" onclick="closePista()">FECHAR</button></div></div>
 
     <div id="modal-ritual-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 550px;"><h2 id="modal-ritual-title" style="color: var(--accent-purple); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Ritual</h2><div style="display:flex; flex-direction:column; gap:15px;"><div style="display:flex; gap:10px;"><div style="flex:2;"><label style="font-size:0.8em; color:var(--text-secondary)">NOME</label><input type="text" id="mr-name" class="monster-input"></div><div style="flex:1;"><label style="font-size:0.8em; color:var(--text-secondary)">CÍRCULO</label><select id="mr-circ" class="monster-input" style="color: white; padding: 12px;"><option value="1º">1º</option><option value="2º">2º</option><option value="3º">3º</option><option value="4º">4º</option></select></div></div><div><label style="font-size:0.8em; color:var(--text-secondary)">ELEMENTO</label><select id="mr-elem" class="monster-input" style="color: white; padding: 12px;"><option value="Conhecimento">Conhecimento</option><option value="Energia">Energia</option><option value="Medo">Medo</option><option value="Morte">Morte</option><option value="Sangue">Sangue</option><option value="Qualquer">Qualquer</option></select></div><div class="popup-grid"><div><label style="font-size:0.7em; color:var(--text-secondary)">EXECUÇÃO</label><input type="text" id="mr-exec" class="monster-input"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">ALCANCE</label><input type="text" id="mr-range" class="monster-input"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">ALVO / ÁREA</label><input type="text" id="mr-target" class="monster-input"></div><div><label style="font-size:0.7em; color:var(--text-secondary)">DURAÇÃO</label><input type="text" id="mr-dur" class="monster-input"></div><div style="grid-column: span 2;"><label style="font-size:0.7em; color:var(--text-secondary)">RESISTÊNCIA</label><input type="text" id="mr-res" class="monster-input"></div></div><div><label style="font-size:0.8em; color:var(--text-secondary)">URL DA IMAGEM</label><input type="text" id="mr-img" class="monster-input"></div><div><label style="font-size:0.8em; color:var(--text-secondary)">DESCRIÇÃO GERAL</label><textarea id="mr-desc-geral" class="monster-input" style="height:50px; resize:none;"></textarea></div><div><label style="font-size:0.8em; color:var(--text-secondary)">DISCENTE</label><textarea id="mr-desc-discente" class="monster-input" style="height:45px; resize:none;"></textarea></div><div><label style="font-size:0.8em; color:var(--text-secondary)">VERDADEIRO</label><textarea id="mr-desc-verdadeiro" class="monster-input" style="height:45px; resize:none;"></textarea></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-ritual-mestre').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-purple); color: white; flex: 2;" onclick="salvarRitualMestre()">Salvar Ritual</button></div></div></div>
 
@@ -732,7 +407,7 @@
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
 
-        // INJEÇÃO DOS RITUAIS DO LIVRO (TOTAL 54)
+        // INJEÇÃO DOS 54 RITUAIS DO LIVRO (COM OS NOVOS DE 1º CÍRCULO)
         let defaultRituais = [
             {id:'def_1',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 em um teste de resistência ou Defesa.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''},
             {id:'def_2',n:'Alterar Memória',circ:'3º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Instantânea',res:'Vontade anula',descGeral:'Altera ou apaga memórias de até uma hora atrás. O alvo recupera após 1d4 dias.',descDisc:'-',descVerd:'Altera memórias de até 24 horas.',visivel:true,img:''},
@@ -791,12 +466,12 @@
         ];
 
         let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
-        if (catalogoRituaisMestre.length === 0) {
+        if (catalogoRituaisMestre.length === 0 || catalogoRituaisMestre.length < 54) {
             catalogoRituaisMestre = defaultRituais;
             localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
         }
 
-        const URL_FICHA = "/ficha.html"; const socket = io(); const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
+        const URL_FICHA = "/ficha.html"; const socket = typeof io !== 'undefined' ? io() : null; const playersBoard = document.getElementById('players-board'); const logBox = document.getElementById('log-box'); 
 
         let editMonstroId = null;
         const listaPericiasMonstro = ['luta','pontaria','iniciativa','reflexos','percepcao','vontade','fortitude','ocultismo'];
@@ -812,51 +487,53 @@
         }
 
         // ================= CONEXÃO E SOCKETS =================
-        socket.on('connect', () => {
-            socket.emit('join_campaign', campanhaAtiva);
-            jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo));
-            socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
-        });
+        if (socket) {
+            socket.on('connect', () => {
+                socket.emit('join_campaign', campanhaAtiva);
+                jogadoresPermitidos.forEach(codigo => socket.emit('request_player', codigo));
+                socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
+            });
 
-        socket.on('update_mestre', (dados) => {
-            const codPuro = (dados.codigo || "").toUpperCase();
-            if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
-            playersDataMemoria[codPuro] = dados;
-            localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
-            renderizarJogadores();
-        });
+            socket.on('update_mestre', (dados) => {
+                const codPuro = (dados.codigo || "").toUpperCase();
+                if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
+                playersDataMemoria[codPuro] = dados;
+                localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
+                renderizarJogadores();
+            });
 
-        socket.on('comando_mestre', (dados) => {
-            const incCode = (dados.codigo||"").trim().toUpperCase();
-            if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
-            if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
-            if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
-            
-            if (dados.tipo === 'jogador_entrou' && dados.codigo) {
-                const c = dados.codigo.toUpperCase().trim();
-                if (!jogadoresPermitidos.includes(c)) { 
-                    jogadoresPermitidos.push(c); 
-                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
-                    salvarMestreNoFirebase(); 
-                    socket.emit('request_player', c); 
-                    socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
-                    renderizarJogadores(); 
-                } else { 
-                    socket.emit('request_player', c); 
+            socket.on('comando_mestre', (dados) => {
+                const incCode = (dados.codigo||"").trim().toUpperCase();
+                if (dados.tipo === 'request_overlay_sync') { socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); }
+                if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
+                if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
+                
+                if (dados.tipo === 'jogador_entrou' && dados.codigo) {
+                    const c = dados.codigo.toUpperCase().trim();
+                    if (!jogadoresPermitidos.includes(c)) { 
+                        jogadoresPermitidos.push(c); 
+                        localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
+                        salvarMestreNoFirebase(); 
+                        socket.emit('request_player', c); 
+                        socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
+                        renderizarJogadores(); 
+                    } else { 
+                        socket.emit('request_player', c); 
+                    }
+                    if (playersDataMemoria[c] && playersDataMemoria[c].fullData) { 
+                        socket.emit('mestre_force_sync_player', { codigo: c, fullData: playersDataMemoria[c].fullData }); 
+                    }
                 }
-                if (playersDataMemoria[c] && playersDataMemoria[c].fullData) { 
-                    socket.emit('mestre_force_sync_player', { codigo: c, fullData: playersDataMemoria[c].fullData }); 
-                }
-            }
-            if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
-        });
+                if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
+            });
 
-        socket.on('novo_log', (dados) => {
-            const incCode = (dados.codigo || "").toUpperCase();
-            if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return;
-            adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
-            if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
-        });
+            socket.on('novo_log', (dados) => {
+                const incCode = (dados.codigo || "").toUpperCase();
+                if (dados.codigo && !jogadoresPermitidos.includes(incCode)) return;
+                adicionarAoLog(dados.jogador, dados.acao, dados.resultado, dados.cor);
+                if (dados.acao.toLowerCase().includes('iniciativa')) { processarIniciativa(dados, incCode); }
+            });
+        }
 
         window.addEventListener('message', (event) => {
             if (event.data && event.data.tipo === 'sync_offline_edit') {
@@ -917,6 +594,9 @@
             const logContainer = document.querySelector('.log-container');
             if(['jogadores','monstros','iniciativa'].includes(aba)){ logContainer.style.display = 'flex'; } else { logContainer.style.display = 'none'; }
         }
+
+        const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
+        function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
 
         // ---------- SESSÃO JOGADORES ----------
         function adicionarJogador() { 
@@ -1316,12 +996,14 @@
             let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
             objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random()*100);
             
-            socket.emit('comando_mestre', { 
-                tipo: tipo === 'item' ? 'dar_item' : 'dar_ritual', 
-                codigo: alvoCode, 
-                item: tipo === 'item' ? objParaEnviar : null,
-                ritual: tipo === 'item' ? null : objParaEnviar
-            });
+            if (socket) {
+                socket.emit('comando_mestre', { 
+                    tipo: tipo === 'item' ? 'dar_item' : 'dar_ritual', 
+                    codigo: alvoCode, 
+                    item: tipo === 'item' ? objParaEnviar : null,
+                    ritual: tipo === 'item' ? null : objParaEnviar
+                });
+            }
 
             let pData = playersDataMemoria[alvoCode];
             if (pData && pData.fullData) {
@@ -1551,26 +1233,30 @@
             const grid = document.getElementById('monsters-grid'); grid.innerHTML = ''; 
             monstros.forEach(m => { 
                 
-                let htmlSkills = '';
-                let hasSkills = false;
-                let skillsButtons = '';
+                let htmlSkills = '<div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">';
                 listaPericiasMonstro.forEach(s => { 
                     if (m.skills && m.skills[s] && (m.skills[s].treinado || m.skills[s].bonus > 0)) {
-                        hasSkills = true;
                         let attrKey = attrMapMonstro[s] || 'agi';
                         let attrVal = parseInt(m.attrs?.[attrKey] || 1);
                         let totalV = Math.floor(parseInt(m.skills[s].bonus||0) + (attrVal * 2) + (m.skills[s].treinado ? 5 : 0));
                         let sName = s.charAt(0).toUpperCase() + s.slice(1);
-                        skillsButtons += `<button class="monster-skill-tag" onclick="rolarD20Mestre('${m.nome.replace(/'/g,"\\'").replace(/"/g,"&quot;")}', '${sName}', ${totalV}, false)"><span>${sName}</span> <span class="skill-val" style="background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px; color: var(--accent-blue);">${totalV}</span></button>`;
+                        
+                        // CÁLCULO DE N/B/E
+                        let tg = getAlvosD20(totalV);
+                        let strN = tg.n; let strB = tg.b > 20 ? 'x' : tg.b; let strE = tg.e > 20 ? 'x' : tg.e;
+
+                        htmlSkills += `<div style="flex:1 1 30%; display:flex; flex-direction:column; align-items:center;">
+                            <button class="btn-roll" style="width:100%; background:rgba(0,176,255,0.1); border:1px solid var(--accent-blue); color:var(--accent-blue); font-size:0.75em; margin:0;" onclick="rolarD20Mestre('${m.nome.replace(/'/g,"\\'").replace(/"/g,"&quot;")}', '${sName}', ${totalV}, false)">${sName} (${totalV})</button>
+                            <div style="font-size:0.6em; font-family:Consolas, monospace; background:rgba(0,0,0,0.5); width:100%; text-align:center; padding:2px 0; border-radius:0 0 4px 4px; color:var(--text-secondary);">
+                                <span style="color:var(--accent-green)">N:${strN}</span> <span style="color:var(--accent-blue)">B:${strB}</span> <span style="color:var(--accent-yellow)">E:${strE}</span>
+                            </div>
+                        </div>`;
                     }
                 });
-                if(hasSkills) {
-                    htmlSkills = `<div class="monster-section-title" style="margin-top: 5px;">PERÍCIAS</div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">${skillsButtons}</div>`;
-                }
+                htmlSkills += '</div>';
 
                 let htmlAtaques = ''; 
-                if(m.ataques && m.ataques.length > 0) {
-                    htmlAtaques = `<div class="monster-section-title" style="color: var(--accent-red); border-color: rgba(229,57,53,0.3);">ATAQUES</div>`;
+                if(m.ataques) {
                     m.ataques.forEach(a => { 
                         let safeMName = m.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
                         let safeAName = a.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
@@ -1586,36 +1272,38 @@
                             atqTotal = Math.floor(parseInt(skillData.bonus||0) + (attrVal * 2) + (skillData.treinado ? 5 : 0)) + (parseInt(a.bonusExtra) || 0);
                         }
 
-                        htmlAtaques += `
-                        <div class="monster-attack-card">
-                            <div class="atk-header">
-                                <span class="atk-name">⚔️ ${a.nome}</span>
-                                <span class="atk-stats" style="white-space: nowrap;">Atq: +${atqTotal} | Dano: ${a.dano}</span>
+                        // CÁLCULO DE N/B/E NO ATAQUE
+                        let tgA = getAlvosD20(atqTotal);
+                        let strNA = tgA.n; let strBA = tgA.b > 20 ? 'x' : tgA.b; let strEA = tgA.e > 20 ? 'x' : tgA.e;
+
+                        htmlAtaques += `<div style="margin-top:10px; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid rgba(255,207,51,0.3);">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:var(--accent-yellow); text-transform:uppercase; font-size:0.9em;">${a.nome}</strong> 
+                                <span style="font-size:0.75em; color:gray; font-weight:bold;">Atq: +${atqTotal} | Dano: ${a.dano}</span>
                             </div>
-                            <div class="atk-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <button class="btn-atk" onclick="rolarD20Mestre('${safeMName}', '${safeAName} (Ataque)', ${atqTotal}, true)">🎯 ATACAR</button>
-                                <button class="btn-dmg" onclick="rolarDanoMonstro('${safeMName}', '${safeAName}', '${a.dano}')">🩸 DANO</button>
+                            <div style="font-size:0.65em; font-family:Consolas, monospace; color:var(--text-secondary); text-align:right; margin-bottom:5px;">
+                                <span style="color:var(--accent-green)">N:${strNA}</span> | <span style="color:var(--accent-blue)">B:${strBA}</span> | <span style="color:var(--accent-yellow)">E:${strEA}</span>
+                            </div>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-roll" style="border-color:var(--accent-yellow); color:var(--accent-yellow); flex:1;" onclick="rolarD20Mestre('${safeMName}', '${safeAName} (Ataque)', ${atqTotal}, true)">ATQ</button>
+                                <button class="btn-roll" style="border-color:var(--accent-red); color:var(--accent-red); flex:1;" onclick="rolarDanoMonstro('${safeMName}', '${safeAName}', '${a.dano}')">DANO</button>
                             </div>
                         </div>`; 
                     }); 
                 }
                 
                 let htmlPoderes = ''; 
-                if(m.poderes && m.poderes.length > 0) { 
-                    htmlPoderes = `<div class="monster-section-title" style="color: var(--accent-purple); border-color: rgba(184,43,242,0.3);">HABILIDADES E ENIGMAS</div>`;
-                    m.poderes.forEach(p => { 
-                        let safePName = p.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); 
-                        htmlPoderes += `<div class="monster-power-card"><strong style="color:var(--accent-purple); display:block; margin-bottom:4px; font-size: 0.9em; text-transform: uppercase;">${safePName}</strong><span style="color:#ccc; font-size:0.85em; line-height:1.4; white-space: pre-wrap;">${p.desc}</span></div>`; 
-                    }); 
-                }
+                if(m.poderes) { m.poderes.forEach(p => { let safePName = p.nome.replace(/'/g, "\\'").replace(/"/g, "&quot;"); htmlPoderes += `<div style="margin-top:8px;"><strong style="color:var(--accent-purple)">${safePName}:</strong><br><span style="font-size:0.85em; color:var(--text-secondary);">${p.desc}</span></div>`; }); }
                 
+                const percVida = Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100);
+
                 const card = document.createElement('div'); card.className = 'monster-card'; 
                 card.innerHTML = `
                 <button class="btn-remove" onclick="apagarMonstro('${m.id}')">X</button>
                 <button class="btn-ctrl" style="position:absolute; top:10px; right:40px; font-size:0.8em; background:var(--accent-blue); color:black; border-color:var(--accent-blue);" onclick="editarMonstro('${m.id}')">✏️</button>
                 
                 <div class="player-header" style="border-bottom: none; padding-bottom: 5px;">
-                    <img src="${m.foto || 'https://via.placeholder.com/80'}" class="player-img monster-img" style="width: 75px; height: 75px; border-width: 3px;">
+                    <img src="${m.foto || 'https://via.placeholder.com/60'}" class="player-img monster-img" style="width: 75px; height: 75px; border-width: 3px;">
                     <div class="monster-header-info">
                         <h3 class="player-name monster-name" style="font-size: 1.4em;">${m.nome}</h3>
                         <div class="player-info" style="margin-top: 6px; display: flex; gap: 8px;">
@@ -1633,8 +1321,10 @@
                         <button class="btn-ctrl" style="flex: 0 0 auto; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 0.85em; font-weight: 900; width: auto;" onclick="alterarVidaMonstro('${m.id}', -10)">-10</button>
                         <button class="btn-ctrl" style="flex: 0 0 auto; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 0.85em; font-weight: 900; width: auto;" onclick="alterarVidaMonstro('${m.id}', -1)">-1</button>
                         <div class="bar-container" style="flex: 1; height: 32px; border-radius: 6px; margin: 0; border: 2px solid #333; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); min-width: 80px;">
-                            <div class="bar-fill fill-vida" style="width: ${Math.min(Math.max((m.vida_atual / m.vida_max) * 100, 0), 100)}%; box-shadow: 0 0 10px rgba(229,57,53,0.5);"></div>
-                            <div class="bar-text" style="line-height: 32px; font-size: 1em; text-shadow: 1px 1px 2px black;">${m.vida_atual} / ${m.vida_max}</div>
+                            <div class="bar-fill fill-vida" style="width: ${percVida}%; box-shadow: 0 0 10px rgba(229,57,53,0.5);"></div>
+                            <div class="bar-text" style="line-height: 32px; font-size: 1em; text-shadow: 1px 1px 2px black;">
+                                <input type="number" class="status-input" style="width:50px; color:white; pointer-events:auto;" value="${m.vida_atual}" onchange="setVidaMonstroDireto('${m.id}', this.value)"> / ${m.vida_max}
+                            </div>
                         </div>
                         <button class="btn-ctrl" style="flex: 0 0 auto; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 0.85em; font-weight: 900; width: auto;" onclick="alterarVidaMonstro('${m.id}', 1)">+1</button>
                     </div>
@@ -1692,7 +1382,25 @@
             document.getElementById('modal-criatura').style.display = 'flex'; 
         }
 
-        function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); renderizarMonstros(); } }
+        function alterarVidaMonstro(id, valor) { 
+            const idx = monstros.findIndex(m => m.id === id); 
+            if(idx > -1) { 
+                monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; 
+                localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+                salvarMestreNoFirebase(); 
+                renderizarMonstros(); 
+            } 
+        }
+
+        function setVidaMonstroDireto(id, valor) {
+            const idx = monstros.findIndex(m => m.id === id); 
+            if(idx > -1) { 
+                monstros[idx].vida_atual = parseInt(valor) || 0; 
+                localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
+                salvarMestreNoFirebase(); 
+                renderizarMonstros(); 
+            } 
+        }
 
         function rolarDanoMonstro(nomeMonstro, nomeAtaque, formula) { try { if (!formula) formula = '0'; let f = formula.toLowerCase().replace(/\s/g, ''); const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); let t = 0; if(matches) { matches.forEach(m => { let sign = m.startsWith('-') ? -1 : 1, cur = m.replace(/[+-]/,''); if(cur.includes('d')) { const parts = cur.split('d'); for(let i=0; i<(parseInt(parts[0])||1); i++) t += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; } else t += parseInt(cur)*sign; }); } showPopup(t, `DANO: ${nomeAtaque}`, "color:var(--accent-red)", nomeMonstro); } catch(e) { alert("Fórmula de dano inválida!"); } }
 
