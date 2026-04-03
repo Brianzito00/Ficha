@@ -95,18 +95,14 @@
         #inventory-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
         .grid-item { position: absolute; box-sizing: border-box; cursor: grab; display: flex; justify-content: center; align-items: center; }
         .grid-item:active { cursor: grabbing; }
-        
-        /* ITENS TRANSPARENTES COM BORDA BRANCA! */
         .item-border-comum { border: 2px solid white !important; background: transparent !important; }
         .item-border-arma { border: 2px solid white !important; background: transparent !important; }
-        
-        .grid-item.selected { border-width: 3px !important; border-color: var(--accent-yellow) !important; z-index: 15 !important; box-shadow: 0 0 15px rgba(255,207,51,0.5); }
+        .grid-item.selected { border-width: 3px; border-color: #fff; z-index: 15 !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .ghost-valid { border: 3px solid #00e676 !important; background-color: rgba(0,230,118,0.4) !important; }
         .ghost-invalid { border: 3px solid #e53935 !important; background-color: rgba(229,57,53,0.4) !important; }
         
-        /* ITENS NA CAIXA DE ENTRADA TAMBÉM TRANSPARENTES E COM BORDA BRANCA */
-        .pool-item { background: transparent !important; border: 1px solid white !important; padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: white !important; margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
-        .pool-item:hover { filter: brightness(1.2); border-color: var(--accent-yellow) !important; color: var(--accent-yellow) !important; }
+        .pool-item { background: transparent; border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
+        .pool-item:hover { filter: brightness(1.2); border-color: white !important;; color: white; }
         .pool-item-bg { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; opacity: 0.3; pointer-events: none; }
         .pool-item-text { position: relative; z-index: 2; pointer-events: none; }
         
@@ -403,9 +399,11 @@
 
 <div id="popup-new-ability" class="popup-overlay" onclick="closeAbilityPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color: var(--accent-green); text-align: center; margin-top: 0;">Nova Habilidade</h3><label style="font-size: 0.8em; color: var(--text-secondary);">NOME</label><input type="text" id="new-ability-name" class="inv-input" style="margin-bottom: 10px;"><label style="font-size: 0.8em; color: var(--text-secondary);">DESCRIÇÃO</label><textarea id="new-ability-desc" class="inv-input" style="height: 100px; margin-bottom: 15px; resize: none;"></textarea><div style="display: flex; gap: 10px;"><button class="btn-add" style="flex: 1; margin: 0;" onclick="confirmAddAbility()">ADICIONAR</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeAbilityPopup()">CANCELAR</button></div></div></div>
 
+<div id="popup-new-ritual" class="popup-overlay" onclick="closeRitualPopup()"><div class="popup-box" style="width: 550px;" onclick="event.stopPropagation()"><h3 style="color: var(--accent-purple); text-align: center; margin-top: 0;">Aprender Ritual</h3><p style="text-align: center; color: var(--text-secondary);">Escolha do catálogo do Mestre</p><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;" id="ritual-grid-container"></div><button class="btn-del" style="width: 100%; margin-top: 15px; padding: 12px; border-radius: 6px; background: #333;" onclick="closeRitualPopup()">FECHAR</button></div></div>
+
 <div id="popup-ritual-info" class="popup-overlay" onclick="closeRitualInfo()"><div class="popup-box" onclick="event.stopPropagation()"><h3 id="info-rit-name" style="text-align: center; margin-top: 0; text-transform: uppercase;">NOME</h3><img id="info-rit-img" src="" style="width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 15px; display: none; border-radius: 8px;"><div id="info-rit-details" style="color: var(--text-primary); font-size: 0.95em; line-height: 1.5;"></div><button class="btn-del" style="width: 100%; margin-top: 20px; padding: 12px; border-radius: 6px; background: #333;" onclick="closeRitualInfo()">FECHAR</button></div></div>
 
-<div id="popup-char-imgs" class="popup-overlay" onclick="closeCharImgPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color: var(--accent-blue); text-align: center; margin-top: 0;">Fotos de Status</h3><label style="font-size: 0.8em; color: var(--text-secondary);">NORMAL</label><input type="text" id="img-normal" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">MORRENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--accent-yellow); font-weight: bold;">COMBINADA (Lesionado + Enlouquecendo)</label><input type="text" id="img-les-enlouq" class="inv-input" style="margin-bottom: 15px;"><div style="display: flex; gap: 10px;"><button class="btn-add" style="background: var(--accent-blue); flex: 1; margin: 0;" onclick="saveCharImgPopup()">SALVAR</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeCharImgPopup()">FECHAR</button></div></div></div>
+<div id="popup-char-imgs" class="popup-overlay" onclick="closeCharImgPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 style="color: var(--accent-blue); text-align: center; margin-top: 0;">Fotos de Status</h3><label style="font-size: 0.8em; color: var(--text-secondary);">NORMAL</label><input type="text" id="img-normal" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">LESIONADO</label><input type="text" id="img-lesionado" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">INCONSCIENTE</label><input type="text" id="img-inconsciente" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">MORRENDO</label><input type="text" id="img-morrendo" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--text-secondary);">ENLOUQUECENDO</label><input type="text" id="img-enlouquecendo" class="inv-input" style="margin-bottom: 5px;"><label style="font-size: 0.8em; color: var(--accent-yellow); font-weight: bold;">COMBINADA (Lesionado + Enlouquecendo)</label><input type="text" id="img-les-enlouq" class="inv-input" style="margin-bottom: 15px;"><div style="display: flex; gap: 10px;"><button class="btn-add" style="background: var(--accent-blue); flex: 1; margin: 0;" onclick="saveCharImgPopup()">SALVAR</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeCharImgPopup()">FECHAR</button></div></div></div>
 
 <div id="popup-skill-info" class="popup-overlay" onclick="closeSkillPopup()"><div class="popup-box" onclick="event.stopPropagation()"><h3 id="popup-skill-name" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase;">PERÍCIA</h3><div style="background: rgba(255,207,51,0.1); border: 1px solid var(--accent-yellow); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px;"><input type="checkbox" id="popup-skill-trained" onchange="updateSkillPopupCalc()" style="width: 20px; height: 20px; accent-color: var(--accent-yellow); cursor: pointer;"> <label for="popup-skill-trained" style="color: var(--accent-yellow); font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.9em;">TREINADA (+2)</label></div><div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 10px;"><span style="font-size: 0.85em; color: var(--text-secondary); font-weight: bold;">NATURAL (<span id="popup-skill-attr-name"></span>)</span><span id="popup-skill-natural" style="color: var(--accent-green); font-size: 1.2em; font-weight: bold;">0</span></div><div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;"><span style="font-size: 0.85em; color: var(--text-secondary); font-weight: bold;">BÔNUS EXTRA</span><input type="number" id="popup-skill-bonus" class="inv-input" style="width: 60px; text-align: center; border-bottom: 2px solid var(--accent-blue); padding: 0; background: transparent; border-top: none; border-left: none; border-right: none; font-size: 1.2em; font-weight: bold;" value="0" oninput="updateSkillPopupCalc()"></div><div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,176,255,0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--accent-blue); margin-bottom: 20px;"><span style="font-weight: bold; color: white; font-size: 1em;">TOTAL</span><span id="popup-skill-total" style="color: var(--accent-blue); font-weight: 900; font-size: 1.8em;">0</span></div><input type="hidden" id="popup-skill-sn"><input type="hidden" id="popup-skill-attr"><div style="display: flex; gap: 10px;"><button class="btn-add" style="background: var(--accent-blue); flex: 1; margin: 0;" onclick="saveSkillPopup()">SALVAR</button><button class="btn-del" style="flex: 1; padding: 12px; border-radius: 6px; background: #333;" onclick="closeSkillPopup()">FECHAR</button></div></div></div>
 
@@ -418,7 +416,9 @@
         <h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase;">TITULO</h3>
         
         <div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 350px; background: #000; border-radius: 8px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: grab; touch-action: none;">
+            
             <img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;">
+            
             <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: #121214; outline: none;"></model-viewer>
 
             <div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
@@ -482,18 +482,18 @@
             switch(dados.tipo) {
                 case 'dar_item':
                     if (dados.item) {
-                        inventoryItems.push({...dados.item, x:-1, y:-1, eq:false});
+                        inventoryItems.push(dados.item);
                         updateInventoryDisplay();
                         updateWeight();
                         updateAllPericias();
                         save();
-                        notificarRecebimento(`Recebeste um item: ${dados.item.n}`);
+                        notificarRecebimento(`Recebeste um item!`);
                     }
                     break;
                 case 'dar_ritual':
                     if (dados.ritual) {
                         addCatalogRitual(JSON.stringify(dados.ritual));
-                        notificarRecebimento(`Aprendeste um novo ritual: ${dados.ritual.n || dados.ritual.name}`);
+                        notificarRecebimento(`Aprendeu um novo ritual!`);
                     }
                     break;
                 case 'dar_pista':
@@ -503,7 +503,7 @@
                             pistasRecebidas.push(dados.pista);
                             renderPistas();
                             save();
-                            notificarRecebimento(`Nova pista no mural: ${dados.pista.titulo}`);
+                            notificarRecebimento(`Nova pista no mural!`);
                         }
                     }
                     break;
@@ -535,6 +535,10 @@
     let editingItemId = null; 
     let pistasRecebidas = [];
     
+    const keyCatalog = 'ordem_custom_catalog_' + campanhaAtiva; 
+    let customCatalog = { items: [], melee: [], ranged: [], rituals: [] };
+    try { let loadedCat = JSON.parse(localStorage.getItem(keyCatalog)); if (loadedCat) customCatalog = { ...customCatalog, ...loadedCat }; } catch(e) {}
+
     const periciasBase = [
         {nome:"Acrobacia",attr:"AGI"},{nome:"Adestramento",attr:"PRE"},{nome:"Artes",attr:"PRE"},{nome:"Atletismo",attr:"FOR"},
         {nome:"Atualidades",attr:"INT"},{nome:"Ciências",attr:"INT"},{nome:"Crime",attr:"AGI"},{nome:"Diplomacia",attr:"PRE"},
@@ -602,13 +606,14 @@
             if (item.x < 0 || item.y < 0) {
                 if (item.eq && (item.n || "").toLowerCase().includes('mochila')) return; 
                 item.el.className = 'pool-item'; item.el.style = ''; 
-                item.el.style.border = '1px solid white';
-                item.el.style.background = 'transparent';
-                let content = ''; if(item.img) content += `<img src="${item.img}" class="pool-item-bg">`; content += `<span class="pool-item-text" style="color:white; text-shadow: 1px 1px 2px #000;">${item.n} (${item.w}x${item.h})${qtdBadgePool}</span>`; item.el.innerHTML = content;
+                let color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
+                item.el.style.borderColor = color;
+                let content = ''; if(item.img) content += `<img src="${item.img}" class="pool-item-bg">`; content += `<span class="pool-item-text" style="color:${color}; text-shadow: 1px 1px 2px #000;">${item.n} (${item.w}x${item.h})${qtdBadgePool}</span>`; item.el.innerHTML = content;
                 item.el.onmousedown = null; item.el.onclick = () => autoEquipItem(item.id); inboxEl.appendChild(item.el);
             } else {
                 item.el.className = 'grid-item'; if(item.id === currentSelectedItemId) item.el.classList.add('selected');
                 item.el.classList.remove('item-border-comum', 'item-border-arma'); item.el.classList.add((item.type === 'comum' || item.type === 'municao') ? 'item-border-comum' : 'item-border-arma');
+                if(item.type === 'municao') item.el.style.borderColor = 'var(--accent-purple)';
                 
                 const imgSrc = item.img || "https://via.placeholder.com/50x50/202024/666666?text=X"; 
                 let origW = item.rotated ? item.h : item.w; 
@@ -663,12 +668,14 @@
         let item = inventoryItems.find(i => i.id === id);
         if (item && item.type === 'municao' && item.qtd > 1) {
             item.qtd -= 1;
-            let newItem = JSON.parse(JSON.stringify(item));
-            newItem.id = 'inv_' + Date.now() + Math.floor(Math.random() * 1000);
-            newItem.qtd = 1;
-            newItem.eq = false;
-            newItem.x = -1;
-            newItem.y = -1;
+            let newItem = {
+                id: 'inv_' + Date.now() + Math.floor(Math.random() * 1000),
+                n: item.n, w: item.w, h: item.h, type: item.type, ammoType: item.ammoType,
+                qtd: 1, dmg: item.dmg, extra: item.extra, crit: item.crit, skill: item.skill,
+                img: item.img, atkType: item.atkType, atk: item.atk, range: item.range, ammo: item.ammo, capacity: item.capacity, currentShots: item.currentShots,
+                d: item.d,
+                x: -1, y: -1, rotated: false, eq: false
+            };
             inventoryItems.push(newItem);
             updateInventoryDisplay();
             selectItemInfo(id);
@@ -968,7 +975,7 @@
 
     function openAbilityPopup() { document.getElementById('popup-new-ability').style.display='flex'; }
     function closeAbilityPopup() { document.getElementById('popup-new-ability').style.display='none'; }
-    function confirmAddAbility() { const n = document.getElementById('new-ability-name').value; const d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); closeAbilityPopup(); }
+    function confirmAddAbility() { const n = document.getElementById('new-ability-name').value; const d = document.getElementById('new-ability-desc').value; if(!n) return; addAbility(n, d); document.getElementById('new-ability-name').value=''; document.getElementById('new-ability-desc').value=''; closeAbilityPopup(); }
     function addAbility(n, d) { const id = Date.now().toString()+Math.floor(Math.random()*100000).toString(); const safeD = (d||"").replace(/"/g, "'"); const div = document.createElement('div'); div.className = 'ability-item'; div.id = 'ability-'+id; div.setAttribute('data-n', n); div.setAttribute('data-d', safeD); div.style.background = 'rgba(18,18,20,0.8)'; div.style.border = '1px solid rgba(51,51,51,0.5)'; div.style.borderRadius = '8px'; div.style.padding = '10px'; div.style.position = 'relative'; div.innerHTML = `<button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em;" onclick="document.getElementById('ability-${id}').remove(); save();">X</button><div style="font-weight:bold; color:var(--accent-green); margin-bottom:5px; font-size:0.9em; text-transform:uppercase;">${n}</div><div style="color:var(--text-secondary); font-size:0.85em; white-space:pre-wrap;">${d}</div>`; document.getElementById('abilities-list').appendChild(div); save(); }
 
     function rolarTesteD20(n, id, ak, eArma=false, qtdAtaquesForcado=null) { 
@@ -1014,18 +1021,88 @@
     function rolarAtaqueDesarmado() { let skillObj = periciasBase.find(p=>p.nome==="Luta"); if(!skillObj) return; rolarTesteD20(skillObj.nome, "skill_luta", skillObj.attr, false); }
     function rolarDanoDesarmado() { const tipo = document.getElementById('char_tipo_corpo').value; let faces = 8; if(tipo === 'Pequeno') faces = 6; if(tipo === 'Grande') faces = 10; let roll = Math.floor(Math.random()*faces)+1; let isCrit = lastAttackWasCrit; let total = roll; if(isCrit){ let roll2 = Math.floor(Math.random()*faces)+1; total += roll2; } if(total<0) total=0; let title = isCrit ? `DANO CRÍTICO<br>(DESARMADO)` : `DANO<br>(DESARMADO)`; let color = isCrit ? "color:#ffcf33; text-shadow:0 0 15px #ff0000, 2px 2px 4px #000;" : "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; showPopup(total, title, color); lastAttackWasCrit = false; }
 
-    function openRitualInfo(id, color) { const row = document.getElementById('rit-row-'+id); if(!row) return; const hr = row.querySelector('.hidden-ritual'), htmlDiv=row.querySelector('div[id^="rit-html-"]'); if(!hr || !htmlDiv) return; document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n'); document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)'; const imgUrl = hr.getAttribute('data-img'); const imgEl = document.getElementById('info-rit-img'); if(imgUrl && imgUrl.trim()!==''){ imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } document.getElementById('info-rit-details').innerHTML = `<div style="background:rgba(18,18,20,0.8); border:1px solid ${color||'rgba(51,51,51,0.5)'}; border-radius:8px; padding:15px;">${htmlDiv.innerHTML}</div>`; document.getElementById('popup-ritual-info').style.display = 'flex'; }
-    function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
-    
-    function addCatalogRitual(ritStr) { const rit=JSON.parse(ritStr); let rName = rit.name || rit.n || "Ritual"; let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(rit.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${rit.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(rName,rit.el,dHTML,rit.circ,rit.ex,rit.alc,rit.alv,rit.dur,rit.res,rit.descGeral,rit.descDisc,rit.descVerd,true,rit.img); }
+    function openRitualPopup() { document.getElementById('popup-new-ritual').style.display='flex'; renderRitualsCatalog(); }
+    function closeRitualPopup() { document.getElementById('popup-new-ritual').style.display='none'; }
+    function renderRitualsCatalog() { try { const container = document.getElementById('ritual-grid-container'); if(!container) return; container.innerHTML = ''; let todosRituais = []; if(customCatalog.rituals) { customCatalog.rituals.filter(r=>r.visivel!==false).forEach(r=>todosRituais.push({...r, isCustom:true})); } if(todosRituais.length===0){ container.innerHTML = `<span style="color:var(--text-secondary);font-style:italic;">Nenhum ritual no catálogo.</span>`; return; } let grouped = {'1º':[],'2º':[],'3º':[],'4º':[]}; todosRituais.forEach(r=>{ let c = r.circ || '1º'; if(!grouped[c]) grouped[c]=[]; grouped[c].push(r); }); Object.keys(grouped).forEach(circ=>{ if(grouped[circ].length===0) return; let sec = document.createElement('div'); sec.style.cssText="grid-column:1/-1; color:var(--accent-blue); font-weight:bold; margin-top:10px; border-bottom:1px solid var(--border-color); padding-bottom:5px;"; sec.innerText=`${circ} Círculo`; container.appendChild(sec); grouped[circ].forEach(rit=>{ let rName = rit.name || rit.n || "Ritual"; let color = "var(--text-primary)"; if(rit.el==='Conhecimento') color="#ffcf33"; if(rit.el==='Sangue') color="#e53935"; if(rit.el==='Energia') color="#b82bf2"; if(rit.el==='Morte') color="#71717a"; if(rit.el==='Medo') color="#fff"; if(rit.el==='Qualquer') color="#aaaaaa"; let hexColor = color.startsWith('var')?'e1e1e6':color.replace('#',''); let textIcon = rit.el==='Qualquer'?'ALL':el.substring(0,3).toUpperCase(); let imgSrc=rit.img&&rit.img.trim()!==""?rit.img:`https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`; let safeRit=JSON.stringify(rit).replace(/"/g, '&quot;'); let card = document.createElement('div'); card.className = "skill-card"; card.style.cssText=`position: relative; cursor: pointer; padding: 10px; border: 1px solid ${color}50; border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s;`; card.onclick=()=>addCatalogRitual(safeRit); card.onmouseover=function(){this.style.borderColor=color;}; card.onmouseout=function(){this.style.borderColor=`${color}50`;}; card.innerHTML=`<img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px;"><div style="font-weight: bold; color: ${color}; font-size: 0.9em; margin-bottom: 5px; text-transform: uppercase;">${rName}</div><div style="font-size: 0.7em; color: var(--text-secondary); line-height: 1.4;">Alvo/Área: <span style="color:white; font-weight:bold;">${rit.alv}</span></div>`; container.appendChild(card); }); }); } catch(e){} }
+    function addCatalogRitual(ritStr) { const rit=JSON.parse(ritStr); let rName = rit.name || rit.n || "Ritual"; let descHTML = `<b style='color:var(--text-secondary);'>Normal:</b><br>${rit.descGeral}`; if(rit.descDisc!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Discente:</b><br>${rit.descDisc}`; if(rit.descVerd!=="-") descHTML+=`<br><br><b style='color:var(--text-secondary);'>Verdadeiro:</b><br>${rit.descVerd}`; const dHTML=`<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Círculo:</b> ${rit.circ}</div><div><b style='color:var(--text-secondary);'>Execução:</b> ${rit.ex}</div><div><b style='color:var(--text-secondary);'>Alcance:</b> ${rit.alc}</div><div><b style='color:var(--text-secondary);'>Alvo:</b> ${rit.alv}</div><div><b style='color:var(--text-secondary);'>Duração:</b> ${rit.dur}</div><div><b style='color:var(--text-secondary);'>Resistência:</b> ${rit.res}</div><div style='grid-column: span 2; margin-top:8px;'>${descHTML}</div></div>`; addRitual(rName,rit.el,dHTML,rit.circ,rit.ex,rit.alc,rit.alv,rit.dur,rit.res,rit.descGeral,rit.descDisc,rit.descVerd,true,rit.img); closeRitualPopup(); }
     function addRitual(n, el, dHTML, circ, ex, alc, alv, dur, res, descGeral, descDisc, descVerd, eq=true, img="") { const id = Date.now().toString() + Math.floor(Math.random()*100000).toString(); const safeDescGeral=(descGeral||"").replace(/"/g,"'"), safeDescDisc=(descDisc||"").replace(/"/g,"'"), safeDescVerd=(descVerd||"").replace(/"/g,"'"), safeImg=(img||"").replace(/"/g,"'"); let color = "var(--text-primary)"; if(el==='Conhecimento') color="#ffcf33"; if(el==='Sangue') color="#e53935"; if(el==='Energia') color="#b82bf2"; if(el==='Morte') color="#71717a"; if(el==='Medo') color="#fff"; if(el==='Qualquer') color="#aaaaaa"; const card = document.createElement('div'); card.id = 'rit-row-' + id; card.onclick = () => openRitualInfo(id, color); card.style.cssText=`position: relative; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; text-align: center; background: rgba(18,18,20,0.8); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer;`; card.onmouseover = function() { this.style.borderColor = color; }; card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; }; let hexColor = color.startsWith('var')?'e1e1e6':color.replace('#',''); let textIcon = el==='Qualquer'?'ALL':el.substring(0,3).toUpperCase(); let imgSrc=safeImg&&safeImg.trim()!==""?safeImg:`https://via.placeholder.com/60x60/202024/${hexColor}?text=${textIcon}`; card.innerHTML = `<button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removeRitual('${id}')">X</button><div style="position: absolute; top: 5px; left: 5px; z-index: 10; display:flex; align-items:center; background: rgba(0,0,0,0.6); padding: 3px 6px; border-radius: 6px;"><input type="checkbox" class="rit-equipped item-equipped" ${eq?'checked':''} onclick="event.stopPropagation()" onchange="updateRitualsCount(); updateLearnedRitualsDisplay(); save()" style="margin:0; cursor: pointer; accent-color: ${color};"><span style="font-size: 0.6em; color: white; margin-left: 4px; font-weight: bold;">Eqp</span></div><img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; border-radius: 6px; margin-top: 15px;"><div style="font-weight: bold; color: ${color}; font-size: 0.85em; margin-bottom: 5px; text-transform: uppercase;">${n}</div><div style="display:none;"><div id="rit-html-${id}">${dHTML}</div><input type="hidden" class="hidden-ritual" id="rit-data-${id}" data-n="${n}" data-el="${el}" data-circ="${circ}" data-ex="${ex}" data-alc="${alc}" data-alv="${alv}" data-dur="${dur}" data-res="${res}" data-desc-geral="${safeDescGeral}" data-desc-disc="${safeDescDisc}" data-desc-verd="${safeDescVerd}" data-img="${safeImg}"></div>`; let targetCirc = circ ? circ.charAt(0) : '1'; let body = document.getElementById(`rituais-${targetCirc}-body`); if(!body) body = document.getElementById('rituais-1-body'); document.getElementById(`rituais-${targetCirc}-container`).style.display = 'block'; body.appendChild(card); if(!isLoadingData) { updateRitualsCount(); updateLearnedRitualsDisplay(); save(); } }
     function removeRitual(id) { let row = document.getElementById('rit-row-'+id); if(!row) return; let container = row.parentElement; row.remove(); if(container.children.length===0){ container.parentElement.style.display='none'; } updateRitualsCount(); updateLearnedRitualsDisplay(); save(); }
     function updateRitualsCount() { document.getElementById('rituals-text').innerText = document.querySelectorAll('.rit-equipped:checked').length; }
     function updateLearnedRitualsDisplay() { const container = document.getElementById('learned-rituals-list'); container.innerHTML = ''; let has = false; document.querySelectorAll('.rit-equipped:checked').forEach(chk=>{ has = true; const hr = chk.closest('div[id^="rit-row-"]').querySelector('.hidden-ritual'); const n = hr.getAttribute('data-n'), el = hr.getAttribute('data-el'), rid = hr.closest('div[id^="rit-row-"]').id.replace('rit-row-',''); let color="#fff"; if(el==='Conhecimento') color="#ffcf33"; if(el==='Sangue') color="#e53935"; if(el==='Energia') color="#b82bf2"; if(el==='Morte') color="#71717a"; if(el==='Medo') color="#fff"; if(el==='Qualquer') color="#aaaaaa"; container.innerHTML += `<button class="ritual-btn" style="border-color:${color}; color:${color};" onclick="openRitualInfo('${rid}', '${color}')">${n}</button>`; }); if(!has) container.innerHTML = `<div style="text-align:center;color:var(--text-secondary);font-size:0.8em;font-style:italic; width: 100%;">Nenhum ritual preparado.</div>`; }
+    function openRitualInfo(id, color) { const row = document.getElementById('rit-row-'+id); if(!row) return; const hr = row.querySelector('.hidden-ritual'), htmlDiv=row.querySelector('div[id^="rit-html-"]'); if(!hr || !htmlDiv) return; document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n'); document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)'; const imgUrl = hr.getAttribute('data-img'); const imgEl = document.getElementById('info-rit-img'); if(imgUrl && imgUrl.trim()!==''){ imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } document.getElementById('info-rit-details').innerHTML = `<div style="background:rgba(18,18,20,0.8); border:1px solid ${color||'rgba(51,51,51,0.5)'}; border-radius:8px; padding:15px;">${htmlDiv.innerHTML}</div>`; document.getElementById('popup-ritual-info').style.display = 'flex'; }
+    function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
 
+    // --- FUNÇÕES DE PISTAS (ADICIONADO) ---
+    function renderPistas() {
+        const list = document.getElementById('pistas-list');
+        if (!list) return;
+        if (!pistasRecebidas || pistasRecebidas.length === 0) {
+            list.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-style: italic; grid-column: 1/-1;">Nenhuma pista encontrada ainda...</div>';
+            return;
+        }
+        list.innerHTML = '';
+        pistasRecebidas.forEach(p => {
+            list.innerHTML += `<div class="pista-card" onclick="openPistaView('${p.id}')">
+                <div style="font-weight: bold; color: var(--accent-blue); margin-bottom: 5px; text-transform: uppercase;">${p.n || 'Pista'}</div>
+                <div style="font-size: 0.85em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.d ? p.d.replace(/<br>/g, ' ') : '...'}</div>
+            </div>`;
+        });
+    }
+
+    let currentPistaZoom = 1;
+    function openPistaView(id) {
+        const p = pistasRecebidas.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('pista-view-title').innerText = p.n || 'PISTA';
+        document.getElementById('pista-view-desc').innerHTML = p.d || '';
+
+        const imgWrapper = document.getElementById('pista-img-wrapper');
+        const img2d = document.getElementById('pista-view-img');
+        const view3d = document.getElementById('pista-view-3d');
+
+        imgWrapper.style.display = 'none';
+        img2d.style.display = 'none';
+        if (view3d) view3d.style.display = 'none';
+        
+        img2d.style.transform = 'scale(1)';
+        currentPistaZoom = 1;
+
+        if (p.img && p.img.trim() !== '') {
+            imgWrapper.style.display = 'block';
+            if (p.img.toLowerCase().endsWith('.glb') || p.img.toLowerCase().endsWith('.gltf')) {
+                if (view3d) { view3d.src = p.img; view3d.style.display = 'block'; }
+                document.getElementById('pista-controls-2d').style.display = 'none';
+            } else {
+                img2d.src = p.img; img2d.style.display = 'block';
+                document.getElementById('pista-controls-2d').style.display = 'flex';
+            }
+        }
+        document.getElementById('popup-pista').style.display = 'flex';
+    }
+
+    function closePista() {
+        document.getElementById('popup-pista').style.display = 'none';
+        const view3d = document.getElementById('pista-view-3d');
+        if (view3d) view3d.style.display = 'none';
+    }
+
+    function zoomPista(delta) {
+        currentPistaZoom += delta;
+        if(currentPistaZoom < 0.2) currentPistaZoom = 0.2;
+        if(currentPistaZoom > 5) currentPistaZoom = 5;
+        document.getElementById('pista-view-img').style.transform = `scale(${currentPistaZoom})`;
+    }
+
+    function resetPistaZoom() {
+        currentPistaZoom = 1;
+        document.getElementById('pista-view-img').style.transform = `scale(${currentPistaZoom})`;
+    }
+    // --------------------------------------
+
+    // --- SAVE E EVENTOS ---
     window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-    function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); notificarRecebimento("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
+    function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
 
     let timerAutoSave; 
     function attivAutoSave() { 
@@ -1046,7 +1123,6 @@
         if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado; 
         
         const d = { 
-            last_update: Date.now(),
             attrs:{}, skills:{}, 
             inv:inventoryItems.map(i=>({id:i.id, n:i.n, w:i.w, h:i.h, d:i.d, eq:i.eq, type:i.type, ammoType:i.ammoType, qtd:i.qtd, dmg:i.dmg, extra:i.extra, crit:i.crit, skill:i.skill, img:i.img, atkType:i.atkType, atk:i.atk, range:i.range, ammo:i.ammo, capacity:i.capacity, currentShots:i.currentShots, x:i.x, y:i.y, rotated:i.rotated})), 
             ammo:{}, abilities:[], rituals:[], pistas: pistasRecebidas, defense: document.getElementById('defense_val').value, info:{}, charImages:charImages, charStatus:charStatus 
@@ -1061,8 +1137,7 @@
         if (viewCode) { 
             if(window.parent !== window) { window.parent.postMessage({tipo: 'sync_offline_edit', codigo: viewCode, fullData: d, charStatus: charStatus}, '*'); } 
             if(socket){ socket.emit('mestre_force_sync', { codigo: viewCode, origin: socket.id, nome: d.info.char_nome || 'Desconhecido', foto: currentImgUrl, nex: d.info.char_nex || 0, defesa: d.defense || 10, vida_atual: d.info.vida_atual || 0, vida_max: d.info.vida_max || 0, sani_atual: d.info.sani_atual || 0, sani_max: d.info.sani_max || 0, pe_atual: d.info.pe_atual || 0, pe_max: d.info.pe_max || 0, status: charStatus, fullData: d }); } 
-            const dbPlayerId = viewCode.toUpperCase() + '_' + campanhaAtiva;
-            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: dbPlayerId, fichaData: d}) }).catch(e=>{});
+            fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: viewCode, fichaData: d}) }).catch(e=>{});
             return; 
         } 
         
@@ -1074,10 +1149,6 @@
 
     async function load() { 
         isLoadingData = true; 
-        let localStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
-        let localFicha = null;
-        try { if (localStr) localFicha = JSON.parse(localStr); } catch(e){}
-
         try {
             const response = await fetch('/api/carregar_personagem', {
                 method: 'POST',
@@ -1087,24 +1158,16 @@
             const result = await response.json();
             
             if (result.sucesso && result.ficha) {
-                let serverFicha = result.ficha;
-                let serverTime = serverFicha.last_update || 0;
-                let localTime = localFicha ? (localFicha.last_update || 0) : 0;
-
-                if (localFicha && localTime > serverTime) {
-                    populateData(localFicha);
-                    fetch('/api/guardar_ficha', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario: playerCode, fichaData: localFicha}) }).catch(e=>{});
-                } else {
-                    populateData(serverFicha);
-                    localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(serverFicha));
-                }
+                populateData(result.ficha);
+                localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(result.ficha));
                 isLoadingData = false;
                 return;
             }
         } catch (e) { console.error("Erro ao carregar do servidor, tentando local..."); }
 
-        if (!localFicha) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
-        populateData(localFicha);
+        let s = localStorage.getItem('ordem_save_local_' + campanhaAtiva); 
+        if (!s) { isLoadingData = false; updateDanoDesarmado(); return updateAllPericias(); } 
+        try { populateData(JSON.parse(s)); } catch(e){ isLoadingData = false; updateAllPericias(); updateDanoDesarmado(); } 
         isLoadingData = false;
     }
 
