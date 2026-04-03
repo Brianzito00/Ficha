@@ -95,14 +95,14 @@
         #inventory-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
         .grid-item { position: absolute; box-sizing: border-box; cursor: grab; display: flex; justify-content: center; align-items: center; }
         .grid-item:active { cursor: grabbing; }
-        .item-border-comum { border: 2px solid var(--accent-green); background: rgba(0,230,118,0.2); }
-        .item-border-arma { border: 2px solid var(--accent-yellow); background: rgba(255,207,51,0.2); }
+        .item-border-comum { border: 2px solid white !important; background: transparent !important; }
+        .item-border-arma { border: 2px solid white !important; background: transparent !important; }
         .grid-item.selected { border-width: 3px; border-color: #fff; z-index: 15 !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
         .ghost-valid { border: 3px solid #00e676 !important; background-color: rgba(0,230,118,0.4) !important; }
         .ghost-invalid { border: 3px solid #e53935 !important; background-color: rgba(229,57,53,0.4) !important; }
         
-        .pool-item { background: rgba(18,18,20,0.9); border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
-        .pool-item:hover { filter: brightness(1.2); border-color: white; color: white; }
+        .pool-item { background: transparent; border: 1px solid var(--accent-blue); padding: 10px; text-align: center; cursor: pointer; border-radius: 4px; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 40px; transition: 0.2s; }
+        .pool-item:hover { filter: brightness(1.2); border-color: white !important;; color: white; }
         .pool-item-bg { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; opacity: 0.3; pointer-events: none; }
         .pool-item-text { position: relative; z-index: 2; pointer-events: none; }
         
