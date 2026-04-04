@@ -1042,11 +1042,20 @@
         }
         list.innerHTML = '';
         pistasRecebidas.forEach(p => {
-            list.innerHTML += `<div class="pista-card" onclick="openPistaView('${p.id}')">
+            list.innerHTML += `<div class="pista-card" style="position: relative;" onclick="openPistaView('${p.id}')">
+                <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removerPista('${p.id}')">X</button>
                 <div style="font-weight: bold; color: var(--accent-blue); margin-bottom: 5px; text-transform: uppercase;">${p.n || 'Pista'}</div>
                 <div style="font-size: 0.85em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.d ? p.d.replace(/<br>/g, ' ') : '...'}</div>
             </div>`;
         });
+    }
+
+    function removerPista(id) {
+        if(confirm("Tem certeza que deseja apagar esta pista do seu mural?")) {
+            pistasRecebidas = pistasRecebidas.filter(p => p.id !== id);
+            renderPistas();
+            save();
+        }
     }
 
     let currentPistaZoom = 1;
