@@ -893,14 +893,22 @@
         function enviarPistaParaTodosPorId(id) {
             const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
             if (jogadoresPermitidos.length === 0) return;
+            
+            const pistaFormatada = {
+                id: pista.id,
+                n: pista.titulo,
+                d: pista.desc,
+                img: pista.foto
+            };
+
             jogadoresPermitidos.forEach(alvo => { 
                 const upperCode = alvo.toUpperCase(); 
-                socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pista }); 
+                socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pistaFormatada }); 
                 let pData = playersDataMemoria[upperCode]; 
                 if (pData && pData.fullData) { 
                     if (!pData.fullData.pistas) pData.fullData.pistas = []; 
-                    if(!pData.fullData.pistas.find(x => x.id === pista.id)) { 
-                        pData.fullData.pistas.push(pista); 
+                    if(!pData.fullData.pistas.find(x => x.id === pistaFormatada.id)) { 
+                        pData.fullData.pistas.push(pistaFormatada); 
                         localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); 
                         
                         const dbPlayerId = upperCode + '_' + campanhaAtiva;
@@ -908,7 +916,7 @@
                     } 
                 } 
             });
-            alert("Pista enviada!");
+            alert("Pista enviada para o mural de todos os jogadores!");
         }
 
         function openPistaView(idx) {
