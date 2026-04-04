@@ -526,13 +526,37 @@
                 socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos });
             });
 
-            socket.on('update_mestre', (dados) => {
+            // ATUALIZAÇÃO EM TEMPO REAL DE JOGADORES (Correção do Bug de Sincronização)
+            const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
-                playersDataMemoria[codPuro] = dados;
+                
+                if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
+                
+                if(dados.vida_atual !== undefined) playersDataMemoria[codPuro].vida_atual = dados.vida_atual;
+                if(dados.sani_atual !== undefined) playersDataMemoria[codPuro].sani_atual = dados.sani_atual;
+                if(dados.pe_atual !== undefined) playersDataMemoria[codPuro].pe_atual = dados.pe_atual;
+                if(dados.vida_max !== undefined) playersDataMemoria[codPuro].vida_max = dados.vida_max;
+                if(dados.sani_max !== undefined) playersDataMemoria[codPuro].sani_max = dados.sani_max;
+                if(dados.pe_max !== undefined) playersDataMemoria[codPuro].pe_max = dados.pe_max;
+                if(dados.nome) playersDataMemoria[codPuro].nome = dados.nome;
+                if(dados.foto) playersDataMemoria[codPuro].foto = dados.foto;
+                
+                if (dados.fullData) {
+                    playersDataMemoria[codPuro].fullData = dados.fullData;
+                } else if (playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) {
+                    if(dados.vida_atual !== undefined) playersDataMemoria[codPuro].fullData.info.vida_atual = dados.vida_atual;
+                    if(dados.sani_atual !== undefined) playersDataMemoria[codPuro].fullData.info.sani_atual = dados.sani_atual;
+                    if(dados.pe_atual !== undefined) playersDataMemoria[codPuro].fullData.info.pe_atual = dados.pe_atual;
+                }
+                
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
-                renderizarJogadores();
-            });
+                
+                atualizarDOMJogador(codPuro);
+            };
+
+            socket.on('status_change', gerenciarAtualizacaoJogador);
+            socket.on('update_mestre', gerenciarAtualizacaoJogador);
 
             socket.on('comando_mestre', (dados) => {
                 const incCode = (dados.codigo||"").trim().toUpperCase();
@@ -595,7 +619,7 @@
                 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                renderizarJogadores();
+                atualizarDOMJogador(codPuro);
                 
                 const dbPlayerId = codPuro + '_' + campanhaAtiva;
                 fetch('/api/guardar_ficha', { 
@@ -637,6 +661,7 @@
                 jogadoresPermitidos.push(codigo); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); salvarMestreNoFirebase(); socket.emit('request_player', codigo); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); renderizarJogadores();
             } input.value = ''; 
         }
+        
         function removerJogador(codigo, notificarJogador = true) { 
             const codPuro = codigo.toUpperCase(); jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); salvarMestreNoFirebase();
             delete playersDataMemoria[codPuro]; localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); renderizarJogadores();
@@ -650,22 +675,76 @@
             let fieldA = tipo + '_atual';
             let current = parseInt(fd.info[fieldA]) || 0;
             fd.info[fieldA] = current + valor;
+            
+            playersDataMemoria[codPuro][fieldA] = fd.info[fieldA];
             playersDataMemoria[codPuro].fullData = fd;
-            renderizarJogadores();
-            if (socket) socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd });
+            
+            atualizarDOMJogador(codPuro);
+            
+            if (socket) {
+                socket.emit('comando_mestre', { 
+                    tipo: 'update_status_force', 
+                    codigo: codPuro, 
+                    status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual }
+                });
+                socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd });
+            }
+            
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
-            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) });
+            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
         function setStatusJogador(codPuro, tipo, valor) {
             if (!playersDataMemoria[codPuro] || !playersDataMemoria[codPuro].fullData) return;
             let fd = playersDataMemoria[codPuro].fullData;
             fd.info[tipo + '_atual'] = parseInt(valor) || 0;
+            
+            playersDataMemoria[codPuro][tipo + '_atual'] = fd.info[tipo + '_atual'];
             playersDataMemoria[codPuro].fullData = fd;
-            renderizarJogadores();
-            if (socket) socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd });
+            
+            atualizarDOMJogador(codPuro);
+            
+            if (socket) {
+                socket.emit('comando_mestre', { 
+                    tipo: 'update_status_force', 
+                    codigo: codPuro, 
+                    status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual }
+                });
+                socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd });
+            }
+            
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
-            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) });
+            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
+        }
+
+        function atualizarDOMJogador(codPuro) {
+            const dados = playersDataMemoria[codPuro];
+            if(!dados) return;
+            const card = document.getElementById(`player-${codPuro}`);
+            if(!card) return renderizarJogadores(); 
+
+            const vA = dados.fullData?.info?.vida_atual !== undefined ? dados.fullData.info.vida_atual : (dados.vida_atual || 0); 
+            const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : (dados.vida_max || 1); 
+            const sA = dados.fullData?.info?.sani_atual !== undefined ? dados.fullData.info.sani_atual : (dados.sani_atual || 0); 
+            const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : (dados.sani_max || 1); 
+            const pA = dados.fullData?.info?.pe_atual !== undefined ? dados.fullData.info.pe_atual : (dados.pe_atual || 0); 
+            const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : (dados.pe_max || 1);
+
+            const iVida = card.querySelector('.input-vida');
+            const iSani = card.querySelector('.input-sani');
+            const iPe = card.querySelector('.input-pe');
+            
+            const maxVida = card.querySelector('.max-vida');
+            const maxSani = card.querySelector('.max-sani');
+            const maxPe = card.querySelector('.max-pe');
+
+            if(iVida && document.activeElement !== iVida) iVida.value = vA;
+            if(iSani && document.activeElement !== iSani) iSani.value = sA;
+            if(iPe && document.activeElement !== iPe) iPe.value = pA;
+
+            if(maxVida) maxVida.innerText = `/ ${vM}`;
+            if(maxSani) maxSani.innerText = `/ ${sM}`;
+            if(maxPe) maxPe.innerText = `/ ${pM}`;
         }
 
         function abrirFicha(codigo) { 
@@ -732,8 +811,8 @@
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'vida', -1)">-</button>
                                 <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-red); color: white; text-align: center; font-weight: bold; outline: none;" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
-                                    <span style="color: var(--text-secondary);">/ ${vM}</span>
+                                    <input type="number" class="input-vida" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-red); color: white; text-align: center; font-weight: bold; outline: none;" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
+                                    <span class="max-vida" style="color: var(--text-secondary);">/ ${vM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'vida', 1)">+</button>
                             </div>
@@ -744,8 +823,8 @@
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'sani', -1)">-</button>
                                 <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-blue); color: white; text-align: center; font-weight: bold; outline: none;" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
-                                    <span style="color: var(--text-secondary);">/ ${sM}</span>
+                                    <input type="number" class="input-sani" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-blue); color: white; text-align: center; font-weight: bold; outline: none;" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
+                                    <span class="max-sani" style="color: var(--text-secondary);">/ ${sM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'sani', 1)">+</button>
                             </div>
@@ -756,8 +835,8 @@
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'pe', -1)">-</button>
                                 <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-yellow); color: white; text-align: center; font-weight: bold; outline: none;" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
-                                    <span style="color: var(--text-secondary);">/ ${pM}</span>
+                                    <input type="number" class="input-pe" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-yellow); color: white; text-align: center; font-weight: bold; outline: none;" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
+                                    <span class="max-pe" style="color: var(--text-secondary);">/ ${pM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'pe', 1)">+</button>
                             </div>
@@ -894,6 +973,7 @@
             const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
             if (jogadoresPermitidos.length === 0) return;
             
+            // Esta formatação garante que a ficha do jogador receba a pista da maneira correta
             const pistaFormatada = {
                 id: pista.id,
                 n: pista.titulo,
