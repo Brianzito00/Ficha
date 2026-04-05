@@ -961,10 +961,7 @@
                     <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
                     <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div>
                     <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button>
-                    <div style="display:flex; gap:5px; margin-top:10px; width:100%;">
-                        <button class="btn-roll" style="background:var(--accent-green); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferirPista('${p.id}')">👤 UM</button>
-                        <button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarPistaParaTodosPorId('${p.id}')">🌟 TODOS</button>
-                    </div>
+                    <button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>
                 `;
                 grid.appendChild(card);
             });
@@ -972,47 +969,6 @@
 
         function apagarPista(idx) { if(confirm("Deseja apagar?")) { pistasMestre.splice(idx, 1); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); } }
         
-        function abrirModalTransferirPista(id) {
-            const pista = pistasMestre.find(x => x.id === id); if(!pista) return;
-            document.getElementById('transfer-obj-title').innerText = 'Enviar Pista';
-            document.getElementById('transfer-obj-name').innerText = pista.titulo;
-            document.getElementById('transfer-obj-data').value = id; 
-            document.getElementById('transfer-obj-type').value = 'pista';
-            
-            const grid = document.getElementById('transfer-player-grid'); grid.innerHTML = '';
-            if (jogadoresPermitidos.length === 0) {
-                grid.innerHTML = '<div style="color:var(--text-secondary); font-style:italic; grid-column:1/-1;">Nenhum jogador conectado.</div>';
-            }
-            jogadoresPermitidos.forEach(code => { 
-                const pData = playersDataMemoria[code.toUpperCase()] || {};
-                const card = document.createElement('div');
-                card.style.cssText = `background:rgba(18,18,20,0.8); border:1px solid var(--accent-blue); padding:10px; cursor:pointer; text-align:center; border-radius:8px;`;
-                card.onclick = () => confirmarTransferenciaUm(code.toUpperCase());
-                card.innerHTML = `<img src="${pData.foto || 'https://via.placeholder.com/60'}" style="width:40px;height:40px;border-radius:50%;"><div style="color:white;font-size:0.7em;">${pData.nome || code}</div>`;
-                grid.appendChild(card); 
-            });
-            document.getElementById('modal-transfer-obj').style.display = 'flex';
-        }
-
-        function enviarPistaEspecifica(id, alvoCode) {
-            const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
-            
-            const pistaFormatada = { id: pista.id, n: pista.titulo, d: pista.desc, img: pista.foto };
-            socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: alvoCode, pista: pistaFormatada }); 
-            
-            let pData = playersDataMemoria[alvoCode]; 
-            if (pData && pData.fullData) { 
-                if (!pData.fullData.pistas) pData.fullData.pistas = []; 
-                if(!pData.fullData.pistas.find(x => x.id === pistaFormatada.id)) { 
-                    pData.fullData.pistas.push(pistaFormatada); 
-                    localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria)); 
-                    const dbPlayerId = alvoCode + '_' + campanhaAtiva;
-                    fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) }).catch(()=>{}); 
-                } 
-            } 
-            alert("Pista enviada para o jogador selecionado!");
-        }
-
         function enviarPistaParaTodosPorId(id) {
             const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
             if (jogadoresPermitidos.length === 0) {
@@ -1260,7 +1216,7 @@
                 }
                 
                 const dbPlayerId = alvoCode + '_' + campanhaAtiva;
-                fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) }).catch(()=>{});
+                fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) });
             }
         }
 
