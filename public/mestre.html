@@ -961,7 +961,7 @@
                     <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="event.stopPropagation(); openPistaView(${idx})">${p.titulo}</div>
                     <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openPistaView(${idx})">${p.desc}</div>
                     <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="event.stopPropagation(); openPistaView(${idx})">🔍 INSPECIONAR</button>
-                    <button type="button" class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px; z-index:20; position:relative;" onpointerdown="enviarPistaParaTodosPorId(event, '${p.id}')">📤 ENVIAR AOS JOGADORES</button>
+                    <button type="button" class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px; z-index:20; position:relative;" onmousedown="enviarPistaParaTodosPorId(event, '${p.id}')" ontouchstart="enviarPistaParaTodosPorId(event, '${p.id}')" onclick="event.preventDefault(); event.stopPropagation();">📤 ENVIAR AOS JOGADORES</button>
                 `;
                 grid.appendChild(card);
             });
