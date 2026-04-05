@@ -955,13 +955,13 @@
                 card.className = 'pista-card';
                 card.style.cssText = `position:relative; padding:15px; border:1px solid rgba(255,207,51,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between;`;
                 card.innerHTML = `
-                    <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="abrirModalPista(${idx})">✏️</button>
-                    <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="apagarPista(${idx})">X</button>
-                    <img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px; cursor:pointer;" onclick="openPistaView(${idx})">
-                    <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
-                    <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div>
-                    <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button>
-                    <button class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="event.stopPropagation(); enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>
+                    <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalPista(${idx})">✏️</button>
+                    <button class="btn-del" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarPista(${idx})">X</button>
+                    <img src="${imgSrc}" style="width:100%; height:80px; object-fit:contain; margin-bottom:10px; border-radius:6px; margin-top:20px; cursor:pointer;" onclick="event.stopPropagation(); openPistaView(${idx})">
+                    <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="event.stopPropagation(); openPistaView(${idx})">${p.titulo}</div>
+                    <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" onclick="event.stopPropagation(); openPistaView(${idx})">${p.desc}</div>
+                    <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="event.stopPropagation(); openPistaView(${idx})">🔍 INSPECIONAR</button>
+                    <button type="button" class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px; z-index:20; position:relative;" onpointerdown="enviarPistaParaTodosPorId(event, '${p.id}')">📤 ENVIAR AOS JOGADORES</button>
                 `;
                 grid.appendChild(card);
             });
@@ -969,12 +969,14 @@
 
         function apagarPista(idx) { if(confirm("Deseja apagar?")) { pistasMestre.splice(idx, 1); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); } }
         
-        function enviarPistaParaTodosPorId(id) {
-            if (window.event) window.event.stopPropagation();
+        function enviarPistaParaTodosPorId(e, id) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            
             const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
             
             let btn = document.getElementById('btn-env-pista-' + id);
-            
+            if(btn && btn.innerHTML === "✔️ ENVIADA!") return; 
+
             if (jogadoresPermitidos.length === 0) {
                 if(btn) {
                     let oldText = btn.innerHTML;
@@ -1005,10 +1007,9 @@
             });
             
             if(btn) {
-                let oldText = btn.innerHTML;
                 btn.innerHTML = "✔️ ENVIADA!";
                 btn.style.background = "var(--accent-green)";
-                setTimeout(()=> { btn.innerHTML = oldText; btn.style.background = "var(--accent-yellow)"; }, 2000);
+                setTimeout(()=> { btn.innerHTML = "📤 ENVIAR AOS JOGADORES"; btn.style.background = "var(--accent-yellow)"; }, 2000);
             }
         }
 
@@ -1189,7 +1190,12 @@
         function confirmarTransferenciaUm(codeAlvo) {
             const objStr = document.getElementById('transfer-obj-data').value;
             const tipo = document.getElementById('transfer-obj-type').value;
-            enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
+            
+            if (tipo === 'pista') {
+                enviarPistaEspecifica(objStr, codeAlvo);
+            } else {
+                enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
+            }
             document.getElementById('modal-transfer-obj').style.display = 'none'; 
         }
 
