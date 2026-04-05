@@ -86,7 +86,7 @@
         .btn-roll:hover { background: rgba(50,50,56,0.9); filter: brightness(1.2); }
         .ritual-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; margin-bottom: 5px; width: 100%; }
 
-        .pista-card { background: rgba(18,18,20,0.8); border: 1px solid var(--accent-yellow); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; }
+        .pista-card { background: rgba(18,18,20,0.8); border: 1px solid var(--accent-yellow); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         .pista-card:hover { transform: scale(1.02); background: rgba(255,207,51,0.1); box-shadow: 0 0 15px rgba(255,207,51,0.3); border-color: var(--accent-blue); }
 
         .case-container { background: #202024; border: 4px solid #444; border-radius: 8px; padding: 10px; position: relative; display: inline-block; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
@@ -1010,7 +1010,7 @@
         const box = document.querySelector('.popup-box-dice'); box.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/a/AVvXsEjMOEuhQsyp9K02VzG4U6kXeEMQYu6efHg98n3yde59MTJ8bNLTvSq5WfWAyGfur8ACjUsjNWQfOp8k0-odkhXt1UpVqf4OqJQ_azqElAh044YPkLWQ0LekZZSwp4u8RNa9Aht1bKFLKkUxFfIz9NyAdJnf2Mo9dHgZ-pRlIf6iMbaPmh5o4hLd3eyYEDc9?t=${new Date().getTime()}')`; let numEl = document.getElementById('popup-num'); numEl.innerHTML = n; 
         if(n.toString().includes('x') || n.toString().includes('<div')) numEl.style.fontSize = 'clamp(2em, 8vw, 4em)'; else numEl.style.fontSize = 'clamp(4em, 20vw, 10em)'; 
         let resEl = document.getElementById('popup-res'); let textoFinal = r; if(r.includes(' (') && !r.includes('<br>') && !r.includes('<div')){ textoFinal = r.replace(' (', '<br>('); } resEl.innerHTML = textoFinal; 
-        resEl.style.cssText=`font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin-top: 10px; text-transform: uppercase; max-height: 180px; overflow-y: auto; padding-right: 5px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
+        resEl.style.cssText=`font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; ${st}`; box.style.animation = 'none'; box.style.boxShadow = 'none'; box.style.borderColor = 'var(--accent-yellow)'; document.getElementById('popup-content').style.display = 'none'; document.getElementById('popup-dice').style.display = 'flex'; setTimeout(() => { document.getElementById('popup-content').style.display = 'flex'; if (r.includes('CRÍTICO')) { box.style.animation = 'shakeCrit 0.4s infinite'; box.style.boxShadow = '0 0 50px rgba(255, 0, 0, 0.8)'; box.style.borderColor = '#ff0000'; } }, 1500); 
         if (socket) { const jogadorNome = document.getElementById('char_nome') ? document.getElementById('char_nome').value : 'Desconhecido'; const emissionCode = typeof viewCode!=='undefined'&&viewCode ? viewCode : myUpperCode; socket.emit('rolagem_feita', {codigo: emissionCode, jogador: jogadorNome, acao: r.replace(/<br>/g, ' ').replace(/<div.*?>|<\/div>/g, ''), resultado: n, cor: st}); } 
     }
     
@@ -1030,7 +1030,7 @@
     function openRitualInfo(id, color) { const row = document.getElementById('rit-row-'+id); if(!row) return; const hr = row.querySelector('.hidden-ritual'), htmlDiv=row.querySelector('div[id^="rit-html-"]'); if(!hr || !htmlDiv) return; document.getElementById('info-rit-name').innerText = hr.getAttribute('data-n'); document.getElementById('info-rit-name').style.color = color || 'var(--text-primary)'; const imgUrl = hr.getAttribute('data-img'); const imgEl = document.getElementById('info-rit-img'); if(imgUrl && imgUrl.trim()!==''){ imgEl.src = imgUrl; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; } document.getElementById('info-rit-details').innerHTML = `<div style="background:rgba(18,18,20,0.8); border:1px solid ${color||'rgba(51,51,51,0.5)'}; border-radius:8px; padding:15px;">${htmlDiv.innerHTML}</div>`; document.getElementById('popup-ritual-info').style.display = 'flex'; }
     function closeRitualInfo() { document.getElementById('popup-ritual-info').style.display = 'none'; }
 
-    // --- FUNÇÕES DE PISTAS (ADICIONADO) ---
+    // --- FUNÇÕES DE PISTAS ---
     function renderPistas() {
         const list = document.getElementById('pistas-list');
         if (!list) return;
@@ -1059,7 +1059,23 @@
         }
     }
 
-    let currentPistaZoom = 1;
+    let pistaScale = 1; let pistaTx = 0; let pistaTy = 0; let isDraggingPista = false; let startPX = 0; let startPY = 0;
+    
+    function applyPistaTransform() { 
+        const img = document.getElementById('pista-view-img');
+        if(img) img.style.transform = `translate(${pistaTx}px, ${pistaTy}px) scale(${pistaScale})`; 
+    }
+    
+    function zoomPista(delta) { 
+        pistaScale += delta; 
+        if(pistaScale < 0.5) pistaScale = 0.5; if(pistaScale > 10) pistaScale = 10; 
+        applyPistaTransform(); 
+    }
+    
+    function resetPistaZoom() { 
+        pistaScale = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); 
+    }
+
     function openPistaView(id) {
         const p = pistasRecebidas.find(x => x.id === id);
         if (!p) return;
@@ -1074,8 +1090,7 @@
         img2d.style.display = 'none';
         if (view3d) view3d.style.display = 'none';
         
-        img2d.style.transform = 'scale(1)';
-        currentPistaZoom = 1;
+        resetPistaZoom();
 
         if (p.img && p.img.trim() !== '') {
             imgWrapper.style.display = 'block';
@@ -1095,19 +1110,6 @@
         const view3d = document.getElementById('pista-view-3d');
         if (view3d) view3d.style.display = 'none';
     }
-
-    function zoomPista(delta) {
-        currentPistaZoom += delta;
-        if(currentPistaZoom < 0.5) currentPistaZoom = 0.5;
-        if(currentPistaZoom > 10) currentPistaZoom = 10;
-        document.getElementById('pista-view-img').style.transform = `scale(${currentPistaZoom})`;
-    }
-
-    function resetPistaZoom() {
-        currentPistaZoom = 1;
-        document.getElementById('pista-view-img').style.transform = `scale(${currentPistaZoom})`;
-    }
-    // --------------------------------------
 
     // --- SAVE E EVENTOS ---
     window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
@@ -1220,6 +1222,33 @@
                 load(); 
             }
         } catch(e) {}
+
+        // Configurando arraste e zoom para a pista
+        const pistaWrapper = document.getElementById('pista-img-wrapper');
+        if(pistaWrapper) {
+            pistaWrapper.addEventListener('wheel', (e) => { 
+                e.preventDefault(); 
+                zoomPista(e.deltaY < 0 ? 0.15 : -0.15); 
+            });
+            pistaWrapper.addEventListener('mousedown', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                isDraggingPista = true; 
+                startPX = e.clientX - pistaTx; 
+                startPY = e.clientY - pistaTy; 
+                pistaWrapper.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingPista) return; 
+                e.preventDefault();
+                pistaTx = e.clientX - startPX; 
+                pistaTy = e.clientY - startPY; 
+                applyPistaTransform();
+            });
+            window.addEventListener('mouseup', () => { 
+                isDraggingPista = false; 
+                if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; 
+            });
+        }
     }
 
     init();
