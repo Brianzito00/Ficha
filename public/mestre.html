@@ -961,7 +961,7 @@
                     <div style="font-weight:bold; color:var(--accent-yellow); font-size:1em; margin-bottom:5px; text-transform:uppercase; cursor:pointer;" onclick="openPistaView(${idx})">${p.titulo}</div>
                     <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc}</div>
                     <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:10px;" onclick="openPistaView(${idx})">🔍 INSPECIONAR</button>
-                    <button class="btn-roll" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>
+                    <button class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px;" onclick="event.stopPropagation(); enviarPistaParaTodosPorId('${p.id}')">📤 ENVIAR AOS JOGADORES</button>
                 `;
                 grid.appendChild(card);
             });
@@ -970,18 +970,23 @@
         function apagarPista(idx) { if(confirm("Deseja apagar?")) { pistasMestre.splice(idx, 1); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); } }
         
         function enviarPistaParaTodosPorId(id) {
+            if (window.event) window.event.stopPropagation();
             const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
+            
+            let btn = document.getElementById('btn-env-pista-' + id);
+            
             if (jogadoresPermitidos.length === 0) {
-                alert("Não há jogadores conectados na mesa para enviar a pista!");
+                if(btn) {
+                    let oldText = btn.innerHTML;
+                    btn.innerHTML = "❌ SEM JOGADORES NA MESA";
+                    btn.style.background = "var(--accent-red)";
+                    btn.style.color = "white";
+                    setTimeout(()=> { btn.innerHTML = oldText; btn.style.background = "var(--accent-yellow)"; btn.style.color = "black"; }, 2000);
+                }
                 return;
             }
             
-            const pistaFormatada = {
-                id: pista.id,
-                n: pista.titulo,
-                d: pista.desc,
-                img: pista.foto
-            };
+            const pistaFormatada = { id: pista.id, n: pista.titulo, d: pista.desc, img: pista.foto };
 
             jogadoresPermitidos.forEach(alvo => { 
                 const upperCode = alvo.toUpperCase(); 
@@ -998,7 +1003,13 @@
                     } 
                 } 
             });
-            alert("Pista enviada para o mural de todos os jogadores!");
+            
+            if(btn) {
+                let oldText = btn.innerHTML;
+                btn.innerHTML = "✔️ ENVIADA!";
+                btn.style.background = "var(--accent-green)";
+                setTimeout(()=> { btn.innerHTML = oldText; btn.style.background = "var(--accent-yellow)"; }, 2000);
+            }
         }
 
         function openPistaView(idx) {
@@ -1178,12 +1189,7 @@
         function confirmarTransferenciaUm(codeAlvo) {
             const objStr = document.getElementById('transfer-obj-data').value;
             const tipo = document.getElementById('transfer-obj-type').value;
-            
-            if (tipo === 'pista') {
-                enviarPistaEspecifica(objStr, codeAlvo);
-            } else {
-                enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
-            }
+            enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
             document.getElementById('modal-transfer-obj').style.display = 'none'; 
         }
 
