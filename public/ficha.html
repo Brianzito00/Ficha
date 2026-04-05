@@ -87,7 +87,7 @@
         .ritual-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 0.8em; flex: 1 1 45%; text-align: center; margin-bottom: 5px; width: 100%; }
 
         .pista-card { background: rgba(18,18,20,0.8); border: 1px solid var(--accent-yellow); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; }
-        .pista-card:hover { transform: scale(1.02); background: rgba(255,207,51,0.1); box-shadow: 0 0 15px rgba(255,207,51,0.3); }
+        .pista-card:hover { transform: scale(1.02); background: rgba(255,207,51,0.1); box-shadow: 0 0 15px rgba(255,207,51,0.3); border-color: var(--accent-blue); }
 
         .case-container { background: #202024; border: 4px solid #444; border-radius: 8px; padding: 10px; position: relative; display: inline-block; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
         .grid-container-wrapper { position: relative; width: 500px; height: 300px; }
@@ -412,23 +412,21 @@
 <div id="popup-dice" class="popup-overlay" onclick="closeDice()"><div class="popup-box-dice" onclick="event.stopPropagation()"><div id="popup-content" class="popup-content"><div id="popup-num" class="popup-number">00</div><div id="popup-res" class="popup-res">RESULTADO</div></div></div></div>
 
 <div id="popup-pista" class="popup-overlay" onclick="closePista()">
-    <div class="popup-box" style="width: 600px; max-width: 95%;" onclick="event.stopPropagation()">
-        <h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase;">TITULO</h3>
+    <div class="popup-box" style="width: 700px; max-width: 95%; padding: 30px;" onclick="event.stopPropagation()">
+        <h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; font-size: 1.5em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">TITULO</h3>
         
-        <div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 350px; background: #000; border-radius: 8px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border-color); cursor: grab; touch-action: none;">
-            
+        <div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 400px; background: rgba(0,0,0,0.8); border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px solid var(--accent-blue); cursor: grab; touch-action: none;">
             <img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;">
-            
-            <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: #121214; outline: none;"></model-viewer>
+            <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: transparent; outline: none;"></model-viewer>
 
             <div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
-                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="zoomPista(0.2)">➕</button>
-                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="zoomPista(-0.2)">➖</button>
-                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-yellow); color: white;" onclick="resetPistaZoom()">🔄</button>
+                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(0.2)">➕</button>
+                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(-0.2)">➖</button>
+                <button class="status-btn" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="resetPistaZoom()">🔄</button>
             </div>
         </div>
-        <div id="pista-view-desc" style="color: white; font-size: 0.9em; line-height: 1.5; white-space: pre-wrap; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px;"></div>
-        <button class="btn-del" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 1.1em;" onclick="closePista()">FECHAR</button>
+        <div id="pista-view-desc" style="color: #e1e1e6; font-size: 1.1em; line-height: 1.6; white-space: pre-wrap; background: rgba(18,18,20,0.9); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+        <button class="btn-del" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; font-weight: bold; background: var(--accent-red); color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="closePista()">FECHAR PISTA</button>
     </div>
 </div>
 
@@ -1042,10 +1040,13 @@
         }
         list.innerHTML = '';
         pistasRecebidas.forEach(p => {
-            list.innerHTML += `<div class="pista-card" style="position: relative;" onclick="openPistaView('${p.id}')">
+            let imgSrc = p.img && p.img.trim() !== '' ? p.img : "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA";
+            
+            list.innerHTML += `<div class="pista-card" style="position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; gap: 10px;" onclick="openPistaView('${p.id}')">
                 <button class="btn-del" style="position: absolute; top: 5px; right: 5px; padding: 2px 6px; font-size: 0.7em; z-index: 10;" onclick="event.stopPropagation(); removerPista('${p.id}')">X</button>
-                <div style="font-weight: bold; color: var(--accent-blue); margin-bottom: 5px; text-transform: uppercase;">${p.n || 'Pista'}</div>
-                <div style="font-size: 0.85em; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.d ? p.d.replace(/<br>/g, ' ') : '...'}</div>
+                <img src="${imgSrc}" style="width:100%; height:120px; object-fit:contain; border-radius:6px; background: rgba(0,0,0,0.3); pointer-events:none;">
+                <div style="font-weight: bold; color: var(--accent-blue); text-transform: uppercase; font-size: 1.1em;">${p.n || 'Pista'}</div>
+                <button class="btn-roll" style="background:var(--accent-blue); color:black; width: 100%; font-weight: bold;" onclick="event.stopPropagation(); openPistaView('${p.id}')">🔍 INSPECIONAR</button>
             </div>`;
         });
     }
@@ -1097,8 +1098,8 @@
 
     function zoomPista(delta) {
         currentPistaZoom += delta;
-        if(currentPistaZoom < 0.2) currentPistaZoom = 0.2;
-        if(currentPistaZoom > 5) currentPistaZoom = 5;
+        if(currentPistaZoom < 0.5) currentPistaZoom = 0.5;
+        if(currentPistaZoom > 10) currentPistaZoom = 10;
         document.getElementById('pista-view-img').style.transform = `scale(${currentPistaZoom})`;
     }
 
