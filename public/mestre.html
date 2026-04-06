@@ -488,7 +488,7 @@
                 if (dados.tipo === 'remover_jogador_mestre' && dados.codigo) { removerJogador(dados.codigo.toUpperCase()); }
                 if (dados.tipo === 'jogador_saiu' && dados.codigo) { removerJogador(dados.codigo.toUpperCase(), false); }
                 if (dados.tipo === 'jogador_entrou' && dados.codigo) {
-                    const c = dados.codigo.toUpperCase().trim();
+                    const c = dados.codigo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
                     if (!jogadoresPermitidos.includes(c)) { 
                         jogadoresPermitidos.push(c); 
                         localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
@@ -559,6 +559,11 @@
                 if(event.data.charStatus) { playersDataMemoria[codPuro].status = event.data.charStatus; }
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 atualizarDOMJogador(codPuro);
+                
+                if (socket) {
+                    socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: d });
+                }
+                
                 const dbPlayerId = codPuro + '_' + campanhaAtiva;
                 fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: d }) }).catch(e => console.log("Erro a guardar offline"));
             }
@@ -592,7 +597,8 @@
 
         // ================= FUNÇÕES JOGADORES =================
         function adicionarJogador() { 
-            let input = document.getElementById('add-code-input'); let codigo = input.value.toUpperCase().trim(); 
+            let input = document.getElementById('add-code-input'); 
+            let codigo = input.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim(); 
             if (codigo.length > 0 && !jogadoresPermitidos.includes(codigo)) { 
                 jogadoresPermitidos.push(codigo); localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); salvarMestreNoFirebase(); socket.emit('request_player', codigo); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); renderizarJogadores();
             } input.value = ''; 
@@ -814,11 +820,10 @@
             renderPistaFotosEdit();
         }
 
-        // --- NOVA FUNÇÃO PARA FECHAR MODAL DE PISTAS COM LIMPEZA ---
         function fecharModalPista() {
             document.getElementById('modal-pista').style.display = 'none';
             editPistaIndex = null;
-            tempPistaFotos = []; // Limpa o array ao fechar ou cancelar
+            tempPistaFotos = []; 
         }
 
         function abrirModalPista(idx = null) {
@@ -842,7 +847,6 @@
             document.getElementById('modal-pista').style.display = 'flex';
         }
         
-        // --- FUNÇÃO SALVAR PISTA ATUALIZADA ---
         function salvarPista() {
             const titulo = document.getElementById('pista-titulo').value.trim(); 
             const desc = document.getElementById('pista-desc').value.trim(); 
@@ -876,7 +880,7 @@
             salvarMestreNoFirebase(); 
             
             renderizarPistas(); 
-            fecharModalPista(); // Usa a função de fechar para garantir a limpeza do array e da view
+            fecharModalPista(); 
         }
 
         function renderizarPistas() {
