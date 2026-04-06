@@ -210,10 +210,6 @@
         <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow); margin-right: 10px; display: flex; align-items: center;">
             <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
         </div>
-        <button class="btn-roll" style="background: var(--accent-blue); color: #000; font-weight: bold; border-color: var(--accent-blue); padding: 10px 20px; margin-right: 10px;" onclick="exportarMestre()" title="Fazer backup da campanha (.json)">💾 Exportar</button>
-        <label class="btn-roll" style="background: var(--bg-card); color: var(--text-primary); font-weight: bold; padding: 10px 20px; cursor: pointer; margin-right: 10px; display: flex; align-items: center;" title="Carregar backup da campanha">
-            📂 Importar <input type="file" accept=".json" style="display:none;" onchange="importarMestre(event)">
-        </label>
 
         <button class="btn-add" style="background: var(--accent-purple); color: white; margin-right:10px;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 OVERLAY</button>
         <button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1em; background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red);" onclick="fazerLogout()">SAIR (LOBBY)</button>
@@ -511,24 +507,23 @@
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
                 
-                if(dados.vida_atual !== undefined) playersDataMemoria[codPuro].vida_atual = dados.vida_atual;
-                if(dados.sani_atual !== undefined) playersDataMemoria[codPuro].sani_atual = dados.sani_atual;
-                if(dados.pe_atual !== undefined) playersDataMemoria[codPuro].pe_atual = dados.pe_atual;
-                if(dados.vida_max !== undefined) playersDataMemoria[codPuro].vida_max = dados.vida_max;
-                if(dados.sani_max !== undefined) playersDataMemoria[codPuro].sani_max = dados.sani_max;
-                if(dados.pe_max !== undefined) playersDataMemoria[codPuro].pe_max = dados.pe_max;
-                if(dados.nome) playersDataMemoria[codPuro].nome = dados.nome;
-                if(dados.foto) playersDataMemoria[codPuro].foto = dados.foto;
-                
                 if (dados.fullData) {
                     playersDataMemoria[codPuro].fullData = dados.fullData;
-                } else if (playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) {
-                    if(dados.vida_atual !== undefined) playersDataMemoria[codPuro].fullData.info.vida_atual = dados.vida_atual;
-                    if(dados.sani_atual !== undefined) playersDataMemoria[codPuro].fullData.info.sani_atual = dados.sani_atual;
-                    if(dados.pe_atual !== undefined) playersDataMemoria[codPuro].fullData.info.pe_atual = dados.pe_atual;
+                } 
+                
+                if (playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) {
+                    if(dados.vida_atual !== undefined) { playersDataMemoria[codPuro].vida_atual = dados.vida_atual; playersDataMemoria[codPuro].fullData.info.vida_atual = dados.vida_atual; }
+                    if(dados.sani_atual !== undefined) { playersDataMemoria[codPuro].sani_atual = dados.sani_atual; playersDataMemoria[codPuro].fullData.info.sani_atual = dados.sani_atual; }
+                    if(dados.pe_atual !== undefined) { playersDataMemoria[codPuro].pe_atual = dados.pe_atual; playersDataMemoria[codPuro].fullData.info.pe_atual = dados.pe_atual; }
                 }
+                
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 atualizarDOMJogador(codPuro);
+
+                const iframe = document.getElementById('iframe-ficha');
+                if (iframe && iframe.src.includes(codPuro) && playersDataMemoria[codPuro].fullData) {
+                    iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: playersDataMemoria[codPuro].fullData}, '*');
+                }
             };
 
             socket.on('status_change', gerenciarAtualizacaoJogador);
@@ -559,9 +554,7 @@
                 if(event.data.charStatus) { playersDataMemoria[codPuro].status = event.data.charStatus; }
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                // GARANTIA EXTRA DE ATUALIZAÇÃO VISUAL NO ESCUDO DO MESTRE
                 atualizarDOMJogador(codPuro);
-                renderizarJogadores();
                 
                 if (socket) {
                     socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: d.info.vida_atual, sani_atual: d.info.sani_atual, pe_atual: d.info.pe_atual } });
@@ -623,8 +616,18 @@
             fd.info[fieldA] = current + valor;
             playersDataMemoria[codPuro][fieldA] = fd.info[fieldA];
             playersDataMemoria[codPuro].fullData = fd;
+            
             atualizarDOMJogador(codPuro);
-            if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd }); }
+            
+            const iframe = document.getElementById('iframe-ficha');
+            if (iframe && iframe.src.includes(codPuro)) {
+                iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*');
+            }
+
+            if (socket) { 
+                socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); 
+            }
+            
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
@@ -635,8 +638,18 @@
             fd.info[tipo + '_atual'] = parseInt(valor) || 0;
             playersDataMemoria[codPuro][tipo + '_atual'] = fd.info[tipo + '_atual'];
             playersDataMemoria[codPuro].fullData = fd;
+            
             atualizarDOMJogador(codPuro);
-            if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); socket.emit('mestre_force_sync_player', { codigo: codPuro, fullData: fd }); }
+            
+            const iframe = document.getElementById('iframe-ficha');
+            if (iframe && iframe.src.includes(codPuro)) {
+                iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*');
+            }
+
+            if (socket) { 
+                socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); 
+            }
+            
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
@@ -1378,28 +1391,6 @@
         function apagarPin() { const idEdit = document.getElementById('pin-id-edit').value; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa && idEdit) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); } }
         function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; renderizarMapaAtual(); renderizarMapasList(); }; btn.innerText = m.nome; list.appendChild(btn); }); }
         function renderizarMapaAtual() { const img = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); const mapa = mapas.find(x => x.id === currentMapaIdMap); if(mapa) { img.src = mapa.url; img.style.display = 'block'; pinsContainer.innerHTML = ''; if(mapa.pins) { mapa.pins.forEach(p => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = p.x + 'px'; pinEl.style.top = p.y + 'px'; pinEl.style.background = p.cor; pinEl.onclick = (e) => { e.stopPropagation(); abrirModalPin(p.id); }; pinEl.onmouseenter = (e) => { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = p.titulo; document.getElementById('tooltip-desc').innerText = p.desc; tooltip.style.left = p.x + 'px'; tooltip.style.top = (p.y - 15) + 'px'; tooltip.style.display = 'block'; tooltip.style.borderColor = p.cor; }; pinEl.onmouseleave = () => { document.getElementById('map-tooltip').style.display = 'none'; }; pinsContainer.appendChild(pinEl); }); } } else { img.style.display = 'none'; pinsContainer.innerHTML = ''; } }
-
-        function exportarMestre() {
-            const dataToSave = { roteiros, descricoes, monstros, iniciativa: iniciativaList, allowedCodes: jogadoresPermitidos, mapas, catalogo_itens: catalogoMestre, catalogo_rituais: catalogoRituaisMestre, pistas: pistasMestre };
-            const blob = new Blob([JSON.stringify(dataToSave)], {type: "application/json"});
-            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url;
-            a.download = `campanha_${campanhaAtiva}_backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        }
-        function importarMestre(event) {
-            const file = event.target.files[0]; if(!file) return; const reader = new FileReader();
-            reader.onload = function(e){
-                try {
-                    const d = JSON.parse(e.target.result);
-                    roteiros = d.roteiros || []; descricoes = d.descricoes || []; monstros = d.monstros || []; iniciativaList = d.iniciativa || []; jogadoresPermitidos = d.allowedCodes || []; mapas = d.mapas || []; catalogoMestre = d.catalogo_itens || []; catalogoRituaisMestre = d.catalogo_rituais || defaultRituais; pistasMestre = d.pistas || [];
-                    localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre));
-                    salvarMestreNoFirebase();
-                    renderizarCatalogo(); renderizarCatalogoRituais(); renderizarPistas(); renderizarMonstros(); renderizarIniciativa();
-                    if (mapas.length > 0) { currentMapaIdMap = mapas[0].id; renderizarMapasList(); renderizarMapaAtual(); }
-                    alert("Campanha importada com sucesso!");
-                } catch(err){ alert("Erro ao importar a campanha."); }
-                event.target.value = '';
-            }; reader.readAsText(file);
-        }
 
         // ================= INIT =================
         window.onload = async () => {
