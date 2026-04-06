@@ -274,10 +274,16 @@
         
         <div class="panel" style="flex: 0 0 250px;">
             <div class="panel-title">Ações</div>
-            <button onclick="document.getElementById('popup-input-dice').style.display='flex'" style="background: rgba(0, 176, 255, 0.1); border: 1px solid var(--accent-blue); color: var(--accent-blue); width: 100%; height: 60px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiftVk-yKnWxfthjGdnwF6awfHwHWNWsmhyKK4zNCLhhQkGaZrFRK6ccqywzrKpCZfj5XjphjWdPu0SlYHO1P4V3qxS1IOODUZ57HsAF8L5MhsYp-TUmIWnzJW97I18ccNp0DwiT6yoAL7acHi-cWVd0gAOFLAzGbaWFhuF9jwM5P9iJUs2S04wU8Xern4Y" style="width: 24px; height: 24px; filter: invert(1);">
-                ROLAR DADO LIVRE
-            </button>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(4)">d4</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(6)">d6</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(8)">d8</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(10)">d10</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(12)">d12</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(20)">d20</button>
+                <button class="btn-roll" style="border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.1); color: var(--accent-blue); height: 40px; padding: 0;" onclick="rolarDadoFixo(100)">d100</button>
+                <button class="btn-roll" style="border-color: var(--accent-yellow); background: rgba(255, 207, 51, 0.1); color: var(--accent-yellow); height: 40px; padding: 0; font-size: 0.7em;" onclick="document.getElementById('popup-input-dice').style.display='flex'">LIVRE</button>
+            </div>
             
             <div class="defense-box">
                 <label style="display: block; font-size: 0.75em; color: var(--text-secondary); font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Escudo / Defesa</label>
@@ -1013,7 +1019,25 @@
 
     function abrirModalQtdAtaques(maxAtk, n, id, ak) { document.getElementById('max-atk-display').innerText = maxAtk; const input = document.getElementById('input-qtd-ataques'); input.max = maxAtk; input.value = maxAtk; input.oninput=function(){let val=parseInt(this.value);if(val>maxAtk)this.value=maxAtk;if(val<1)this.value=1;}; document.getElementById('modal-qtd-ataques').style.display = 'flex'; document.getElementById('btn-confirm-ataques').onclick = function(){ let val = parseInt(input.value); if(isNaN(val) || val < 1) val = 1; if(val > maxAtk) val = maxAtk; fecharModalQtdAtaques(); rolarTesteD20(n, id, ak, true, val); }; }
     function fecharModalQtdAtaques() { document.getElementById('modal-qtd-ataques').style.display = 'none'; }
-    function rolarDadoPersonalizado() { document.getElementById('popup-input-dice').style.display='none'; let formula = document.getElementById('custom_dice_formula').value; if(formula) { rolarDanoMonstro('Jogador', 'Dado', formula); } else { showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(LIVRE)", "color:white"); } }
+    
+    function rolarDadoPersonalizado() { 
+        document.getElementById('popup-input-dice').style.display='none'; 
+        let formula = document.getElementById('custom_dice_formula').value; 
+        if(formula) { 
+            rolarDanoMonstro('Jogador', 'Dado', formula); 
+        } else { 
+            showPopup(Math.floor(Math.random()*20)+1, "DADO<br>(LIVRE)", "color:white"); 
+        } 
+    }
+
+    function rolarDadoFixo(faces) {
+        const resultado = Math.floor(Math.random() * faces) + 1;
+        let color = "color:white";
+        if (faces === 20 && resultado === 20) color = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;";
+        if (faces === 20 && resultado === 1) color = "color:#ff5252; text-shadow:2px 2px 4px #000;";
+        showPopup(resultado, `DADO<br>(d${faces})`, color);
+    }
+
     function closeDice() { document.getElementById('popup-dice').style.display='none'; }
     
     function showPopup(n, r="TOTAL", st="color:white") { 
@@ -1123,7 +1147,7 @@
 
     // --- SAVE E EVENTOS ---
     window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
-    function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+    function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
     function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
 
     let timerAutoSave; 
