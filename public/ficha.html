@@ -435,14 +435,12 @@
     const socket = typeof io !== 'undefined' ? io() : null;
     let baseUser = localStorage.getItem('usuario_logado') || ""; 
     
-    // Normalização correta para nomes de utilizador
     let myUpperCode = baseUser.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim(); 
     let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
     
     const urlParams = new URLSearchParams(window.location.search); 
     const viewCode = urlParams.get('view'); 
     
-    // Normalização correta para jogadores assistidos pelo Mestre
     let playerCode = viewCode ? (viewCode.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim() + '_' + campanhaAtiva) : (myUpperCode + '_' + campanhaAtiva);
 
     function notificarRecebimento(mensagem) {
@@ -462,7 +460,6 @@
             socket.emit('join_campaign', campanhaAtiva);
         });
 
-        // INÍCIO DA CORREÇÃO: Escutar edições do jogador e atualizar o ecrã do Mestre em tempo real
         socket.on('status_change', (dados) => {
             if (viewCode && dados.codigo && dados.codigo.toUpperCase() === viewCode.toUpperCase()) {
                 if (dados.fullData) {
@@ -473,7 +470,6 @@
                 }
             }
         });
-        // FIM DA CORREÇÃO
 
         socket.on('mestre_force_sync_player', (dados) => {
             if (viewCode) return; 
@@ -526,7 +522,6 @@
                         if (dados.status.sani_atual !== undefined) { let el = document.getElementById('sani_atual'); if(el) el.value = dados.status.sani_atual; }
                         if (dados.status.pe_atual !== undefined) { let el = document.getElementById('pe_atual'); if(el) el.value = dados.status.pe_atual; }
                         updateStatusBars();
-                        save();
                     }
                     break;
                 case 'expulsar_jogador':
@@ -1128,7 +1123,7 @@
 
     // --- SAVE E EVENTOS ---
     window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
-    function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(blob); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+    function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
     function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
 
     let timerAutoSave; 
