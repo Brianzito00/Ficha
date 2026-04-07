@@ -1306,7 +1306,7 @@
         }
 
         // ================= INICIATIVA =================
-      function renderizarIniciativa() { 
+     function renderizarIniciativa() { 
             const c = document.getElementById('iniciativa-list-container'); 
             c.innerHTML = ''; 
             iniciativaList.sort((a,b) => { 
@@ -1340,7 +1340,6 @@
                 c.appendChild(card); 
             }); 
         }
-        
         function rolarMonstrosIniciativa() { 
             monstros.forEach(m => { 
                 let a = m.attrs ? (parseInt(m.attrs.agi)||1) : 1; 
