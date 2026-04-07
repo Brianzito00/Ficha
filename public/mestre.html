@@ -1306,7 +1306,28 @@
         }
 
         // ================= INICIATIVA =================
-        function renderizarIniciativa() { const c = document.getElementById('iniciativa-list-container'); c.innerHTML = ''; iniciativaList.sort((a,b) => { if(b.total !== a.total) return b.total - a.total; if(b.dano !== a.dano) return b.dano - a.dano; return b.agi - a.agi; }); iniciativaList.forEach((ini, idx) => { const card = document.createElement('div'); card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; card.innerHTML = `<button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button><div class="ini-rank">#${idx+1}</div><img src="${ini.foto}" class="ini-img"><div class="ini-info"><h3 class="ini-name">${ini.nome}</h3><div class="ini-details">D20: ${ini.dado} | Bônus: ${ini.bonus}</div></div><div class="ini-total-box"><div class="ini-total-lbl">TOTAL</div><div class="ini-total">${ini.total}</div></div>`; c.appendChild(card); }); }
+      function renderizarIniciativa() { 
+            const c = document.getElementById('iniciativa-list-container'); 
+            c.innerHTML = ''; 
+            iniciativaList.sort((a,b) => { 
+                if(b.total !== a.total) return b.total - a.total; 
+                if(b.dano !== a.dano) return b.dano - a.dano; 
+                return b.agi - a.agi; 
+            }); 
+            iniciativaList.forEach((ini, idx) => { 
+                const card = document.createElement('div'); 
+                card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; 
+                card.innerHTML = `
+                    <button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button>
+                    <div class="ini-rank">#${idx+1}</div>
+                    <img src="${ini.foto}" class="ini-img">
+                    <div class="ini-info">
+                        <h3 class="ini-name" style="margin: 0;">${ini.nome}</h3>
+                    </div>
+                `; 
+                c.appendChild(card); 
+            }); 
+        }
         
         function rolarMonstrosIniciativa() { 
             monstros.forEach(m => { 
