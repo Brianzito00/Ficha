@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overlay RPG</title>
     <style>
-        /* Importação da sua fonte personalizada Gabriele Bad */
+        /* Importação da fonte personalizada Gabriele Bad */
         @font-face {
             font-family: 'Gabriele Bad';
             src: url('gabriele-bad.ttf') format('truetype');
@@ -20,12 +20,12 @@
             overflow: hidden;
         }
 
-        /* GRADE 4x8 CONFIGURADA AQUI */
+        /* GRADE CONFIGURADA */
         #multi-overlay-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 colunas lado a lado */
-            grid-template-rows: repeat(8, auto);   /* 8 linhas */
-            gap: 20px 40px; /* Espaçamento vertical e horizontal */
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(8, auto);
+            gap: 20px 40px; 
             position: relative;
             z-index: 1;
             width: 100%;
@@ -36,22 +36,38 @@
             align-items: center;
             gap: 15px; 
             animation: fadeIn 0.6s ease-out;
-            cursor: pointer; /* Cursor de "mãozinha" para indicar clique */
-            transition: transform 0.2s, filter 0.2s;
+            cursor: pointer;
+            /* Transição suave para o efeito de turno ativo */
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
         }
 
-        /* Efeito ao passar o rato no OBS/Browser para indicar que pode apagar */
+        /* Efeito Hover do Rato (Para o OBS) */
         .player-card:hover {
             transform: scale(1.05);
             filter: brightness(1.2);
         }
+
+        /* =====================================================
+           EFEITO VISUAL: TURNO ATIVO (INICIATIVA)
+           ===================================================== */
+        .player-card.active-turn {
+            transform: scale(1.15) translateX(20px); /* Aumenta e move para a direita */
+            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 0.9)); /* Brilho exterior amarelo */
+            z-index: 10;
+        }
+
+        /* Destaca a vida com amarelo no turno */
+        .player-card.active-turn .val-vida {
+            color: #ffcf33;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(255, 207, 51, 0.9), 0 0 20px rgba(255, 207, 51, 0.6);
+        }
+        /* ===================================================== */
 
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
 
-        /* Animação para quando clica em apagar */
         @keyframes fadeOut {
             from { opacity: 1; transform: scale(1); }
             to { opacity: 0; transform: scale(0.8); }
@@ -70,16 +86,14 @@
             object-fit: cover;
             -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            /* ANIMAÇÃO DE FADE NA TROCA DE FOTO */
             transition: opacity 0.3s ease-in-out;
             opacity: 1;
         }
 
-        /* Contentor para alinhar a Vida/Sani ao lado da Munição */
         .info-wrapper {
             display: flex;
             align-items: center;
-            gap: 20px; /* Espaçamento entre as barras e a munição */
+            gap: 20px; 
         }
 
         .status-numbers {
@@ -87,18 +101,17 @@
             flex-direction: column;
             gap: 4px; 
             font-family: 'Gabriele Bad', sans-serif;
-            font-size: 2rem; /* Um pouco mais suave que os 2.3rem anteriores */
+            font-size: 2rem; 
             font-weight: normal;
             line-height: 1;
             user-select: none;
-            letter-spacing: 1px; /* Espaçamento mais natural */
+            letter-spacing: 1px; 
         }
 
-        /* EFEITOS GLOW (NEON) SUAVIZADOS */
         .val-vida { 
             color: white; 
-            /* Sombra preta base + brilho suave */
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.4); 
+            transition: color 0.4s ease, text-shadow 0.4s ease; /* Para animar na mudança de turno */
         }
         
         .val-sani { 
@@ -125,17 +138,14 @@
         const socket = io();
         const container = document.getElementById('multi-overlay-container');
         
-        // LÊ O CÓDIGO DA MESA DIRETAMENTE DO LINK DO STREAMLABS (?mesa=MESA-123)
         const urlParams = new URLSearchParams(window.location.search);
         let campanhaAtiva = urlParams.get('mesa') || localStorage.getItem('campanha_atual');
         
-        // Puxa os jogadores ISOLADOS desta mesa específica
         let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
 
         function atualizarOverlay() {
             const cardsAtuais = Array.from(container.children).map(c => c.id.replace('card-', ''));
             
-            // Apaga quem o Mestre tirou
             cardsAtuais.forEach(code => {
                 if (!activePlayers.includes(code)) {
                     const el = document.getElementById(`card-${code}`);
@@ -143,7 +153,6 @@
                 }
             });
 
-            // Adiciona quem o Mestre colocou
             activePlayers.forEach(code => {
                 if (!document.getElementById(`card-${code}`)) {
                     criarCardHTML(code);
@@ -175,7 +184,6 @@
             container.appendChild(div);
         }
 
-        // REMOVER O JOGADOR AO CLICAR NA TELA (OBS)
         function removerDoOverlay(code) {
             const el = document.getElementById(`card-${code}`);
             if (el) {
@@ -184,15 +192,27 @@
                 setTimeout(() => {
                     el.remove();
                     activePlayers = activePlayers.filter(c => c !== code);
-                    
-                    // ATUALIZA A CHAVE DA MESA ATUAL
                     localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(activePlayers));
-                    
-                    // Avisa a sala/campanha que apagou
                     if (campanhaAtiva) {
                         socket.emit('comando_mestre', { tipo: 'remover_jogador_mestre', codigo: code });
                     }
                 }, 400); 
+            }
+        }
+
+        // FUNÇÃO QUE APLICA A CLASSE DO TURNO
+        function destacarTurnoIniciativa(currentId) {
+            // Remove o destaque de todos
+            document.querySelectorAll('.player-card').forEach(card => {
+                card.classList.remove('active-turn');
+            });
+            
+            // Adiciona o destaque a quem tem o turno atual (se ele estiver no overlay)
+            if (currentId) {
+                const activeCard = document.getElementById(`card-${currentId}`);
+                if (activeCard) {
+                    activeCard.classList.add('active-turn');
+                }
             }
         }
 
@@ -205,14 +225,11 @@
             }, 10000);
         };
 
-        // Sincronização via Memória do Navegador
         window.addEventListener('storage', (e) => {
-            // VERIFICA APENAS A CHAVE DA MESA ATUAL
             if (e.key === 'mestre_allowed_codes_' + campanhaAtiva) {
                 activePlayers = JSON.parse(e.newValue) || [];
                 atualizarOverlay();
             }
-            // Se o Mestre mudar de mesa no Chrome, o Overlay acompanha se não tiver URL fixo
             if (e.key === 'campanha_atual' && !urlParams.get('mesa')) {
                 campanhaAtiva = e.newValue;
                 activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
@@ -222,22 +239,23 @@
             }
         });
 
-        // Sincronização via Socket (Pede os jogadores ao Chrome do Mestre)
         socket.on('connect', () => {
             if (campanhaAtiva) {
                 socket.emit('join_campaign', campanhaAtiva);
-                // Quando o OBS conecta, ele "grita" para o Chrome do Mestre pedindo os jogadores da mesa
                 socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
             }
         });
 
-        // O Chrome do Mestre responde e o OBS/Overlay atualiza a tela
         socket.on('comando_mestre', (dados) => {
             if (dados.tipo === 'sync_overlay' && dados.players) {
                 activePlayers = dados.players;
-                // SALVA EXCLUSIVAMENTE PARA A MESA ATUAL
                 localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(activePlayers));
                 atualizarOverlay();
+            }
+            
+            // ESCUTA O EVENTO DO MESTRE DE MUDANÇA DE TURNO E APLICA A ANIMAÇÃO
+            if (dados.tipo === 'turno_iniciativa') {
+                destacarTurnoIniciativa(dados.currentId);
             }
         });
 
@@ -245,33 +263,25 @@
             const codPuro = dados.codigo; 
             
             if (activePlayers.includes(codPuro)) {
-                
-                // LÓGICA DE ATUALIZAÇÃO DA FOTO COM ANIMAÇÃO FADE
                 const fotoEl = document.getElementById(`foto-${codPuro}`);
                 const novaFoto = dados.foto || 'https://via.placeholder.com/140';
                 
                 if (fotoEl && fotoEl.getAttribute('src') !== novaFoto) {
-                    fotoEl.style.opacity = 0; // Inicia o fade out
+                    fotoEl.style.opacity = 0; 
                     setTimeout(() => {
-                        fotoEl.src = novaFoto; // Troca a imagem enquanto invisível
+                        fotoEl.src = novaFoto; 
                         fotoEl.setAttribute('src', novaFoto);
-                        
-                        // Faz fade in quando a imagem carregar
                         fotoEl.onload = () => fotoEl.style.opacity = 1; 
-                        
-                        // Fallback de segurança se falhar o onload
                         setTimeout(() => fotoEl.style.opacity = 1, 100);
                     }, 300);
                 }
 
-                // ATUALIZAÇÃO DA VIDA E SANIDADE
                 const vidaEl = document.getElementById(`vida-${codPuro}`);
                 const saniEl = document.getElementById(`sani-${codPuro}`);
                 
                 if(vidaEl) vidaEl.innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
                 if(saniEl) saniEl.innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
 
-                // ATUALIZAÇÃO DAS BALAS (MUNIÇÃO DA ARMA ATIVA)
                 const ammoEl = document.getElementById(`ammo-${codPuro}`);
                 let muniTexto = "";
                 if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
