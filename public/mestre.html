@@ -1311,7 +1311,7 @@
         }
 
         // ================= INICIATIVA =================
-        function renderizarIniciativa() { 
+    function renderizarIniciativa() { 
             const c = document.getElementById('iniciativa-list-container'); 
             c.innerHTML = ''; 
             iniciativaList.sort((a,b) => { 
@@ -1354,6 +1354,15 @@
                 `; 
                 c.appendChild(card); 
             }); 
+
+            // NOVO: AVISA O OVERLAY SOBRE DE QUEM É O TURNO
+            if (socket) {
+                let activeId = null;
+                if (iniciativaList.length > 0 && turnoAtualIndex < iniciativaList.length) {
+                    activeId = iniciativaList[turnoAtualIndex].id; // Pega o ID (Código do Jogador) de quem está no turno
+                }
+                socket.emit('comando_mestre', { tipo: 'turno_iniciativa', currentId: activeId });
+            }
         }
 
         function passarTurno() {
