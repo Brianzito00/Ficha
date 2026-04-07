@@ -290,7 +290,7 @@
                     </div>
                 </div>
                 <div class="map-list" id="map-list-container"></div>
-                <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">💡 Use o <b>Scroll do rato</b> para dar zoom e <b>clique/arraste</b> para se mover. Um clique rápido adiciona um Pin!</div>
+                <div style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 10px;">💡 Use o <b>Scroll do rato</b> para dar zoom e <b>botão esquerdo</b> para se mover. Um clique com o <b>botão direito</b> adiciona um Pin!</div>
                 <div class="map-view-container" id="map-view">
                     <div id="map-transform-wrapper"><div id="map-content" style="position: relative; display: inline-block;"><img id="map-image-display" class="map-image" src="" style="display: none;"><div id="pins-container"></div><div class="map-tooltip" id="map-tooltip"><h4 id="tooltip-title"></h4><p id="tooltip-desc"></p></div></div></div>
                 </div>
@@ -578,6 +578,7 @@
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
                 atualizarDOMJogador(codPuro);
+                renderizarJogadores();
                 
                 if (socket) {
                     socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: d.info.vida_atual, sani_atual: d.info.sani_atual, pe_atual: d.info.pe_atual } });
@@ -1372,23 +1373,13 @@
             }); 
             iniciativaList.forEach((ini, idx) => { 
                 const card = document.createElement('div'); 
-                
-                // Força o card a ficar numa única linha, independentemente do ecrã
                 card.style.cssText = `background: var(--bg-card); border: 2px solid var(--border-color); border-left: 6px solid ${ini.isPlayer ? 'var(--accent-blue)' : 'var(--accent-red)'}; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; gap: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s; backdrop-filter: blur(8px); flex-wrap: nowrap; margin-bottom: 10px;`;
-                
                 card.innerHTML = `
                     <button class="btn-remove" style="right: -5px; top: -5px; z-index: 20; padding: 2px 6px; font-size: 0.7em;" onclick="removerIniciativa('${ini.id}')">X</button>
-                    
-                    <div style="font-size: 1.8em; font-weight: 900; color: var(--accent-yellow); min-width: 35px; text-align: center;">
-                        #${idx+1}
-                    </div>
-                    
+                    <div style="font-size: 1.8em; font-weight: 900; color: var(--accent-yellow); min-width: 35px; text-align: center;">#${idx+1}</div>
                     <img src="${ini.foto}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid ${ini.isPlayer ? 'var(--accent-blue)' : 'var(--accent-red)'}; flex-shrink: 0; background: black;">
-                    
                     <div style="flex: 1; display: flex; align-items: center; overflow: hidden;">
-                        <h3 style="margin: 0; color: white; font-size: 1.2em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${ini.nome}
-                        </h3>
+                        <h3 style="margin: 0; color: white; font-size: 1.2em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ini.nome}</h3>
                     </div>
                 `; 
                 c.appendChild(card); 
@@ -1461,7 +1452,6 @@
                 } 
             }
             
-            // O resultado recebido de uma perícia no log é apenas o dado puro! Logo, o total da iniciativa é dado puro + bónus
             let totalIniciativa = dadoPuro + bonusCalc; 
             let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
             
@@ -1509,6 +1499,7 @@
                 }, { passive: false });
                 
                 mapContainer.addEventListener('mousedown', (e) => { 
+                    if(e.button !== 0) return; // Só arrasta com botão esquerdo
                     if(e.target.classList.contains('map-pin-marker')) return; 
                     isDraggingMap = true; 
                     startMapX = e.clientX - mapTx; 
@@ -1529,7 +1520,8 @@
                     if(mapContainer) mapContainer.style.cursor = 'grab';
                 });
                 
-                mapContainer.addEventListener('dblclick', (e) => { 
+                mapContainer.addEventListener('contextmenu', (e) => { 
+                    e.preventDefault(); // Bloqueia menu do botão direito
                     if(!currentMapaIdMap) return; 
                     if(e.target.classList.contains('map-pin-marker')) return; 
                     const rect = document.getElementById('map-content').getBoundingClientRect(); 
