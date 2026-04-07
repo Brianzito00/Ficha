@@ -48,7 +48,7 @@
         .player-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border-color: var(--accent-blue); }
 
         /* INI CARD - MODIFICADO PARA LINHA ÚNICA */
-        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 15px; position: relative; transition: 0.3s; flex-wrap: nowrap; overflow: hidden; }
+        .ini-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 10px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 15px; position: relative; transition: 0.3s; flex-wrap: nowrap; overflow: hidden; margin-bottom: 10px; }
         .ini-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
         .ini-card.is-player { border-left: 6px solid var(--accent-blue); }
         .ini-card.is-monster { border-left: 6px solid var(--accent-red); }
@@ -415,7 +415,7 @@
         let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
         const socket = typeof io !== 'undefined' ? io() : null;
 
-        // Variaveis e estruturas
+        // Variaveis e estruturas globais
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
@@ -425,7 +425,19 @@
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
+        
         let currentMapaIdMap = null;
+        let editMonstroId = null;
+
+        // VARIÁVEIS DOS MAPAS
+        let mapScale = 1;
+        let mapTx = 0;
+        let mapTy = 0;
+        let isDraggingMap = false;
+        let startMapX = 0;
+        let startMapY = 0;
+        let pinTargetX = 0;
+        let pinTargetY = 0;
 
         let defaultRituais = [
             {id:'def_1',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 em um teste de resistência ou Defesa.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''},
@@ -566,7 +578,6 @@
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
                 atualizarDOMJogador(codPuro);
-                renderizarJogadores();
                 
                 if (socket) {
                     socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: d.info.vida_atual, sani_atual: d.info.sani_atual, pe_atual: d.info.pe_atual } });
@@ -1489,11 +1500,43 @@
         setTimeout(() => {
             const mapContainer = document.getElementById('map-view');
             if(mapContainer) {
-                mapContainer.addEventListener('wheel', (e) => { e.preventDefault(); mapScale += e.deltaY < 0 ? 0.1 : -0.1; if(mapScale < 0.2) mapScale = 0.2; if(mapScale > 5) mapScale = 5; applyMapTransform(); });
-                mapContainer.addEventListener('mousedown', (e) => { if(e.target.classList.contains('map-pin-marker')) return; isDraggingMap = true; startMapX = e.clientX - mapTx; startMapY = e.clientY - mapTy; });
-                window.addEventListener('mousemove', (e) => { if (!isDraggingMap) return; e.preventDefault(); mapTx = e.clientX - startMapX; mapTy = e.clientY - startMapY; applyMapTransform(); });
-                window.addEventListener('mouseup', () => { isDraggingMap = false; });
-                mapContainer.addEventListener('dblclick', (e) => { if(!currentMapaIdMap) return; if(e.target.classList.contains('map-pin-marker')) return; const rect = document.getElementById('map-content').getBoundingClientRect(); pinTargetX = (e.clientX - rect.left) / mapScale; pinTargetY = (e.clientY - rect.top) / mapScale; abrirModalPin(); });
+                mapContainer.addEventListener('wheel', (e) => { 
+                    e.preventDefault(); 
+                    mapScale += e.deltaY < 0 ? 0.1 : -0.1; 
+                    if(mapScale < 0.2) mapScale = 0.2; 
+                    if(mapScale > 5) mapScale = 5; 
+                    applyMapTransform(); 
+                }, { passive: false });
+                
+                mapContainer.addEventListener('mousedown', (e) => { 
+                    if(e.target.classList.contains('map-pin-marker')) return; 
+                    isDraggingMap = true; 
+                    startMapX = e.clientX - mapTx; 
+                    startMapY = e.clientY - mapTy; 
+                    mapContainer.style.cursor = 'grabbing';
+                });
+                
+                window.addEventListener('mousemove', (e) => { 
+                    if (!isDraggingMap) return; 
+                    e.preventDefault(); 
+                    mapTx = e.clientX - startMapX; 
+                    mapTy = e.clientY - startMapY; 
+                    applyMapTransform(); 
+                });
+                
+                window.addEventListener('mouseup', () => { 
+                    isDraggingMap = false; 
+                    if(mapContainer) mapContainer.style.cursor = 'grab';
+                });
+                
+                mapContainer.addEventListener('dblclick', (e) => { 
+                    if(!currentMapaIdMap) return; 
+                    if(e.target.classList.contains('map-pin-marker')) return; 
+                    const rect = document.getElementById('map-content').getBoundingClientRect(); 
+                    pinTargetX = (e.clientX - rect.left) / mapScale; 
+                    pinTargetY = (e.clientY - rect.top) / mapScale; 
+                    abrirModalPin(); 
+                });
             }
         }, 1000);
 
