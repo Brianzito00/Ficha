@@ -37,29 +37,29 @@
             gap: 15px; 
             animation: fadeIn 0.6s ease-out;
             cursor: pointer;
-            /* Transição suave para o efeito de turno ativo */
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
+            position: relative;
+            /* Transição suave de profundidade geral se necessário */
+            transition: filter 0.5s ease;
         }
 
-        /* Efeito Hover do Rato (Para o OBS) */
+        /* Efeito Hover do Rato (Para o OBS) - Mantido no card para feedback */
         .player-card:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
+            filter: brightness(1.1);
         }
 
         /* =====================================================
-           EFEITO VISUAL: TURNO ATIVO (INICIATIVA)
+           EFEITO VISUAL: TURNO ATIVO (INICIATIVA) - MODIFICADO
            ===================================================== */
+        
+        /* O Card em si apenas ganha prioridade de profundidade */
         .player-card.active-turn {
-            transform: scale(1.15) translateX(20px); /* Aumenta e move para a direita */
-            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 0.9)); /* Brilho exterior amarelo */
             z-index: 10;
         }
 
-        /* Destaca a vida com amarelo no turno */
-        .player-card.active-turn .val-vida {
-            color: #ffcf33;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(255, 207, 51, 0.9), 0 0 20px rgba(255, 207, 51, 0.6);
+        /* O DESTAQUE E ANIMAÇÃO AGORA APLICAM-SE APENAS À FOTO */
+        .player-card.active-turn .foto {
+            transform: scale(1.2) translateX(10px); /* Foto aumenta e move-se ligeiramente */
+            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 1)); /* Brilho amarelo intenso na foto */
         }
         /* ===================================================== */
 
@@ -78,16 +78,20 @@
             height: 105px;
             position: relative;
             flex-shrink: 0;
+            /* Garante que a foto que cresce não corte elementos próximos */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .foto {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-            transition: opacity 0.3s ease-in-out;
+            /* DEGRADÊ REMOVIDO AQUI */
             opacity: 1;
+            /* Adicionada transição suave para as animações de turno na foto */
+            transition: opacity 0.3s ease-in-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
         }
 
         .info-wrapper {
@@ -111,7 +115,6 @@
         .val-vida { 
             color: white; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(255, 0, 0, 0.8), 0 0 15px rgba(255, 0, 0, 0.4); 
-            transition: color 0.4s ease, text-shadow 0.4s ease; /* Para animar na mudança de turno */
         }
         
         .val-sani { 
