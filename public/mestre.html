@@ -1317,12 +1317,24 @@
             iniciativaList.forEach((ini, idx) => { 
                 const card = document.createElement('div'); 
                 card.className = `ini-card ${ini.isPlayer ? 'is-player' : 'is-monster'}`; 
+                
+                // Força o card a ficar numa única linha, independentemente do ecrã
+                card.style.flexWrap = 'nowrap';
+                card.style.padding = '10px 15px';
+                
                 card.innerHTML = `
-                    <button class="btn-remove" style="right: -10px; top: -10px;" onclick="removerIniciativa('${ini.id}')">X</button>
-                    <div class="ini-rank">#${idx+1}</div>
-                    <img src="${ini.foto}" class="ini-img">
-                    <div class="ini-info">
-                        <h3 class="ini-name" style="margin: 0;">${ini.nome}</h3>
+                    <button class="btn-remove" style="right: -10px; top: -10px; z-index: 20;" onclick="removerIniciativa('${ini.id}')">X</button>
+                    
+                    <div style="font-size: 1.8em; font-weight: 900; color: var(--accent-yellow); min-width: 40px;">
+                        #${idx+1}
+                    </div>
+                    
+                    <img src="${ini.foto}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid ${ini.isPlayer ? 'var(--accent-blue)' : 'var(--accent-red)'}; flex-shrink: 0;">
+                    
+                    <div style="flex: 1; display: flex; align-items: center; overflow: hidden;">
+                        <h3 style="margin: 0; color: white; font-size: 1.3em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${ini.nome}
+                        </h3>
                     </div>
                 `; 
                 c.appendChild(card); 
