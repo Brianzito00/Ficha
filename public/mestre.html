@@ -43,6 +43,7 @@
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
+        /* CARDS */
         .player-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 10px; position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
         .player-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border-color: var(--accent-blue); }
 
@@ -60,6 +61,7 @@
         .btn-dmg:hover { background: var(--accent-red); color: white; }
         .monster-power-card { background: rgba(184,43,242,0.05); border-left: 4px solid var(--accent-purple); padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
+        /* ESTRUTURA GERAL */
         .mestre-top-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .code-input { padding: 8px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.8em; width: 150px; margin-left: 20px; }
         .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
@@ -90,6 +92,7 @@
         .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.8em; margin-top: 5px; width: 100%; box-sizing: border-box; }
         .btn-roll:hover { filter: brightness(1.2); transform: scale(1.02);}
 
+        /* LOG DE ROLAGENS */
         .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
         .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
@@ -97,6 +100,7 @@
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
         .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
 
+        /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
         .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
@@ -105,14 +109,17 @@
         .monster-input:focus { border-color: var(--accent-blue); outline: none;}
         .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
         
+        /* PISTA CARD NO MESTRE */
         .pista-card { background: rgba(18,18,20,0.8); border: 1px solid rgba(255,207,51,0.3); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
         .pista-card:hover { transform: scale(1.02); background: rgba(255,207,51,0.1); box-shadow: 0 0 15px rgba(255,207,51,0.3); border-color: var(--accent-blue); }
 
+        /* DADOS (POPUP) */
         .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
+        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
         
         .attr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
@@ -122,6 +129,7 @@
         .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
 
+        /* ROTEIROS */
         #roteiro-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
@@ -136,6 +144,7 @@
         .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
 
+        /* MAPAS */
         #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .map-list { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
         .map-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; display: flex; gap: 10px; align-items: center; }
@@ -159,6 +168,7 @@
             .players-container, .monsters-grid, .catalogo-grid-view, #pistas-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
             .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
             .tab-btn { border-radius: 8px; margin-bottom: 5px; }
+            .ini-card { gap: 10px; }
             .popup-box-dice { height: 300px; }
             .popup-number { font-size: 6em; }
             .popup-res { font-size: 1.5em; }
@@ -492,40 +502,38 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // LÓGICA CORRIGIDA: ATUALIZAÇÃO DO JOGADOR
+            // LÓGICA INFALÍVEL DE ATUALIZAÇÃO DO JOGADOR
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
-                
-                const cardExiste = document.getElementById(`player-${codPuro}`);
-                const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
-                let newVida = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual);
-                let newSani = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual);
-                let newPe = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status?.pe_atual);
-
+                // Guarda tudo o que vem do FullData
                 if (dados.fullData) {
                     playersDataMemoria[codPuro].fullData = dados.fullData;
-                    if (dados.fullData.info) {
-                        playersDataMemoria[codPuro].nome = dados.fullData.info.char_nome || playersDataMemoria[codPuro].nome;
-                        playersDataMemoria[codPuro].foto = dados.fullData.info.char_img || playersDataMemoria[codPuro].foto;
-                        playersDataMemoria[codPuro].nex = dados.fullData.info.char_nex !== undefined ? dados.fullData.info.char_nex : playersDataMemoria[codPuro].nex;
-                        playersDataMemoria[codPuro].defesa = dados.fullData.defense !== undefined ? dados.fullData.defense : (dados.fullData.info.defesa || playersDataMemoria[codPuro].defesa || 10);
-                        
-                        if (newVida === undefined) newVida = dados.fullData.info.vida_atual;
-                        if (newSani === undefined) newSani = dados.fullData.info.sani_atual;
-                        if (newPe === undefined) newPe = dados.fullData.info.pe_atual;
-                    }
-                } 
-                
+                }
+
+                // Extracção Inteligente: Pega direto da raiz do objeto (se o ficha enviou) ou tenta puxar do fullData se existir
+                playersDataMemoria[codPuro].nome = dados.nome || playersDataMemoria[codPuro].fullData?.info?.char_nome || playersDataMemoria[codPuro].nome;
+                playersDataMemoria[codPuro].foto = dados.foto || playersDataMemoria[codPuro].fullData?.info?.char_img || playersDataMemoria[codPuro].foto;
+                playersDataMemoria[codPuro].nex = dados.nex !== undefined ? dados.nex : (playersDataMemoria[codPuro].fullData?.info?.char_nex !== undefined ? playersDataMemoria[codPuro].fullData?.info?.char_nex : playersDataMemoria[codPuro].nex);
+                playersDataMemoria[codPuro].defesa = dados.defesa !== undefined ? dados.defesa : (playersDataMemoria[codPuro].fullData?.defense !== undefined ? playersDataMemoria[codPuro].fullData?.defense : (playersDataMemoria[codPuro].fullData?.info?.defesa || playersDataMemoria[codPuro].defesa || 10));
+
+                let newVida = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual !== undefined ? dados.status?.vida_atual : playersDataMemoria[codPuro].fullData?.info?.vida_atual);
+                let newSani = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual !== undefined ? dados.status?.sani_atual : playersDataMemoria[codPuro].fullData?.info?.sani_atual);
+                let newPe = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status?.pe_atual !== undefined ? dados.status?.pe_atual : playersDataMemoria[codPuro].fullData?.info?.pe_atual);
+
                 if (newVida !== undefined) { playersDataMemoria[codPuro].vida_atual = newVida; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.vida_atual = newVida; }
                 if (newSani !== undefined) { playersDataMemoria[codPuro].sani_atual = newSani; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.sani_atual = newSani; }
                 if (newPe !== undefined) { playersDataMemoria[codPuro].pe_atual = newPe; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.pe_atual = newPe; }
                 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
+                // O Segredo: O card do HTML deve ser recriado se não existir ou se for aquele card "Offline/Aguardando"
+                const cardExiste = document.getElementById(`player-${codPuro}`);
+                const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
+
                 if (!cardExiste || isOfflineCard) {
                     renderizarJogadores();
                 } else {
@@ -639,9 +647,13 @@
             atualizarDOMJogador(codPuro);
             
             const iframe = document.getElementById('iframe-ficha');
-            if (iframe && iframe.src.includes(codPuro)) { iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*'); }
+            if (iframe && iframe.src.includes(codPuro)) {
+                iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*');
+            }
 
-            if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); }
+            if (socket) { 
+                socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); 
+            }
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
@@ -656,9 +668,13 @@
             atualizarDOMJogador(codPuro);
             
             const iframe = document.getElementById('iframe-ficha');
-            if (iframe && iframe.src.includes(codPuro)) { iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*'); }
+            if (iframe && iframe.src.includes(codPuro)) {
+                iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*');
+            }
 
-            if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); }
+            if (socket) { 
+                socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); 
+            }
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
@@ -667,7 +683,10 @@
             const dados = playersDataMemoria[codPuro];
             if(!dados) return;
             const card = document.getElementById(`player-${codPuro}`);
-            if(!card) return renderizarJogadores(); 
+            if(!card) {
+                renderizarJogadores();
+                return;
+            }
             
             const imgEl = card.querySelector('.player-img');
             const nomeEl = card.querySelector('.player-name');
@@ -732,7 +751,7 @@
                 const card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${codPuro}`;
                 const dados = playersDataMemoria[codPuro];
                 if (!dados || !dados.fullData) {
-                    card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="https://via.placeholder.com/60" class="player-img"><div><h3 class="player-name">${codPuro}</h3><div class="player-info" style="color:var(--accent-red)">Offline / Aguardando...</div></div></div><button class="btn-roll" style="width: 100%; margin-top: 10px; background:#444;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA MESMO ASSIM</button>`;
+                    card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="https://via.placeholder.com/60" class="player-img"><div><h3 class="player-name">${codPuro}</h3><div class="player-info-nexdef" style="color:var(--accent-red)">Offline / Aguardando...</div></div></div><button class="btn-roll" style="width: 100%; margin-top: 10px; background:#444;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA MESMO ASSIM</button>`;
                     playersBoard.appendChild(card); return;
                 }
                 const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
@@ -1116,7 +1135,7 @@
                 if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { if(gridComum) gridComum.appendChild(card); countComum++; } else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
             });
 
-            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item.</span>`;
+            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
             if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
             if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
         }
