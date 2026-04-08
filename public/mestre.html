@@ -369,7 +369,6 @@
         let descricoes = JSON.parse(localStorage.getItem('mestre_descricoes_' + campanhaAtiva)) || [];
         let mapas = JSON.parse(localStorage.getItem('mestre_mapas_' + campanhaAtiva)) || [];
         let catalogoMestre = JSON.parse(localStorage.getItem('mestre_catalogo_itens_' + campanhaAtiva)) || [];
-        let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
         let pistasMestre = JSON.parse(localStorage.getItem('mestre_pistas_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
         
@@ -391,9 +390,10 @@
 
         let defaultRituais = [
             {id:'def_1',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 em um teste de resistência ou Defesa.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''},
-            {id:'def_2',n:'Alterar Memória',circ:'3º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Instantânea',res:'Vontade anula',descGeral:'Altera ou apaga memórias de até uma hora atrás. O alvo recupera após 1d4 dias.',descDisc:'-',descVerd:'Altera memórias de até 24 hours.',visivel:true,img:''}
+            {id:'def_2',n:'Alterar Memória',circ:'3º',el:'Conhecimento',ex:'Padrão',alc:'Toque',alv:'1 pessoa',dur:'Instantânea',res:'Vontade anula',descGeral:'Altera ou apaga memórias de até uma hora atrás. O alvo recupera após 1d4 dias.',descDisc:'-',descVerd:'Altera memórias de até 24 horas.',visivel:true,img:''}
         ];
 
+        let catalogoRituaisMestre = JSON.parse(localStorage.getItem('mestre_catalogo_rituais_' + campanhaAtiva)) || [];
         if (catalogoRituaisMestre.length === 0) {
             catalogoRituaisMestre = defaultRituais;
             localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre));
@@ -440,7 +440,7 @@
             }
         }
 
-        // ================= CONEXÃO E SOCKETS (CORRIGIDO PARA TEMPO REAL) =================
+        // ================= CONEXÃO E SOCKETS =================
         if (socket) {
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
@@ -474,80 +474,24 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // LÓGICA DE SINCRONIZAÇÃO EM TEMPO REAL CORRIGIDA
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
-                
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
                 
-                let mudouVisual = false;
-                const cardExiste = document.getElementById(`player-${codPuro}`);
-
-                // 1. Extrair os valores do payload (pode vir solto ou no objeto status)
-                let newVida = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual);
-                let newSani = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual);
-                let newPe = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status?.pe_atual);
-
                 if (dados.fullData) {
-                    const oldNome = playersDataMemoria[codPuro].nome;
-                    const oldFoto = playersDataMemoria[codPuro].foto;
-                    const oldNex = playersDataMemoria[codPuro].nex;
-                    const oldDefesa = playersDataMemoria[codPuro].defesa;
-
                     playersDataMemoria[codPuro].fullData = dados.fullData;
-                    
-                    if (dados.fullData.info) {
-                        const novoNome = dados.fullData.info.char_nome;
-                        const novaFoto = dados.fullData.info.char_img;
-                        const novoNex = dados.fullData.info.char_nex;
-                        const novaDef = dados.fullData.defense || 10;
-
-                        // Marca para re-renderizar apenas se algo estrutural mudou
-                        if (oldNome !== novoNome || oldFoto !== novaFoto || oldNex !== novoNex || oldDefesa !== novaDef) {
-                            mudouVisual = true;
-                        }
-
-                        playersDataMemoria[codPuro].nome = novoNome || oldNome;
-                        playersDataMemoria[codPuro].foto = novaFoto || oldFoto;
-                        playersDataMemoria[codPuro].nex = novoNex !== undefined ? novoNex : oldNex;
-                        playersDataMemoria[codPuro].defesa = novaDef;
-                        
-                        // Tenta extrair valores numéricos se não vieram soltos no socket
-                        if (newVida === undefined) newVida = dados.fullData.info.vida_atual;
-                        if (newSani === undefined) newSani = dados.fullData.info.sani_atual;
-                        if (newPe === undefined) newPe = dados.fullData.info.pe_atual;
-                    }
                 } 
                 
-                // 2. Salva as mudanças nas barras e marca se precisa atualizar o DOM
-                let statusMudou = false;
-                if (newVida !== undefined) { 
-                    playersDataMemoria[codPuro].vida_atual = newVida; 
-                    if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.vida_atual = newVida;
-                    statusMudou = true;
-                }
-                if (newSani !== undefined) { 
-                    playersDataMemoria[codPuro].sani_atual = newSani; 
-                    if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.sani_atual = newSani;
-                    statusMudou = true;
-                }
-                if (newPe !== undefined) { 
-                    playersDataMemoria[codPuro].pe_atual = newPe; 
-                    if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.pe_atual = newPe;
-                    statusMudou = true;
+                if (playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) {
+                    if(dados.vida_atual !== undefined) { playersDataMemoria[codPuro].vida_atual = dados.vida_atual; playersDataMemoria[codPuro].fullData.info.vida_atual = dados.vida_atual; }
+                    if(dados.sani_atual !== undefined) { playersDataMemoria[codPuro].sani_atual = dados.sani_atual; playersDataMemoria[codPuro].fullData.info.sani_atual = dados.sani_atual; }
+                    if(dados.pe_atual !== undefined) { playersDataMemoria[codPuro].pe_atual = dados.pe_atual; playersDataMemoria[codPuro].fullData.info.pe_atual = dados.pe_atual; }
                 }
                 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
-                
-                // 3. Renderiza TUDO se mudou foto/nome ou se o card não existe. Se só mudou status, atualiza invisível sem piscar
-                if (mudouVisual || !cardExiste) {
-                    renderizarJogadores();
-                } else if (statusMudou) {
-                    atualizarDOMJogador(codPuro);
-                }
+                atualizarDOMJogador(codPuro);
 
-                // Sincroniza o Iframe da Ficha se o mestre estiver inspecionando
                 const iframe = document.getElementById('iframe-ficha');
                 if (iframe && iframe.src.includes(codPuro) && playersDataMemoria[codPuro].fullData) {
                     iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: playersDataMemoria[codPuro].fullData}, '*');
@@ -583,7 +527,6 @@
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
                 atualizarDOMJogador(codPuro);
-                renderizarJogadores();
                 
                 if (socket) {
                     socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: d.info.vida_atual, sani_atual: d.info.sani_atual, pe_atual: d.info.pe_atual } });
@@ -688,13 +631,12 @@
             if(!dados) return;
             const card = document.getElementById(`player-${codPuro}`);
             if(!card) return renderizarJogadores(); 
-            
-            const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
-            const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
-            const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
-            const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : 1; 
-            const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
-            const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
+            const vA = dados.fullData?.info?.vida_atual !== undefined ? dados.fullData.info.vida_atual : (dados.vida_atual || 0); 
+            const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : (dados.vida_max || 1); 
+            const sA = dados.fullData?.info?.sani_atual !== undefined ? dados.fullData.info.sani_atual : (dados.sani_atual || 0); 
+            const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : (dados.sani_max || 1); 
+            const pA = dados.fullData?.info?.pe_atual !== undefined ? dados.fullData.info.pe_atual : (dados.pe_atual || 0); 
+            const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : (dados.pe_max || 1);
 
             const iVida = card.querySelector('.input-vida');
             const iSani = card.querySelector('.input-sani');
@@ -703,11 +645,9 @@
             const maxSani = card.querySelector('.max-sani');
             const maxPe = card.querySelector('.max-pe');
 
-            // Atualiza os inputs apenas se não estivermos digitando neles agora
             if(iVida && document.activeElement !== iVida) iVida.value = vA;
             if(iSani && document.activeElement !== iSani) iSani.value = sA;
             if(iPe && document.activeElement !== iPe) iPe.value = pA;
-            
             if(maxVida) maxVida.innerText = `/ ${vM}`;
             if(maxSani) maxSani.innerText = `/ ${sM}`;
             if(maxPe) maxPe.innerText = `/ ${pM}`;
@@ -748,12 +688,12 @@
                     card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="https://via.placeholder.com/60" class="player-img"><div><h3 class="player-name">${codPuro}</h3><div class="player-info" style="color:var(--accent-red)">Offline / Aguardando...</div></div></div><button class="btn-roll" style="width: 100%; margin-top: 10px; background:#444;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA MESMO ASSIM</button>`;
                     playersBoard.appendChild(card); return;
                 }
-                const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
-                const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
-                const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
-                const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : 1; 
-                const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
-                const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
+                const vA = dados.fullData?.info?.vida_atual !== undefined ? dados.fullData.info.vida_atual : (dados.vida_atual || 0); 
+                const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : (dados.vida_max || 1); 
+                const sA = dados.fullData?.info?.sani_atual !== undefined ? dados.fullData.info.sani_atual : (dados.sani_atual || 0); 
+                const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : (dados.sani_max || 1); 
+                const pA = dados.fullData?.info?.pe_atual !== undefined ? dados.fullData.info.pe_atual : (dados.pe_atual || 0); 
+                const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : (dados.pe_max || 1);
                 
                 card.innerHTML = `
                     <button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button>
@@ -1296,9 +1236,6 @@
         }
 
         // ================= MONSTROS =================
-        const listaPericiasMonstro = ['luta', 'pontaria', 'ocultismo', 'iniciativa', 'reflexos', 'percepcao', 'vontade', 'fortitude'];
-        const attrMapMonstro = { 'luta': 'for', 'pontaria': 'agi', 'ocultismo': 'int', 'iniciativa': 'agi', 'reflexos': 'agi', 'percepcao': 'pre', 'vontade': 'pre', 'fortitude': 'vig' };
-
         function abrirModalCriatura() { editMonstroId = null; document.getElementById('c-nome').value = ''; document.getElementById('c-foto').value = ''; document.getElementById('c-presenca').value = 'ND / 0'; document.getElementById('c-defesa').value = '10'; document.getElementById('c-vida').value = '100'; ['agi','for','pre','int','vig'].forEach(a => { const el = document.getElementById('c-'+a); if(el) el.value = '1'; }); listaPericiasMonstro.forEach(s => { const chk = document.getElementById('c-treino-'+s); const bns = document.getElementById('c-bonus-'+s); if(chk) chk.checked = false; if(bns) bns.value = '0'; }); document.getElementById('c-ataques-list').innerHTML = ''; document.getElementById('c-poderes-list').innerHTML = ''; document.getElementById('modal-criatura').style.display = 'flex'; }
         function fecharModalCriatura() { document.getElementById('modal-criatura').style.display = 'none'; }
         function addCampoAtaque(containerId, atq = {nome:'', pericia:'luta', bonusExtra:0, dano:''}) { const c = document.getElementById(containerId); const id = Date.now() + Math.floor(Math.random() * 1000); const div = document.createElement('div'); div.className = 'dynamic-row'; div.id = 'row-' + id; let periciaVal = atq.pericia || 'luta'; let bonusVal = atq.bonusExtra || 0; if (atq.teste !== undefined) { bonusVal = parseInt(atq.teste) || 0; } div.innerHTML = `<input type="text" class="monster-input" placeholder="Ação/Atq" value="${atq.nome}" style="flex:2; min-width:120px;"><select class="monster-input" style="flex:1.5; min-width:110px;"><option value="luta" ${periciaVal === 'luta' ? 'selected' : ''}>Luta (FOR)</option><option value="pontaria" ${periciaVal === 'pontaria' ? 'selected' : ''}>Pontaria (AGI)</option><option value="ocultismo" ${periciaVal === 'ocultismo' ? 'selected' : ''}>Ocultismo (INT)</option></select><input type="number" class="monster-input" placeholder="+Bônus" value="${bonusVal}" style="flex:1; min-width:60px;" title="Bônus Extra"><input type="text" class="monster-input" placeholder="Dano (ex: 2d8+5)" value="${atq.dano}" style="flex:1.5; min-width:100px;"><button class="btn-remove" style="position:static;" onclick="document.getElementById('row-${id}').remove()">X</button>`; c.appendChild(div); }
@@ -1373,34 +1310,8 @@
             showPopup(d20, `${nomeAcao}<br>(${textFormat})`, colorFormat, nomeMonstro);
         }
 
-        function showPopup(num, resText, colorStyle, playerName) {
-            const popup = document.getElementById('popup-dice');
-            const pNum = document.getElementById('popup-num');
-            const pRes = document.getElementById('popup-res');
-            const content = document.getElementById('popup-content');
-            
-            pNum.innerText = num;
-            pRes.innerHTML = `<span style="font-size: 0.6em; color: gray; display: block; margin-bottom: 5px;">${playerName || 'MESTRE'}</span><span style="${colorStyle}">${resText}</span>`;
-            
-            popup.style.display = 'flex';
-            content.style.display = 'flex';
-            
-            if(resText.includes("CRÍTICO") || resText.includes("DESASTRE")) {
-                content.style.animation = 'none';
-                void content.offsetWidth;
-                content.style.animation = 'shakeCrit 0.5s ease-in-out, fadeInResult 0.5s forwards';
-            } else {
-                content.style.animation = 'fadeInResult 0.5s forwards';
-            }
-        }
-
-        function closeDice() {
-            document.getElementById('popup-dice').style.display = 'none';
-            document.getElementById('popup-content').style.display = 'none';
-        }
-
         // ================= INICIATIVA =================
-        function renderizarIniciativa() { 
+    function renderizarIniciativa() { 
             const c = document.getElementById('iniciativa-list-container'); 
             c.innerHTML = ''; 
             iniciativaList.sort((a,b) => { 
