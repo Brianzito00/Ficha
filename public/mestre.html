@@ -1557,7 +1557,30 @@
 
         // ================= MAPAS =================
         function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim() || 'Novo Mapa'; let url = document.getElementById('novo-mapa-url').value.trim(); const fileInput = document.getElementById('novo-mapa-file'); if (fileInput.dataset.base64 && url === "ARQUIVO CARREGADO") { url = fileInput.dataset.base64; } if (!url) return alert("Insira uma URL ou carregue uma imagem."); const novoMapa = { id: 'mapa_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; delete fileInput.dataset.base64; renderizarMapasList(); renderizarMapaAtual(); }
-        function carregarMapaPC(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const inputUrl = document.getElementById('novo-mapa-url'); inputUrl.value = "ARQUIVO CARREGADO"; inputUrl.dataset.base64 = e.target.result; }; reader.readAsDataURL(file); }
+       function carregarMapaPC(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let w = img.width; let h = img.height;
+            const MAX_DIM = 1920; // Resolução máxima para evitar erro de limite do Firebase
+            if (w > MAX_DIM || h > MAX_DIM) {
+                if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; }
+            }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const inputUrl = document.getElementById('novo-mapa-url');
+            inputUrl.value = "ARQUIVO CARREGADO";
+            inputUrl.dataset.base64 = canvas.toDataURL('image/jpeg', 0.7); // Comprime a imagem
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
         function apagarMapaAtual() { if (!currentMapaIdMap) return; if (confirm("Apagar mapa atual?")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); renderizarMapasList(); renderizarMapaAtual(); } }
         function resetarMapaZoom() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
         function applyMapTransform() { const wrapper = document.getElementById('map-transform-wrapper'); if (wrapper) wrapper.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`; }
