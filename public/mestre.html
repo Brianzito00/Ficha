@@ -113,7 +113,6 @@
         .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
-        @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
         
         .attr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
@@ -493,19 +492,20 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // Lógica que processa quando a ficha muda em tempo real
+            // LÓGICA CORRIGIDA: ATUALIZAÇÃO DO JOGADOR
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
+                
                 const cardExiste = document.getElementById(`player-${codPuro}`);
+                const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
                 let newVida = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual);
                 let newSani = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual);
                 let newPe = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status?.pe_atual);
 
-                // Quando a Ficha envia dados.fullData
                 if (dados.fullData) {
                     playersDataMemoria[codPuro].fullData = dados.fullData;
                     if (dados.fullData.info) {
@@ -526,10 +526,10 @@
                 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                if (!cardExiste) {
+                if (!cardExiste || isOfflineCard) {
                     renderizarJogadores();
                 } else {
-                    atualizarDOMJogador(codPuro); // A mágica invisível acontece aqui agora
+                    atualizarDOMJogador(codPuro);
                 }
 
                 const iframe = document.getElementById('iframe-ficha');
@@ -566,7 +566,14 @@
                 if(event.data.charStatus) { playersDataMemoria[codPuro].status = event.data.charStatus; }
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                atualizarDOMJogador(codPuro);
+                const cardExiste = document.getElementById(`player-${codPuro}`);
+                const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
+
+                if (!cardExiste || isOfflineCard) {
+                    renderizarJogadores();
+                } else {
+                    atualizarDOMJogador(codPuro);
+                }
                 
                 if (socket) {
                     socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: d.info.vida_atual, sani_atual: d.info.sani_atual, pe_atual: d.info.pe_atual } });
@@ -656,14 +663,12 @@
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
-        // ================= ATUALIZAÇÃO DO DOM SEM PISCAR =================
         function atualizarDOMJogador(codPuro) {
             const dados = playersDataMemoria[codPuro];
             if(!dados) return;
             const card = document.getElementById(`player-${codPuro}`);
             if(!card) return renderizarJogadores(); 
             
-            // Modifica apenas os elementos visuais pertinentes
             const imgEl = card.querySelector('.player-img');
             const nomeEl = card.querySelector('.player-name');
             const infoEl = card.querySelector('.player-info-nexdef');
@@ -1352,6 +1357,243 @@
             document.getElementById('popup-dice').style.display = 'none';
             document.getElementById('popup-content').style.display = 'none';
         }
+
+        // ================= INICIATIVA =================
+        function renderizarIniciativa() { 
+            const c = document.getElementById('iniciativa-list-container'); 
+            c.innerHTML = ''; 
+            iniciativaList.sort((a,b) => { 
+                if(b.total !== a.total) return b.total - a.total; 
+                if(b.dano !== a.dano) return b.dano - a.dano; 
+                return b.agi - a.agi; 
+            }); 
+            
+            if (iniciativaList.length > 0 && turnoAtualIndex >= iniciativaList.length) {
+                turnoAtualIndex = 0;
+            }
+
+            iniciativaList.forEach((ini, idx) => { 
+                const isCurrentTurn = (idx === turnoAtualIndex);
+                const card = document.createElement('div'); 
+                
+                let borderStyle = ini.isPlayer ? 'var(--accent-blue)' : 'var(--accent-red)';
+                let bgStyle = isCurrentTurn ? 'rgba(255, 207, 51, 0.15)' : 'var(--bg-card)';
+                let highlightBorder = isCurrentTurn ? `border-color: var(--accent-yellow); box-shadow: 0 0 15px rgba(255, 207, 51, 0.4);` : `border-color: var(--border-color);`;
+
+                card.style.cssText = `background: ${bgStyle}; border: 2px solid; ${highlightBorder} border-left: 6px solid ${borderStyle}; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; gap: 15px; position: relative; transition: 0.3s; flex-wrap: nowrap; margin-bottom: 10px;`;
+                
+                card.innerHTML = `
+                    <button class="btn-remove" style="right: -5px; top: -5px; z-index: 20; padding: 2px 6px; font-size: 0.7em;" onclick="removerIniciativa('${ini.id}')">X</button>
+                    
+                    <div style="font-size: 1.8em; font-weight: 900; color: ${isCurrentTurn ? 'var(--accent-yellow)' : 'var(--text-secondary)'}; min-width: 35px; text-align: center;">
+                        ${isCurrentTurn ? '▶' : '#' + (idx+1)}
+                    </div>
+                    
+                    <img src="${ini.foto}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid ${borderStyle}; flex-shrink: 0; background: black;">
+                    
+                    <div style="flex: 1; display: flex; align-items: center; overflow: hidden;">
+                        <h3 style="margin: 0; color: ${isCurrentTurn ? 'var(--accent-yellow)' : 'white'}; font-size: 1.2em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${ini.nome}
+                        </h3>
+                        <span style="margin-left: 10px; background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 4px; font-size: 0.8em; color: var(--text-secondary); border: 1px solid #444;">
+                            ${ini.total}
+                        </span>
+                    </div>
+                `; 
+                c.appendChild(card); 
+            }); 
+
+            if (socket) {
+                let activeId = null;
+                if (iniciativaList.length > 0 && turnoAtualIndex < iniciativaList.length) {
+                    activeId = iniciativaList[turnoAtualIndex].id;
+                }
+                socket.emit('comando_mestre', { tipo: 'turno_iniciativa', currentId: activeId });
+            }
+        }
+
+        function passarTurno() {
+            if (iniciativaList.length === 0) return;
+            turnoAtualIndex++;
+            if (turnoAtualIndex >= iniciativaList.length) {
+                turnoAtualIndex = 0;
+            }
+            renderizarIniciativa();
+        }
+        
+        function rolarMonstrosIniciativa() { 
+            monstros.forEach(m => { 
+                let a = m.attrs ? (parseInt(m.attrs.agi)||1) : 1; 
+                let b = 0; 
+                if(m.skills && m.skills['iniciativa']) b = Math.floor(m.skills['iniciativa'].bonus + (a * 2) + (m.skills['iniciativa'].treinado ? 5 : 0)); 
+                let d = Math.floor(Math.random()*20)+1; 
+                let t = d+b; 
+                let idx = iniciativaList.findIndex(i => i.id === m.id); 
+                if(idx > -1) { 
+                    iniciativaList[idx].dado = d; iniciativaList[idx].total = t; 
+                } else { 
+                    iniciativaList.push({ id: m.id, isPlayer: false, nome: m.nome, foto: m.foto || 'https://via.placeholder.com/60', dado: d, bonus: b, agi: a, total: t }); 
+                } 
+                showPopup(t, `INICIATIVA`, "color:white", m.nome); 
+            }); 
+            localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); 
+            salvarMestreNoFirebase(); 
+            renderizarIniciativa(); 
+        }
+        
+        function removerIniciativa(id) { 
+            const idx = iniciativaList.findIndex(i => i.id === id);
+            if (idx > -1 && idx < turnoAtualIndex) {
+                turnoAtualIndex--;
+            } else if (idx === turnoAtualIndex && turnoAtualIndex >= iniciativaList.length - 1) {
+                turnoAtualIndex = 0;
+            }
+            
+            iniciativaList = iniciativaList.filter(i => i.id !== id); 
+            localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); 
+            salvarMestreNoFirebase(); 
+            renderizarIniciativa(); 
+        }
+        
+        function limparIniciativa() { 
+            if(confirm("Deseja apagar a tabela de iniciativa?")) { 
+                iniciativaList = []; 
+                turnoAtualIndex = 0;
+                localStorage.setItem('mestre_iniciativa_' + campanhaAtiva, JSON.stringify(iniciativaList)); 
+                salvarMestreNoFirebase(); 
+                renderizarIniciativa(); 
+            } 
+        }
+        
+        function processarIniciativa(dados, upperCode) {
+            let dadoPuro = parseInt(dados.resultado) || 0; 
+            let isPlayer = !!dados.codigo; 
+            let idUnico = isPlayer ? upperCode : 'monstro_' + dados.jogador + '_' + Date.now(); 
+            let bonusCalc = 0; 
+            let agiBase = 0; 
+            let foto = 'https://via.placeholder.com/60'; 
+            let nomeStr = dados.jogador;
+            
+            if (isPlayer) { 
+                let pData = playersDataMemoria[upperCode]; 
+                if (pData && pData.fullData) { 
+                    let fd = pData.fullData; 
+                    agiBase = parseInt(fd.attrs['attr_agi']) || 1; 
+                    let skillInic = parseInt(fd.skills['skill_iniciativa']) || 0; 
+                    let isTreinado = fd.skills['chk_iniciativa'] === true; 
+                    let penalty = 0; 
+                    if (fd.inv) { 
+                        let hasHeavy = fd.inv.some(i => i.eq && (i.n.toLowerCase().includes('proteção pesada') || i.n.toLowerCase().includes('protecao pesada'))); 
+                        if (hasHeavy) penalty = -5; 
+                    } 
+                    let nivel = fd.info.char_nivel || 'Recruta';
+                    let nivelBonus = 2;
+                    if(nivel === 'Veterano') nivelBonus = 3;
+                    if(nivel === 'Expert') nivelBonus = 5;
+                    if(nivel === 'Elite') nivelBonus = 10;
+
+                    bonusCalc = Math.floor(skillInic + (agiBase * 2) + (isTreinado ? nivelBonus : 0) + penalty); 
+                    foto = pData.foto || foto; 
+                } 
+            } else { 
+                let monstro = monstros.find(m => m.nome === dados.jogador); 
+                if (monstro) { 
+                    idUnico = monstro.id; 
+                    agiBase = monstro.attrs ? (parseInt(monstro.attrs.agi) || 1) : 1; 
+                    let sData = monstro.skills ? monstro.skills['iniciativa'] : null; 
+                    if (sData) { 
+                        bonusCalc = Math.floor(sData.bonus + (agiBase * 2) + (sData.treinado ? 5 : 0)); 
+                    } 
+                    foto = monstro.foto || foto; 
+                } 
+            }
+            
+            let totalIniciativa = dadoPuro + bonusCalc; 
+            let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
+            
+            if (objIndex > -1) { 
+                iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; 
+            } else { 
+                iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); 
+            }
+            
+            renderizarIniciativa(); 
+        }
+
+        // ================= ROTEIRO =================
+        let currentRoteiroId = null; let roteiroEditorTimeout; 
+        if (!roteiros || roteiros.length === 0) { roteiros = [{ id: 'sessao_1', titulo: 'Sessão 1', texto: '' }]; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+        function renderRoteiros() { const list = document.getElementById('roteiro-list'); list.innerHTML = ''; roteiros.forEach(r => { const btn = document.createElement('div'); btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`; btn.onclick = () => carregarRoteiro(r.id); btn.innerHTML = `<span>${r.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>`; list.appendChild(btn); }); }
+        function renderDescricoes() { const list = document.getElementById('descricao-list'); list.innerHTML = ''; descricoes.forEach(d => { const btn = document.createElement('div'); btn.className = `session-btn ${d.id === currentRoteiroId ? 'active-desc' : ''}`; btn.onclick = () => carregarDescricao(d.id); btn.innerHTML = `<span>${d.titulo}</span> <button class="btn-remove" style="position:static; padding: 2px 6px; font-size: 0.8em; background: #333;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>`; list.appendChild(btn); }); }
+        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); renderRoteiros(); carregarRoteiro(novo.id); }
+        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); renderDescricoes(); carregarDescricao(novo.id); }
+        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
+        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
+        function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function atualizarEditor() { const inputTitulo = document.getElementById('roteiro-titulo-atual'); const areaTexto = document.getElementById('roteiro-text'); if(!currentRoteiroId) { inputTitulo.value = ''; inputTitulo.disabled = true; areaTexto.value = ''; areaTexto.disabled = true; return; } inputTitulo.disabled = false; areaTexto.disabled = false; let item = roteiros.find(r => r.id === currentRoteiroId) || descricoes.find(d => d.id === currentRoteiroId); if(item) { inputTitulo.value = item.titulo; areaTexto.value = item.texto; } }
+        document.getElementById('roteiro-titulo-atual').addEventListener('input', (e) => { if(!currentRoteiroId) return; const val = e.target.value; let item = roteiros.find(r => r.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderRoteiros(); } else { item = descricoes.find(d => d.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderDescricoes(); } } salvarTextoEditor(); });
+        document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
+        function salvarTextoEditor() { if(!currentRoteiroId) return; const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)'; clearTimeout(roteiroEditorTimeout); roteiroEditorTimeout = setTimeout(() => { const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId); if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; } if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); } status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); }, 1000); }
+
+        // ================= MAPAS =================
+        function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim() || 'Novo Mapa'; let url = document.getElementById('novo-mapa-url').value.trim(); const fileInput = document.getElementById('novo-mapa-file'); if (fileInput.dataset.base64 && url === "ARQUIVO CARREGADO") { url = fileInput.dataset.base64; } if (!url) return alert("Insira uma URL ou carregue uma imagem."); const novoMapa = { id: 'mapa_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; delete fileInput.dataset.base64; renderizarMapasList(); renderizarMapaAtual(); }
+        function carregarMapaPC(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const inputUrl = document.getElementById('novo-mapa-url'); inputUrl.value = "ARQUIVO CARREGADO"; inputUrl.dataset.base64 = e.target.result; }; reader.readAsDataURL(file); }
+        function apagarMapaAtual() { if (!currentMapaIdMap) return; if (confirm("Apagar mapa atual?")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); renderizarMapasList(); renderizarMapaAtual(); } }
+        function resetarMapaZoom() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
+        function applyMapTransform() { const wrapper = document.getElementById('map-transform-wrapper'); if (wrapper) wrapper.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`; }
+        
+        setTimeout(() => {
+            const mapContainer = document.getElementById('map-view');
+            if(mapContainer) {
+                mapContainer.addEventListener('wheel', (e) => { 
+                    e.preventDefault(); 
+                    mapScale += e.deltaY < 0 ? 0.1 : -0.1; 
+                    if(mapScale < 0.2) mapScale = 0.2; 
+                    if(mapScale > 5) mapScale = 5; 
+                    applyMapTransform(); 
+                }, { passive: false });
+                
+                mapContainer.addEventListener('mousedown', (e) => { 
+                    if(e.button !== 0) return; // Só arrasta com botão esquerdo
+                    if(e.target.classList.contains('map-pin-marker')) return; 
+                    isDraggingMap = true; 
+                    startMapX = e.clientX - mapTx; 
+                    startMapY = e.clientY - mapTy; 
+                    mapContainer.style.cursor = 'grabbing';
+                });
+                
+                window.addEventListener('mousemove', (e) => { 
+                    if (!isDraggingMap) return; 
+                    e.preventDefault(); 
+                    mapTx = e.clientX - startMapX; 
+                    mapTy = e.clientY - startMapY; 
+                    applyMapTransform(); 
+                });
+                
+                window.addEventListener('mouseup', () => { 
+                    isDraggingMap = false; 
+                    if(mapContainer) mapContainer.style.cursor = 'grab';
+                });
+                
+                mapContainer.addEventListener('contextmenu', (e) => { 
+                    e.preventDefault(); // Bloqueia menu do botão direito
+                    if(!currentMapaIdMap) return; 
+                    if(e.target.classList.contains('map-pin-marker')) return; 
+                    const rect = document.getElementById('map-content').getBoundingClientRect(); 
+                    pinTargetX = (e.clientX - rect.left) / mapScale; 
+                    pinTargetY = (e.clientY - rect.top) / mapScale; 
+                    abrirModalPin(); 
+                });
+            }
+        }, 1000);
+
+        function abrirModalPin(pinId = null) { document.getElementById('pin-id-edit').value = pinId || ''; if (pinId) { const mapa = mapas.find(m => m.id === currentMapaIdMap); const pin = mapa.pins.find(p => p.id === pinId); document.getElementById('pin-title').value = pin.titulo; document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.cor; document.getElementById('btn-delete-pin').style.display = 'block'; } else { document.getElementById('pin-title').value = 'Novo Local'; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; document.getElementById('btn-delete-pin').style.display = 'none'; } document.getElementById('modal-pin').style.display = 'flex'; }
+        function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
+        function salvarPin() { const mapa = mapas.find(m => m.id === currentMapaIdMap); if (!mapa) return; const idEdit = document.getElementById('pin-id-edit').value; const titulo = document.getElementById('pin-title').value; const desc = document.getElementById('pin-desc').value; const cor = document.getElementById('pin-color').value; if (!mapa.pins) mapa.pins = []; if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.titulo = titulo; pin.desc = desc; pin.cor = cor; } } else { mapa.pins.push({ id: 'pin_' + Date.now(), titulo: titulo, desc: desc, cor: cor, x: pinTargetX, y: pinTargetY }); } localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); }
+        function apagarPin() { const idEdit = document.getElementById('pin-id-edit').value; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa && idEdit) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); } }
+        function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; renderizarMapaAtual(); renderizarMapasList(); }; btn.innerText = m.nome; list.appendChild(btn); }); }
+        function renderizarMapaAtual() { const img = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); const mapa = mapas.find(x => x.id === currentMapaIdMap); if(mapa) { img.src = mapa.url; img.style.display = 'block'; pinsContainer.innerHTML = ''; if(mapa.pins) { mapa.pins.forEach(p => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = p.x + 'px'; pinEl.style.top = p.y + 'px'; pinEl.style.background = p.cor; pinEl.onclick = (e) => { e.stopPropagation(); abrirModalPin(p.id); }; pinEl.onmouseenter = (e) => { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = p.titulo; document.getElementById('tooltip-desc').innerText = p.desc; tooltip.style.left = p.x + 'px'; tooltip.style.top = (p.y - 15) + 'px'; tooltip.style.display = 'block'; tooltip.style.borderColor = p.cor; }; pinEl.onmouseleave = () => { document.getElementById('map-tooltip').style.display = 'none'; }; pinsContainer.appendChild(pinEl); }); } } else { img.style.display = 'none'; pinsContainer.innerHTML = ''; } }
 
         // ================= INIT =================
         window.onload = async () => {
