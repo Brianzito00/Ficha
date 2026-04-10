@@ -213,8 +213,8 @@
                 <div class="status-bar-container">
                     <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / 
-                        <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
+                        <input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
+                        <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
@@ -233,8 +233,8 @@
                 <div class="status-bar-container">
                     <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / 
-                        <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
+                        <input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
+                        <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
@@ -251,8 +251,8 @@
                 <div class="status-bar-container">
                     <div id="bar_pe" class="status-bar-fill fill-pe" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars(); save()"> / 
-                        <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars(); save()">
+                        <input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
+                        <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('pe', 1)">+</button>
@@ -983,8 +983,37 @@
 
     function openTab(id, btn) { document.querySelectorAll('.main-container').forEach(el => el.classList.remove('active')); document.querySelectorAll('.top-bar .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if(id === 'tab-inventario') { updateWeight(); updateInventoryDisplay(); } if(id === 'tab-pistas') { renderPistas(); } }
 
-    function changeStatus(type, amount) { let el = document.getElementById(type + '_atual'); if(el) { let val = parseInt(el.value) || 0; el.value = val + amount; updateStatusBars(); save(); } }
+    function changeStatus(type, amount) { 
+        let el = document.getElementById(type + '_atual'); 
+        if(el) { 
+            let val = parseInt(el.value) || 0; 
+            el.value = val + amount; 
+            updateStatusBars(); 
+            syncStatusRapido(); 
+        } 
+    }
+    
     function updateStatusBars() { const vA = parseInt(document.getElementById('vida_atual').value)||0, vM = parseInt(document.getElementById('vida_max').value)||1; const sA = parseInt(document.getElementById('sani_atual').value)||0, sM = parseInt(document.getElementById('sani_max').value)||1; const pA = parseInt(document.getElementById('pe_atual').value)||0, pM = parseInt(document.getElementById('pe_max').value)||1; document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; document.getElementById('bar_pe').style.width = Math.min(Math.max((pA/pM)*100, 0), 100) + '%'; }
+
+    function syncStatusRapido() {
+        if (socket) {
+            const vA = parseInt(document.getElementById('vida_atual').value) || 0;
+            const vM = parseInt(document.getElementById('vida_max').value) || 1;
+            const sA = parseInt(document.getElementById('sani_atual').value) || 0;
+            const sM = parseInt(document.getElementById('sani_max').value) || 1;
+            const pA = parseInt(document.getElementById('pe_atual').value) || 0;
+            const pM = parseInt(document.getElementById('pe_max').value) || 1;
+
+            socket.emit('status_change', {
+                codigo: myUpperCode,
+                vida_atual: vA, vida_max: vM,
+                sani_atual: sA, sani_max: sM,
+                pe_atual: pA, pe_max: pM,
+                status: charStatus
+            });
+        }
+        attivAutoSave(); 
+    }
 
     function openSkillPopup(sn, nome, attr) { document.getElementById('popup-skill-name').innerText=nome; document.getElementById('popup-skill-attr-name').innerText=attr+" (x2)"; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl?parseInt(atEl.value)||0:0; document.getElementById('popup-skill-natural').innerText=at*2; document.getElementById('popup-skill-trained').checked=document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value=document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value=sn; document.getElementById('popup-skill-attr').value=attr; updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display='flex'; }
     function updateSkillPopupCalc() { let attr = document.getElementById('popup-skill-attr').value; let sn = document.getElementById('popup-skill-sn').value; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl?parseInt(atEl.value)||0:0; let natural = at*2; let bonus = parseInt(document.getElementById('popup-skill-bonus').value)||0; let nivelBonus = getNivelBonus(); let trained = document.getElementById('popup-skill-trained').checked ? nivelBonus : 0; const label = document.querySelector('label[for="popup-skill-trained"]'); if(label) label.innerText = `TREINADA (+${nivelBonus})`; let penalty = 0; if(hasHeavyArmorEquipped() && ["luta", "acrobacia", "atletismo", "iniciativa", "reflexos"].includes(sn)) penalty = -5; document.getElementById('popup-skill-total').innerText = natural+bonus+trained+penalty; }
@@ -1369,6 +1398,23 @@
             window.addEventListener('mouseup', () => { 
                 isDraggingPista = false; 
                 if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; 
+            });
+            
+            // Touch Events (Mobile Support)
+            pistaWrapper.addEventListener('touchstart', (e) => {
+                if(e.target.tagName === 'BUTTON') return;
+                isDraggingPista = true; 
+                startPX = e.touches[0].clientX - pistaTx; 
+                startPY = e.touches[0].clientY - pistaTy; 
+            }, {passive: true});
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingPista) return; 
+                pistaTx = e.touches[0].clientX - startPX; 
+                pistaTy = e.touches[0].clientY - startPY; 
+                applyPistaTransform();
+            }, {passive: true});
+            window.addEventListener('touchend', () => { 
+                isDraggingPista = false; 
             });
         }
     }
