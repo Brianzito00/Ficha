@@ -196,7 +196,7 @@
                 <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
             </div>
             <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-            <button class="btn-remove-global" onclick="fazerLogout()">SAIR (LOBBY)</button>
+            <button class="btn-remove-global" onclick="fazerLogout()">SAIR DA MESA</button>
         </div>
     </div>
 
@@ -788,20 +788,26 @@
         function adicionarFotoPistaPC(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert("⚠️ Para Modelos 3D (.glb), use o campo de URL no topo! Ficheiros locais em 3D são pesados demais para o banco de dados.");
+                event.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     let w = img.width; let h = img.height;
-                    const MAX_DIM = 1080;
+                    const MAX_DIM = 800; // COMPRESSÃO APLICADA
                     if (w > MAX_DIM || h > MAX_DIM) {
                         if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; }
                     }
                     canvas.width = w; canvas.height = h;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
-                    tempPistaFotos.push(canvas.toDataURL('image/jpeg', 0.7));
+                    tempPistaFotos.push(canvas.toDataURL('image/jpeg', 0.5));
                     renderPistaFotosEdit();
                 };
                 img.src = e.target.result;
@@ -851,10 +857,19 @@
             const fotosFinal = [...tempPistaFotos];
             const novaPista = { id: editPistaIndex !== null ? pistasMestre[editPistaIndex].id : 'pista_' + Date.now(), titulo: titulo, n: titulo, foto: fotosFinal.length > 0 ? fotosFinal[0] : '', img: fotosFinal.length > 0 ? fotosFinal[0] : '', fotos: fotosFinal, imgs: fotosFinal, desc: desc, d: desc };
             
+            let backupPistas = [...pistasMestre];
             if(editPistaIndex !== null) { pistasMestre[editPistaIndex] = novaPista; } else { pistasMestre.push(novaPista); }
             
-            localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
-            salvarMestreNoFirebase(); renderizarPistas(); fecharModalPista();
+            try {
+                localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
+                salvarMestreNoFirebase(); 
+                renderizarPistas(); 
+                fecharModalPista();
+            } catch (error) {
+                pistasMestre = backupPistas; 
+                console.error(error);
+                alert("❌ ERRO: A imagem adicionada é demasiado pesada!\n\nO banco de dados rejeitou o limite de memória. O ideal é hospedares a imagem num servidor (como o Discord ou Imgur) e colares o URL no campo acima em vez de enviares do PC.");
+            }
         }
 
         function renderizarPistas() {
