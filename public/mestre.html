@@ -632,10 +632,19 @@
             const imgEl = card.querySelector('.player-img');
             const nomeEl = card.querySelector('.player-name');
 
-            if (imgEl && dados.foto && imgEl.src !== dados.foto) {
-                imgEl.src = dados.foto;
+            // === MECÂNICA DE FOTO DO OVERLAY (Transição suave) ===
+            if (imgEl && dados.foto && imgEl.getAttribute('src') !== dados.foto) {
+                imgEl.style.transition = 'opacity 0.3s ease-in-out, border-color 0.3s, box-shadow 0.3s';
+                imgEl.style.opacity = 0; 
+                setTimeout(() => {
+                    imgEl.src = dados.foto; 
+                    imgEl.setAttribute('src', dados.foto);
+                    imgEl.onload = () => imgEl.style.opacity = 1; 
+                    setTimeout(() => imgEl.style.opacity = 1, 100);
+                }, 300);
             }
 
+            // === MECÂNICA DE BORDAS DO MESTRE (Mantida e otimizada) ===
             let stBorderColor = 'var(--accent-blue)';
             let stBoxShadow = 'none';
             if (dados.status && imgEl) {
@@ -658,6 +667,7 @@
                 nexDefEls[1].innerText = `${dados.defesa || 10}`;
             }
 
+            // === MECÂNICA DE ATUALIZAÇÃO DE VIDA DIRETA ===
             const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
             const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
             const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
@@ -672,6 +682,7 @@
             const maxSani = card.querySelector('.max-sani');
             const maxPe = card.querySelector('.max-pe');
 
+            // Atualiza os inputs instantaneamente sem remover o foco de quem estiver a escrever
             if(iVida && document.activeElement !== iVida) iVida.value = vA;
             if(iSani && document.activeElement !== iSani) iSani.value = sA;
             if(iPe && document.activeElement !== iPe) iPe.value = pA;
