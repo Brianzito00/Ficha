@@ -11,56 +11,22 @@
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
         
-        :root {
-            --bg-body: #121214; 
-            --bg-card: rgba(32, 32, 36, 0.85);
-            --border-color: rgba(50, 50, 56, 0.8); 
-            --text-primary: #e1e1e6; 
-            --text-secondary: #a8a8b3;
-            --accent-blue: #00b0ff; 
-            --accent-yellow: #ffcf33; 
-            --accent-green: #00e676; 
-            --accent-red: #e53935;
-            --accent-purple: #b82bf2;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif; 
-            background-color: var(--bg-body);
-            background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover; 
-            background-attachment: fixed; 
-            background-position: center; 
-            color: var(--text-primary);
-            margin: 0; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            box-sizing: border-box;
-        }
-
+        :root { --bg-body: #121214; --bg-card: rgba(32, 32, 36, 0.85); --border-color: rgba(50, 50, 56, 0.8); --text-primary: #e1e1e6; --text-secondary: #a8a8b3; --accent-blue: #00b0ff; --accent-yellow: #ffcf33; --accent-green: #00e676; --accent-red: #e53935; --accent-purple: #b82bf2; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg'); background-size: cover; background-attachment: fixed; background-position: center; color: var(--text-primary); margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        
-        /* BARRA DO TOPO */
         .mestre-top-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
         .code-input { padding: 8px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.8em; width: 150px; margin-left: 20px; }
         .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .btn-add:hover { filter: brightness(1.2); transform: scale(1.02); }
         .btn-remove-global { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-remove-global:hover { background: var(--accent-red); color: white; }
-
-        /* ABAS */
         .tabs-container { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.3s; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); border-bottom: none; flex: 1; text-align: center; }
         .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); transform: translateY(-2px); }
         .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1); }
-
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* JOGADORES */
         .players-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
         .player-card { background: linear-gradient(145deg, rgba(30,30,35,0.95), rgba(15,15,18,0.95)); border: 1px solid #333; border-top: 4px solid var(--accent-blue); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; transition: 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.8); overflow: hidden; }
         .player-card::before { content: ''; position: absolute; top: 0; right: 0; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; z-index: 1; }
@@ -75,12 +41,8 @@
         .stat-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); z-index: 2; }
         .stat-label { font-size: 0.75em; font-weight: 900; letter-spacing: 1px; }
         .stat-input { width: 35px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0; transition: color 0.3s ease; }
-
-        /* OUTRAS GRIDS */
         .monsters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
         .catalogo-grid-view, #pistas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; align-content: flex-start; padding-right: 5px; }
-
-        /* MONSTROS CARDS */
         .monster-card { background: linear-gradient(180deg, rgba(32,32,36,0.95) 0%, rgba(18,18,20,0.95) 100%); border: 2px solid #333; border-top: 4px solid var(--accent-red); box-shadow: 0 10px 30px rgba(0,0,0,0.8); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
         .monster-card:hover { transform: translateY(-2px); border-color: var(--accent-red); box-shadow: 0 15px 40px rgba(229,57,53,0.3); }
         .monster-header-info { display: flex; flex-direction: column; flex: 1; justify-content: center; min-width: 0; }
@@ -95,16 +57,12 @@
         .monster-power-card { background: rgba(184,43,242,0.05); border-left: 4px solid var(--accent-purple); padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .btn-roll { width: 100%; margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.4); color: var(--text-secondary); border: 1px solid #444; border-radius: 6px; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; cursor: pointer; transition: 0.2s; z-index: 2; }
         .btn-roll:hover { color: white; background: rgba(255,255,255,0.05); }
-
-        /* LOG DE ROLAGENS */
         .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
         .log-title { background: rgba(0,0,0,0.5); padding: 15px; text-align: center; font-weight: bold; color: var(--accent-green); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .log-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .log-item { background: rgba(18, 18, 20, 0.9); border: 1px solid #333; padding: 10px; border-radius: 8px; font-size: 0.9em; animation: slideInUp 0.3s ease-out; }
         .log-item .player-name { font-size: 0.9em; color: var(--accent-blue); margin-bottom: 5px; }
         .log-item .roll-result { font-size: 1.2em; font-weight: 900; text-align: center; margin: 5px 0; }
-
-        /* MODAIS GERAIS */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
         .modal-content { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 25px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.9); box-sizing: border-box; }
         .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
@@ -112,28 +70,20 @@
         .monster-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; box-sizing: border-box; width: 100%; transition: 0.2s; }
         .monster-input:focus { border-color: var(--accent-blue); outline: none;}
         .dynamic-row { display: flex; gap: 5px; margin-bottom: 5px; flex-wrap: wrap; }
-        
-        /* PISTA CARD NO MESTRE */
         .pista-card { background: rgba(18,18,20,0.8); border: 1px solid rgba(255,207,51,0.3); border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
         .pista-card:hover { transform: scale(1.02); background: rgba(255,207,51,0.1); box-shadow: 0 0 15px rgba(255,207,51,0.3); border-color: var(--accent-blue); }
-
-        /* DADOS (POPUP) */
         .popup-box-dice { position: relative; width: 90%; max-width: 600px; height: 400px; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #000; border: 4px solid var(--accent-yellow); border-radius: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; text-align: center; }
         .popup-box-dice::after { content: ''; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.3); z-index: 1; }
         .popup-content { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: none; flex-direction: column; justify-content: center; align-items: center; animation: fadeInResult 0.5s forwards; text-align: center; }
         .popup-number { font-family: 'Permanent Marker', cursive; font-size: 8em; font-weight: 900; color: white; text-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; text-align: center; width: 100%; line-height: 1; margin: 0; padding: 0; }
         .popup-res { font-family: 'Permanent Marker', cursive; font-size: 2.2em; line-height: 1.1; margin: 0; margin-top: 5px; text-transform: uppercase; text-shadow: 2px 2px 4px #000; max-height: 180px; overflow-y: auto; padding: 0 10px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
         @keyframes shakeCrit { 0%, 100% { transform: translate(0,0) rotate(0); } 20% { transform: translate(-3px, 0px) rotate(2deg); } 40% { transform: translate(1px, -1px) rotate(-2deg); } 60% { transform: translate(-3px, 1px) rotate(2deg); } 80% { transform: translate(-1px, -1px) rotate(-2deg); } }
-        
         .attr-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; } 
         .skill-group { display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;}
         .skill-group label { display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary); }
-
         #iniciativa-board, #catalogo-board, #rmestre-board, #pistas-mestre-board, #monsters-board, #roteiro-board, #mapas-board { display: none; flex-direction: column; height: 100%; overflow: hidden; }
         .ini-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .ini-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
-
-        /* ROTEIROS */
         .roteiro-layout { display: flex; gap: 20px; height: calc(100% - 45px); overflow: hidden; }
         .roteiro-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border-color); padding-right: 15px; overflow-y: auto; flex-shrink: 0; }
         .roteiro-sidebar-right { width: 250px; display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px; overflow-y: auto; flex-shrink: 0; }
@@ -146,8 +96,6 @@
         .roteiro-titulo-input:focus { border-color: var(--accent-yellow); }
         .roteiro-textarea { flex: 1; background: rgba(12, 12, 14, 0.9); border: 1px solid var(--border-color); color: var(--text-primary); padding: 20px; font-family: 'Roboto', sans-serif; font-size: 1.1em; border-radius: 8px; resize: none; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); line-height: 1.6; }
         .roteiro-textarea:focus { border-color: var(--accent-blue); }
-
-        /* MAPAS */
         .map-list { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; flex-shrink: 0; }
         .map-btn { background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s; display: flex; gap: 10px; align-items: center; }
         .map-btn.active { border-color: var(--accent-blue); background: rgba(0, 176, 255, 0.15); color: var(--accent-blue); }
@@ -163,23 +111,7 @@
         .map-tooltip p { margin: 0; font-size: 0.9em; color: #ddd; line-height: 1.4; white-space: pre-wrap; }
 
         @media (max-width: 900px) { .players-container, .monsters-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) {
-            body { height: auto; overflow-y: auto; padding: 10px; }
-            .content-wrapper { flex-direction: column; height: auto; overflow: visible; }
-            .left-panel { overflow: visible; }
-            .players-container, .monsters-grid, .catalogo-grid-view, #pistas-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; }
-            .log-container { height: 400px; margin-top: 10px; min-width: 100%; }
-            .tab-btn { border-radius: 8px; margin-bottom: 5px; }
-            .popup-box-dice { height: 300px; }
-            .popup-number { font-size: 6em; }
-            .popup-res { font-size: 1.5em; }
-            .attr-grid { grid-template-columns: 1fr; } 
-            .roteiro-layout { flex-direction: column; height: auto; }
-            .roteiro-sidebar, .roteiro-sidebar-right { width: 100%; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; border:none; padding:0; margin-bottom:10px;}
-            #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;}
-            .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
-            .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; }
-        }
+        @media (max-width: 768px) { body { height: auto; overflow-y: auto; padding: 10px; } .content-wrapper { flex-direction: column; height: auto; overflow: visible; } .left-panel { overflow: visible; } .players-container, .monsters-grid, .catalogo-grid-view, #pistas-grid { grid-template-columns: 1fr; overflow-y: visible; padding-right: 0; } .log-container { height: 400px; margin-top: 10px; min-width: 100%; } .tab-btn { border-radius: 8px; margin-bottom: 5px; } .popup-box-dice { height: 300px; } .popup-number { font-size: 6em; } .popup-res { font-size: 1.5em; } .attr-grid { grid-template-columns: 1fr; } .roteiro-layout { flex-direction: column; height: auto; } .roteiro-sidebar, .roteiro-sidebar-right { width: 100%; flex-direction: row; overflow-x: auto; flex-wrap: nowrap; border:none; padding:0; margin-bottom:10px;} #roteiro-list, #descricao-list { flex-direction: row !important; display: flex; overflow-x: auto; flex-wrap: nowrap; gap: 8px; width: 100%;} .session-btn { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; } .roteiro-editor { overflow-y: visible; height: 350px; margin: 15px 0; } }
     </style>
 </head>
 <body>
@@ -190,9 +122,7 @@
             <input type="text" id="add-code-input" class="code-input" placeholder="Login (Ex: JOAO123)" maxlength="30">
             <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR NA MESA</button>
         </div>
-        
         <div style="flex: 1;"></div>
-
         <div style="display: flex; gap: 10px; align-items: center;">
             <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow);">
                 <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
@@ -355,10 +285,7 @@
             { n: 'Pistola', w: 1, h: 1, type: 'armadisp', dmg: '1d10', crit: '18/x2', range: 'Curto', ammo: 'Curta', cap: 15, skill: 'Pontaria' },
             { n: 'Revólver', w: 1, h: 1, type: 'armadisp', dmg: '2d6', crit: '19/x3', range: 'Curto', ammo: 'Curta', cap: 6, skill: 'Pontaria' },
             { n: 'Fuzil de Assalto', w: 2, h: 1, type: 'armadisp', dmg: '2d10', crit: '19/x3', range: 'Médio', ammo: 'Longa', cap: 30, skill: 'Pontaria' },
-            { n: 'Espingarda', w: 2, h: 1, type: 'armadisp', dmg: '4d6', crit: '20/x3', range: 'Curto', ammo: 'Pesada', cap: 2, skill: 'Pontaria' },
-            { n: 'Balas Curtas', w: 1, h: 1, type: 'municao', ammoType: 'Curta' },
-            { n: 'Balas Longas', w: 1, h: 1, type: 'municao', ammoType: 'Longa' },
-            { n: 'Cartuchos Pesados', w: 1, h: 1, type: 'municao', ammoType: 'Pesada' }
+            { n: 'Espingarda', w: 2, h: 1, type: 'armadisp', dmg: '4d6', crit: '20/x3', range: 'Curto', ammo: 'Pesada', cap: 2, skill: 'Pontaria' }
         ];
 
         let defaultItens = defaultItensRaw.map((it, idx) => {
@@ -373,10 +300,7 @@
             {id:'r_def_2',n:'Decadência',circ:'1º',el:'Morte',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Fortitude reduz à metade',descGeral:'Causa 2d8+2 de dano de Morte.',descDisc:'Causa 4d8+4.',descVerd:'Causa 6d8+6.',visivel:true,img:''},
             {id:'r_def_3',n:'Amaldiçoar Arma',circ:'1º',el:'Qualquer',ex:'Padrão',alc:'Toque',alv:'1 arma',dur:'Cena',res:'Nenhuma',descGeral:'A arma causa +1d6 de dano do elemento escolhido.',descDisc:'Causa +2d6 de dano.',descVerd:'Causa +3d6 de dano.',visivel:true,img:''},
             {id:'r_def_4',n:'Eletrocussão',circ:'1º',el:'Energia',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Instantânea',res:'Reflexos reduz à metade',descGeral:'Causa 3d6 de dano de Energia.',descDisc:'Causa 5d6.',descVerd:'Causa 7d6 e atordoa por 1 rodada.',visivel:true,img:''},
-            {id:'r_def_5',n:'Compreensão Paranormal',circ:'1º',el:'Conhecimento',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Compreende qualquer idioma e recebe +5 em Investigação.',descDisc:'O bônus aumenta para +10.',descVerd:'-',visivel:true,img:''},
-            {id:'r_def_6',n:'Tela de Ruído',circ:'2º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Ganha 30 PV temporários contra o próximo ataque.',descDisc:'Ganha 50 PV temporários.',descVerd:'Ganha 70 PV temporários.',visivel:true,img:''},
-            {id:'r_def_7',n:'Descarnar',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Instantânea',res:'Fortitude reduz à metade',descGeral:'Causa 6d8 de dano de Sangue.',descDisc:'Causa 8d8.',descVerd:'Causa 10d8.',visivel:true,img:''},
-            {id:'r_def_8',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 num teste.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''}
+            {id:'r_def_5',n:'Compreensão Paranormal',circ:'1º',el:'Conhecimento',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Compreende qualquer idioma e recebe +5 em Investigação.',descDisc:'O bônus aumenta para +10.',descVerd:'-',visivel:true,img:''}
         ];
 
         if (!catalogoMestre || catalogoMestre.length === 0) { catalogoMestre = defaultItens; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); }
@@ -456,28 +380,56 @@
 
             const gerirAtualizacao = (dados) => {
                 const cod = (dados.codigo || "").toUpperCase();
-                if (!cod || !listaJogadores.includes(cod)) return;
-
-                if (!dataJogadores[cod]) dataJogadores[cod] = {};
-                if (dados.fullData) dataJogadores[cod].fullData = dados.fullData;
-
-                dataJogadores[cod].nome = dados.nome || dataJogadores[cod].fullData?.info?.char_nome || cod;
-                dataJogadores[cod].foto = dados.foto || dataJogadores[cod].fullData?.info?.char_img || 'https://via.placeholder.com/70';
-                dataJogadores[cod].nex = dados.nex !== undefined ? dados.nex : (dataJogadores[cod].fullData?.info?.char_nex || 0);
-                dataJogadores[cod].defesa = dados.defesa !== undefined ? dados.defesa : (dataJogadores[cod].fullData?.defense || 10);
                 
-                if (dados.vida_atual !== undefined) dataJogadores[cod].vida = dados.vida_atual;
-                if (dados.sani_atual !== undefined) dataJogadores[cod].sani = dados.sani_atual;
-                if (dados.pe_atual !== undefined) dataJogadores[cod].pe = dados.pe_atual;
-                if (dados.status) dataJogadores[cod].status = dados.status;
+                // Trata o caso do jogador enviar o código com a campanha acoplada (ex: JOAO123_DEMO)
+                let cleanCod = cod;
+                if (cod.includes('_')) cleanCod = cod.split('_')[0];
+                
+                if (!cleanCod || !listaJogadores.includes(cleanCod)) return;
+
+                if (!dataJogadores[cleanCod]) dataJogadores[cleanCod] = {};
+                if (dados.fullData) dataJogadores[cleanCod].fullData = dados.fullData;
+
+                // Lê de 'vida_atual' OU 'status.vida_atual' (dependendo da versão da Ficha do Jogador)
+                let v_in = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status && dados.status.vida_atual !== undefined ? dados.status.vida_atual : undefined);
+                let s_in = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status && dados.status.sani_atual !== undefined ? dados.status.sani_atual : undefined);
+                let p_in = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status && dados.status.pe_atual !== undefined ? dados.status.pe_atual : undefined);
+
+                dataJogadores[cleanCod].nome = dados.nome || dataJogadores[cleanCod].fullData?.info?.char_nome || cleanCod;
+                dataJogadores[cleanCod].foto = dados.foto || dataJogadores[cleanCod].fullData?.info?.char_img || 'https://via.placeholder.com/70';
+                dataJogadores[cleanCod].nex = dados.nex !== undefined ? dados.nex : (dataJogadores[cleanCod].fullData?.info?.char_nex || 0);
+                dataJogadores[cleanCod].defesa = dados.defesa !== undefined ? dados.defesa : (dataJogadores[cleanCod].fullData?.defense || 10);
+                
+                if (v_in !== undefined) { 
+                    dataJogadores[cleanCod].vida = v_in; 
+                    if(dataJogadores[cleanCod].fullData && dataJogadores[cleanCod].fullData.info) dataJogadores[cleanCod].fullData.info.vida_atual = v_in;
+                }
+                if (s_in !== undefined) { 
+                    dataJogadores[cleanCod].sani = s_in; 
+                    if(dataJogadores[cleanCod].fullData && dataJogadores[cleanCod].fullData.info) dataJogadores[cleanCod].fullData.info.sani_atual = s_in;
+                }
+                if (p_in !== undefined) { 
+                    dataJogadores[cleanCod].pe = p_in; 
+                    if(dataJogadores[cleanCod].fullData && dataJogadores[cleanCod].fullData.info) dataJogadores[cleanCod].fullData.info.pe_atual = p_in;
+                }
+                if (dados.status) { 
+                    dataJogadores[cleanCod].status = dados.status; 
+                    if(dataJogadores[cleanCod].fullData) dataJogadores[cleanCod].fullData.charStatus = dados.status;
+                }
 
                 salvarMemoria();
 
-                const card = document.getElementById(`card-${cod}`);
-                if (!card) { renderizar(); } else { atualizarDOM(cod); }
+                const card = document.getElementById(`card-${cleanCod}`);
+                if (!card) { renderizar(); } else { atualizarDOM(cleanCod); }
 
+                // ESPELHO ABSOLUTO: Manda o pacote leve para o Iframe em vez de reescrever tudo
                 const iframe = document.getElementById('iframe-ficha');
-                if (iframe && iframe.src.includes(cod) && dataJogadores[cod].fullData) { iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: dataJogadores[cod].fullData}, '*'); }
+                if (iframe && iframe.src.includes(cleanCod)) { 
+                    iframe.contentWindow.postMessage({
+                        tipo: 'fast_sync_mirror', 
+                        dados: { vida_atual: v_in, sani_atual: s_in, pe_atual: p_in, status: dados.status, foto: dataJogadores[cleanCod].foto }
+                    }, '*'); 
+                }
             };
 
             socket.on('status_change', gerirAtualizacao);
@@ -540,10 +492,15 @@
 
         function alterarMestre(cod, tipo, valor) {
             if (!dataJogadores[cod]) return; dataJogadores[cod][tipo] = (parseInt(dataJogadores[cod][tipo]) || 0) + valor;
+            
+            // Força a atualização do FullData
+            if (dataJogadores[cod].fullData && dataJogadores[cod].fullData.info) {
+                dataJogadores[cod].fullData.info[tipo + '_atual'] = dataJogadores[cod][tipo];
+            }
+            
             atualizarDOM(cod);
             if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: cod, status: { vida_atual: dataJogadores[cod].vida, sani_atual: dataJogadores[cod].sani, pe_atual: dataJogadores[cod].pe } }); }
             if (dataJogadores[cod].fullData) {
-                dataJogadores[cod].fullData.info[tipo + '_atual'] = dataJogadores[cod][tipo];
                 fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: cod + '_' + campanhaAtiva, fichaData: dataJogadores[cod].fullData }) }).catch(()=>{});
             }
         }
@@ -573,9 +530,9 @@
                         <button class="btn-remove-card" onclick="removerJogador('${cod}')">X</button>
                         <div class="player-header"><img id="foto-${cod}" src="${d.foto}" class="player-img"><div style="flex:1; min-width:0;"><h3 class="player-name">${d.nome}</h3><div style="font-size:0.7em; color:gray; font-family:monospace; margin-bottom:5px;">@${cod}</div><div style="display:flex; gap:5px;"><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">NEX <b style="color:#ffcf33;">${d.nex}%</b></span><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">DEF <b style="color:white;">${d.defesa}</b></span></div></div></div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input input-vida" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input input-sani" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input input-pe" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input input-vida" value="${d.vida}" onchange="alterarMestre('${cod}', 'vida', this.value - ${d.vida})"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input input-sani" value="${d.sani}" onchange="alterarMestre('${cod}', 'sani', this.value - ${d.sani})"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input input-pe" value="${d.pe}" onchange="alterarMestre('${cod}', 'pe', this.value - ${d.pe})"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
                         </div>
                         <button class="btn-roll" style="margin-top: 5px;" onclick="abrirFicha('${cod}')">🔍 INSPECIONAR FICHA</button>
                     </div>
