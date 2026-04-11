@@ -2,7 +2,7 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escudo do Mestre - Completo</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
@@ -25,14 +25,15 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Roboto', sans-serif; 
             background-color: var(--bg-body);
             background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg');
-            background-size: cover;
-            background-attachment: fixed;
+            background-size: cover; 
+            background-attachment: fixed; 
+            background-position: center; 
             color: var(--text-primary);
-            margin: 0;
-            padding: 20px;
+            margin: 0; 
+            padding: 20px; 
             display: flex; 
             flex-direction: column; 
             height: 100vh; 
@@ -42,41 +43,17 @@
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        /* BARRA DO TOPO (Base do user) */
-        .top-bar {
-            background: rgba(32, 32, 36, 0.85);
-            border: 1px solid rgba(50, 50, 56, 0.8);
-            padding: 15px 25px;
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(8px);
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
+        /* BARRA DO TOPO */
+        .mestre-top-bar { 
+            background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; 
+            border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; 
+            align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
         }
-
-        .top-bar input {
-            padding: 10px;
-            background: rgba(18,18,20,0.8);
-            border: 1px solid rgba(50,50,56,0.8);
-            color: white;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-
-        .top-bar button {
-            background: #00e676;
-            border: none;
-            color: black;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .top-bar button:hover { filter: brightness(1.2); }
+        .code-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.9em; width: 200px; margin-left: 20px; }
+        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-add:hover { filter: brightness(1.2); transform: scale(1.02); }
+        .btn-remove-global { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-remove-global:hover { background: var(--accent-red); color: white; }
 
         /* ABAS */
         .tabs-container { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -87,40 +64,21 @@
         .content-wrapper { display: flex; gap: 20px; flex: 1; overflow: hidden; min-height: 0; }
         .left-panel { flex: 3; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* JOGADORES (Base do user) */
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-            align-content: flex-start; 
-            overflow-y: auto; 
-            padding-right: 10px; 
-            flex: 1;
-        }
-
-        .player-card {
-            background: linear-gradient(145deg, rgba(30,30,35,0.95), rgba(15,15,18,0.95));
-            border: 1px solid #333;
-            border-top: 4px solid #00b0ff;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            position: relative;
-        }
-
-        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; }
-        .player-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #00b0ff; background: #000; transition: opacity 0.3s, border-color 0.3s, box-shadow 0.3s; flex-shrink: 0; }
+        /* JOGADORES */
+        .players-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
+        .player-card { background: linear-gradient(145deg, rgba(30,30,35,0.95), rgba(15,15,18,0.95)); border: 1px solid #333; border-top: 4px solid var(--accent-blue); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; transition: 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.8); overflow: hidden; }
+        .player-card::before { content: ''; position: absolute; top: 0; right: 0; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); pointer-events: none; z-index: 1; }
+        .player-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border-color: #555; }
+        .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; z-index: 2; }
+        .player-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-blue); background: #000; flex-shrink: 0; transition: opacity 0.3s ease-in-out, border-color 0.3s, box-shadow 0.3s; }
         .player-name { font-size: 1.3em; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .stat-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-remove-card { position: absolute; top: 8px; right: 8px; background: var(--accent-red); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s; }
+        .btn-remove-card:hover { filter: brightness(1.2); transform: scale(1.1); }
+        .btn-ctrl { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; width: 24px; height: 24px; font-size: 0.9em; }
+        .btn-ctrl:hover { filter: brightness(1.5); border-color: white; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); z-index: 2; }
         .stat-label { font-size: 0.75em; font-weight: 900; letter-spacing: 1px; }
-        .stat-input { width: 40px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1.1em; outline: none; transition: color 0.3s; }
-
-        .btn-ctrl { background: rgba(255,255,255,0.1); color: white; border: 1px solid #444; border-radius: 4px; width: 26px; height: 26px; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; }
-        .btn-remove-card { position: absolute; top: 10px; right: 10px; background: #e53935; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; z-index: 10; display: flex; justify-content: center; align-items: center; font-size: 0.8em; font-weight: bold;}
+        .stat-input { width: 35px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0; transition: color 0.3s ease; }
 
         /* OUTRAS GRIDS */
         .monsters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; }
@@ -129,6 +87,7 @@
         /* MONSTROS CARDS */
         .monster-card { background: linear-gradient(180deg, rgba(32,32,36,0.95) 0%, rgba(18,18,20,0.95) 100%); border: 2px solid #333; border-top: 4px solid var(--accent-red); box-shadow: 0 10px 30px rgba(0,0,0,0.8); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
         .monster-card:hover { transform: translateY(-2px); border-color: var(--accent-red); box-shadow: 0 15px 40px rgba(229,57,53,0.3); }
+        .monster-header-info { display: flex; flex-direction: column; flex: 1; justify-content: center; min-width: 0; }
         .monster-section-title { font-size: 0.8em; font-weight: 900; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin: 15px 0 5px 0; }
         .monster-attack-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(229,57,53,0.3); border-radius: 8px; padding: 12px; margin-bottom: 10px; transition: 0.2s; }
         .monster-attack-card:hover { border-color: rgba(229,57,53,0.6); background: rgba(229,57,53,0.08); }
@@ -138,11 +97,8 @@
         .btn-dmg { background: rgba(229,57,53,0.1); color: var(--accent-red); border: 1px solid rgba(229,57,53,0.3); }
         .btn-dmg:hover { background: var(--accent-red); color: white; }
         .monster-power-card { background: rgba(184,43,242,0.05); border-left: 4px solid var(--accent-purple); padding: 12px; border-radius: 0 8px 8px 0; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        .btn-roll { background: var(--accent-yellow); color: #000; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.85em; margin-top: 5px; width: 100%; box-sizing: border-box; text-transform: uppercase; }
-        .btn-roll:hover { filter: brightness(1.2); transform: scale(1.02);}
-        .btn-add-mestre { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .btn-add-mestre:hover { filter: brightness(1.2); }
+        .btn-roll { width: 100%; margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.4); color: var(--text-secondary); border: 1px solid #444; border-radius: 6px; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; cursor: pointer; transition: 0.2s; z-index: 2; }
+        .btn-roll:hover { color: white; background: rgba(255,255,255,0.05); }
 
         /* LOG DE ROLAGENS */
         .log-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(8px); min-width: 300px; }
@@ -232,15 +188,21 @@
 </head>
 <body>
 
-    <div class="top-bar">
-        <div style="display:flex; align-items:center; gap:15px;">
-            <span style="font-weight: 900; color: #e53935; font-size: 1.4em;">🛡️ ESCUDO DO MESTRE</span>
-            <input type="text" id="add-code" placeholder="Login (Ex: JOAO123)">
-            <button onclick="adicionarManual()">+ ADICIONAR NA MESA</button>
+    <div class="mestre-top-bar">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-weight: 900; color: var(--accent-red); font-size: 1.4em; letter-spacing: 1px;">🛡️ ESCUDO DO MESTRE</span>
+            <input type="text" id="add-code-input" class="code-input" placeholder="Login (Ex: JOAO123)" maxlength="30">
+            <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR NA MESA</button>
         </div>
+        
+        <div style="flex: 1;"></div>
+
         <div style="display: flex; gap: 10px; align-items: center;">
-            <button style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-            <button style="background: #e53935; color: white;" onclick="sair()">SAIR DA MESA</button>
+            <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow);">
+                <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
+            </div>
+            <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
+            <button class="btn-remove-global" onclick="fazerLogout()">SAIR DA MESA</button>
         </div>
     </div>
 
@@ -258,20 +220,20 @@
     <div class="content-wrapper active" id="mestre-content-wrapper">
         <div class="left-panel">
             
-            <div id="players-board" class="players-grid fade-in"></div>
+            <div id="players-board" class="players-container fade-in"></div>
 
             <div id="monsters-board" class="fade-in">
                 <div style="margin-bottom: 20px;">
-                    <button class="btn-add-mestre" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
+                    <button class="btn-add" style="background: var(--accent-red); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalCriatura()">+ CRIAR NOVA CRIATURA</button>
                 </div>
                 <div class="monsters-grid" id="monsters-grid"></div>
             </div>
 
             <div id="iniciativa-board" class="fade-in">
                 <div class="ini-controls">
-                    <button class="btn-add-mestre" style="flex: 1; background: var(--accent-red); color: white; padding: 10px 5px; font-size: 0.9em;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
-                    <button class="btn-add-mestre" style="flex: 2; font-size: 1.1em; padding: 10px 5px;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
-                    <button class="btn-add-mestre" style="flex: 1; background: var(--accent-blue); color: black; padding: 10px 5px; font-size: 0.9em;" onclick="passarTurno()">⏭️ PRÓXIMO</button>
+                    <button class="btn-add" style="flex: 1; background: var(--accent-red); color: white; padding: 10px 5px; font-size: 0.9em;" onclick="limparIniciativa()">🗑️ LIMPAR</button>
+                    <button class="btn-add" style="flex: 2; font-size: 1.1em; padding: 10px 5px;" onclick="rolarMonstrosIniciativa()">🎲 ROLAR MONSTROS</button>
+                    <button class="btn-add" style="flex: 1; background: var(--accent-blue); color: black; padding: 10px 5px; font-size: 0.9em;" onclick="passarTurno()">⏭️ PRÓXIMO</button>
                 </div>
                 <div class="ini-list-container" id="iniciativa-list-container"></div>
             </div>
@@ -282,9 +244,9 @@
                     <span id="roteiro-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">A aguardar...</span>
                 </div>
                 <div class="roteiro-layout">
-                    <div class="roteiro-sidebar"><button class="btn-add-mestre" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-blue); color: black;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button><div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div></div>
+                    <div class="roteiro-sidebar"><button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-blue); color: black;" onclick="adicionarRoteiro()">+ NOVA SESSÃO</button><div id="roteiro-list" style="display: flex; flex-direction: column; gap: 8px;"></div></div>
                     <div class="roteiro-editor"><input type="text" id="roteiro-titulo-atual" class="roteiro-titulo-input" placeholder="Nomeie a sua anotação aqui..."><textarea id="roteiro-text" class="roteiro-textarea" placeholder="O editor selecionado aparecerá aqui..."></textarea></div>
-                    <div class="roteiro-sidebar-right"><button class="btn-add-mestre" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-purple); color: white;" onclick="adicionarDescricao()">+ NOVO OBJETO / CENÁRIO</button><div id="descricao-list" style="display: flex; flex-direction: column; gap: 8px;"></div></div>
+                    <div class="roteiro-sidebar-right"><button class="btn-add" style="width: 100%; margin-bottom: 5px; flex-shrink: 0; background: var(--accent-purple); color: white;" onclick="adicionarDescricao()">+ NOVO OBJETO / CENÁRIO</button><div id="descricao-list" style="display: flex; flex-direction: column; gap: 8px;"></div></div>
                 </div>
             </div>
 
@@ -294,10 +256,10 @@
                     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <input type="text" id="novo-mapa-nome" class="monster-input" placeholder="Nome do Mapa" style="width: 150px; padding: 8px;">
                         <input type="text" id="novo-mapa-url" class="monster-input" placeholder="URL da Imagem" style="width: 150px; padding: 8px;">
-                        <label class="btn-add-mestre" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">📂 DO PC<input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)"></label>
-                        <button class="btn-add-mestre" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
-                        <button class="btn-add-mestre" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); background: transparent; border: 1px solid var(--accent-blue);" onclick="resetarMapaZoom()">🔍 CENTRAR</button>
-                        <button class="btn-add-mestre" style="padding: 8px 15px; margin: 0; background: var(--accent-red); color: white;" onclick="apagarMapaAtual()">🗑️ APAGAR</button>
+                        <label class="btn-add" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">📂 DO PC<input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)"></label>
+                        <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
+                        <button class="btn-add" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); background: transparent; border: 1px solid var(--accent-blue);" onclick="resetarMapaZoom()">🔍 CENTRAR</button>
+                        <button class="btn-add" style="padding: 8px 15px; margin: 0; background: var(--accent-red); color: white;" onclick="apagarMapaAtual()">🗑️ APAGAR</button>
                     </div>
                 </div>
                 <div class="map-list" id="map-list-container"></div>
@@ -309,10 +271,10 @@
 
             <div id="catalogo-board" class="fade-in">
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button class="btn-add-mestre" style="background: var(--accent-green); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('comum')">+ NOVO ITEM</button>
-                    <button class="btn-add-mestre" style="background: var(--accent-purple); color: white; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('municao')">+ NOVA MUNIÇÃO</button>
-                    <button class="btn-add-mestre" style="background: var(--accent-yellow); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armacc')">+ NOVA ARMA (CORPO)</button>
-                    <button class="btn-add-mestre" style="background: var(--accent-blue); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armadisp')">+ NOVA ARMA (DISPARO)</button>
+                    <button class="btn-add" style="background: var(--accent-green); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('comum')">+ NOVO ITEM</button>
+                    <button class="btn-add" style="background: var(--accent-purple); color: white; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('municao')">+ NOVA MUNIÇÃO</button>
+                    <button class="btn-add" style="background: var(--accent-yellow); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armacc')">+ NOVA ARMA (CORPO)</button>
+                    <button class="btn-add" style="background: var(--accent-blue); color: black; flex: 1; min-width: 150px; font-size: 1em;" onclick="abrirModalItemMestre('armadisp')">+ NOVA ARMA (DISPARO)</button>
                 </div>
                 <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 20px;">
                     <div><h3 style="color: var(--accent-green); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 0; text-transform: uppercase;">🎒 Itens & Munições</h3><div class="catalogo-grid-view" id="catalogo-grid-comum"></div></div>
@@ -322,7 +284,7 @@
             </div>
 
             <div id="rmestre-board" class="fade-in">
-                <div style="margin-bottom: 20px;"><button class="btn-add-mestre" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button></div>
+                <div style="margin-bottom: 20px;"><button class="btn-add" style="background: var(--accent-purple); color: white; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalRitualMestre()">+ CRIAR NOVO RITUAL NO CATÁLOGO</button></div>
                 <div style="flex: 1; overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 10px;">
                     <div id="rituais-mestre-1-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">1º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-1-body"></div></div>
                     <div id="rituais-mestre-2-container" style="display: none;"><h3 style="color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; font-size: 1em; text-transform: uppercase;">2º Círculo</h3><div class="catalogo-grid-view" id="rituais-mestre-2-body"></div></div>
@@ -332,7 +294,7 @@
             </div>
 
             <div id="pistas-mestre-board" class="fade-in">
-                <div style="margin-bottom: 20px;"><button class="btn-add-mestre" style="background: var(--accent-yellow); color: black; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalPista()">+ CRIAR NOVA PISTA (MESTRE)</button></div>
+                <div style="margin-bottom: 20px;"><button class="btn-add" style="background: var(--accent-yellow); color: black; width: 100%; font-size: 1.2em; padding: 15px;" onclick="abrirModalPista()">+ CRIAR NOVA PISTA (MESTRE)</button></div>
                 <div id="pistas-grid" class="catalogo-grid-view" style="overflow-y:auto; padding-right:10px;"></div>
             </div>
 
@@ -353,19 +315,18 @@
     
     <div id="popup-dice" class="modal-overlay" onclick="closeDice()" style="z-index: 10000;"><div class="popup-box-dice" onclick="event.stopPropagation()"><div id="popup-content" class="popup-content"><div id="popup-num" class="popup-number">00</div><div id="popup-res" class="popup-res">RESULTADO</div></div></div></div>
 
-    <div id="modal-item-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 500px;"><h2 id="modal-item-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Item</h2><div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Largura (X)</label><input type="number" id="mi-w" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:1;"><label>Altura (Y)</label><input type="number" id="mi-h" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:2;"><label>Tipo</label><select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;"><option value="comum">🎒 Comum</option><option value="municao">📦 Munição</option><option value="armacc">🗡️ Arma Corpo</option><option value="armadisp">🔫 Arma Disparo</option></select></div></div><div class="form-group"><label>Nome</label><input type="text" id="mi-nome" class="monster-input"></div><div class="form-group"><label>URL Foto (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;"><input type="checkbox" id="mi-visivel" checked style="width: 18px; height: 18px; cursor: pointer;"><label style="margin: 0; color: var(--text-secondary); font-size: 0.85em;">Visível aos Jogadores</label></div><div id="mi-campos-comum"><div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;"></textarea></div></div><div id="mi-campos-municao" style="display:none; margin-top:10px;"><div style="display:flex; gap:10px;"><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">TIPO MUNIÇÃO</label><select id="mi-ammo-type" class="monster-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">QTD (1-3)</label><input type="number" id="mi-ammo-qtd" class="monster-input" value="1" min="1" max="3"></div></div></div><div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;"><div class="form-group"><label>Ataques</label><input type="number" id="mi-atk" class="monster-input" value="1"></div><div class="form-group"><label>Dano</label><input type="text" id="mi-dano" class="monster-input" placeholder="Ex: 1d8+2"></div><div class="form-group"><label>Crítico</label><input type="text" id="mi-crit" class="monster-input" value="20/x2"></div><div class="form-group"><label>Alcance</label><input type="text" id="mi-alcance" class="monster-input" value="Curto"></div><div class="form-group"><label>Munição</label><select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div class="form-group"><label>Capacidade (Balas)</label><input type="number" id="mi-cap" class="monster-input" value="0"></div><div class="form-group"><label>Perícia</label><input type="text" id="mi-pericia" class="monster-input" value="Luta"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="background: #333; border: none; color: white;" onclick="document.getElementById('modal-item-mestre').style.display='none'">Cancelar</button><button class="btn-add-mestre" style="background: var(--accent-yellow);" onclick="salvarItemMestre()">Salvar</button></div></div></div>
+    <div id="modal-item-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 500px;"><h2 id="modal-item-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Item</h2><div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Largura (X)</label><input type="number" id="mi-w" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:1;"><label>Altura (Y)</label><input type="number" id="mi-h" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:2;"><label>Tipo</label><select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;"><option value="comum">🎒 Comum</option><option value="municao">📦 Munição</option><option value="armacc">🗡️ Arma Corpo</option><option value="armadisp">🔫 Arma Disparo</option></select></div></div><div class="form-group"><label>Nome</label><input type="text" id="mi-nome" class="monster-input"></div><div class="form-group"><label>URL Foto (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;"><input type="checkbox" id="mi-visivel" checked style="width: 18px; height: 18px; cursor: pointer;"><label style="margin: 0; color: var(--text-secondary); font-size: 0.85em;">Visível aos Jogadores</label></div><div id="mi-campos-comum"><div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;"></textarea></div></div><div id="mi-campos-municao" style="display:none; margin-top:10px;"><div style="display:flex; gap:10px;"><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">TIPO MUNIÇÃO</label><select id="mi-ammo-type" class="monster-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">QTD (1-3)</label><input type="number" id="mi-ammo-qtd" class="monster-input" value="1" min="1" max="3"></div></div></div><div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;"><div class="form-group"><label>Ataques</label><input type="number" id="mi-atk" class="monster-input" value="1"></div><div class="form-group"><label>Dano</label><input type="text" id="mi-dano" class="monster-input" placeholder="Ex: 1d8+2"></div><div class="form-group"><label>Crítico</label><input type="text" id="mi-crit" class="monster-input" value="20/x2"></div><div class="form-group"><label>Alcance</label><input type="text" id="mi-alcance" class="monster-input" value="Curto"></div><div class="form-group"><label>Munição</label><select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div class="form-group"><label>Capacidade (Balas)</label><input type="number" id="mi-cap" class="monster-input" value="0"></div><div class="form-group"><label>Perícia</label><input type="text" id="mi-pericia" class="monster-input" value="Luta"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="background: #333; border: none; color: white;" onclick="document.getElementById('modal-item-mestre').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow);" onclick="salvarItemMestre()">Salvar</button></div></div></div>
 
     <div id="modal-transfer-obj" class="modal-overlay" style="z-index: 10001;"><div class="modal-content" style="max-width: 600px; text-align: center;"><h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir</h2><p style="color: var(--text-secondary);">Clique no jogador para enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b>:</p><input type="hidden" id="transfer-obj-data"><input type="hidden" id="transfer-obj-type"><div id="transfer-player-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 5px;"></div><div style="display: flex; gap: 10px;"><button class="btn-remove-global" style="width: 100%; background: #333; border: none; color: white;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button></div></div></div>
 
-    <div id="modal-ritual-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 600px;"><h2 id="modal-ritual-title" style="color: var(--accent-purple); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Ritual</h2><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div class="form-group" style="grid-column: span 2;"><label>Nome do Ritual</label><input type="text" id="mr-name" class="monster-input"></div><div class="form-group"><label>Círculo</label><select id="mr-circ" class="monster-input" style="color: white; padding: 12px;"><option value="1º">1º</option><option value="2º">2º</option><option value="3º">3º</option><option value="4º">4º</option></select></div><div class="form-group"><label>Elemento</label><select id="mr-elem" class="monster-input" style="color: white; padding: 12px;"><option value="Conhecimento">Conhecimento</option><option value="Sangue">Sangue</option><option value="Energia">Energia</option><option value="Morte">Morte</option><option value="Medo">Medo</option><option value="Qualquer">Qualquer</option></select></div><div class="form-group"><label>Execução</label><input type="text" id="mr-exec" class="monster-input" value="Padrão"></div><div class="form-group"><label>Alcance</label><input type="text" id="mr-range" class="monster-input" value="Curto"></div><div class="form-group"><label>Alvo / Área</label><input type="text" id="mr-target" class="monster-input" value="1 Ser"></div><div class="form-group"><label>Duração</label><input type="text" id="mr-dur" class="monster-input" value="Instantânea"></div><div class="form-group"><label>Resistência</label><input type="text" id="mr-res" class="monster-input" value="Nenhuma"></div><div class="form-group"><label>URL da Imagem (Símbolo)</label><input type="text" id="mr-img" class="monster-input" placeholder="https://..."></div></div><div class="form-group" style="margin-top: 10px;"><label>Descrição (Normal)</label><textarea id="mr-desc-geral" class="monster-input" style="height: 60px; resize: none;"></textarea></div><div class="form-group"><label>Descrição (Discente)</label><textarea id="mr-desc-discente" class="monster-input" style="height: 40px; resize: none;"></textarea></div><div class="form-group"><label>Descrição (Verdadeiro)</label><textarea id="mr-desc-verdadeiro" class="monster-input" style="height: 40px; resize: none;"></textarea></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="document.getElementById('modal-ritual-mestre').style.display='none'">Cancelar</button><button class="btn-add-mestre" style="background: var(--accent-purple); color: white; flex: 2;" onclick="salvarRitualMestre()">Salvar Ritual</button></div></div></div>
+    <div id="modal-ritual-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 600px;"><h2 id="modal-ritual-title" style="color: var(--accent-purple); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Ritual</h2><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><div class="form-group" style="grid-column: span 2;"><label>Nome do Ritual</label><input type="text" id="mr-name" class="monster-input"></div><div class="form-group"><label>Círculo</label><select id="mr-circ" class="monster-input" style="color: white; padding: 12px;"><option value="1º">1º</option><option value="2º">2º</option><option value="3º">3º</option><option value="4º">4º</option></select></div><div class="form-group"><label>Elemento</label><select id="mr-elem" class="monster-input" style="color: white; padding: 12px;"><option value="Conhecimento">Conhecimento</option><option value="Sangue">Sangue</option><option value="Energia">Energia</option><option value="Morte">Morte</option><option value="Medo">Medo</option><option value="Qualquer">Qualquer</option></select></div><div class="form-group"><label>Execução</label><input type="text" id="mr-exec" class="monster-input" value="Padrão"></div><div class="form-group"><label>Alcance</label><input type="text" id="mr-range" class="monster-input" value="Curto"></div><div class="form-group"><label>Alvo / Área</label><input type="text" id="mr-target" class="monster-input" value="1 Ser"></div><div class="form-group"><label>Duração</label><input type="text" id="mr-dur" class="monster-input" value="Instantânea"></div><div class="form-group"><label>Resistência</label><input type="text" id="mr-res" class="monster-input" value="Nenhuma"></div><div class="form-group"><label>URL da Imagem (Símbolo)</label><input type="text" id="mr-img" class="monster-input" placeholder="https://..."></div></div><div class="form-group" style="margin-top: 10px;"><label>Descrição (Normal)</label><textarea id="mr-desc-geral" class="monster-input" style="height: 60px; resize: none;"></textarea></div><div class="form-group"><label>Descrição (Discente)</label><textarea id="mr-desc-discente" class="monster-input" style="height: 40px; resize: none;"></textarea></div><div class="form-group"><label>Descrição (Verdadeiro)</label><textarea id="mr-desc-verdadeiro" class="monster-input" style="height: 40px; resize: none;"></textarea></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="document.getElementById('modal-ritual-mestre').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-purple); color: white; flex: 2;" onclick="salvarRitualMestre()">Salvar Ritual</button></div></div></div>
 
-    <div id="modal-pin" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 400px;"><h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Pin</h2><div class="form-group"><label>Título</label><input type="text" id="pin-title" class="monster-input"></div><div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group"><label>Cor</label><select id="pin-color" class="monster-input" style="color: white; padding: 12px;"><option value="#e53935">🔴 Vermelho</option><option value="#00b0ff">🔵 Azul</option><option value="#ffcf33">🟡 Amarelo</option><option value="#00e676">🟢 Verde</option><option value="#b82bf2">🟣 Roxo</option></select></div><input type="hidden" id="pin-id-edit"><input type="hidden" id="pin-temp-x"><input type="hidden" id="pin-temp-y"><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;"><button class="btn-remove-global" id="btn-delete-pin" style="flex: 1; display: none;" onclick="apagarPin()">APAGAR</button><button class="btn-add-mestre" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPin()">GUARDAR PIN</button><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalPin()">Cancelar</button></div></div></div>
+    <div id="modal-pin" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 400px;"><h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Pin</h2><div class="form-group"><label>Título</label><input type="text" id="pin-title" class="monster-input"></div><div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group"><label>Cor</label><select id="pin-color" class="monster-input" style="color: white; padding: 12px;"><option value="#e53935">🔴 Vermelho</option><option value="#00b0ff">🔵 Azul</option><option value="#ffcf33">🟡 Amarelo</option><option value="#00e676">🟢 Verde</option><option value="#b82bf2">🟣 Roxo</option></select></div><input type="hidden" id="pin-id-edit"><input type="hidden" id="pin-temp-x"><input type="hidden" id="pin-temp-y"><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;"><button class="btn-remove-global" id="btn-delete-pin" style="flex: 1; display: none;" onclick="apagarPin()">APAGAR</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPin()">GUARDAR PIN</button><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalPin()">Cancelar</button></div></div></div>
     
-    <div id="modal-criatura" class="modal-overlay"><div class="modal-content" style="max-width: 750px;"><h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div><div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div></div><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div></div><div class="form-group"><label>Atributos Principais</label><div class="attr-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;"><div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div></div></div><div class="form-group"><label>Perícias Base</label><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;"><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalCriatura()">Cancelar</button><button class="btn-add-mestre" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button></div></div></div>
+    <div id="modal-criatura" class="modal-overlay"><div class="modal-content" style="max-width: 750px;"><h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div><div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div></div><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div></div><div class="form-group"><label>Atributos Principais</label><div class="attr-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;"><div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div></div></div><div class="form-group"><label>Perícias Base</label><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;"><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalCriatura()">Cancelar</button><button class="btn-add" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button></div></div></div>
     
     <div id="popup-pista" class="modal-overlay" onclick="closePista()"><div class="modal-content" style="width: 700px; max-width: 95%; padding: 30px;" onclick="event.stopPropagation()"><h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; font-size: 1.5em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">TITULO</h3><div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 400px; background: rgba(0,0,0,0.8); border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px solid var(--accent-blue); cursor: grab; touch-action: none;"><div id="pista-page-controls" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:15; display:flex; gap:15px; background:rgba(0,0,0,0.8); padding:5px 15px; border-radius:20px; border:1px solid var(--accent-yellow); align-items:center;"><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(-1)">⬅️</button><span id="pista-page-indicator" style="color:white; font-weight:bold; font-size:1em;">1 / 1</span><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(1)">➡️</button></div><img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;"><model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: transparent; outline: none;"></model-viewer><div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;"><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(0.2)">➕</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(-0.2)">➖</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="resetPistaZoom()">🔄</button></div></div><div id="pista-view-desc" style="color: #e1e1e6; font-size: 1.1em; line-height: 1.6; white-space: pre-wrap; background: rgba(18,18,20,0.9); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);"></div><button class="btn-remove-global" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; font-weight: bold; background: var(--accent-red); color: white; border: none; cursor: pointer;" onclick="closePista()">FECHAR PISTA</button></div></div>
-    
-    <div id="modal-pista" class="modal-overlay" onclick="fecharModalPista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Nova Pista</h2><div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input"></div><div class="form-group"><label>Descrição (Texto)</label><textarea id="pista-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);"><label style="color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">Imagens / Modelos 3D</label><div style="display: flex; gap: 10px; margin-bottom: 10px; margin-top: 5px;"><input type="text" id="pista-nova-foto" class="monster-input" placeholder="URL da Imagem ou .glb" style="flex: 2;"><button class="btn-add-mestre" style="flex: 1; padding: 10px; background: var(--accent-blue); color: black;" onclick="adicionarFotoPistaURL()">Adicionar</button></div><div style="text-align: center; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">OU</div><label class="btn-add-mestre" style="display: block; text-align: center; background: #444; color: white; padding: 10px; cursor: pointer; border-radius: 6px;">📂 Selecionar do PC<input type="file" accept="image/*,.glb,.gltf" style="display: none;" onchange="adicionarFotoPistaPC(event)"></label><div id="pista-imagens-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px;"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalPista()">Cancelar</button><button class="btn-add-mestre" style="background: var(--accent-yellow);" onclick="salvarPista()">Guardar Pista</button></div></div></div>
+    <div id="modal-pista" class="modal-overlay" onclick="fecharModalPista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Nova Pista</h2><div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input"></div><div class="form-group"><label>Descrição (Texto)</label><textarea id="pista-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);"><label style="color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">Imagens / Modelos 3D</label><div style="display: flex; gap: 10px; margin-bottom: 10px; margin-top: 5px;"><input type="text" id="pista-nova-foto" class="monster-input" placeholder="URL da Imagem ou .glb" style="flex: 2;"><button class="btn-add" style="flex: 1; padding: 10px; background: var(--accent-blue); color: black;" onclick="adicionarFotoPistaURL()">Adicionar</button></div><div style="text-align: center; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">OU</div><label class="btn-add" style="display: block; text-align: center; background: #444; color: white; padding: 10px; cursor: pointer; border-radius: 6px;">📂 Selecionar do PC<input type="file" accept="image/*,.glb,.gltf" style="display: none;" onchange="adicionarFotoPistaPC(event)"></label><div id="pista-imagens-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px;"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalPista()">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow);" onclick="salvarPista()">Guardar Pista</button></div></div></div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
@@ -373,8 +334,8 @@
         const socket = typeof io !== 'undefined' ? io() : null;
 
         // Variaveis de Estado
-        let listaJogadores = JSON.parse(localStorage.getItem('mesa_jogadores_' + campanhaAtiva)) || [];
-        let dataJogadores = JSON.parse(localStorage.getItem('mesa_dados_' + campanhaAtiva)) || {};
+        let listaJogadores = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
+        let dataJogadores = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva)) || [];
@@ -387,18 +348,50 @@
         let currentMapaIdMap = null; let editMonstroId = null; let turnoAtualIndex = 0;
         let mapScale = 1; let mapTx = 0; let mapTy = 0; let isDraggingMap = false; let startMapX = 0; let startMapY = 0; let pinTargetX = 0; let pinTargetY = 0;
 
-        let defaultRituais = [
-            {id:'def_1',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 em um teste de resistência.',descDisc:'-',descVerd:'-',visivel:true,img:''}
+        // Inicialização do Catálogo Padrão de Itens
+        let defaultItensRaw = [
+            { n: 'Kit de Medicina', w: 1, h: 1, type: 'comum', desc: 'Usado para curar ferimentos e estabilizar aliados.' },
+            { n: 'Mochila Militar', w: 2, h: 2, type: 'comum', desc: 'Adiciona +2 de capacidade máxima de carga.' },
+            { n: 'Bandagem', w: 1, h: 1, type: 'comum', desc: 'Estanca sangramentos rápidos.' },
+            { n: 'Faca', w: 1, h: 1, type: 'armacc', dmg: '1d4', crit: '19/x2', range: 'Curto', ammo: 'Nenhuma', cap: 0, skill: 'Luta' },
+            { n: 'Katana', w: 1, h: 3, type: 'armacc', dmg: '1d10', crit: '19/x2', range: 'Curto', ammo: 'Nenhuma', cap: 0, skill: 'Luta' },
+            { n: 'Pistola', w: 1, h: 1, type: 'armadisp', dmg: '1d10', crit: '18/x2', range: 'Curto', ammo: 'Curta', cap: 15, skill: 'Pontaria' },
+            { n: 'Revólver', w: 1, h: 1, type: 'armadisp', dmg: '2d6', crit: '19/x3', range: 'Curto', ammo: 'Curta', cap: 6, skill: 'Pontaria' },
+            { n: 'Fuzil de Assalto', w: 2, h: 1, type: 'armadisp', dmg: '2d10', crit: '19/x3', range: 'Médio', ammo: 'Longa', cap: 30, skill: 'Pontaria' },
+            { n: 'Espingarda', w: 2, h: 1, type: 'armadisp', dmg: '4d6', crit: '20/x3', range: 'Curto', ammo: 'Pesada', cap: 2, skill: 'Pontaria' },
+            { n: 'Balas Curtas', w: 1, h: 1, type: 'municao', ammoType: 'Curta' },
+            { n: 'Balas Longas', w: 1, h: 1, type: 'municao', ammoType: 'Longa' },
+            { n: 'Cartuchos Pesados', w: 1, h: 1, type: 'municao', ammoType: 'Pesada' }
         ];
+
+        let defaultItens = defaultItensRaw.map((it, idx) => {
+            let type = it.type; let dHTML = ""; let atkType = type === 'armadisp' ? "Disparo" : "Corpo a corpo";
+            if (type === 'comum') { dHTML = it.desc; } else if (type === 'municao') { dHTML = "Munição para armas do tipo: " + it.ammoType; } 
+            else { dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (1x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${it.dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${it.crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${it.range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${it.ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${it.skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> -</div></div>`; }
+            return { id: 'm_item_def_' + idx, n: it.n, w: it.w, h: it.h, d: dHTML, eq: false, type: type, ammoType: it.ammoType || 'Curta', qtd: type === 'municao' ? 3 : 1, dmg: it.dmg || '0', extra: '-', crit: it.crit || '20/x2', skill: it.skill || 'Luta', img: '', atkType: atkType, atk: 1, range: it.range || 'Curto', ammo: it.ammo || 'Nenhuma', capacity: it.cap || 0, currentShots: it.cap || 0, visivel: true, rawType: type, rawDesc: it.desc || '' };
+        });
+
+        let defaultRituais = [
+            {id:'r_def_1',n:'Cicatrização',circ:'1º',el:'Sangue',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Nenhuma',descGeral:'Cura 3d8+3 PV.',descDisc:'Cura 5d8+5 PV.',descVerd:'Cura 7d8+7 PV.',visivel:true,img:''},
+            {id:'r_def_2',n:'Decadência',circ:'1º',el:'Morte',ex:'Padrão',alc:'Toque',alv:'1 ser',dur:'Instantânea',res:'Fortitude reduz à metade',descGeral:'Causa 2d8+2 de dano de Morte.',descDisc:'Causa 4d8+4.',descVerd:'Causa 6d8+6.',visivel:true,img:''},
+            {id:'r_def_3',n:'Amaldiçoar Arma',circ:'1º',el:'Qualquer',ex:'Padrão',alc:'Toque',alv:'1 arma',dur:'Cena',res:'Nenhuma',descGeral:'A arma causa +1d6 de dano do elemento escolhido.',descDisc:'Causa +2d6 de dano.',descVerd:'Causa +3d6 de dano.',visivel:true,img:''},
+            {id:'r_def_4',n:'Eletrocussão',circ:'1º',el:'Energia',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Instantânea',res:'Reflexos reduz à metade',descGeral:'Causa 3d6 de dano de Energia.',descDisc:'Causa 5d6.',descVerd:'Causa 7d6 e atordoa por 1 rodada.',visivel:true,img:''},
+            {id:'r_def_5',n:'Compreensão Paranormal',circ:'1º',el:'Conhecimento',ex:'Padrão',alc:'Pessoal',alv:'Você',dur:'Cena',res:'Nenhuma',descGeral:'Compreende qualquer idioma e recebe +5 em Investigação.',descDisc:'O bônus aumenta para +10.',descVerd:'-',visivel:true,img:''},
+            {id:'r_def_6',n:'Tela de Ruído',circ:'2º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Ganha 30 PV temporários contra o próximo ataque.',descDisc:'Ganha 50 PV temporários.',descVerd:'Ganha 70 PV temporários.',visivel:true,img:''},
+            {id:'r_def_7',n:'Descarnar',circ:'2º',el:'Sangue',ex:'Padrão',alc:'Curto',alv:'1 ser',dur:'Instantânea',res:'Fortitude reduz à metade',descGeral:'Causa 6d8 de dano de Sangue.',descDisc:'Causa 8d8.',descVerd:'Causa 10d8.',visivel:true,img:''},
+            {id:'r_def_8',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 num teste.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''}
+        ];
+
+        if (catalogoMestre.length === 0) { catalogoMestre = defaultItens; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); }
         if (catalogoRituaisMestre.length === 0) { catalogoRituaisMestre = defaultRituais; localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); }
 
         const logBox = document.getElementById('log-box'); 
         let debounceTimer;
 
-        // ================= FUNÇÕES DO SISTEMA (BASE E SAVE) =================
+        // ================= FUNÇÕES DO SISTEMA =================
         function salvarMemoria() {
-            localStorage.setItem('mesa_jogadores_' + campanhaAtiva, JSON.stringify(listaJogadores));
-            localStorage.setItem('mesa_dados_' + campanhaAtiva, JSON.stringify(dataJogadores));
+            localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(listaJogadores));
+            localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(dataJogadores));
         }
 
         function salvarMestreNoFirebase() { 
@@ -427,6 +420,14 @@
             const logContainer = document.getElementById('mestre-log-container');
             if(['jogadores','monstros','iniciativa'].includes(aba)){ logContainer.style.display = 'flex'; } else { logContainer.style.display = 'none'; }
         }
+        
+        function adicionarAoLog(jogador, acao, resultado, cor) {
+            const aguardarMsg = document.getElementById('aguardar-msg'); if (aguardarMsg) aguardarMsg.style.display = 'none';
+            const item = document.createElement('div'); item.className = 'log-item fade-in';
+            item.innerHTML = `<div class="player-name">${jogador}</div><div style="font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase;">${acao}</div><div class="roll-result" style="${cor}">${resultado}</div>`;
+            logBox.prepend(item); 
+            if (logBox.children.length > 50) logBox.lastElementChild.remove();
+        }
 
         // ================= CONEXÃO E SOCKETS =================
         if (socket) {
@@ -451,7 +452,9 @@
                     } else { socket.emit('request_player', c); }
                     if (dataJogadores[c] && dataJogadores[c].fullData) { socket.emit('mestre_force_sync_player', { codigo: c, fullData: dataJogadores[c].fullData }); }
                 }
-                if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
+                if (dados.tipo === 'pedir_catalogo') {
+                    socket.emit('comando_mestre', { tipo: 'sync_catalogo', itens: catalogoMestre.filter(i => i.visivel !== false), rituais: catalogoRituaisMestre.filter(r => r.visivel !== false) });
+                }
             });
 
             const gerirAtualizacao = (dados) => {
@@ -520,9 +523,9 @@
             }
         });
 
-        // ================= JOGADORES (UI DIRETA) =================
-        function adicionarManual() {
-            const input = document.getElementById('add-code'); const cod = input.value.toUpperCase().trim();
+        // ================= JOGADORES =================
+        function adicionarJogador() {
+            const input = document.getElementById('add-code-input'); const cod = input.value.toUpperCase().trim();
             if (cod && !listaJogadores.includes(cod)) {
                 listaJogadores.push(cod); salvarMemoria(); salvarMestreNoFirebase();
                 if(socket) { socket.emit('request_player', cod); socket.emit('comando_mestre', { tipo: 'sync_overlay', players: listaJogadores }); }
@@ -530,7 +533,7 @@
             } input.value = '';
         }
 
-        function remover(cod) {
+        function removerJogador(cod) {
             if(!confirm(`Remover ${cod}?`)) return;
             listaJogadores = listaJogadores.filter(c => c !== cod); delete dataJogadores[cod];
             salvarMemoria(); salvarMestreNoFirebase(); renderizar();
@@ -570,12 +573,12 @@
                 const vMax = d.fullData?.info?.vida_max || 1; const sMax = d.fullData?.info?.sani_max || 1; const pMax = d.fullData?.info?.pe_max || 1;
                 board.innerHTML += `
                     <div class="player-card fade-in" id="card-${cod}">
-                        <button class="btn-remove-card" onclick="remover('${cod}')">X</button>
+                        <button class="btn-remove-card" onclick="removerJogador('${cod}')">X</button>
                         <div class="player-header"><img id="foto-${cod}" src="${d.foto}" class="player-img"><div style="flex:1; min-width:0;"><h3 class="player-name">${d.nome}</h3><div style="font-size:0.7em; color:gray; font-family:monospace; margin-bottom:5px;">@${cod}</div><div style="display:flex; gap:5px;"><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">NEX <b style="color:#ffcf33;">${d.nex}%</b></span><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">DEF <b style="color:white;">${d.defesa}</b></span></div></div></div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input input-vida" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input input-sani" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input input-pe" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
                         </div>
                         <button class="btn-roll" style="margin-top: 5px;" onclick="abrirFicha('${cod}')">🔍 INSPECIONAR FICHA</button>
                     </div>
@@ -653,21 +656,8 @@
             document.getElementById('modal-criatura').style.display = 'flex'; 
         }
 
-        function alterarVidaMonstro(id, valor) { 
-            const idx = monstros.findIndex(m => m.id === id); 
-            if(idx > -1) { 
-                monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; 
-                localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); 
-                salvarMestreNoFirebase(); 
-                const input = document.getElementById(`monstro-vida-${id}`);
-                if (input) { input.value = monstros[idx].vida_atual; input.style.color = '#ffcf33'; setTimeout(() => input.style.color = 'white', 300); }
-                else { renderizarMonstros(); }
-            } 
-        }
-        function setVidaMonstroDireto(id, valor) { 
-            const idx = monstros.findIndex(m => m.id === id); 
-            if(idx > -1) { monstros[idx].vida_atual = parseInt(valor) || 0; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); } 
-        }
+        function alterarVidaMonstro(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(monstros[idx].vida_atual) + valor; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); const input = document.getElementById(`monstro-vida-${id}`); if (input) { input.value = monstros[idx].vida_atual; input.style.color = '#ffcf33'; setTimeout(() => input.style.color = 'white', 300); } else { renderizarMonstros(); } } }
+        function setVidaMonstroDireto(id, valor) { const idx = monstros.findIndex(m => m.id === id); if(idx > -1) { monstros[idx].vida_atual = parseInt(valor) || 0; localStorage.setItem('mestre_monstros_' + campanhaAtiva, JSON.stringify(monstros)); salvarMestreNoFirebase(); } }
 
         // ================= DADOS E LOGS =================
         const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
@@ -725,218 +715,6 @@
             renderizarIniciativa(); 
         }
 
-        // ================= ROTEIRO =================
-        let currentRoteiroId = null; let roteiroEditorTimeout; 
-        if (!roteiros || roteiros.length === 0) { roteiros = [{ id: 'sessao_1', titulo: 'Sessão 1', texto: '' }]; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
-        function renderRoteiros() { const list = document.getElementById('roteiro-list'); list.innerHTML = ''; roteiros.forEach(r => { const btn = document.createElement('div'); btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`; btn.onclick = () => carregarRoteiro(r.id); btn.innerHTML = `<span>${r.titulo}</span> <button class="btn-remove-global" style="padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>`; list.appendChild(btn); }); }
-        function renderDescricoes() { const list = document.getElementById('descricao-list'); list.innerHTML = ''; descricoes.forEach(d => { const btn = document.createElement('div'); btn.className = `session-btn ${d.id === currentRoteiroId ? 'active-desc' : ''}`; btn.onclick = () => carregarDescricao(d.id); btn.innerHTML = `<span>${d.titulo}</span> <button class="btn-remove-global" style="padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>`; list.appendChild(btn); }); }
-        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); renderRoteiros(); carregarRoteiro(novo.id); }
-        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); renderDescricoes(); carregarDescricao(novo.id); }
-        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
-        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
-        function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
-        function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
-        function atualizarEditor() { const inputTitulo = document.getElementById('roteiro-titulo-atual'); const areaTexto = document.getElementById('roteiro-text'); if(!currentRoteiroId) { inputTitulo.value = ''; inputTitulo.disabled = true; areaTexto.value = ''; areaTexto.disabled = true; return; } inputTitulo.disabled = false; areaTexto.disabled = false; let item = roteiros.find(r => r.id === currentRoteiroId) || descricoes.find(d => d.id === currentRoteiroId); if(item) { inputTitulo.value = item.titulo; areaTexto.value = item.texto; } }
-        document.getElementById('roteiro-titulo-atual').addEventListener('input', (e) => { if(!currentRoteiroId) return; const val = e.target.value; let item = roteiros.find(r => r.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderRoteiros(); } else { item = descricoes.find(d => d.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderDescricoes(); } } salvarTextoEditor(); });
-        document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
-        function salvarTextoEditor() { if(!currentRoteiroId) return; const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)'; clearTimeout(roteiroEditorTimeout); roteiroEditorTimeout = setTimeout(() => { const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId); if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; } if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); } status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); }, 1000); }
-
-        // ================= MAPAS =================
-        function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim() || 'Novo Mapa'; let url = document.getElementById('novo-mapa-url').value.trim(); const fileInput = document.getElementById('novo-mapa-file'); if (fileInput.dataset.base64 && url === "ARQUIVO CARREGADO") { url = fileInput.dataset.base64; } if (!url) return alert("Insira uma URL ou carregue uma imagem."); const novoMapa = { id: 'mapa_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; delete fileInput.dataset.base64; renderizarMapasList(); renderizarMapaAtual(); }
-        function carregarMapaPC(event) { 
-            const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); 
-            reader.onload = function(e) { 
-                const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX_DIM = 1920; if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); const inputUrl = document.getElementById('novo-mapa-url'); inputUrl.value = "ARQUIVO CARREGADO"; inputUrl.dataset.base64 = canvas.toDataURL('image/jpeg', 0.7); }; img.src = e.target.result; 
-            }; reader.readAsDataURL(file); 
-        }
-        function apagarMapaAtual() { if (!currentMapaIdMap) return; if (confirm("Apagar mapa atual?")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); renderizarMapasList(); renderizarMapaAtual(); } }
-        function resetarMapaZoom() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
-        function applyMapTransform() { const wrapper = document.getElementById('map-transform-wrapper'); if (wrapper) wrapper.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`; }
-        
-        setTimeout(() => {
-            const mapContainer = document.getElementById('map-view');
-            if(mapContainer) {
-                mapContainer.addEventListener('wheel', (e) => { e.preventDefault(); mapScale += e.deltaY < 0 ? 0.1 : -0.1; if(mapScale < 0.2) mapScale = 0.2; if(mapScale > 5) mapScale = 5; applyMapTransform(); }, { passive: false });
-                mapContainer.addEventListener('mousedown', (e) => { if(e.button !== 0) return; if(e.target.classList.contains('map-pin-marker')) return; isDraggingMap = true; startMapX = e.clientX - mapTx; startMapY = e.clientY - mapTy; mapContainer.style.cursor = 'grabbing'; });
-                window.addEventListener('mousemove', (e) => { if (!isDraggingMap) return; e.preventDefault(); mapTx = e.clientX - startMapX; mapTy = e.clientY - startMapY; applyMapTransform(); });
-                window.addEventListener('mouseup', () => { isDraggingMap = false; if(mapContainer) mapContainer.style.cursor = 'grab'; });
-                mapContainer.addEventListener('contextmenu', (e) => { e.preventDefault(); if(!currentMapaIdMap) return; if(e.target.classList.contains('map-pin-marker')) return; const rect = document.getElementById('map-content').getBoundingClientRect(); pinTargetX = (e.clientX - rect.left) / mapScale; pinTargetY = (e.clientY - rect.top) / mapScale; abrirModalPin(); });
-            }
-        }, 1000);
-
-        function abrirModalPin(pinId = null) { document.getElementById('pin-id-edit').value = pinId || ''; if (pinId) { const mapa = mapas.find(m => m.id === currentMapaIdMap); const pin = mapa.pins.find(p => p.id === pinId); document.getElementById('pin-title').value = pin.titulo; document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.cor; document.getElementById('btn-delete-pin').style.display = 'block'; } else { document.getElementById('pin-title').value = 'Novo Local'; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; document.getElementById('btn-delete-pin').style.display = 'none'; } document.getElementById('modal-pin').style.display = 'flex'; }
-        function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
-        function salvarPin() { const mapa = mapas.find(m => m.id === currentMapaIdMap); if (!mapa) return; const idEdit = document.getElementById('pin-id-edit').value; const titulo = document.getElementById('pin-title').value; const desc = document.getElementById('pin-desc').value; const cor = document.getElementById('pin-color').value; if (!mapa.pins) mapa.pins = []; if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.titulo = titulo; pin.desc = desc; pin.cor = cor; } } else { mapa.pins.push({ id: 'pin_' + Date.now(), titulo: titulo, desc: desc, cor: cor, x: pinTargetX, y: pinTargetY }); } localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); }
-        function apagarPin() { const idEdit = document.getElementById('pin-id-edit').value; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa && idEdit) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); } }
-        function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; renderizarMapaAtual(); renderizarMapasList(); }; btn.innerText = m.nome; list.appendChild(btn); }); }
-        function renderizarMapaAtual() { const img = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); const mapa = mapas.find(x => x.id === currentMapaIdMap); if(mapa) { img.src = mapa.url; img.style.display = 'block'; pinsContainer.innerHTML = ''; if(mapa.pins) { mapa.pins.forEach(p => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = p.x + 'px'; pinEl.style.top = p.y + 'px'; pinEl.style.background = p.cor; pinEl.onclick = (e) => { e.stopPropagation(); abrirModalPin(p.id); }; pinEl.onmouseenter = (e) => { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = p.titulo; document.getElementById('tooltip-desc').innerText = p.desc; tooltip.style.left = p.x + 'px'; tooltip.style.top = (p.y - 15) + 'px'; tooltip.style.display = 'block'; tooltip.style.borderColor = p.cor; }; pinEl.onmouseleave = () => { document.getElementById('map-tooltip').style.display = 'none'; }; pinsContainer.appendChild(pinEl); }); } } else { img.style.display = 'none'; pinsContainer.innerHTML = ''; } }
-
-        // ================= ITENS CATÁLOGO MESTRE =================
-        function toggleVisibilidadeItem(idx) { catalogoMestre[idx].visivel = catalogoMestre[idx].visivel === false ? true : false; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); renderizarCatalogo(); sincronizarCatalogoGeral(); }
-        function apagarItemCatalogo(idx) { if(confirm("Apagar item do Catálogo?")) { catalogoMestre.splice(idx, 1); localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); renderizarCatalogo(); sincronizarCatalogoGeral(); } }
-        
-        function renderizarCatalogo() {
-            const gridComum = document.getElementById('catalogo-grid-comum'); const gridArmaCC = document.getElementById('catalogo-grid-armacc'); const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
-            if(gridComum) gridComum.innerHTML = ''; if(gridArmaCC) gridArmaCC.innerHTML = ''; if(gridArmaDisp) gridArmaDisp.innerHTML = '';
-            let countComum = 0, countCC = 0, countDisp = 0;
-            
-            catalogoMestre.forEach((item, idx) => {
-                const color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
-                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
-                if (item.type !== 'comum' && item.type !== 'municao') { if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; } else if (item.type === 'municao') { detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Qtd: <span style="color:white; font-weight:bold;">${item.qtd} / 3</span><br>Tipo: <span style="color:white; font-weight:bold;">${item.ammoType}</span></div>`; }
-
-                let visIcon = item.visivel === false ? '🚫' : '👁️'; let opacity = item.visivel === false ? '0.5' : '1';
-                let btnCtrl = `<button class="btn-remove-card" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
-                
-                const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
-                const card = document.createElement('div'); 
-                card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
-                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; 
-                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
-                
-                card.innerHTML = `${btnCtrl}<img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px; margin-top: 15px;"><div style="font-weight:bold; color:${color}; font-size:0.85em; margin-bottom:5px; text-transform:uppercase;">${item.n}</div>${detailsHtml}<div style="display:flex; gap:5px; margin-top:10px; width:100%;"><button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button></div>`;
-                
-                if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { if(gridComum) gridComum.appendChild(card); countComum++; } else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
-            });
-
-            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
-            if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
-            if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
-        }
-
-        let editItemIndex = null;
-        function abrirModalItemMestre(tipo = 'comum', idx = null) { 
-            editItemIndex = idx;
-            if(idx !== null) { 
-                const it = catalogoMestre[idx]; 
-                document.getElementById('mi-tipo').value = it.rawType || (it.type === 'comum' ? 'comum' : (it.atkType === 'Disparo' ? 'armadisp' : 'armacc')); 
-                document.getElementById('mi-nome').value = it.n; 
-                document.getElementById('mi-w').value = it.w || 1; 
-                document.getElementById('mi-h').value = it.h || 1; 
-                document.getElementById('mi-foto').value = it.img || ''; 
-                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = it.visivel !== false;
-                if(it.type === 'comum') { document.getElementById('mi-desc').value = it.rawDesc || ''; } 
-                else if (it.type === 'municao') { document.getElementById('mi-ammo-type').value = it.ammoType || 'Curta'; document.getElementById('mi-ammo-qtd').value = it.qtd || 1; } 
-                else { document.getElementById('mi-atk').value = it.atk || '1'; document.getElementById('mi-dano').value = it.dmg || '0'; document.getElementById('mi-crit').value = it.crit || '20/x2'; document.getElementById('mi-alcance').value = it.range || 'Curto'; document.getElementById('mi-ammo').value = it.ammo || 'Nenhuma'; document.getElementById('mi-cap').value = it.capacity || '0'; document.getElementById('mi-pericia').value = it.skill || 'Luta'; } 
-                document.getElementById('modal-item-title').innerText = "Editar Item"; 
-            } else { 
-                document.getElementById('mi-nome').value = ''; document.getElementById('mi-w').value = '1'; document.getElementById('mi-h').value = '1'; document.getElementById('mi-foto').value = ''; document.getElementById('mi-desc').value = ''; document.getElementById('mi-atk').value = '1'; document.getElementById('mi-dano').value = ''; document.getElementById('mi-crit').value = '20/x2'; document.getElementById('mi-alcance').value = 'Curto'; document.getElementById('mi-ammo').value = 'Nenhuma'; document.getElementById('mi-cap').value = '0'; document.getElementById('mi-pericia').value = 'Luta'; document.getElementById('mi-tipo').value = tipo; 
-                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = true;
-                document.getElementById('modal-item-title').innerText = "Criar Item"; 
-                if(tipo === 'municao') { document.getElementById('mi-ammo-type').value = 'Curta'; document.getElementById('mi-ammo-qtd').value = '1'; } 
-            }
-            toggleCamposItemMestre(); document.getElementById('modal-item-mestre').style.display = 'flex'; 
-        }
-
-        function toggleCamposItemMestre() { const t = document.getElementById('mi-tipo').value; if(t === 'comum') { document.getElementById('mi-campos-comum').style.display = 'block'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; } else if (t === 'municao') { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'block'; } else { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'grid'; } }
-
-        function salvarItemMestre() { 
-            const nome = document.getElementById('mi-nome').value.trim(); 
-            const w = parseInt(document.getElementById('mi-w').value) || 1; 
-            const h = parseInt(document.getElementById('mi-h').value) || 1; 
-            const img = document.getElementById('mi-foto').value.trim(); 
-            const rawType = document.getElementById('mi-tipo').value; 
-            if(!nome) return alert("Por favor, dê um nome ao item."); 
-            const visivel = document.getElementById('mi-visivel') ? document.getElementById('mi-visivel').checked : true;
-            
-            const type = (rawType === 'comum' || rawType === 'municao') ? rawType : 'arma'; 
-            let dHTML = "", rawDesc = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", ammoType = "Curta", qtd = 1; 
-            
-            if (type === 'comum') { rawDesc = document.getElementById('mi-desc').value || "Sem descrição."; dHTML = rawDesc.replace(/\n/g, '<br>'); } 
-            else if (type === 'municao') { ammoType = document.getElementById('mi-ammo-type').value; qtd = parseInt(document.getElementById('mi-ammo-qtd').value)||1; if(qtd>3) qtd=3; dHTML = "Munição para armas do tipo: " + ammoType; } 
-            else { atkType = rawType === 'armadisp' ? "Disparo" : "Corpo a corpo"; atk = document.getElementById('mi-atk').value || "1"; dmg = document.getElementById('mi-dano').value || "0"; crit = document.getElementById('mi-crit').value || "20/x2"; range = document.getElementById('mi-alcance').value || "Curto"; ammo = document.getElementById('mi-ammo').value || "Nenhuma"; skill = document.getElementById('mi-pericia').value || "Luta"; cap = document.getElementById('mi-cap').value || "0"; dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; } 
-            
-            const novoItem = { id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), n: nome, w: w, h: h, d: dHTML, eq: false, type: type, ammoType: ammoType, qtd: qtd, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, visivel: visivel, rawType: rawType, rawDesc: rawDesc }; 
-            
-            if(editItemIndex !== null) catalogoMestre[editItemIndex] = novoItem; else catalogoMestre.push(novoItem);
-            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
-            salvarMestreNoFirebase(); document.getElementById('modal-item-mestre').style.display = 'none'; 
-            renderizarCatalogo(); sincronizarCatalogoGeral();
-        }
-
-        // ================= TRANSFERÊNCIA =================
-        function abrirModalTransferir(objStr, tipo) {
-            const obj = JSON.parse(decodeURIComponent(objStr));
-            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual';
-            document.getElementById('transfer-obj-name').innerText = obj.n;
-            document.getElementById('transfer-obj-data').value = objStr;
-            document.getElementById('transfer-obj-type').value = tipo;
-            const grid = document.getElementById('transfer-player-grid'); grid.innerHTML = '';
-            listaJogadores.forEach(code => { 
-                const pData = dataJogadores[code.toUpperCase()] || {};
-                const card = document.createElement('div');
-                card.style.cssText = `background:rgba(18,18,20,0.8); border:1px solid var(--accent-blue); padding:10px; cursor:pointer; text-align:center; border-radius:8px;`;
-                card.onclick = () => confirmarTransferenciaUm(code.toUpperCase());
-                card.innerHTML = `<img src="${pData.foto || 'https://via.placeholder.com/60'}" style="width:40px;height:40px;border-radius:50%;"><div style="color:white;font-size:0.7em;">${pData.nome || code}</div>`;
-                grid.appendChild(card); 
-            });
-            document.getElementById('modal-transfer-obj').style.display = 'flex';
-        }
-
-        function confirmarTransferenciaUm(codeAlvo) {
-            const objStr = document.getElementById('transfer-obj-data').value;
-            const tipo = document.getElementById('transfer-obj-type').value;
-            enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
-            document.getElementById('modal-transfer-obj').style.display = 'none'; 
-        }
-
-        function enviarParaTodos(objStr, tipo) {
-            const obj = JSON.parse(decodeURIComponent(objStr));
-            listaJogadores.forEach(code => enviarItemParaJogador(code.toUpperCase(), obj, tipo));
-        }
-
-        function enviarItemParaJogador(alvoCode, objOriginal, tipo) {
-            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
-            objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random()*100);
-            if (socket) { socket.emit('comando_mestre', { tipo: tipo === 'item' ? 'dar_item' : 'dar_ritual', codigo: alvoCode, item: tipo === 'item' ? objParaEnviar : null, ritual: tipo === 'item' ? null : objParaEnviar }); }
-            let pData = dataJogadores[alvoCode];
-            if (pData && pData.fullData) {
-                if (tipo === 'item') { if (!pData.fullData.inv) pData.fullData.inv = []; pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false}); } 
-                else { if (!pData.fullData.rituals) pData.fullData.rituals = []; pData.fullData.rituals.push({...objParaEnviar, eq:true}); }
-                const dbPlayerId = alvoCode + '_' + campanhaAtiva;
-                fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) });
-            }
-        }
-
-        // ================= RITUAIS MESTRE =================
-        let editRitualIndex = null;
-        function abrirModalRitualMestre(idx = null) {
-            editRitualIndex = idx;
-            if(idx !== null) {
-                const rit = catalogoRituaisMestre[idx];
-                document.getElementById('mr-name').value = rit.n || ''; document.getElementById('mr-circ').value = rit.circ || '1º'; document.getElementById('mr-elem').value = rit.el || 'Conhecimento'; document.getElementById('mr-exec').value = rit.ex || ''; document.getElementById('mr-range').value = rit.alc || ''; document.getElementById('mr-target').value = rit.alv || ''; document.getElementById('mr-dur').value = rit.dur || ''; document.getElementById('mr-res').value = rit.res || ''; document.getElementById('mr-img').value = rit.img || ''; document.getElementById('mr-desc-geral').value = rit.descGeral || ''; document.getElementById('mr-desc-discente').value = rit.descDisc || ''; document.getElementById('mr-desc-verdadeiro').value = rit.descVerd || ''; document.getElementById('modal-ritual-title').innerText = "Editar Ritual";
-            } else {
-                document.getElementById('mr-name').value = ''; document.getElementById('mr-circ').value = '1º'; document.getElementById('mr-elem').value = 'Conhecimento'; document.getElementById('mr-exec').value = 'Padrão'; document.getElementById('mr-range').value = 'Curto'; document.getElementById('mr-target').value = '1 Ser'; document.getElementById('mr-dur').value = 'Instantânea'; document.getElementById('mr-res').value = 'Nenhuma'; document.getElementById('mr-img').value = ''; document.getElementById('mr-desc-geral').value = ''; document.getElementById('mr-desc-discente').value = ''; document.getElementById('mr-desc-verdadeiro').value = ''; document.getElementById('modal-ritual-title').innerText = "Criar Ritual";
-            }
-            document.getElementById('modal-ritual-mestre').style.display = 'flex';
-        }
-
-        function salvarRitualMestre() {
-            const n = document.getElementById('mr-name').value.trim(); if(!n) return alert("Dê um nome ao ritual.");
-            const novoRitual = { id: editRitualIndex !== null ? catalogoRituaisMestre[editRitualIndex].id : 'm_rit_' + Date.now(), n: n, circ: document.getElementById('mr-circ').value, el: document.getElementById('mr-elem').value, ex: document.getElementById('mr-exec').value, alc: document.getElementById('mr-range').value, alv: document.getElementById('mr-target').value, dur: document.getElementById('mr-dur').value, res: document.getElementById('mr-res').value, img: document.getElementById('mr-img').value, descGeral: document.getElementById('mr-desc-geral').value, descDisc: document.getElementById('mr-desc-discente').value, descVerd: document.getElementById('mr-desc-verdadeiro').value, visivel: true };
-            if(editRitualIndex !== null) catalogoRituaisMestre[editRitualIndex] = novoRitual; else catalogoRituaisMestre.push(novoRitual);
-            localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); salvarMestreNoFirebase(); document.getElementById('modal-ritual-mestre').style.display = 'none'; renderizarCatalogoRituais(); sincronizarCatalogoGeral();
-        }
-
-        function apagarRitualCatalogo(idx) { if(confirm("Apagar ritual do Catálogo?")) { catalogoRituaisMestre.splice(idx, 1); localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); salvarMestreNoFirebase(); renderizarCatalogoRituais(); sincronizarCatalogoGeral(); } }
-
-        function renderizarCatalogoRituais() {
-            const circles = ['1º', '2º', '3º', '4º'];
-            circles.forEach((circ, i) => {
-                const body = document.getElementById(`rituais-mestre-${i+1}-body`); const container = document.getElementById(`rituais-mestre-${i+1}-container`);
-                if(!body) return; body.innerHTML = ''; let count = 0;
-                catalogoRituaisMestre.forEach((rit, idx) => {
-                    if(rit.circ === circ) {
-                        count++; const card = document.createElement('div'); card.className = 'fade-in'; card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(184,43,242,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); display:flex; flex-direction:column; justify-content:space-between;`;
-                        let btnCtrl = `<button class="btn-remove-card" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue); color:black;" onclick="event.stopPropagation(); abrirModalRitualMestre(${idx})">✏️</button>`;
-                        card.innerHTML = `${btnCtrl}<img src="${rit.img || ''}" style="width:100%; height:50px; object-fit:contain; margin-top:20px; margin-bottom:5px;"><div style="font-weight:bold; color:var(--accent-purple); font-size:0.75em; margin-bottom:10px; text-transform:uppercase;">${rit.n}</div><button class="btn-roll" style="background:var(--accent-purple); color:white; font-size:0.7em;" onclick="abrirModalTransferir('${encodeURIComponent(JSON.stringify(rit))}', 'ritual')">ENSINAR JOGADOR</button>`;
-                        body.appendChild(card);
-                    }
-                });
-                container.style.display = count > 0 ? 'block' : 'none';
-            });
-        }
-
         // ================= INIT E LOAD =================
         window.onload = async () => {
             mudarAba('jogadores');
@@ -946,9 +724,10 @@
                 
                 if (result.sucesso && result.dados && result.dados.mestre) {
                     const d = result.dados.mestre;
-                    roteiros = d.roteiros || []; descricoes = d.descricoes || []; monstros = d.monstros || []; iniciativaList = d.iniciativa || []; mapas = d.mapas || []; catalogoMestre = d.catalogo_itens || []; pistasMestre = d.pistas || [];
+                    roteiros = d.roteiros || []; descricoes = d.descricoes || []; monstros = d.monstros || []; iniciativaList = d.iniciativa || []; mapas = d.mapas || []; pistasMestre = d.pistas || [];
+                    if (d.catalogo_itens && d.catalogo_itens.length > 0) { catalogoMestre = d.catalogo_itens; }
                     if (d.catalogo_rituais && d.catalogo_rituais.length > 0) { catalogoRituaisMestre = d.catalogo_rituais; }
-                    if(d.allowedCodes && d.allowedCodes.length > 0) {
+                    if (d.allowedCodes && d.allowedCodes.length > 0) {
                         listaJogadores = d.allowedCodes;
                         localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(listaJogadores));
                     }
