@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escudo do Mestre - Painel de Jogadores</title>
+    <title>Escudo do Mestre - Jogadores</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
@@ -40,6 +40,7 @@
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
+        /* BARRA DO TOPO */
         .mestre-top-bar { 
             background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; 
             border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; 
@@ -51,11 +52,13 @@
         .btn-remove-global { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-remove-global:hover { background: var(--accent-red); color: white; }
 
+        /* LISTA DE JOGADORES */
         .players-container { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
             gap: 20px; align-content: flex-start; overflow-y: auto; padding-right: 10px; flex: 1; 
         }
 
+        /* CARD DO JOGADOR */
         .player-card { 
             background: linear-gradient(145deg, rgba(30,30,35,0.95), rgba(15,15,18,0.95)); 
             border: 1px solid #333; border-top: 4px solid var(--accent-blue); border-radius: 12px; 
@@ -82,6 +85,7 @@
         .stat-label { font-size: 0.75em; font-weight: 900; letter-spacing: 1px; }
         .stat-input { width: 35px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0; transition: color 0.3s ease; }
 
+        /* MODAL DE FICHA */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
         .btn-roll { width: 100%; margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.4); color: var(--text-secondary); border: 1px solid #444; border-radius: 6px; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; cursor: pointer; transition: 0.2s; z-index: 2; }
         .btn-roll:hover { color: white; background: rgba(255,255,255,0.05); }
@@ -97,6 +101,9 @@
         </div>
         
         <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow);">
+                <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
+            </div>
             <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
             <button class="btn-remove-global" onclick="fazerLogout()">SAIR DA MESA</button>
         </div>
@@ -116,6 +123,7 @@
         let campanhaAtiva = localStorage.getItem('campanha_atual') || "demo";
         const socket = typeof io !== 'undefined' ? io() : null;
 
+        // Memória do Escudo
         let jogadoresPermitidos = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
         let playersDataMemoria = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
         let debounceTimer;
@@ -137,6 +145,7 @@
             window.location.href = '/index.html'; 
         }
 
+        // ================= CONEXÃO EM TEMPO REAL =================
         if (socket) {
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
@@ -166,6 +175,7 @@
                 }
             });
 
+            // RECEBE ATUALIZAÇÕES DOS JOGADORES NA HORA
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
@@ -208,6 +218,7 @@
             socket.on('update_mestre', gerenciarAtualizacaoJogador);
         }
 
+        // ================= CONTROLO DA UI DE JOGADORES =================
         function adicionarJogador() { 
             let input = document.getElementById('add-code-input'); 
             let codigo = input.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim(); 
@@ -225,7 +236,7 @@
         }
         
         function removerJogador(codigo) { 
-            if(!confirm(`Desejas remover ${codigo} da mesa?`)) return;
+            if(!confirm(`Deseja remover ${codigo} da mesa?`)) return;
             const codPuro = codigo.toUpperCase(); 
             jogadoresPermitidos = jogadoresPermitidos.filter(c => c !== codPuro); 
             localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
@@ -242,27 +253,36 @@
             fetch('/api/sair_campanha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro, campanha: campanhaAtiva }) }); 
         }
 
+        // O MESTRE ALTERA O JOGADOR DIRETAMENTE PELOS BOTÕES (+/-) DO ESCUDO
         function alterarStatusJogador(codPuro, tipo, valor) {
             if (!playersDataMemoria[codPuro] || !playersDataMemoria[codPuro].fullData) return;
             let fd = playersDataMemoria[codPuro].fullData;
             let fieldA = tipo + '_atual';
             fd.info[fieldA] = (parseInt(fd.info[fieldA]) || 0) + valor;
             playersDataMemoria[codPuro][fieldA] = fd.info[fieldA];
+            
             atualizarDOMJogador(codPuro);
+            
             if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); }
-            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro + '_' + campanhaAtiva, fichaData: fd }) }).catch(()=>{});
+            const dbPlayerId = codPuro + '_' + campanhaAtiva;
+            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
+        // O MESTRE DIGITA DIRETAMENTE NO NÚMERO DO ESCUDO
         function setStatusJogador(codPuro, tipo, valor) {
             if (!playersDataMemoria[codPuro] || !playersDataMemoria[codPuro].fullData) return;
             let fd = playersDataMemoria[codPuro].fullData;
             fd.info[tipo + '_atual'] = parseInt(valor) || 0;
             playersDataMemoria[codPuro][tipo + '_atual'] = fd.info[tipo + '_atual'];
+            
             atualizarDOMJogador(codPuro);
+            
             if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); }
-            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codPuro + '_' + campanhaAtiva, fichaData: fd }) }).catch(()=>{});
+            const dbPlayerId = codPuro + '_' + campanhaAtiva;
+            fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
+        // ATUALIZA A UI DE UM JOGADOR ESPECÍFICO DE FORMA SUAVE (OVERLAY STYLE)
         function atualizarDOMJogador(codPuro) {
             const dados = playersDataMemoria[codPuro];
             if(!dados) return;
@@ -272,7 +292,7 @@
             const imgEl = card.querySelector('.player-img');
             const nomeEl = card.querySelector('.player-name');
 
-            // FOTO COM EFEITO DE FADE
+            // 1. FOTO COM FADE SUAVE
             if (imgEl && dados.foto && imgEl.getAttribute('src') !== dados.foto) {
                 imgEl.style.opacity = 0; 
                 setTimeout(() => {
@@ -283,7 +303,7 @@
                 }, 300);
             }
 
-            // BORDAS DE STATUS
+            // 2. BORDAS COLORIDAS (ESTADOS)
             if (dados.status && imgEl) {
                 let stBorderColor = 'var(--accent-blue)';
                 let stBoxShadow = 'none';
@@ -305,7 +325,7 @@
                 nexDefEls[1].innerText = `${dados.defesa || 10}`;
             }
 
-            // ATUALIZAR STATUS E FLASH AMARELO
+            // 3. ATUALIZAR STATUS E DAR O FLASH AMARELO (SE MUDOU)
             const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
             const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
             const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
@@ -331,8 +351,15 @@
             if(maxVida) maxVida.innerText = `/${dados.fullData?.info?.vida_max || 1}`;
             if(maxSani) maxSani.innerText = `/${dados.fullData?.info?.sani_max || 1}`;
             if(maxPe) maxPe.innerText = `/${dados.fullData?.info?.pe_max || 1}`;
+            
+            // Sincroniza o Iframe da Ficha se o mestre a tiver aberta neste exato momento
+            const iframe = document.getElementById('iframe-ficha');
+            if (iframe && iframe.src.includes(codPuro) && dados.fullData) {
+                iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: dados.fullData}, '*');
+            }
         }
 
+        // DESENHA TODOS OS JOGADORES INICIALMENTE
         function renderizarJogadores() {
             const playersBoard = document.getElementById('players-board');
             playersBoard.innerHTML = '';
@@ -343,6 +370,7 @@
                 card.id = `player-${codPuro}`;
                 const dados = playersDataMemoria[codPuro];
                 
+                // Se ainda não tiver os dados da Ficha
                 if (!dados || !dados.fullData) {
                     card.innerHTML = `
                         <button class="btn-remove-card" onclick="removerJogador('${codPuro}')">X</button>
@@ -353,6 +381,7 @@
                                 <div style="color:var(--accent-red); font-size: 0.8em; font-weight: bold; margin-top: 5px;">Offline / A carregar...</div>
                             </div>
                         </div>
+                        <button class="btn-roll" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA</button>
                     `;
                     playersBoard.appendChild(card); return;
                 }
@@ -398,7 +427,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(229,57,53,0.15); color: var(--accent-red); border-color: rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" id="vida-${codPuro}" class="stat-input" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
+                                    <input type="number" id="vida-${codPuro}" class="stat-input input-vida" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
                                     <span id="max-vida-${codPuro}" style="color: var(--text-secondary); font-size: 0.75em;">/${vM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(229,57,53,0.15); color: var(--accent-red); border-color: rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', 1)">+</button>
@@ -410,7 +439,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(0,176,255,0.15); color: var(--accent-blue); border-color: rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" id="sani-${codPuro}" class="stat-input" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
+                                    <input type="number" id="sani-${codPuro}" class="stat-input input-sani" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
                                     <span id="max-sani-${codPuro}" style="color: var(--text-secondary); font-size: 0.75em;">/${sM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(0,176,255,0.15); color: var(--accent-blue); border-color: rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', 1)">+</button>
@@ -422,7 +451,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(255,207,51,0.15); color: var(--accent-yellow); border-color: rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" id="pe-${codPuro}" class="stat-input" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
+                                    <input type="number" id="pe-${codPuro}" class="stat-input input-pe" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
                                     <span id="max-pe-${codPuro}" style="color: var(--text-secondary); font-size: 0.75em;">/${pM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(255,207,51,0.15); color: var(--accent-yellow); border-color: rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', 1)">+</button>
@@ -444,6 +473,17 @@
                 let pData = playersDataMemoria[codigo.toUpperCase()]; 
                 if (pData && pData.fullData) { 
                     iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: pData.fullData}, '*'); 
+                } else {
+                    try {
+                        const res = await fetch('/api/carregar_personagem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: codigo.toUpperCase() + '_' + campanhaAtiva }) });
+                        const result = await res.json();
+                        if (result.sucesso && result.ficha) {
+                            if (!playersDataMemoria[codigo.toUpperCase()]) playersDataMemoria[codigo.toUpperCase()] = {};
+                            playersDataMemoria[codigo.toUpperCase()].fullData = result.ficha;
+                            iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: result.ficha}, '*');
+                            renderizarJogadores();
+                        }
+                    } catch(e) {}
                 }
             }; 
             iframe.src = `/ficha.html?view=${codigo.toUpperCase()}&t=${Date.now()}`; 
