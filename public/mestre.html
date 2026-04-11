@@ -43,10 +43,45 @@
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        /* CARDS */
-        .player-card { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 10px; position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-        .player-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border-color: var(--accent-blue); }
+        /* NOVO VISUAL DOS JOGADORES */
+        .player-card { 
+            background: linear-gradient(145deg, rgba(30,30,35,0.95), rgba(15,15,18,0.95)); 
+            border: 1px solid #333; 
+            border-top: 4px solid var(--accent-blue); 
+            border-radius: 12px; 
+            padding: 18px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            position: relative; 
+            transition: 0.3s ease; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8); 
+            overflow: hidden; 
+        }
+        .player-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; right: 0; width: 150px; height: 150px; 
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); 
+            pointer-events: none; 
+            z-index: 1;
+        }
+        .player-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9); 
+            border-color: #555; 
+        }
+        .stat-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(0,0,0,0.5); 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            z-index: 2;
+        }
+        .stat-label { font-size: 0.75em; font-weight: 900; letter-spacing: 1px; }
 
+        /* MONSTROS E OUTROS CARDS */
         .monster-card { background: linear-gradient(180deg, rgba(32,32,36,0.95) 0%, rgba(18,18,20,0.95) 100%); border: 2px solid #333; border-top: 4px solid var(--accent-red); box-shadow: 0 10px 30px rgba(0,0,0,0.8); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px; position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
         .monster-card:hover { transform: translateY(-2px); border-color: var(--accent-red); box-shadow: 0 15px 40px rgba(229,57,53,0.3); }
         .monster-header-info { display: flex; flex-direction: column; flex: 1; justify-content: center; min-width: 0; }
@@ -302,106 +337,13 @@
     </div>
 
     <div id="modal-item-mestre" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 500px;"><h2 id="modal-item-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Item para Jogadores</h2><div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Largura (X)</label><input type="number" id="mi-w" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:1;"><label>Altura (Y)</label><input type="number" id="mi-h" class="monster-input" value="1" min="1"></div><div class="form-group" style="flex:2;"><label>Tipo de Item</label><select id="mi-tipo" class="monster-input" onchange="toggleCamposItemMestre()" style="color: white; padding: 12px;"><option value="comum">🎒 Item Comum</option><option value="municao">📦 Munição (Empilhável)</option><option value="armacc">🗡️ Arma (Corpo)</option><option value="armadisp">🔫 Arma (Disparo)</option></select></div></div><div class="form-group"><label>Nome do Item</label><input type="text" id="mi-nome" class="monster-input"></div><div class="form-group"><label>URL da Imagem (Opcional)</label><input type="text" id="mi-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;"><input type="checkbox" id="mi-visivel" checked style="width: 18px; height: 18px; cursor: pointer;"><label style="margin: 0; color: var(--text-secondary); font-size: 0.85em;">Visível no Catálogo de Jogadores</label></div><div id="mi-campos-comum"><div class="form-group"><label>Descrição / Efeitos</label><textarea id="mi-desc" class="monster-input" style="height: 80px; resize: none;"></textarea></div></div><div id="mi-campos-municao" style="display:none; margin-top:10px;"><div style="display:flex; gap:10px;"><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">TIPO DE MUNIÇÃO</label><select id="mi-ammo-type" class="monster-input"><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div style="flex:1;"><label style="font-size:0.8em;color:var(--text-secondary);">QTD (1-3)</label><input type="number" id="mi-ammo-qtd" class="monster-input" value="1" min="1" max="3"></div></div></div><div id="mi-campos-arma" style="display:none; grid-template-columns: 1fr 1fr; gap:10px;"><div class="form-group"><label>Ataques (Qtd)</label><input type="number" id="mi-atk" class="monster-input" value="1"></div><div class="form-group"><label>Dano</label><input type="text" id="mi-dano" class="monster-input" placeholder="Ex: 1d8+2"></div><div class="form-group"><label>Crítico</label><input type="text" id="mi-crit" class="monster-input" value="20/x2"></div><div class="form-group"><label>Alcance</label><input type="text" id="mi-alcance" class="monster-input" value="Curto"></div><div class="form-group"><label>Munição</label><select id="mi-ammo" class="monster-input" style="color: white; padding: 12px;"><option value="Nenhuma">Nenhuma</option><option value="Curta">Curta</option><option value="Longa">Longa</option><option value="Pesada">Pesada</option><option value="Especial">Especial</option></select></div><div class="form-group"><label>Capacidade (Balas)</label><input type="number" id="mi-cap" class="monster-input" value="0"></div><div class="form-group"><label>Perícia</label><input type="text" id="mi-pericia" class="monster-input" value="Luta"></div><div style="grid-column: span 2;"><label style="font-size: 0.8em; color: var(--text-secondary);">EXTRA</label><input type="text" id="wp-extra" class="monster-input" value="-"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="document.getElementById('modal-item-mestre').style.display='none'">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarItemMestre()">Salvar Item</button></div></div></div>
-
     <div id="modal-transfer-obj" class="modal-overlay" style="z-index: 10001;"><div class="modal-content" style="max-width: 600px; text-align: center;"><h2 id="transfer-obj-title" style="color: var(--accent-blue); margin-top: 0;">Transferir</h2><p style="color: var(--text-secondary);">Clique no jogador para enviar <b id="transfer-obj-name" style="color: var(--accent-yellow);"></b>:</p><input type="hidden" id="transfer-obj-data"><input type="hidden" id="transfer-obj-type"><div id="transfer-player-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 5px;"></div><div style="display: flex; gap: 10px;"><button class="btn-remove" style="position: static; width: 100%; background: #333;" onclick="document.getElementById('modal-transfer-obj').style.display='none'">Cancelar</button></div></div></div>
-    
     <div id="modal-ficha" class="modal-overlay"><div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end; flex-direction: column; gap: 10px;"><button class="btn-remove" style="position: static; padding: 10px 20px; font-size: 1.2em;" onclick="fecharFicha()">X FECHAR FICHA</button><iframe id="iframe-ficha" src="" style="width: 100%; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe></div></div>
-    
     <div id="popup-dice" class="modal-overlay" onclick="closeDice()" style="z-index: 10000;"><div class="popup-box-dice" onclick="event.stopPropagation()"><div id="popup-content" class="popup-content"><div id="popup-num" class="popup-number">00</div><div id="popup-res" class="popup-res">RESULTADO</div></div></div></div>
-    
     <div id="modal-pin" class="modal-overlay" style="z-index: 10000;"><div class="modal-content" style="max-width: 400px;"><h2 style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Gerir Pin</h2><div class="form-group"><label>Título</label><input type="text" id="pin-title" class="monster-input"></div><div class="form-group"><label>Descrição Oculta</label><textarea id="pin-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group"><label>Cor</label><select id="pin-color" class="monster-input" style="color: white; padding: 12px;"><option value="#e53935">🔴 Vermelho</option><option value="#00b0ff">🔵 Azul</option><option value="#ffcf33">🟡 Amarelo</option><option value="#00e676">🟢 Verde</option><option value="#b82bf2">🟣 Roxo</option></select></div><input type="hidden" id="pin-id-edit"><input type="hidden" id="pin-temp-x"><input type="hidden" id="pin-temp-y"><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap;"><button class="btn-remove" id="btn-delete-pin" style="position: static; flex: 1; display: none;" onclick="apagarPin()">APAGAR</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPin()">GUARDAR PIN</button><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalPin()">Cancelar</button></div></div></div>
-
-    <div id="modal-criatura" class="modal-overlay">
-        <div class="modal-content" style="max-width: 750px;">
-            <h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2>
-            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
-                <div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div>
-                <div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div>
-            </div>
-            <div style="display:flex; gap: 10px; flex-wrap: wrap;">
-                <div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div>
-                <div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div>
-                <div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div>
-            </div>
-            <div class="form-group">
-                <label>Atributos Principais</label>
-                <div class="attr-grid" style="grid-template-columns: repeat(5, 1fr);">
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div>
-                    <div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Perícias Base</label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div>
-                    <div class="skill-group"><label><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div>
-                </div>
-            </div>
-            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div>
-            <div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
-                <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalCriatura()">Cancelar</button>
-                <button class="btn-add" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="popup-pista" class="modal-overlay" onclick="closePista()">
-        <div class="modal-content" style="width: 700px; max-width: 95%; padding: 30px;" onclick="event.stopPropagation()">
-            <h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; font-size: 1.5em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">TITULO</h3>
-            
-            <div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 400px; background: rgba(0,0,0,0.8); border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px solid var(--accent-blue); cursor: grab; touch-action: none;">
-                <div id="pista-page-controls" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:15; display:flex; gap:15px; background:rgba(0,0,0,0.8); padding:5px 15px; border-radius:20px; border:1px solid var(--accent-yellow); align-items:center;">
-                    <button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(-1)">⬅️</button>
-                    <span id="pista-page-indicator" style="color:white; font-weight:bold; font-size:1em;">1 / 1</span>
-                    <button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(1)">➡️</button>
-                </div>
-                <img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;">
-                <model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: transparent; outline: none;"></model-viewer>
-                <div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
-                    <button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(0.2)">➕</button>
-                    <button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(-0.2)">➖</button>
-                    <button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="resetPistaZoom()">🔄</button>
-                </div>
-            </div>
-            <div id="pista-view-desc" style="color: #e1e1e6; font-size: 1.1em; line-height: 1.6; white-space: pre-wrap; background: rgba(18,18,20,0.9); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
-            <button class="btn-remove" style="position: static; width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; font-weight: bold; background: var(--accent-red); color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="closePista()">FECHAR PISTA</button>
-        </div>
-    </div>
-    
-    <div id="modal-pista" class="modal-overlay" onclick="fecharModalPista()">
-        <div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()">
-            <h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Nova Pista</h2>
-            <div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input"></div>
-            <div class="form-group"><label>Descrição (Texto)</label><textarea id="pista-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div>
-            <div class="form-group" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-                <label style="color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">Imagens / Modelos 3D</label>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px; margin-top: 5px;">
-                    <input type="text" id="pista-nova-foto" class="monster-input" placeholder="URL da Imagem ou .glb" style="flex: 2;">
-                    <button class="btn-add" style="flex: 1; padding: 10px; background: var(--accent-blue); color: black;" onclick="adicionarFotoPistaURL()">Adicionar</button>
-                </div>
-                <div style="text-align: center; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">OU</div>
-                <label class="btn-add" style="display: block; text-align: center; background: #444; color: white; padding: 10px; cursor: pointer; border-radius: 6px;">
-                    📂 Selecionar do PC
-                    <input type="file" accept="image/*,.glb,.gltf" style="display: none;" onchange="adicionarFotoPistaPC(event)">
-                </label>
-                <div id="pista-imagens-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px;"></div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                <button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalPista()">Cancelar</button>
-                <button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPista()">Guardar Pista</button>
-            </div>
-        </div>
-    </div>
+    <div id="modal-criatura" class="modal-overlay"><div class="modal-content" style="max-width: 750px;"><h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div><div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div></div><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div></div><div class="form-group"><label>Atributos Principais</label><div class="attr-grid" style="grid-template-columns: repeat(5, 1fr);"><div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div></div></div><div class="form-group"><label>Perícias Base</label><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;"><div class="skill-group"><label><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div><div class="skill-group"><label><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalCriatura()">Cancelar</button><button class="btn-add" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button></div></div></div>
+    <div id="popup-pista" class="modal-overlay" onclick="closePista()"><div class="modal-content" style="width: 700px; max-width: 95%; padding: 30px;" onclick="event.stopPropagation()"><h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; font-size: 1.5em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">TITULO</h3><div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 400px; background: rgba(0,0,0,0.8); border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px solid var(--accent-blue); cursor: grab; touch-action: none;"><div id="pista-page-controls" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:15; display:flex; gap:15px; background:rgba(0,0,0,0.8); padding:5px 15px; border-radius:20px; border:1px solid var(--accent-yellow); align-items:center;"><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(-1)">⬅️</button><span id="pista-page-indicator" style="color:white; font-weight:bold; font-size:1em;">1 / 1</span><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(1)">➡️</button></div><img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;"><model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: transparent; outline: none;"></model-viewer><div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;"><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(0.2)">➕</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(-0.2)">➖</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="resetPistaZoom()">🔄</button></div></div><div id="pista-view-desc" style="color: #e1e1e6; font-size: 1.1em; line-height: 1.6; white-space: pre-wrap; background: rgba(18,18,20,0.9); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);"></div><button class="btn-remove" style="position: static; width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; font-weight: bold; background: var(--accent-red); color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="closePista()">FECHAR PISTA</button></div></div>
+    <div id="modal-pista" class="modal-overlay" onclick="fecharModalPista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Nova Pista</h2><div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input"></div><div class="form-group"><label>Descrição (Texto)</label><textarea id="pista-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);"><label style="color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">Imagens / Modelos 3D</label><div style="display: flex; gap: 10px; margin-bottom: 10px; margin-top: 5px;"><input type="text" id="pista-nova-foto" class="monster-input" placeholder="URL da Imagem ou .glb" style="flex: 2;"><button class="btn-add" style="flex: 1; padding: 10px; background: var(--accent-blue); color: black;" onclick="adicionarFotoPistaURL()">Adicionar</button></div><div style="text-align: center; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">OU</div><label class="btn-add" style="display: block; text-align: center; background: #444; color: white; padding: 10px; cursor: pointer; border-radius: 6px;">📂 Selecionar do PC<input type="file" accept="image/*,.glb,.gltf" style="display: none;" onchange="adicionarFotoPistaPC(event)"></label><div id="pista-imagens-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px;"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;"><button class="btn-remove" style="position: static; flex: 1; background: #333;" onclick="fecharModalPista()">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow); flex: 2;" onclick="salvarPista()">Guardar Pista</button></div></div></div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
@@ -502,19 +444,16 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // LÓGICA INFALÍVEL DE ATUALIZAÇÃO DO JOGADOR
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
 
-                // Guarda tudo o que vem do FullData
                 if (dados.fullData) {
                     playersDataMemoria[codPuro].fullData = dados.fullData;
                 }
 
-                // Extracção Inteligente: Pega direto da raiz do objeto (se o ficha enviou) ou tenta puxar do fullData se existir
                 playersDataMemoria[codPuro].nome = dados.nome || playersDataMemoria[codPuro].fullData?.info?.char_nome || playersDataMemoria[codPuro].nome;
                 playersDataMemoria[codPuro].foto = dados.foto || playersDataMemoria[codPuro].fullData?.info?.char_img || playersDataMemoria[codPuro].foto;
                 playersDataMemoria[codPuro].nex = dados.nex !== undefined ? dados.nex : (playersDataMemoria[codPuro].fullData?.info?.char_nex !== undefined ? playersDataMemoria[codPuro].fullData?.info?.char_nex : playersDataMemoria[codPuro].nex);
@@ -528,7 +467,6 @@
                 if (newSani !== undefined) { playersDataMemoria[codPuro].sani_atual = newSani; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.sani_atual = newSani; }
                 if (newPe !== undefined) { playersDataMemoria[codPuro].pe_atual = newPe; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.pe_atual = newPe; }
                 
-                // CORREÇÃO AQUI: Salva o status do jogador na Memória do Mestre
                 if (dados.status) {
                     playersDataMemoria[codPuro].status = dados.status;
                 } else if (dados.fullData && dados.fullData.charStatus) {
@@ -537,7 +475,6 @@
 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                // O Segredo: O card do HTML deve ser recriado se não existir ou se for aquele card "Offline/Aguardando"
                 const cardExiste = document.getElementById(`player-${codPuro}`);
                 const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
@@ -601,9 +538,6 @@
         });
 
         function fazerLogout() { localStorage.removeItem('campanha_atual'); window.location.href = '/index.html'; }
-
-        const tbSucesso = { 1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} };
-        function getAlvosD20(vh) { if (vh < 1) vh = 1; if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; return tbSucesso[vh]; }
 
         function mudarAba(aba) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -697,24 +631,32 @@
             
             const imgEl = card.querySelector('.player-img');
             const nomeEl = card.querySelector('.player-name');
-            const infoEl = card.querySelector('.player-info-nexdef');
 
             if (imgEl && dados.foto && imgEl.src !== dados.foto) {
                 imgEl.src = dados.foto;
             }
 
-            // CORREÇÃO AQUI: Efeitos visuais na Borda quando Lesionado / Morrendo!
+            let stBorderColor = 'var(--accent-blue)';
+            let stBoxShadow = 'none';
             if (dados.status && imgEl) {
-                if (dados.status.morrendo) { imgEl.style.borderColor = 'var(--accent-red)'; imgEl.style.boxShadow = '0 0 15px var(--accent-red)'; }
-                else if (dados.status.inconsciente) { imgEl.style.borderColor = '#ff5252'; imgEl.style.boxShadow = 'none'; }
-                else if (dados.status.lesionado && dados.status.enlouquecendo) { imgEl.style.borderColor = 'var(--accent-purple)'; imgEl.style.boxShadow = '0 0 15px var(--accent-purple)'; }
-                else if (dados.status.lesionado) { imgEl.style.borderColor = 'var(--accent-red)'; imgEl.style.boxShadow = 'none'; }
-                else if (dados.status.enlouquecendo) { imgEl.style.borderColor = 'var(--accent-blue)'; imgEl.style.boxShadow = '0 0 15px var(--accent-blue)'; }
-                else { imgEl.style.borderColor = 'var(--accent-blue)'; imgEl.style.boxShadow = 'none'; }
+                if (dados.status.morrendo) { stBorderColor = 'var(--accent-red)'; stBoxShadow = '0 0 15px var(--accent-red)'; }
+                else if (dados.status.inconsciente) { stBorderColor = '#ff5252'; }
+                else if (dados.status.lesionado && dados.status.enlouquecendo) { stBorderColor = 'var(--accent-purple)'; stBoxShadow = '0 0 15px var(--accent-purple)'; }
+                else if (dados.status.lesionado) { stBorderColor = 'var(--accent-red)'; }
+                else if (dados.status.enlouquecendo) { stBorderColor = 'var(--accent-blue)'; stBoxShadow = '0 0 15px var(--accent-blue)'; }
+                
+                imgEl.style.borderColor = stBorderColor;
+                imgEl.style.boxShadow = stBoxShadow;
+                card.style.borderTopColor = stBorderColor;
             }
 
             if (nomeEl) nomeEl.innerText = dados.nome || 'Desconhecido';
-            if (infoEl) infoEl.innerText = `NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}`;
+            
+            const nexDefEls = card.querySelectorAll('.player-header b');
+            if (nexDefEls && nexDefEls.length >= 2) {
+                nexDefEls[0].innerText = `${dados.nex || 0}%`;
+                nexDefEls[1].innerText = `${dados.defesa || 10}`;
+            }
 
             const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
             const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
@@ -734,9 +676,9 @@
             if(iSani && document.activeElement !== iSani) iSani.value = sA;
             if(iPe && document.activeElement !== iPe) iPe.value = pA;
             
-            if(maxVida) maxVida.innerText = `/ ${vM}`;
-            if(maxSani) maxSani.innerText = `/ ${sM}`;
-            if(maxPe) maxPe.innerText = `/ ${pM}`;
+            if(maxVida) maxVida.innerText = `/${vM}`;
+            if(maxSani) maxSani.innerText = `/${sM}`;
+            if(maxPe) maxPe.innerText = `/${pM}`;
         }
 
         function abrirFicha(codigo) { 
@@ -770,10 +712,22 @@
             jogadoresPermitidos.forEach(codPuro => {
                 const card = document.createElement('div'); card.className = 'player-card'; card.id = `player-${codPuro}`;
                 const dados = playersDataMemoria[codPuro];
+                
                 if (!dados || !dados.fullData) {
-                    card.innerHTML = `<button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button><div class="player-header"><img src="https://via.placeholder.com/60" class="player-img"><div><h3 class="player-name">${codPuro}</h3><div class="player-info-nexdef" style="color:var(--accent-red)">Offline / Aguardando...</div></div></div><button class="btn-roll" style="width: 100%; margin-top: 10px; background:#444;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA MESMO ASSIM</button>`;
+                    card.innerHTML = `
+                        <button class="btn-remove" onclick="removerJogador('${codPuro}')" style="z-index: 10; right: 8px; top: 8px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">X</button>
+                        <div class="player-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; z-index: 2;">
+                            <img src="https://via.placeholder.com/70" class="player-img" style="width: 70px; height: 70px; filter: grayscale(100%); opacity: 0.5;">
+                            <div style="flex: 1; min-width: 0;">
+                                <h3 class="player-name" style="font-size: 1.3em; color: gray; margin: 0;">${codPuro}</h3>
+                                <div style="color:var(--accent-red); font-size: 0.8em; font-weight: bold; margin-top: 5px;">Offline / Aguardando...</div>
+                            </div>
+                        </div>
+                        <button class="btn-roll" style="width: 100%; margin-top: 10px; background: rgba(0,0,0,0.5); color: gray; border: 1px solid #444; z-index: 2;" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA</button>
+                    `;
                     playersBoard.appendChild(card); return;
                 }
+                
                 const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
                 const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
                 const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
@@ -781,7 +735,6 @@
                 const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
                 const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
                 
-                // Define a cor da borda ao criar o ecrã se o Mestre fizer F5
                 let stBorderColor = 'var(--accent-blue)';
                 let stBoxShadow = 'none';
                 if (dados.status) {
@@ -792,56 +745,63 @@
                     else if (dados.status.enlouquecendo) { stBorderColor = 'var(--accent-blue)'; stBoxShadow = '0 0 15px var(--accent-blue)'; }
                 }
                 
+                card.style.borderTopColor = stBorderColor;
+                
                 card.innerHTML = `
-                    <button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button>
-                    <div class="player-header">
-                        <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img" style="border-color: ${stBorderColor}; box-shadow: ${stBoxShadow}; transition: border-color 0.3s, box-shadow 0.3s;">
-                        <div>
-                            <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
-                            <div class="player-info-nexdef" style="font-size: 0.8em; color: var(--text-secondary); line-height: 1.4;">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
-                            <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div>
+                    <button class="btn-remove" onclick="removerJogador('${codPuro}')" style="z-index: 10; right: 8px; top: 8px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">X</button>
+                    <div class="player-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; z-index: 2;">
+                        <div style="position: relative;">
+                            <img src="${dados.foto || 'https://via.placeholder.com/70'}" class="player-img" style="width: 70px; height: 70px; border-width: 3px; border-color: ${stBorderColor}; box-shadow: ${stBoxShadow}; transition: 0.3s; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <h3 class="player-name" style="font-size: 1.3em; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; text-shadow: 1px 1px 2px black;">${dados.nome || 'Desconhecido'}</h3>
+                            <div style="font-size: 0.75em; color: var(--text-secondary); margin-bottom: 6px; font-family: monospace;">@${codPuro}</div>
+                            <div style="display: flex; gap: 6px;">
+                                <span style="background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 4px; font-size: 0.75em; color: var(--text-primary); border: 1px solid #444; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">NEX <b style="color:var(--accent-yellow)">${dados.nex || 0}%</b></span>
+                                <span style="background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 4px; font-size: 0.75em; color: var(--text-primary); border: 1px solid #444; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">DEF <b style="color:white">${dados.defesa || 10}</b></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(229,57,53,0.3);">
-                            <span style="color: var(--accent-red); font-weight: bold; font-size: 0.85em;">VIDA</span>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'vida', -1)">-</button>
-                                <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" class="input-vida" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-red); color: white; text-align: center; font-weight: bold; outline: none;" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
-                                    <span class="max-vida" style="color: var(--text-secondary);">/ ${vM}</span>
+                    <div style="display: flex; flex-direction: column; gap: 8px; z-index: 2; margin-top: 5px;">
+                        <div class="stat-row" style="border-left: 4px solid var(--accent-red);">
+                            <span class="stat-label" style="color: var(--accent-red);">VIDA</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(229,57,53,0.15); color: var(--accent-red); border: 1px solid rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', -1)">-</button>
+                                <div style="font-weight: 900; color: white; width: 65px; text-align: center; font-size: 1.1em;">
+                                    <input type="number" class="input-vida" style="width: 30px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0;" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
+                                    <span class="max-vida" style="color: var(--text-secondary); font-size: 0.75em;">/${vM}</span>
                                 </div>
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'vida', 1)">+</button>
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(229,57,53,0.15); color: var(--accent-red); border: 1px solid rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', 1)">+</button>
                             </div>
                         </div>
                         
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(0,176,255,0.3);">
-                            <span style="color: var(--accent-blue); font-weight: bold; font-size: 0.85em;">SANI</span>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'sani', -1)">-</button>
-                                <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" class="input-sani" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-blue); color: white; text-align: center; font-weight: bold; outline: none;" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
-                                    <span class="max-sani" style="color: var(--text-secondary);">/ ${sM}</span>
+                        <div class="stat-row" style="border-left: 4px solid var(--accent-blue);">
+                            <span class="stat-label" style="color: var(--accent-blue);">SANI</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(0,176,255,0.15); color: var(--accent-blue); border: 1px solid rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', -1)">-</button>
+                                <div style="font-weight: 900; color: white; width: 65px; text-align: center; font-size: 1.1em;">
+                                    <input type="number" class="input-sani" style="width: 30px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0;" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
+                                    <span class="max-sani" style="color: var(--text-secondary); font-size: 0.75em;">/${sM}</span>
                                 </div>
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'sani', 1)">+</button>
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(0,176,255,0.15); color: var(--accent-blue); border: 1px solid rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', 1)">+</button>
                             </div>
                         </div>
 
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,207,51,0.3);">
-                            <span style="color: var(--accent-yellow); font-weight: bold; font-size: 0.85em;">P.E.</span>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'pe', -1)">-</button>
-                                <div style="font-weight: bold; color: white; font-size: 0.9em; min-width: 60px; text-align: center;">
-                                    <input type="number" class="input-pe" style="width: 35px; background: transparent; border: none; border-bottom: 1px solid var(--accent-yellow); color: white; text-align: center; font-weight: bold; outline: none;" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
-                                    <span class="max-pe" style="color: var(--text-secondary);">/ ${pM}</span>
+                        <div class="stat-row" style="border-left: 4px solid var(--accent-yellow);">
+                            <span class="stat-label" style="color: var(--accent-yellow);">P.E.</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(255,207,51,0.15); color: var(--accent-yellow); border: 1px solid rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', -1)">-</button>
+                                <div style="font-weight: 900; color: white; width: 65px; text-align: center; font-size: 1.1em;">
+                                    <input type="number" class="input-pe" style="width: 30px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0;" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
+                                    <span class="max-pe" style="color: var(--text-secondary); font-size: 0.75em;">/${pM}</span>
                                 </div>
-                                <button class="btn-ctrl" style="width: 24px; height: 24px;" onclick="alterarStatusJogador('${codPuro}', 'pe', 1)">+</button>
+                                <button class="btn-ctrl" style="width: 24px; height: 24px; font-size: 0.9em; background: rgba(255,207,51,0.15); color: var(--accent-yellow); border: 1px solid rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', 1)">+</button>
                             </div>
                         </div>
                     </div>
 
-                    <button class="btn-roll" style="width: 100%; margin-top: 10px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);" onclick="abrirFicha('${codPuro}')">🔍 VER FICHA COMPLETA</button>
+                    <button class="btn-roll" style="width: 100%; margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.4); color: var(--text-secondary); border: 1px solid #444; font-size: 0.75em; letter-spacing: 1px; z-index: 2;" onmouseover="this.style.color='white'; this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.color='var(--text-secondary)'; this.style.background='rgba(0,0,0,0.4)'" onclick="abrirFicha('${codPuro}')">🔍 INSPECIONAR FICHA</button>
                 `;
                 playersBoard.appendChild(card);
             });
