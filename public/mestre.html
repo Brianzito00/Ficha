@@ -80,7 +80,7 @@
         .catalogo-grid-view, #pistas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; align-content: flex-start; padding-right: 5px; }
 
         .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-blue); background: #000; flex-shrink: 0; transition: border-color 0.3s, box-shadow 0.3s; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
         .monster-img { border-color: var(--accent-red); }
         .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
@@ -502,17 +502,19 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // CORREÇÃO: LÓGICA DE ATUALIZAÇÃO DO JOGADOR EM TEMPO REAL
-           const gerenciarAtualizacaoJogador = (dados) => {
+            // LÓGICA INFALÍVEL DE ATUALIZAÇÃO DO JOGADOR
+            const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
 
+                // Guarda tudo o que vem do FullData
                 if (dados.fullData) {
                     playersDataMemoria[codPuro].fullData = dados.fullData;
                 }
 
+                // Extracção Inteligente: Pega direto da raiz do objeto (se o ficha enviou) ou tenta puxar do fullData se existir
                 playersDataMemoria[codPuro].nome = dados.nome || playersDataMemoria[codPuro].fullData?.info?.char_nome || playersDataMemoria[codPuro].nome;
                 playersDataMemoria[codPuro].foto = dados.foto || playersDataMemoria[codPuro].fullData?.info?.char_img || playersDataMemoria[codPuro].foto;
                 playersDataMemoria[codPuro].nex = dados.nex !== undefined ? dados.nex : (playersDataMemoria[codPuro].fullData?.info?.char_nex !== undefined ? playersDataMemoria[codPuro].fullData?.info?.char_nex : playersDataMemoria[codPuro].nex);
@@ -535,6 +537,7 @@
 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
+                // O Segredo: O card do HTML deve ser recriado se não existir ou se for aquele card "Offline/Aguardando"
                 const cardExiste = document.getElementById(`player-${codPuro}`);
                 const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
@@ -542,6 +545,11 @@
                     renderizarJogadores();
                 } else {
                     atualizarDOMJogador(codPuro);
+                }
+
+                const iframe = document.getElementById('iframe-ficha');
+                if (iframe && iframe.src.includes(codPuro) && playersDataMemoria[codPuro].fullData) {
+                    iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: playersDataMemoria[codPuro].fullData}, '*');
                 }
             };
 
@@ -678,8 +686,7 @@
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
-        // CORREÇÃO: Atualização visual imediata das fotos e do HUD das bordas!
-    function atualizarDOMJogador(codPuro) {
+        function atualizarDOMJogador(codPuro) {
             const dados = playersDataMemoria[codPuro];
             if(!dados) return;
             const card = document.getElementById(`player-${codPuro}`);
@@ -774,7 +781,7 @@
                 const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
                 const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
                 
-                // Configurar estilos iniciais de status se existirem
+                // Define a cor da borda ao criar o ecrã se o Mestre fizer F5
                 let stBorderColor = 'var(--accent-blue)';
                 let stBoxShadow = 'none';
                 if (dados.status) {
@@ -789,6 +796,10 @@
                     <button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button>
                     <div class="player-header">
                         <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img" style="border-color: ${stBorderColor}; box-shadow: ${stBoxShadow}; transition: border-color 0.3s, box-shadow 0.3s;">
+                        <div>
+                            <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
+                            <div class="player-info-nexdef" style="font-size: 0.8em; color: var(--text-secondary); line-height: 1.4;">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
+                            <div style="font-size: 0.7em; color: gray; margin-top: 2px;">Usuário: ${codPuro}</div>
                         </div>
                     </div>
 
