@@ -187,8 +187,8 @@
     <div class="mestre-top-bar">
         <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-weight: 900; color: var(--accent-red); font-size: 1.4em; letter-spacing: 1px;">🛡️ ESCUDO DO MESTRE</span>
-            <input type="text" id="add-code-input" class="code-input" placeholder="Login do Jogador..." maxlength="30">
-            <button class="btn-add" onclick="adicionarJogador()">+ MANUAL</button>
+            <input type="text" id="add-code-input" class="code-input" placeholder="Login (Ex: JOAO123)" maxlength="30">
+            <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR NA MESA</button>
         </div>
         <div style="flex: 1;"></div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -196,7 +196,7 @@
                 <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
             </div>
             <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-            <button class="btn-remove-global" onclick="fazerLogout()">SAIR (LOBBY)</button>
+            <button class="btn-remove-global" onclick="fazerLogout()">SAIR DA MESA</button>
         </div>
     </div>
 
@@ -253,7 +253,7 @@
                         <label class="btn-add" style="padding: 8px 15px; margin: 0; cursor: pointer; background: var(--text-secondary); color: black;">📂 DO PC<input type="file" id="novo-mapa-file" accept="image/*" style="display: none;" onchange="carregarMapaPC(event)"></label>
                         <button class="btn-add" style="padding: 8px 15px; margin: 0;" onclick="adicionarMapa()">+ ADICIONAR MAPA</button>
                         <button class="btn-add" style="padding: 8px 15px; margin: 0; color: var(--accent-blue); background: transparent; border: 1px solid var(--accent-blue);" onclick="resetarMapaZoom()">🔍 CENTRAR</button>
-                        <button class="btn-add" style="padding: 8px 15px; margin: 0; background: var(--accent-red); color: white;" onclick="apagarMapaAtual()">🗑️ APAGAR</button>
+                        <button class="btn-remove-global" style="padding: 8px 15px; margin: 0; background: var(--accent-red); color: white; border-color: var(--accent-red);" onclick="apagarMapaAtual()">🗑️ APAGAR</button>
                     </div>
                 </div>
                 <div class="map-list" id="map-list-container"></div>
@@ -302,7 +302,7 @@
 
     <div id="modal-ficha" class="modal-overlay">
         <div style="width: 95%; max-width: 1400px; display: flex; justify-content: flex-end; flex-direction: column; gap: 10px;">
-            <button style="background: var(--accent-red); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; align-self: flex-end;" onclick="fecharFicha()">X FECHAR FICHA</button>
+            <button class="btn-remove-global" style="background: var(--accent-red); color: white; border: none; align-self: flex-end;" onclick="fecharFicha()">X FECHAR FICHA</button>
             <iframe id="iframe-ficha" src="" style="width: 100%; height: 85vh; border: 2px solid var(--border-color); border-radius: 12px; background: var(--bg-body);"></iframe>
         </div>
     </div>
@@ -329,8 +329,8 @@
         const socket = typeof io !== 'undefined' ? io() : null;
 
         // Variaveis de Estado
-        let listaJogadores = JSON.parse(localStorage.getItem('mesa_jogadores_' + campanhaAtiva)) || [];
-        let dataJogadores = JSON.parse(localStorage.getItem('mesa_dados_' + campanhaAtiva)) || {};
+        let listaJogadores = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
+        let dataJogadores = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva)) || [];
@@ -571,9 +571,9 @@
                         <button class="btn-remove-card" onclick="removerJogador('${cod}')">X</button>
                         <div class="player-header"><img id="foto-${cod}" src="${d.foto}" class="player-img"><div style="flex:1; min-width:0;"><h3 class="player-name">${d.nome}</h3><div style="font-size:0.7em; color:gray; font-family:monospace; margin-bottom:5px;">@${cod}</div><div style="display:flex; gap:5px;"><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">NEX <b style="color:#ffcf33;">${d.nex}%</b></span><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">DEF <b style="color:white;">${d.defesa}</b></span></div></div></div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input input-vida" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input input-sani" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input input-pe" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
                         </div>
                         <button class="btn-roll" style="margin-top: 5px;" onclick="abrirFicha('${cod}')">🔍 INSPECIONAR FICHA</button>
                     </div>
@@ -755,6 +755,200 @@
         function apagarPin() { const idEdit = document.getElementById('pin-id-edit').value; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa && idEdit) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); } }
         function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; renderizarMapaAtual(); renderizarMapasList(); }; btn.innerText = m.nome; list.appendChild(btn); }); }
         function renderizarMapaAtual() { const img = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); const mapa = mapas.find(x => x.id === currentMapaIdMap); if(mapa) { img.src = mapa.url; img.style.display = 'block'; pinsContainer.innerHTML = ''; if(mapa.pins) { mapa.pins.forEach(p => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = p.x + 'px'; pinEl.style.top = p.y + 'px'; pinEl.style.background = p.cor; pinEl.onclick = (e) => { e.stopPropagation(); abrirModalPin(p.id); }; pinEl.onmouseenter = (e) => { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = p.titulo; document.getElementById('tooltip-desc').innerText = p.desc; tooltip.style.left = p.x + 'px'; tooltip.style.top = (p.y - 15) + 'px'; tooltip.style.display = 'block'; tooltip.style.borderColor = p.cor; }; pinEl.onmouseleave = () => { document.getElementById('map-tooltip').style.display = 'none'; }; pinsContainer.appendChild(pinEl); }); } } else { img.style.display = 'none'; pinsContainer.innerHTML = ''; } }
+
+        // ================= PISTAS MESTRE =================
+        let editPistaIndex = null;
+        let tempPistaFotos = [];
+
+        function renderPistaFotosEdit() {
+            const list = document.getElementById('pista-imagens-list');
+            if(!list) return;
+            list.innerHTML = '';
+            if (tempPistaFotos.length === 0) {
+                list.innerHTML = '<span style="color:gray; font-size:0.8em; font-style:italic;">Nenhuma imagem adicionada.</span>';
+                return;
+            }
+            tempPistaFotos.forEach((f, i) => {
+                list.innerHTML += `<div style="display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.5); padding:5px; border-radius:4px; border:1px solid #444;">
+                    <span style="font-size:0.8em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:200px;">Página ${i+1}: ${f.startsWith('data:') ? '[Arquivo Local]' : f}</span>
+                    <button class="btn-remove-global" style="padding:2px 6px; font-size:0.8em;" onclick="removerFotoPistaEdit(${i})">X</button>
+                </div>`;
+            });
+        }
+
+        function adicionarFotoPistaURL() {
+            const inp = document.getElementById('pista-nova-foto');
+            if (inp && inp.value.trim() !== '') {
+                tempPistaFotos.push(inp.value.trim());
+                inp.value = '';
+                renderPistaFotosEdit();
+            }
+        }
+
+        function adicionarFotoPistaPC(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width; let h = img.height;
+                    const MAX_DIM = 1080;
+                    if (w > MAX_DIM || h > MAX_DIM) {
+                        if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; }
+                    }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    tempPistaFotos.push(canvas.toDataURL('image/jpeg', 0.7));
+                    renderPistaFotosEdit();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removerFotoPistaEdit(idx) {
+            tempPistaFotos.splice(idx, 1);
+            renderPistaFotosEdit();
+        }
+
+        function fecharModalPista() {
+            document.getElementById('modal-pista').style.display = 'none';
+            editPistaIndex = null;
+            tempPistaFotos = []; 
+        }
+
+        function abrirModalPista(idx = null) {
+            editPistaIndex = idx;
+            const inpFoto = document.getElementById('pista-nova-foto');
+            if(inpFoto) inpFoto.value = '';
+            
+            if(idx !== null) { 
+                const p = pistasMestre[idx]; 
+                document.getElementById('pista-titulo').value = p.titulo || p.n || ''; 
+                document.getElementById('pista-desc').value = p.desc || p.d || ''; 
+                tempPistaFotos = p.fotos && p.fotos.length > 0 ? [...p.fotos] : (p.foto || p.img ? [p.foto || p.img] : []);
+                document.getElementById('modal-pista-title').innerText = "Editar Pista"; 
+            } else { 
+                document.getElementById('pista-titulo').value = ''; 
+                document.getElementById('pista-desc').value = ''; 
+                tempPistaFotos = [];
+                document.getElementById('modal-pista-title').innerText = "Criar Nova Pista"; 
+            }
+            renderPistaFotosEdit();
+            document.getElementById('modal-pista').style.display = 'flex';
+        }
+        
+        function salvarPista() {
+            const titulo = document.getElementById('pista-titulo').value.trim(); 
+            const desc = document.getElementById('pista-desc').value.trim(); 
+            
+            if(!titulo) { alert("A pista precisa de um título."); return; }
+
+            const fotosFinal = [...tempPistaFotos];
+            const novaPista = { id: editPistaIndex !== null ? pistasMestre[editPistaIndex].id : 'pista_' + Date.now(), titulo: titulo, n: titulo, foto: fotosFinal.length > 0 ? fotosFinal[0] : '', img: fotosFinal.length > 0 ? fotosFinal[0] : '', fotos: fotosFinal, imgs: fotosFinal, desc: desc, d: desc };
+            
+            if(editPistaIndex !== null) { pistasMestre[editPistaIndex] = novaPista; } else { pistasMestre.push(novaPista); }
+            
+            localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); 
+            salvarMestreNoFirebase(); renderizarPistas(); fecharModalPista();
+        }
+
+        function renderizarPistas() {
+            const grid = document.getElementById('pistas-grid'); if(!grid) return; grid.innerHTML = '';
+            if(pistasMestre.length === 0) { grid.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma pista criada.</span>`; return; }
+            
+            pistasMestre.forEach((p, idx) => {
+                let coverImg = (p.fotos && p.fotos.length > 0) ? p.fotos[0] : (p.foto || p.img || "https://via.placeholder.com/150x100/202024/ffcf33?text=PISTA");
+                let paginasHtml = (p.fotos && p.fotos.length > 1) ? `<div style="position:absolute; top:5px; left:5px; background:var(--accent-blue); color:black; font-weight:bold; font-size:0.7em; padding:2px 6px; border-radius:4px; z-index:5;">${p.fotos.length} Págs</div>` : '';
+                
+                const card = document.createElement('div'); card.className = 'pista-card';
+                card.style.cssText = `position:relative; padding:15px; border:1px solid rgba(255,207,51,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; gap:10px;`;
+                card.innerHTML = `
+                    ${paginasHtml}
+                    <button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue); color:black; z-index:10;" onmousedown="abrirModalPista(${idx})" ontouchstart="abrirModalPista(${idx})">✏️</button>
+                    <button class="btn-remove-card" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onmousedown="apagarPista(${idx})" ontouchstart="apagarPista(${idx})">X</button>
+                    <img src="${coverImg}" style="width:100%; height:120px; object-fit:contain; border-radius:6px; background: rgba(0,0,0,0.3); pointer-events:none;">
+                    <div style="font-weight:bold; color:var(--accent-yellow); font-size:1.1em; text-transform:uppercase;">${p.titulo || p.n}</div>
+                    <div style="font-size:0.75em; color:var(--text-secondary); max-height:40px; overflow:hidden; text-overflow:ellipsis;">${p.desc || p.d || ''}</div>
+                    <button class="btn-roll" style="background:var(--accent-blue); color:black; margin-top:5px; z-index:10;" onmousedown="openPistaView(${idx})" ontouchstart="openPistaView(${idx})">🔍 INSPECIONAR</button>
+                    <button type="button" class="btn-roll" id="btn-env-pista-${p.id}" style="background:var(--accent-yellow); color:black; margin-top:5px; z-index:20; position:relative;" onmousedown="enviarPistaParaTodosPorId(event, '${p.id}')" ontouchstart="enviarPistaParaTodosPorId(event, '${p.id}')">📤 ENVIAR</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        let currentPistaZoom = 1; let pistaTx = 0; let pistaTy = 0; let isDraggingPista = false; let startPX = 0; let startPY = 0; let currentPistaViewIndex = 0; let currentPistaViewFotos = [];
+
+        function applyPistaTransform() { const img = document.getElementById('pista-view-img'); if(img) img.style.transform = `translate(${pistaTx}px, ${pistaTy}px) scale(${currentPistaZoom})`; }
+        function zoomPista(delta) { currentPistaZoom += delta; if(currentPistaZoom < 0.5) currentPistaZoom = 0.5; if(currentPistaZoom > 10) currentPistaZoom = 10; applyPistaTransform(); }
+        function resetPistaZoom() { currentPistaZoom = 1; pistaTx = 0; pistaTy = 0; applyPistaTransform(); }
+
+        function openPistaView(idx) {
+            const p = pistasMestre[idx]; if(!p) return;
+            document.getElementById('pista-view-title').innerText = p.titulo || p.n || 'PISTA';
+            document.getElementById('pista-view-desc').innerHTML = p.desc || p.d || '';
+            currentPistaViewFotos = p.fotos && p.fotos.length > 0 ? p.fotos : (p.foto || p.img ? [p.foto || p.img] : []);
+            currentPistaViewIndex = 0;
+            document.getElementById('popup-pista').style.display = 'flex';
+            resetPistaZoom(); renderPistaPage();
+        }
+
+        function mudarPaginaPista(dir) {
+            if (currentPistaViewFotos.length <= 1) return;
+            currentPistaViewIndex += dir;
+            if(currentPistaViewIndex < 0) currentPistaViewIndex = currentPistaViewFotos.length - 1;
+            if(currentPistaViewIndex >= currentPistaViewFotos.length) currentPistaViewIndex = 0;
+            resetPistaZoom(); renderPistaPage();
+        }
+
+        function renderPistaPage() {
+            const imgWrapper = document.getElementById('pista-img-wrapper'); const img2d = document.getElementById('pista-view-img'); const view3d = document.getElementById('pista-view-3d'); const controlsPage = document.getElementById('pista-page-controls'); const indicator = document.getElementById('pista-page-indicator');
+            if (currentPistaViewFotos.length > 1) { controlsPage.style.display = 'flex'; indicator.innerText = `${currentPistaViewIndex + 1} / ${currentPistaViewFotos.length}`; } else { controlsPage.style.display = 'none'; }
+            imgWrapper.style.display = 'none'; img2d.style.display = 'none'; if (view3d) view3d.style.display = 'none';
+            if (currentPistaViewFotos.length > 0 && currentPistaViewFotos[currentPistaViewIndex].trim() !== '') {
+                let imgUrl = currentPistaViewFotos[currentPistaViewIndex]; imgWrapper.style.display = 'block';
+                if (imgUrl.toLowerCase().endsWith('.glb') || imgUrl.toLowerCase().endsWith('.gltf')) { if (view3d) { view3d.src = imgUrl; view3d.style.display = 'block'; } document.getElementById('pista-controls-2d').style.display = 'none'; } 
+                else { img2d.src = imgUrl; img2d.style.display = 'block'; document.getElementById('pista-controls-2d').style.display = 'flex'; }
+            }
+        }
+
+        function closePista() { document.getElementById('popup-pista').style.display = 'none'; const view3d = document.getElementById('pista-view-3d'); if (view3d) view3d.style.display = 'none'; }
+        function apagarPista(idx) { if(confirm("Deseja apagar?")) { pistasMestre.splice(idx, 1); localStorage.setItem('mestre_pistas_' + campanhaAtiva, JSON.stringify(pistasMestre)); salvarMestreNoFirebase(); renderizarPistas(); } }
+        
+        function enviarPistaParaTodosPorId(e, id) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            const pista = pistasMestre.find(x => x.id === id); if(!pista) return; 
+            let btn = document.getElementById('btn-env-pista-' + id);
+            if(btn && btn.innerHTML === "✔️ ENVIADA!") return; 
+            if (listaJogadores.length === 0) { if(btn) { let oldText = btn.innerHTML; btn.innerHTML = "❌ SEM JOGADORES"; btn.style.background = "var(--accent-red)"; btn.style.color = "white"; setTimeout(()=> { btn.innerHTML = oldText; btn.style.background = "var(--accent-yellow)"; btn.style.color = "black"; }, 2000); } return; }
+            
+            const pistaFormatada = { id: pista.id, n: pista.titulo || pista.n, d: pista.desc || pista.d, img: pista.foto || pista.img, imgs: pista.fotos && pista.fotos.length > 0 ? pista.fotos : (pista.foto ? [pista.foto] : []) };
+            listaJogadores.forEach(alvo => { 
+                const upperCode = alvo.toUpperCase(); 
+                if (socket) socket.emit('comando_mestre', { tipo: 'dar_pista', codigo: upperCode, pista: pistaFormatada }); 
+                let pData = dataJogadores[upperCode]; 
+                if (pData && pData.fullData) { 
+                    if (!pData.fullData.pistas) pData.fullData.pistas = []; 
+                    if(!pData.fullData.pistas.find(x => x.id === pistaFormatada.id)) { pData.fullData.pistas.push(pistaFormatada); localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(dataJogadores)); const dbPlayerId = upperCode + '_' + campanhaAtiva; fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) }).catch(()=>{}); } 
+                } 
+            });
+            
+            if(btn) { let oldText = btn.innerHTML; btn.innerHTML = "✔️ ENVIADA!"; btn.style.background = "var(--accent-green)"; setTimeout(()=> { btn.innerHTML = oldText; btn.style.background = "var(--accent-yellow)"; }, 2000); }
+        }
+
+        setTimeout(() => {
+            const pistaWrapper = document.getElementById('pista-img-wrapper');
+            if(pistaWrapper) {
+                pistaWrapper.addEventListener('wheel', (e) => { e.preventDefault(); zoomPista(e.deltaY < 0 ? 0.15 : -0.15); });
+                pistaWrapper.addEventListener('mousedown', (e) => { if(e.target.tagName === 'BUTTON') return; isDraggingPista = true; startPX = e.clientX - pistaTx; startPY = e.clientY - pistaTy; pistaWrapper.style.cursor = 'grabbing'; });
+                window.addEventListener('mousemove', (e) => { if (!isDraggingPista) return; e.preventDefault(); pistaTx = e.clientX - startPX; pistaTy = e.clientY - startPY; applyPistaTransform(); });
+                window.addEventListener('mouseup', () => { isDraggingPista = false; if(pistaWrapper) pistaWrapper.style.cursor = 'grab'; });
+            }
+        }, 1000);
 
         // ================= ITENS CATÁLOGO MESTRE =================
         function toggleVisibilidadeItem(idx) { catalogoMestre[idx].visivel = catalogoMestre[idx].visivel === false ? true : false; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); renderizarCatalogo(); sincronizarCatalogoGeral(); }
