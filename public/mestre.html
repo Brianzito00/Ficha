@@ -44,13 +44,9 @@
         .fade-in { animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
         /* BARRA DO TOPO */
-        .mestre-top-bar { 
-            background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; 
-            border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; 
-            align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
-        }
-        .code-input { padding: 10px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.9em; width: 200px; margin-left: 20px; }
-        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .mestre-top-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 25px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; box-shadow: 0 8px 32px rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .code-input { padding: 8px; background: rgba(18,18,20,0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; text-transform: uppercase; font-size: 0.8em; width: 150px; margin-left: 20px; }
+        .btn-add { background: var(--accent-green); border: none; color: black; font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .btn-add:hover { filter: brightness(1.2); transform: scale(1.02); }
         .btn-remove-global { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); font-weight: bold; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .btn-remove-global:hover { background: var(--accent-red); color: white; }
@@ -191,18 +187,16 @@
     <div class="mestre-top-bar">
         <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-weight: 900; color: var(--accent-red); font-size: 1.4em; letter-spacing: 1px;">🛡️ ESCUDO DO MESTRE</span>
-            <input type="text" id="add-code-input" class="code-input" placeholder="Login (Ex: JOAO123)" maxlength="30">
-            <button class="btn-add" onclick="adicionarJogador()">+ ADICIONAR NA MESA</button>
+            <input type="text" id="add-code-input" class="code-input" placeholder="Login do Jogador..." maxlength="30">
+            <button class="btn-add" onclick="adicionarJogador()">+ MANUAL</button>
         </div>
-        
         <div style="flex: 1;"></div>
-
         <div style="display: flex; gap: 10px; align-items: center;">
             <div style="background: rgba(18, 18, 20, 0.8); border: 2px solid var(--accent-yellow); padding: 8px 15px; border-radius: 6px; font-weight: bold; color: var(--accent-yellow);">
                 <span id="save-status" style="font-size: 0.8em; color: var(--text-secondary); font-style: italic;">Sincronizado ✔️</span>
             </div>
             <button class="btn-add" style="background: var(--accent-purple); color: white;" onclick="window.open('/overlay.html?mesa=' + campanhaAtiva, '_blank')">📺 ABRIR OVERLAY</button>
-            <button class="btn-remove-global" onclick="fazerLogout()">SAIR DA MESA</button>
+            <button class="btn-remove-global" onclick="fazerLogout()">SAIR (LOBBY)</button>
         </div>
     </div>
 
@@ -326,6 +320,7 @@
     <div id="modal-criatura" class="modal-overlay"><div class="modal-content" style="max-width: 750px;"><h2 style="color: var(--accent-red); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar / Editar Criatura</h2><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>Nome da Criatura</label><input type="text" id="c-nome" class="monster-input"></div><div class="form-group" style="flex:1; min-width: 150px;"><label>Presença Perturbadora</label><input type="text" id="c-presenca" class="monster-input" placeholder="Ex: ND 50 / 4d6"></div></div><div style="display:flex; gap: 10px; flex-wrap: wrap;"><div class="form-group" style="flex:2; min-width: 200px;"><label>URL da Foto (Opcional)</label><input type="text" id="c-foto" class="monster-input" placeholder="https://..."></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Defesa</label><input type="number" id="c-defesa" class="monster-input" value="10"></div><div class="form-group" style="flex:1; min-width: 100px;"><label>Pontos de Vida</label><input type="number" id="c-vida" class="monster-input" value="100"></div></div><div class="form-group"><label>Atributos Principais</label><div class="attr-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;"><div><span style="font-size:0.7em; color:var(--text-secondary);">AGI</span><input type="number" id="c-agi" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">FOR</span><input type="number" id="c-for" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">INT</span><input type="number" id="c-int" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">PRE</span><input type="number" id="c-pre" class="monster-input" value="1" style="text-align:center;"></div><div><span style="font-size:0.7em; color:var(--text-secondary);">VIG</span><input type="number" id="c-vig" class="monster-input" value="1" style="text-align:center;"></div></div></div><div class="form-group"><label>Perícias Base</label><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;"><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-luta"> Luta (FOR)</label><input type="number" id="c-bonus-luta" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-pontaria"> Pontaria (AGI)</label><input type="number" id="c-bonus-pontaria" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-ocultismo"> Ocultismo (INT)</label><input type="number" id="c-bonus-ocultismo" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-iniciativa"> Iniciativa (AGI)</label><input type="number" id="c-bonus-iniciativa" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-reflexos"> Reflexos (AGI)</label><input type="number" id="c-bonus-reflexos" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-percepcao"> Percepção (PRE)</label><input type="number" id="c-bonus-percepcao" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-vontade"> Vontade (PRE)</label><input type="number" id="c-bonus-vontade" class="monster-input" value="0"></div><div class="skill-group" style="display: flex; flex-direction: column; gap: 4px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; border: 1px solid #333;"><label style="display: flex; align-items: center; gap: 5px; font-size: 0.8em; color: var(--text-primary);"><input type="checkbox" id="c-treino-fortitude"> Fortitude (VIG)</label><input type="number" id="c-bonus-fortitude" class="monster-input" value="0"></div></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Ações e Ataques <button onclick="addCampoAtaque('c-ataques-list')" class="btn-ctrl" style="width: auto; padding: 0 10px; background: var(--accent-yellow); color: black;">+ Novo Ataque</button></label><div id="c-ataques-list"></div></div><div class="form-group"><label style="display: flex; justify-content: space-between; align-items: center;">Poderes Passivos / Enigmas <button onclick="addCampoPoder('c-poderes-list')" class="btn-ctrl" style="width: auto; padding: 0 10px;">+ Novo Poder</button></label><div id="c-poderes-list"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalCriatura()">Cancelar</button><button class="btn-add" style="background: var(--accent-red); color: white; flex: 2; font-size: 1.1em;" onclick="salvarCriatura()">Guardar Criatura</button></div></div></div>
     
     <div id="popup-pista" class="modal-overlay" onclick="closePista()"><div class="modal-content" style="width: 700px; max-width: 95%; padding: 30px;" onclick="event.stopPropagation()"><h3 id="pista-view-title" style="color: var(--accent-blue); text-align: center; margin-top: 0; text-transform: uppercase; font-size: 1.5em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">TITULO</h3><div id="pista-img-wrapper" style="display: none; position: relative; width: 100%; height: 400px; background: rgba(0,0,0,0.8); border-radius: 8px; margin-bottom: 20px; overflow: hidden; border: 2px solid var(--accent-blue); cursor: grab; touch-action: none;"><div id="pista-page-controls" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:15; display:flex; gap:15px; background:rgba(0,0,0,0.8); padding:5px 15px; border-radius:20px; border:1px solid var(--accent-yellow); align-items:center;"><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(-1)">⬅️</button><span id="pista-page-indicator" style="color:white; font-weight:bold; font-size:1em;">1 / 1</span><button class="btn-ctrl" style="background:transparent; border:none; font-size:1.2em; color:var(--accent-yellow);" onclick="mudarPaginaPista(1)">➡️</button></div><img id="pista-view-img" src="" style="width: 100%; height: 100%; object-fit: contain; transform-origin: center; pointer-events: none;"><model-viewer id="pista-view-3d" src="" auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 100%; display: none; background-color: transparent; outline: none;"></model-viewer><div id="pista-controls-2d" style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;"><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(0.2)">➕</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="zoomPista(-0.2)">➖</button><button class="btn-ctrl" style="background: rgba(0,0,0,0.7); border-color: var(--accent-blue); color: white;" onclick="resetPistaZoom()">🔄</button></div></div><div id="pista-view-desc" style="color: #e1e1e6; font-size: 1.1em; line-height: 1.6; white-space: pre-wrap; background: rgba(18,18,20,0.9); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);"></div><button class="btn-remove-global" style="width: 100%; margin-top: 20px; padding: 15px; font-size: 1.2em; font-weight: bold; background: var(--accent-red); color: white; border: none; cursor: pointer;" onclick="closePista()">FECHAR PISTA</button></div></div>
+    
     <div id="modal-pista" class="modal-overlay" onclick="fecharModalPista()"><div class="modal-content" style="max-width: 600px;" onclick="event.stopPropagation()"><h2 id="modal-pista-title" style="color: var(--accent-yellow); margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Criar Nova Pista</h2><div class="form-group"><label>Título da Pista</label><input type="text" id="pista-titulo" class="monster-input"></div><div class="form-group"><label>Descrição (Texto)</label><textarea id="pista-desc" class="monster-input" style="height: 100px; resize: none;"></textarea></div><div class="form-group" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);"><label style="color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">Imagens / Modelos 3D</label><div style="display: flex; gap: 10px; margin-bottom: 10px; margin-top: 5px;"><input type="text" id="pista-nova-foto" class="monster-input" placeholder="URL da Imagem ou .glb" style="flex: 2;"><button class="btn-add" style="flex: 1; padding: 10px; background: var(--accent-blue); color: black;" onclick="adicionarFotoPistaURL()">Adicionar</button></div><div style="text-align: center; margin-bottom: 10px; font-size: 0.9em; color: var(--text-secondary);">OU</div><label class="btn-add" style="display: block; text-align: center; background: #444; color: white; padding: 10px; cursor: pointer; border-radius: 6px;">📂 Selecionar do PC<input type="file" accept="image/*,.glb,.gltf" style="display: none;" onchange="adicionarFotoPistaPC(event)"></label><div id="pista-imagens-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; max-height: 150px; overflow-y: auto; padding-right: 5px;"></div></div><div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;"><button class="btn-remove-global" style="flex: 1; background: #333; border: none; color: white;" onclick="fecharModalPista()">Cancelar</button><button class="btn-add" style="background: var(--accent-yellow);" onclick="salvarPista()">Guardar Pista</button></div></div></div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -334,8 +329,8 @@
         const socket = typeof io !== 'undefined' ? io() : null;
 
         // Variaveis de Estado
-        let listaJogadores = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
-        let dataJogadores = JSON.parse(localStorage.getItem('mestre_players_data_' + campanhaAtiva)) || {};
+        let listaJogadores = JSON.parse(localStorage.getItem('mesa_jogadores_' + campanhaAtiva)) || [];
+        let dataJogadores = JSON.parse(localStorage.getItem('mesa_dados_' + campanhaAtiva)) || {};
         let iniciativaList = JSON.parse(localStorage.getItem('mestre_iniciativa_' + campanhaAtiva)) || [];
         let monstros = JSON.parse(localStorage.getItem('mestre_monstros_' + campanhaAtiva)) || [];
         let roteiros = JSON.parse(localStorage.getItem('mestre_roteiros_' + campanhaAtiva)) || [];
@@ -348,11 +343,11 @@
         let currentMapaIdMap = null; let editMonstroId = null; let turnoAtualIndex = 0;
         let mapScale = 1; let mapTx = 0; let mapTy = 0; let isDraggingMap = false; let startMapX = 0; let startMapY = 0; let pinTargetX = 0; let pinTargetY = 0;
 
-        // Inicialização do Catálogo Padrão de Itens
+        // Inicialização do Catálogo Padrão
         let defaultItensRaw = [
-            { n: 'Kit de Medicina', w: 1, h: 1, type: 'comum', desc: 'Usado para curar ferimentos e estabilizar aliados.' },
+            { n: 'Kit de Medicina', w: 1, h: 1, type: 'comum', desc: 'Usado para curar ferimentos e estabilizar aliados (+5 Medicina).' },
             { n: 'Mochila Militar', w: 2, h: 2, type: 'comum', desc: 'Adiciona +2 de capacidade máxima de carga.' },
-            { n: 'Bandagem', w: 1, h: 1, type: 'comum', desc: 'Estanca sangramentos rápidos.' },
+            { n: 'Bandagem', w: 1, h: 1, type: 'comum', desc: 'Estanca sangramentos.' },
             { n: 'Faca', w: 1, h: 1, type: 'armacc', dmg: '1d4', crit: '19/x2', range: 'Curto', ammo: 'Nenhuma', cap: 0, skill: 'Luta' },
             { n: 'Katana', w: 1, h: 3, type: 'armacc', dmg: '1d10', crit: '19/x2', range: 'Curto', ammo: 'Nenhuma', cap: 0, skill: 'Luta' },
             { n: 'Pistola', w: 1, h: 1, type: 'armadisp', dmg: '1d10', crit: '18/x2', range: 'Curto', ammo: 'Curta', cap: 15, skill: 'Pontaria' },
@@ -382,13 +377,13 @@
             {id:'r_def_8',n:'Alterar Destino',circ:'4º',el:'Energia',ex:'Reação',alc:'Pessoal',alv:'Você',dur:'Instantânea',res:'Nenhuma',descGeral:'Vislumbra seu futuro próximo. Recebe +15 num teste.',descDisc:'-',descVerd:'Muda o alcance para curto e o alvo para um aliado.',visivel:true,img:''}
         ];
 
-        if (catalogoMestre.length === 0) { catalogoMestre = defaultItens; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); }
-        if (catalogoRituaisMestre.length === 0) { catalogoRituaisMestre = defaultRituais; localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); }
+        if (!catalogoMestre || catalogoMestre.length === 0) { catalogoMestre = defaultItens; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); }
+        if (!catalogoRituaisMestre || catalogoRituaisMestre.length === 0) { catalogoRituaisMestre = defaultRituais; localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); }
 
         const logBox = document.getElementById('log-box'); 
         let debounceTimer;
 
-        // ================= FUNÇÕES DO SISTEMA =================
+        // ================= FUNÇÕES DO SISTEMA (BASE E SAVE) =================
         function salvarMemoria() {
             localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(listaJogadores));
             localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(dataJogadores));
@@ -523,7 +518,7 @@
             }
         });
 
-        // ================= JOGADORES =================
+        // ================= JOGADORES (UI DIRETA) =================
         function adicionarJogador() {
             const input = document.getElementById('add-code-input'); const cod = input.value.toUpperCase().trim();
             if (cod && !listaJogadores.includes(cod)) {
@@ -576,9 +571,9 @@
                         <button class="btn-remove-card" onclick="removerJogador('${cod}')">X</button>
                         <div class="player-header"><img id="foto-${cod}" src="${d.foto}" class="player-img"><div style="flex:1; min-width:0;"><h3 class="player-name">${d.nome}</h3><div style="font-size:0.7em; color:gray; font-family:monospace; margin-bottom:5px;">@${cod}</div><div style="display:flex; gap:5px;"><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">NEX <b style="color:#ffcf33;">${d.nex}%</b></span><span style="background:rgba(0,0,0,0.5); border:1px solid #444; padding:3px 6px; font-size:0.75em; border-radius:4px;">DEF <b style="color:white;">${d.defesa}</b></span></div></div></div>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input input-vida" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input input-sani" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
-                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input input-pe" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #e53935;"><span class="stat-label" style="color: #e53935;">VIDA</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', -1)">-</button><input type="number" id="vida-${cod}" class="stat-input" value="${d.vida}"><span style="color:gray; font-size:0.8em;">/${vMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'vida', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #00b0ff;"><span class="stat-label" style="color: #00b0ff;">SANI</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', -1)">-</button><input type="number" id="sani-${cod}" class="stat-input" value="${d.sani}"><span style="color:gray; font-size:0.8em;">/${sMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'sani', 1)">+</button></div></div>
+                            <div class="stat-row" style="border-left: 4px solid #ffcf33;"><span class="stat-label" style="color: #ffcf33;">P.E.</span><div style="display:flex; align-items:center; gap:5px;"><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', -1)">-</button><input type="number" id="pe-${cod}" class="stat-input" value="${d.pe}"><span style="color:gray; font-size:0.8em;">/${pMax}</span><button class="btn-ctrl" onclick="alterarMestre('${cod}', 'pe', 1)">+</button></div></div>
                         </div>
                         <button class="btn-roll" style="margin-top: 5px;" onclick="abrirFicha('${cod}')">🔍 INSPECIONAR FICHA</button>
                     </div>
@@ -713,6 +708,218 @@
             let totalIniciativa = dadoPuro + bonusCalc; let objIndex = iniciativaList.findIndex(i => i.id === idUnico);
             if (objIndex > -1) { iniciativaList[objIndex] = { id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }; } else { iniciativaList.push({ id: idUnico, isPlayer, nome: nomeStr, foto, dado: dadoPuro, bonus: bonusCalc, agi: agiBase, total: totalIniciativa }); }
             renderizarIniciativa(); 
+        }
+
+        // ================= ROTEIRO =================
+        let currentRoteiroId = null; let roteiroEditorTimeout; 
+        if (!roteiros || roteiros.length === 0) { roteiros = [{ id: 'sessao_1', titulo: 'Sessão 1', texto: '' }]; localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); }
+        function renderRoteiros() { const list = document.getElementById('roteiro-list'); list.innerHTML = ''; roteiros.forEach(r => { const btn = document.createElement('div'); btn.className = `session-btn ${r.id === currentRoteiroId ? 'active' : ''}`; btn.onclick = () => carregarRoteiro(r.id); btn.innerHTML = `<span>${r.titulo}</span> <button class="btn-remove-global" style="padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarRoteiro('${r.id}')">X</button>`; list.appendChild(btn); }); }
+        function renderDescricoes() { const list = document.getElementById('descricao-list'); list.innerHTML = ''; descricoes.forEach(d => { const btn = document.createElement('div'); btn.className = `session-btn ${d.id === currentRoteiroId ? 'active-desc' : ''}`; btn.onclick = () => carregarDescricao(d.id); btn.innerHTML = `<span>${d.titulo}</span> <button class="btn-remove-global" style="padding: 2px 6px; font-size: 0.8em;" onclick="event.stopPropagation(); apagarDescricao('${d.id}')">X</button>`; list.appendChild(btn); }); }
+        function adicionarRoteiro() { const novo = { id: 'sessao_' + Date.now(), titulo: 'Nova Sessão', texto: '' }; roteiros.push(novo); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); renderRoteiros(); carregarRoteiro(novo.id); }
+        function adicionarDescricao() { const novo = { id: 'desc_' + Date.now(), titulo: 'Novo Objeto/Local', texto: '' }; descricoes.push(novo); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); renderDescricoes(); carregarDescricao(novo.id); }
+        function apagarRoteiro(id) { if(confirm("Deseja apagar esta sessão?")) { roteiros = roteiros.filter(r => r.id !== id); localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderRoteiros(); atualizarEditor(); } }
+        function apagarDescricao(id) { if(confirm("Deseja apagar esta descrição?")) { descricoes = descricoes.filter(d => d.id !== id); localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); if(currentRoteiroId === id) currentRoteiroId = null; renderDescricoes(); atualizarEditor(); } }
+        function carregarRoteiro(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function carregarDescricao(id) { currentRoteiroId = id; renderRoteiros(); renderDescricoes(); atualizarEditor(); }
+        function atualizarEditor() { const inputTitulo = document.getElementById('roteiro-titulo-atual'); const areaTexto = document.getElementById('roteiro-text'); if(!currentRoteiroId) { inputTitulo.value = ''; inputTitulo.disabled = true; areaTexto.value = ''; areaTexto.disabled = true; return; } inputTitulo.disabled = false; areaTexto.disabled = false; let item = roteiros.find(r => r.id === currentRoteiroId) || descricoes.find(d => d.id === currentRoteiroId); if(item) { inputTitulo.value = item.titulo; areaTexto.value = item.texto; } }
+        document.getElementById('roteiro-titulo-atual').addEventListener('input', (e) => { if(!currentRoteiroId) return; const val = e.target.value; let item = roteiros.find(r => r.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderRoteiros(); } else { item = descricoes.find(d => d.id === currentRoteiroId); if(item) { item.titulo = val || 'Sem Título'; renderDescricoes(); } } salvarTextoEditor(); });
+        document.getElementById('roteiro-text').addEventListener('input', salvarTextoEditor);
+        function salvarTextoEditor() { if(!currentRoteiroId) return; const status = document.getElementById('roteiro-status'); status.innerText = 'A guardar...'; status.style.color = 'var(--accent-yellow)'; clearTimeout(roteiroEditorTimeout); roteiroEditorTimeout = setTimeout(() => { const val = document.getElementById('roteiro-text').value; let isRoteiro = true; let item = roteiros.find(r => r.id === currentRoteiroId); if(!item) { item = descricoes.find(d => d.id === currentRoteiroId); isRoteiro = false; } if(item) { item.texto = val; if(isRoteiro) localStorage.setItem('mestre_roteiros_' + campanhaAtiva, JSON.stringify(roteiros)); else localStorage.setItem('mestre_descricoes_' + campanhaAtiva, JSON.stringify(descricoes)); salvarMestreNoFirebase(); } status.innerText = 'Guardado ✔️'; status.style.color = 'var(--accent-green)'; setTimeout(() => { status.innerText = 'Sincronizado'; status.style.color = 'var(--text-secondary)'; }, 2000); }, 1000); }
+
+        // ================= MAPAS =================
+        function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim() || 'Novo Mapa'; let url = document.getElementById('novo-mapa-url').value.trim(); const fileInput = document.getElementById('novo-mapa-file'); if (fileInput.dataset.base64 && url === "ARQUIVO CARREGADO") { url = fileInput.dataset.base64; } if (!url) return alert("Insira uma URL ou carregue uma imagem."); const novoMapa = { id: 'mapa_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; delete fileInput.dataset.base64; renderizarMapasList(); renderizarMapaAtual(); }
+        function carregarMapaPC(event) { 
+            const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); 
+            reader.onload = function(e) { 
+                const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; const MAX_DIM = 1920; if (w > MAX_DIM || h > MAX_DIM) { if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); const inputUrl = document.getElementById('novo-mapa-url'); inputUrl.value = "ARQUIVO CARREGADO"; inputUrl.dataset.base64 = canvas.toDataURL('image/jpeg', 0.7); }; img.src = e.target.result; 
+            }; reader.readAsDataURL(file); 
+        }
+        function apagarMapaAtual() { if (!currentMapaIdMap) return; if (confirm("Apagar mapa atual?")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); renderizarMapasList(); renderizarMapaAtual(); } }
+        function resetarMapaZoom() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
+        function applyMapTransform() { const wrapper = document.getElementById('map-transform-wrapper'); if (wrapper) wrapper.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`; }
+        
+        setTimeout(() => {
+            const mapContainer = document.getElementById('map-view');
+            if(mapContainer) {
+                mapContainer.addEventListener('wheel', (e) => { e.preventDefault(); mapScale += e.deltaY < 0 ? 0.1 : -0.1; if(mapScale < 0.2) mapScale = 0.2; if(mapScale > 5) mapScale = 5; applyMapTransform(); }, { passive: false });
+                mapContainer.addEventListener('mousedown', (e) => { if(e.button !== 0) return; if(e.target.classList.contains('map-pin-marker')) return; isDraggingMap = true; startMapX = e.clientX - mapTx; startMapY = e.clientY - mapTy; mapContainer.style.cursor = 'grabbing'; });
+                window.addEventListener('mousemove', (e) => { if (!isDraggingMap) return; e.preventDefault(); mapTx = e.clientX - startMapX; mapTy = e.clientY - startMapY; applyMapTransform(); });
+                window.addEventListener('mouseup', () => { isDraggingMap = false; if(mapContainer) mapContainer.style.cursor = 'grab'; });
+                mapContainer.addEventListener('contextmenu', (e) => { e.preventDefault(); if(!currentMapaIdMap) return; if(e.target.classList.contains('map-pin-marker')) return; const rect = document.getElementById('map-content').getBoundingClientRect(); pinTargetX = (e.clientX - rect.left) / mapScale; pinTargetY = (e.clientY - rect.top) / mapScale; abrirModalPin(); });
+            }
+        }, 1000);
+
+        function abrirModalPin(pinId = null) { document.getElementById('pin-id-edit').value = pinId || ''; if (pinId) { const mapa = mapas.find(m => m.id === currentMapaIdMap); const pin = mapa.pins.find(p => p.id === pinId); document.getElementById('pin-title').value = pin.titulo; document.getElementById('pin-desc').value = pin.desc; document.getElementById('pin-color').value = pin.cor; document.getElementById('btn-delete-pin').style.display = 'block'; } else { document.getElementById('pin-title').value = 'Novo Local'; document.getElementById('pin-desc').value = ''; document.getElementById('pin-color').value = '#e53935'; document.getElementById('btn-delete-pin').style.display = 'none'; } document.getElementById('modal-pin').style.display = 'flex'; }
+        function fecharModalPin() { document.getElementById('modal-pin').style.display = 'none'; }
+        function salvarPin() { const mapa = mapas.find(m => m.id === currentMapaIdMap); if (!mapa) return; const idEdit = document.getElementById('pin-id-edit').value; const titulo = document.getElementById('pin-title').value; const desc = document.getElementById('pin-desc').value; const cor = document.getElementById('pin-color').value; if (!mapa.pins) mapa.pins = []; if (idEdit) { const pin = mapa.pins.find(p => p.id === idEdit); if (pin) { pin.titulo = titulo; pin.desc = desc; pin.cor = cor; } } else { mapa.pins.push({ id: 'pin_' + Date.now(), titulo: titulo, desc: desc, cor: cor, x: pinTargetX, y: pinTargetY }); } localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); }
+        function apagarPin() { const idEdit = document.getElementById('pin-id-edit').value; const mapa = mapas.find(m => m.id === currentMapaIdMap); if (mapa && idEdit) { mapa.pins = mapa.pins.filter(p => p.id !== idEdit); localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); fecharModalPin(); renderizarMapaAtual(); } }
+        function renderizarMapasList() { const list = document.getElementById('map-list-container'); list.innerHTML = ''; mapas.forEach(m => { const btn = document.createElement('div'); btn.className = `map-btn ${m.id === currentMapaIdMap ? 'active' : ''}`; btn.onclick = () => { currentMapaIdMap = m.id; renderizarMapaAtual(); renderizarMapasList(); }; btn.innerText = m.nome; list.appendChild(btn); }); }
+        function renderizarMapaAtual() { const img = document.getElementById('map-image-display'); const pinsContainer = document.getElementById('pins-container'); const mapa = mapas.find(x => x.id === currentMapaIdMap); if(mapa) { img.src = mapa.url; img.style.display = 'block'; pinsContainer.innerHTML = ''; if(mapa.pins) { mapa.pins.forEach(p => { const pinEl = document.createElement('div'); pinEl.className = 'map-pin-marker'; pinEl.style.left = p.x + 'px'; pinEl.style.top = p.y + 'px'; pinEl.style.background = p.cor; pinEl.onclick = (e) => { e.stopPropagation(); abrirModalPin(p.id); }; pinEl.onmouseenter = (e) => { const tooltip = document.getElementById('map-tooltip'); document.getElementById('tooltip-title').innerText = p.titulo; document.getElementById('tooltip-desc').innerText = p.desc; tooltip.style.left = p.x + 'px'; tooltip.style.top = (p.y - 15) + 'px'; tooltip.style.display = 'block'; tooltip.style.borderColor = p.cor; }; pinEl.onmouseleave = () => { document.getElementById('map-tooltip').style.display = 'none'; }; pinsContainer.appendChild(pinEl); }); } } else { img.style.display = 'none'; pinsContainer.innerHTML = ''; } }
+
+        // ================= ITENS CATÁLOGO MESTRE =================
+        function toggleVisibilidadeItem(idx) { catalogoMestre[idx].visivel = catalogoMestre[idx].visivel === false ? true : false; localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); renderizarCatalogo(); sincronizarCatalogoGeral(); }
+        function apagarItemCatalogo(idx) { if(confirm("Apagar item do Catálogo?")) { catalogoMestre.splice(idx, 1); localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); salvarMestreNoFirebase(); renderizarCatalogo(); sincronizarCatalogoGeral(); } }
+        
+        function renderizarCatalogo() {
+            const gridComum = document.getElementById('catalogo-grid-comum'); const gridArmaCC = document.getElementById('catalogo-grid-armacc'); const gridArmaDisp = document.getElementById('catalogo-grid-armadisp');
+            if(gridComum) gridComum.innerHTML = ''; if(gridArmaCC) gridArmaCC.innerHTML = ''; if(gridArmaDisp) gridArmaDisp.innerHTML = '';
+            let countComum = 0, countCC = 0, countDisp = 0;
+            
+            catalogoMestre.forEach((item, idx) => {
+                const color = item.type === 'comum' ? 'var(--accent-green)' : (item.type === 'municao' ? 'var(--accent-purple)' : (item.atkType === 'Disparo' ? 'var(--accent-blue)' : 'var(--accent-yellow)'));
+                let detailsHtml = `<div style="font-size:0.7em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span></div>`;
+                if (item.type !== 'comum' && item.type !== 'municao') { if(item.atkType === 'Disparo') detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Balas: <span style="color:white; font-weight:bold;">${item.capacity} (${item.ammo})</span></div>`; else detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Dano: <span style="color:white; font-weight:bold;">${item.dmg}</span><br>Crítico: <span style="color:white; font-weight:bold;">${item.crit}</span></div>`; } else if (item.type === 'municao') { detailsHtml = `<div style="font-size:0.65em; color:var(--text-secondary); line-height:1.4;">Espaços: <span style="color:white; font-weight:bold;">${item.w}x${item.h||1}</span><br>Qtd: <span style="color:white; font-weight:bold;">${item.qtd} / 3</span><br>Tipo: <span style="color:white; font-weight:bold;">${item.ammoType}</span></div>`; }
+
+                let visIcon = item.visivel === false ? '🚫' : '👁️'; let opacity = item.visivel === false ? '0.5' : '1';
+                let btnCtrl = `<button class="btn-remove-card" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarItemCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; left:5px; width:24px; height:24px; font-size:0.7em;" onclick="event.stopPropagation(); toggleVisibilidadeItem(${idx})">${visIcon}</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue);" onclick="event.stopPropagation(); abrirModalItemMestre('${item.rawType || item.type}', ${idx})">✏️</button>`;
+                
+                const safeItemStr = encodeURIComponent(JSON.stringify(item)).replace(/'/g, "%27");
+                const card = document.createElement('div'); 
+                card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); transition:0.2s; display:flex; flex-direction:column; justify-content:space-between; opacity:${opacity};`;
+                card.onmouseover = function() { this.style.borderColor = color; this.style.filter = 'brightness(1.15)'; }; 
+                card.onmouseout = function() { this.style.borderColor = 'rgba(255,255,255,0.2)'; this.style.filter = 'brightness(1)'; };
+                
+                card.innerHTML = `${btnCtrl}<img src="${item.img || 'https://via.placeholder.com/60x60/202024/a8a8b3?text=ITEM'}" style="width:100%; height:60px; object-fit:contain; margin-bottom:5px; border-radius:6px; margin-top: 15px;"><div style="font-weight:bold; color:${color}; font-size:0.85em; margin-bottom:5px; text-transform:uppercase;">${item.n}</div>${detailsHtml}<div style="display:flex; gap:5px; margin-top:10px; width:100%;"><button class="btn-roll" style="background:${color}; color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); abrirModalTransferir('${safeItemStr}', 'item')">👤 UM</button><button class="btn-roll" style="background:var(--accent-yellow); color:black; flex:1; padding:6px; font-size:0.65em; font-weight:bold;" onclick="event.stopPropagation(); enviarParaTodos('${safeItemStr}', 'item')">🌟 TODOS</button></div>`;
+                
+                if (item.type === 'comum' || item.rawType === 'comum' || item.type === 'municao' || item.rawType === 'municao') { if(gridComum) gridComum.appendChild(card); countComum++; } else if (item.atkType === 'Disparo' || item.rawType === 'armadisp') { if(gridArmaDisp) gridArmaDisp.appendChild(card); countDisp++; } else { if(gridArmaCC) gridArmaCC.appendChild(card); countCC++; }
+            });
+
+            if (gridComum && countComum === 0) gridComum.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhum item comum.</span>`;
+            if (gridArmaCC && countCC === 0) gridArmaCC.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+            if (gridArmaDisp && countDisp === 0) gridArmaDisp.innerHTML = `<span style="color:var(--text-secondary); font-style:italic;">Nenhuma arma.</span>`;
+        }
+
+        let editItemIndex = null;
+        function abrirModalItemMestre(tipo = 'comum', idx = null) { 
+            editItemIndex = idx;
+            if(idx !== null) { 
+                const it = catalogoMestre[idx]; 
+                document.getElementById('mi-tipo').value = it.rawType || (it.type === 'comum' ? 'comum' : (it.atkType === 'Disparo' ? 'armadisp' : 'armacc')); 
+                document.getElementById('mi-nome').value = it.n; 
+                document.getElementById('mi-w').value = it.w || 1; 
+                document.getElementById('mi-h').value = it.h || 1; 
+                document.getElementById('mi-foto').value = it.img || ''; 
+                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = it.visivel !== false;
+                if(it.type === 'comum') { document.getElementById('mi-desc').value = it.rawDesc || ''; } 
+                else if (it.type === 'municao') { document.getElementById('mi-ammo-type').value = it.ammoType || 'Curta'; document.getElementById('mi-ammo-qtd').value = it.qtd || 1; } 
+                else { document.getElementById('mi-atk').value = it.atk || '1'; document.getElementById('mi-dano').value = it.dmg || '0'; document.getElementById('mi-crit').value = it.crit || '20/x2'; document.getElementById('mi-alcance').value = it.range || 'Curto'; document.getElementById('mi-ammo').value = it.ammo || 'Nenhuma'; document.getElementById('mi-cap').value = it.capacity || '0'; document.getElementById('mi-pericia').value = it.skill || 'Luta'; } 
+                document.getElementById('modal-item-title').innerText = "Editar Item"; 
+            } else { 
+                document.getElementById('mi-nome').value = ''; document.getElementById('mi-w').value = '1'; document.getElementById('mi-h').value = '1'; document.getElementById('mi-foto').value = ''; document.getElementById('mi-desc').value = ''; document.getElementById('mi-atk').value = '1'; document.getElementById('mi-dano').value = ''; document.getElementById('mi-crit').value = '20/x2'; document.getElementById('mi-alcance').value = 'Curto'; document.getElementById('mi-ammo').value = 'Nenhuma'; document.getElementById('mi-cap').value = '0'; document.getElementById('mi-pericia').value = 'Luta'; document.getElementById('mi-tipo').value = tipo; 
+                if(document.getElementById('mi-visivel')) document.getElementById('mi-visivel').checked = true;
+                document.getElementById('modal-item-title').innerText = "Criar Item"; 
+                if(tipo === 'municao') { document.getElementById('mi-ammo-type').value = 'Curta'; document.getElementById('mi-ammo-qtd').value = '1'; } 
+            }
+            toggleCamposItemMestre(); document.getElementById('modal-item-mestre').style.display = 'flex'; 
+        }
+
+        function toggleCamposItemMestre() { const t = document.getElementById('mi-tipo').value; if(t === 'comum') { document.getElementById('mi-campos-comum').style.display = 'block'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; } else if (t === 'municao') { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'block'; } else { document.getElementById('mi-campos-comum').style.display = 'none'; document.getElementById('mi-campos-municao').style.display = 'none'; document.getElementById('mi-campos-arma').style.display = 'grid'; } }
+
+        function salvarItemMestre() { 
+            const nome = document.getElementById('mi-nome').value.trim(); 
+            const w = parseInt(document.getElementById('mi-w').value) || 1; 
+            const h = parseInt(document.getElementById('mi-h').value) || 1; 
+            const img = document.getElementById('mi-foto').value.trim(); 
+            const rawType = document.getElementById('mi-tipo').value; 
+            if(!nome) return alert("Por favor, dê um nome ao item."); 
+            const visivel = document.getElementById('mi-visivel') ? document.getElementById('mi-visivel').checked : true;
+            
+            const type = (rawType === 'comum' || rawType === 'municao') ? rawType : 'arma'; 
+            let dHTML = "", rawDesc = "", dmg = "0", extra = "0", crit = "20/x2", skill = "Luta", atkType = "Corpo a corpo", atk = "1", range = "Curto", ammo = "Nenhuma", cap = "0", ammoType = "Curta", qtd = 1; 
+            
+            if (type === 'comum') { rawDesc = document.getElementById('mi-desc').value || "Sem descrição."; dHTML = rawDesc.replace(/\n/g, '<br>'); } 
+            else if (type === 'municao') { ammoType = document.getElementById('mi-ammo-type').value; qtd = parseInt(document.getElementById('mi-ammo-qtd').value)||1; if(qtd>3) qtd=3; dHTML = "Munição para armas do tipo: " + ammoType; } 
+            else { atkType = rawType === 'armadisp' ? "Disparo" : "Corpo a corpo"; atk = document.getElementById('mi-atk').value || "1"; dmg = document.getElementById('mi-dano').value || "0"; crit = document.getElementById('mi-crit').value || "20/x2"; range = document.getElementById('mi-alcance').value || "Curto"; ammo = document.getElementById('mi-ammo').value || "Nenhuma"; skill = document.getElementById('mi-pericia').value || "Luta"; cap = document.getElementById('mi-cap').value || "0"; dHTML = `<div style='display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size: 0.85em;'><div><b style='color:var(--text-secondary);'>Atq:</b> ${atkType} (${atk}x)</div><div><b style='color:var(--text-secondary);'>Dano:</b> ${dmg}</div><div><b style='color:var(--text-secondary);'>Crit:</b> ${crit}</div><div><b style='color:var(--text-secondary);'>Alc:</b> ${range}</div><div><b style='color:var(--text-secondary);'>Mun:</b> ${ammo}</div><div><b style='color:var(--text-secondary);'>Per:</b> ${skill}</div><div style='grid-column: span 2;'><b style='color:var(--text-secondary);'>Extra:</b> 0</div></div>`; } 
+            
+            const novoItem = { id: editItemIndex !== null ? catalogoMestre[editItemIndex].id : 'm_item_' + Date.now(), n: nome, w: w, h: h, d: dHTML, eq: false, type: type, ammoType: ammoType, qtd: qtd, dmg: dmg, extra: extra, crit: crit, skill: skill, img: img, atkType: atkType, atk: atk, range: range, ammo: ammo, capacity: cap, currentShots: cap, visivel: visivel, rawType: rawType, rawDesc: rawDesc }; 
+            
+            if(editItemIndex !== null) catalogoMestre[editItemIndex] = novoItem; else catalogoMestre.push(novoItem);
+            localStorage.setItem('mestre_catalogo_itens_' + campanhaAtiva, JSON.stringify(catalogoMestre)); 
+            salvarMestreNoFirebase(); document.getElementById('modal-item-mestre').style.display = 'none'; 
+            renderizarCatalogo(); sincronizarCatalogoGeral();
+        }
+
+        // ================= TRANSFERÊNCIA =================
+        function abrirModalTransferir(objStr, tipo) {
+            const obj = JSON.parse(decodeURIComponent(objStr));
+            document.getElementById('transfer-obj-title').innerText = tipo === 'item' ? 'Transferir Item' : 'Ensinar Ritual';
+            document.getElementById('transfer-obj-name').innerText = obj.n;
+            document.getElementById('transfer-obj-data').value = objStr;
+            document.getElementById('transfer-obj-type').value = tipo;
+            const grid = document.getElementById('transfer-player-grid'); grid.innerHTML = '';
+            listaJogadores.forEach(code => { 
+                const pData = dataJogadores[code.toUpperCase()] || {};
+                const card = document.createElement('div');
+                card.style.cssText = `background:rgba(18,18,20,0.8); border:1px solid var(--accent-blue); padding:10px; cursor:pointer; text-align:center; border-radius:8px;`;
+                card.onclick = () => confirmarTransferenciaUm(code.toUpperCase());
+                card.innerHTML = `<img src="${pData.foto || 'https://via.placeholder.com/60'}" style="width:40px;height:40px;border-radius:50%;"><div style="color:white;font-size:0.7em;">${pData.nome || code}</div>`;
+                grid.appendChild(card); 
+            });
+            document.getElementById('modal-transfer-obj').style.display = 'flex';
+        }
+
+        function confirmarTransferenciaUm(codeAlvo) {
+            const objStr = document.getElementById('transfer-obj-data').value;
+            const tipo = document.getElementById('transfer-obj-type').value;
+            enviarItemParaJogador(codeAlvo, JSON.parse(decodeURIComponent(objStr)), tipo);
+            document.getElementById('modal-transfer-obj').style.display = 'none'; 
+        }
+
+        function enviarParaTodos(objStr, tipo) {
+            const obj = JSON.parse(decodeURIComponent(objStr));
+            listaJogadores.forEach(code => enviarItemParaJogador(code.toUpperCase(), obj, tipo));
+        }
+
+        function enviarItemParaJogador(alvoCode, objOriginal, tipo) {
+            let objParaEnviar = JSON.parse(JSON.stringify(objOriginal)); 
+            objParaEnviar.id = (tipo === 'item' ? 'inv_' : 'rit_') + Date.now() + Math.floor(Math.random()*100);
+            if (socket) { socket.emit('comando_mestre', { tipo: tipo === 'item' ? 'dar_item' : 'dar_ritual', codigo: alvoCode, item: tipo === 'item' ? objParaEnviar : null, ritual: tipo === 'item' ? null : objParaEnviar }); }
+            let pData = dataJogadores[alvoCode];
+            if (pData && pData.fullData) {
+                if (tipo === 'item') { if (!pData.fullData.inv) pData.fullData.inv = []; pData.fullData.inv.push({...objParaEnviar, x:-1, y:-1, rotated:false, eq:false}); } 
+                else { if (!pData.fullData.rituals) pData.fullData.rituals = []; pData.fullData.rituals.push({...objParaEnviar, eq:true}); }
+                const dbPlayerId = alvoCode + '_' + campanhaAtiva;
+                fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: pData.fullData }) });
+            }
+        }
+
+        // ================= RITUAIS MESTRE =================
+        let editRitualIndex = null;
+        function abrirModalRitualMestre(idx = null) {
+            editRitualIndex = idx;
+            if(idx !== null) {
+                const rit = catalogoRituaisMestre[idx];
+                document.getElementById('mr-name').value = rit.n || ''; document.getElementById('mr-circ').value = rit.circ || '1º'; document.getElementById('mr-elem').value = rit.el || 'Conhecimento'; document.getElementById('mr-exec').value = rit.ex || ''; document.getElementById('mr-range').value = rit.alc || ''; document.getElementById('mr-target').value = rit.alv || ''; document.getElementById('mr-dur').value = rit.dur || ''; document.getElementById('mr-res').value = rit.res || ''; document.getElementById('mr-img').value = rit.img || ''; document.getElementById('mr-desc-geral').value = rit.descGeral || ''; document.getElementById('mr-desc-discente').value = rit.descDisc || ''; document.getElementById('mr-desc-verdadeiro').value = rit.descVerd || ''; document.getElementById('modal-ritual-title').innerText = "Editar Ritual";
+            } else {
+                document.getElementById('mr-name').value = ''; document.getElementById('mr-circ').value = '1º'; document.getElementById('mr-elem').value = 'Conhecimento'; document.getElementById('mr-exec').value = 'Padrão'; document.getElementById('mr-range').value = 'Curto'; document.getElementById('mr-target').value = '1 Ser'; document.getElementById('mr-dur').value = 'Instantânea'; document.getElementById('mr-res').value = 'Nenhuma'; document.getElementById('mr-img').value = ''; document.getElementById('mr-desc-geral').value = ''; document.getElementById('mr-desc-discente').value = ''; document.getElementById('mr-desc-verdadeiro').value = ''; document.getElementById('modal-ritual-title').innerText = "Criar Ritual";
+            }
+            document.getElementById('modal-ritual-mestre').style.display = 'flex';
+        }
+
+        function salvarRitualMestre() {
+            const n = document.getElementById('mr-name').value.trim(); if(!n) return alert("Dê um nome ao ritual.");
+            const novoRitual = { id: editRitualIndex !== null ? catalogoRituaisMestre[editRitualIndex].id : 'm_rit_' + Date.now(), n: n, circ: document.getElementById('mr-circ').value, el: document.getElementById('mr-elem').value, ex: document.getElementById('mr-exec').value, alc: document.getElementById('mr-range').value, alv: document.getElementById('mr-target').value, dur: document.getElementById('mr-dur').value, res: document.getElementById('mr-res').value, img: document.getElementById('mr-img').value, descGeral: document.getElementById('mr-desc-geral').value, descDisc: document.getElementById('mr-desc-discente').value, descVerd: document.getElementById('mr-desc-verdadeiro').value, visivel: true };
+            if(editRitualIndex !== null) catalogoRituaisMestre[editRitualIndex] = novoRitual; else catalogoRituaisMestre.push(novoRitual);
+            localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); salvarMestreNoFirebase(); document.getElementById('modal-ritual-mestre').style.display = 'none'; renderizarCatalogoRituais(); sincronizarCatalogoGeral();
+        }
+
+        function apagarRitualCatalogo(idx) { if(confirm("Apagar ritual do Catálogo?")) { catalogoRituaisMestre.splice(idx, 1); localStorage.setItem('mestre_catalogo_rituais_' + campanhaAtiva, JSON.stringify(catalogoRituaisMestre)); salvarMestreNoFirebase(); renderizarCatalogoRituais(); sincronizarCatalogoGeral(); } }
+
+        function renderizarCatalogoRituais() {
+            const circles = ['1º', '2º', '3º', '4º'];
+            circles.forEach((circ, i) => {
+                const body = document.getElementById(`rituais-mestre-${i+1}-body`); const container = document.getElementById(`rituais-mestre-${i+1}-container`);
+                if(!body) return; body.innerHTML = ''; let count = 0;
+                catalogoRituaisMestre.forEach((rit, idx) => {
+                    if(rit.circ === circ) {
+                        count++; const card = document.createElement('div'); card.className = 'fade-in'; card.style.cssText = `position:relative; padding:10px; border:1px solid rgba(184,43,242,0.3); border-radius:8px; text-align:center; background:rgba(18,18,20,0.8); display:flex; flex-direction:column; justify-content:space-between;`;
+                        let btnCtrl = `<button class="btn-remove-card" style="position:absolute; top:5px; right:5px; padding:2px 6px; font-size:0.7em; z-index:10;" onclick="event.stopPropagation(); apagarRitualCatalogo(${idx})">X</button><button class="btn-ctrl" style="position:absolute; top:5px; right:35px; width:24px; height:24px; font-size:0.7em; background:var(--accent-blue); border-color:var(--accent-blue); color:black;" onclick="event.stopPropagation(); abrirModalRitualMestre(${idx})">✏️</button>`;
+                        card.innerHTML = `${btnCtrl}<img src="${rit.img || ''}" style="width:100%; height:50px; object-fit:contain; margin-top:20px; margin-bottom:5px;"><div style="font-weight:bold; color:var(--accent-purple); font-size:0.75em; margin-bottom:10px; text-transform:uppercase;">${rit.n}</div><button class="btn-roll" style="background:var(--accent-purple); color:white; font-size:0.7em;" onclick="abrirModalTransferir('${encodeURIComponent(JSON.stringify(rit))}', 'ritual')">ENSINAR JOGADOR</button>`;
+                        body.appendChild(card);
+                    }
+                });
+                container.style.display = count > 0 ? 'block' : 'none';
+            });
         }
 
         // ================= INIT E LOAD =================
