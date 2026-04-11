@@ -988,32 +988,35 @@
     }
 
     function syncStatusRapido() {
-        if (socket) {
-            const vA = parseInt(document.getElementById('vida_atual').value) || 0;
-            const vM = parseInt(document.getElementById('vida_max').value) || 1;
-            const sA = parseInt(document.getElementById('sani_atual').value) || 0;
-            const sM = parseInt(document.getElementById('sani_max').value) || 1;
-            const pA = parseInt(document.getElementById('pe_atual').value) || 0;
-            const pM = parseInt(document.getElementById('pe_max').value) || 1;
+            if (socket) {
+                const vA = parseInt(document.getElementById('vida_atual').value) || 0;
+                const vM = parseInt(document.getElementById('vida_max').value) || 1;
+                const sA = parseInt(document.getElementById('sani_atual').value) || 0;
+                const sM = parseInt(document.getElementById('sani_max').value) || 1;
+                const pA = parseInt(document.getElementById('pe_atual').value) || 0;
+                const pM = parseInt(document.getElementById('pe_max').value) || 1;
 
-            let currentImgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg"; 
-            if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
-            else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
-            else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
-            else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; 
-            else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
+                let currentImgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg"; 
+                if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
+                else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
+                else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+                else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; 
+                else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
 
-            socket.emit('status_change', {
-                codigo: myUpperCode,
-                vida_atual: vA, vida_max: vM,
-                sani_atual: sA, sani_max: sM,
-                pe_atual: pA, pe_max: pM,
-                status: charStatus,
-                foto: currentImgUrl
-            });
+                // SOLUÇÃO: Garante que se o Mestre estiver a mexer no iframe, envia como jogador, para que ele próprio receba!
+                let emissionCode = (typeof viewCode !== 'undefined' && viewCode) ? viewCode.toUpperCase() : myUpperCode;
+
+                socket.emit('status_change', {
+                    codigo: emissionCode,
+                    vida_atual: vA, vida_max: vM,
+                    sani_atual: sA, sani_max: sM,
+                    pe_atual: pA, pe_max: pM,
+                    status: charStatus,
+                    foto: currentImgUrl
+                });
+            }
+            attivAutoSave(); 
         }
-        attivAutoSave(); 
-    }
 
     function toggleStatus(type) { 
         charStatus[type] = !charStatus[type]; 
