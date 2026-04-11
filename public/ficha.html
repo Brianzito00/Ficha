@@ -983,7 +983,7 @@
 
     function openTab(id, btn) { document.querySelectorAll('.main-container').forEach(el => el.classList.remove('active')); document.querySelectorAll('.top-bar .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(id).classList.add('active'); btn.classList.add('active'); if(id === 'tab-inventario') { updateWeight(); updateInventoryDisplay(); } if(id === 'tab-pistas') { renderPistas(); } }
 
-    function changeStatus(type, amount) { 
+   function changeStatus(type, amount) { 
         let el = document.getElementById(type + '_atual'); 
         if(el) { 
             let val = parseInt(el.value) || 0; 
@@ -992,8 +992,6 @@
             syncStatusRapido(); 
         } 
     }
-    
-    function updateStatusBars() { const vA = parseInt(document.getElementById('vida_atual').value)||0, vM = parseInt(document.getElementById('vida_max').value)||1; const sA = parseInt(document.getElementById('sani_atual').value)||0, sM = parseInt(document.getElementById('sani_max').value)||1; const pA = parseInt(document.getElementById('pe_atual').value)||0, pM = parseInt(document.getElementById('pe_max').value)||1; document.getElementById('bar_vida').style.width = Math.min(Math.max((vA/vM)*100, 0), 100) + '%'; document.getElementById('bar_sani').style.width = Math.min(Math.max((sA/sM)*100, 0), 100) + '%'; document.getElementById('bar_pe').style.width = Math.min(Math.max((pA/pM)*100, 0), 100) + '%'; }
 
     function syncStatusRapido() {
         if (socket) {
@@ -1004,15 +1002,29 @@
             const pA = parseInt(document.getElementById('pe_atual').value) || 0;
             const pM = parseInt(document.getElementById('pe_max').value) || 1;
 
+            let currentImgUrl = charImages.normal || "https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg"; 
+            if (charStatus.morrendo && charImages.morrendo) currentImgUrl = charImages.morrendo; 
+            else if (charStatus.inconsciente && charImages.inconsciente) currentImgUrl = charImages.inconsciente; 
+            else if (charStatus.lesionado && charStatus.enlouquecendo && charImages.les_enlouq) currentImgUrl = charImages.les_enlouq; 
+            else if (charStatus.enlouquecendo && charImages.enlouquecendo) currentImgUrl = charImages.enlouquecendo; 
+            else if (charStatus.lesionado && charImages.lesionado) currentImgUrl = charImages.lesionado;
+
             socket.emit('status_change', {
                 codigo: myUpperCode,
                 vida_atual: vA, vida_max: vM,
                 sani_atual: sA, sani_max: sM,
                 pe_atual: pA, pe_max: pM,
-                status: charStatus
+                status: charStatus,
+                foto: currentImgUrl
             });
         }
         attivAutoSave(); 
+    }
+
+    function toggleStatus(type) { 
+        charStatus[type] = !charStatus[type]; 
+        updateProfilePicture(); 
+        syncStatusRapido(); 
     }
 
     function openSkillPopup(sn, nome, attr) { document.getElementById('popup-skill-name').innerText=nome; document.getElementById('popup-skill-attr-name').innerText=attr+" (x2)"; let atEl = document.getElementById("attr_"+attr.toLowerCase()); let at = atEl?parseInt(atEl.value)||0:0; document.getElementById('popup-skill-natural').innerText=at*2; document.getElementById('popup-skill-trained').checked=document.getElementById('chk_'+sn).checked; document.getElementById('popup-skill-bonus').value=document.getElementById('skill_'+sn).value; document.getElementById('popup-skill-sn').value=sn; document.getElementById('popup-skill-attr').value=attr; updateSkillPopupCalc(); document.getElementById('popup-skill-info').style.display='flex'; }
