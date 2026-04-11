@@ -213,8 +213,8 @@
                 <div class="status-bar-container">
                     <div id="bar_vida" class="status-bar-fill fill-vida" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="vida_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
-                        <input type="number" id="vida_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
+                        <input type="number" id="vida_atual" class="status-input" value="10"> / 
+                        <input type="number" id="vida_max" class="status-input" value="10">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('vida', 1)">+</button>
@@ -233,8 +233,8 @@
                 <div class="status-bar-container">
                     <div id="bar_sani" class="status-bar-fill fill-sani" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="sani_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
-                        <input type="number" id="sani_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
+                        <input type="number" id="sani_atual" class="status-input" value="10"> / 
+                        <input type="number" id="sani_max" class="status-input" value="10">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('sani', 1)">+</button>
@@ -251,8 +251,8 @@
                 <div class="status-bar-container">
                     <div id="bar_pe" class="status-bar-fill fill-pe" style="width: 100%;"></div>
                     <div class="status-text">
-                        <input type="number" id="pe_atual" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()"> / 
-                        <input type="number" id="pe_max" class="status-input" value="10" oninput="updateStatusBars(); syncStatusRapido()">
+                        <input type="number" id="pe_atual" class="status-input" value="10"> / 
+                        <input type="number" id="pe_max" class="status-input" value="10">
                     </div>
                 </div>
                 <button class="status-btn" onclick="changeStatus('pe', 1)">+</button>
@@ -465,7 +465,6 @@
     if (socket) {
         socket.on('connect', () => { socket.emit('join_campaign', campanhaAtiva); });
 
-        // Ouve se o Mestre alterar a vida desta ficha
         socket.on('update_status_force', (dados) => {
             let emissionCode = (typeof viewCode !== 'undefined' && viewCode) ? viewCode.toUpperCase() : myUpperCode;
             if (dados.codigo && dados.codigo.toUpperCase() === emissionCode) {
@@ -510,23 +509,6 @@
             }
         });
     }
-
-    // INTERCEPÇÃO DO IFRAME DO MESTRE (Fast Sync Mirror)
-    window.addEventListener('message', (event) => { 
-        if(event.data && event.data.tipo === 'load_offline_data') { 
-            isLoadingData = true; 
-            populateData(event.data.data); 
-            isLoadingData = false;
-        }
-        if(event.data && event.data.tipo === 'fast_sync_mirror') {
-            const d = event.data.dados;
-            if (d.vida_atual !== undefined) { let el = document.getElementById('vida_atual'); if(el) el.value = d.vida_atual; }
-            if (d.sani_atual !== undefined) { let el = document.getElementById('sani_atual'); if(el) el.value = d.sani_atual; }
-            if (d.pe_atual !== undefined) { let el = document.getElementById('pe_atual'); if(el) el.value = d.pe_atual; }
-            if (d.status) { charStatus = d.status; updateProfilePicture(); }
-            updateStatusBars();
-        }
-    });
 
     const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva); 
     if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; }
@@ -1223,7 +1205,6 @@
     }
 
     // --- SAVE E EVENTOS ---
-    window.addEventListener('message', (event) => { if(event.data && event.data.tipo === 'load_offline_data') { isLoadingData = true; populateData(event.data.data); } });
     function exportFicha() { save(); const dataStr = localStorage.getItem('ordem_save_local_' + campanhaAtiva); if(!dataStr){ alert("Não há dados para exportar!"); return; } const blob = new Blob([dataStr], {type: "application/json"}); const charName = document.getElementById('char_nome').value || "Personagem"; const a = document.createElement('a'); const url = URL.createObjectURL(blob); a.href = url; a.download = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ficha.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
     function importFicha(event) { const file = event.target.files[0]; if(!file) return; const reader = new FileReader(); reader.onload = function(e){ try { const importedData = JSON.parse(e.target.result); localStorage.setItem('ordem_save_local_' + campanhaAtiva, JSON.stringify(importedData)); isLoadingData = true; populateData(importedData); save(); alert("Ficha importada com sucesso!"); } catch(err){ alert("Erro ao importar a ficha. Verifique o arquivo."); } event.target.value = ''; }; reader.readAsText(file); }
 
@@ -1238,7 +1219,11 @@
             if(statusTxt){ statusTxt.innerText = "Sincronizado ✔️"; statusTxt.style.color = "var(--accent-green)"; setTimeout(() => { statusTxt.innerText = "Sincronizado ✔️"; statusTxt.style.color = "var(--text-secondary)"; }, 2000); } 
         }, 3000); 
     }
-    document.addEventListener('input', attivAutoSave); document.addEventListener('change', attivAutoSave); document.addEventListener('click', (e) => { if(e.target.tagName==='BUTTON' || e.target.closest('button')) attivAutoSave(); });
+    
+    // Os event listeners da página que detectam alterações para fazer Autosave
+    document.addEventListener('input', attivAutoSave); 
+    document.addEventListener('change', attivAutoSave); 
+    document.addEventListener('click', (e) => { if(e.target.tagName==='BUTTON' || e.target.closest('button')) attivAutoSave(); });
 
     function save() { 
         if (isLoadingData || isDragging) return; 
@@ -1378,6 +1363,32 @@
     }
 
     init();
+
+    // ==========================================
+    // ESPELHO ABSOLUTO E LISTENERS DE TEMPO REAL
+    // ==========================================
+    window.addEventListener('message', (event) => { 
+        if(event.data && event.data.tipo === 'fast_sync_mirror') {
+            const d = event.data.dados;
+            if (d.vida_atual !== undefined) { let el = document.getElementById('vida_atual'); if(el && document.activeElement !== el) el.value = d.vida_atual; }
+            if (d.sani_atual !== undefined) { let el = document.getElementById('sani_atual'); if(el && document.activeElement !== el) el.value = d.sani_atual; }
+            if (d.pe_atual !== undefined) { let el = document.getElementById('pe_atual'); if(el && document.activeElement !== el) el.value = d.pe_atual; }
+            if (d.status) { charStatus = d.status; updateProfilePicture(); }
+            updateStatusBars();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        ['vida_atual', 'vida_max', 'sani_atual', 'sani_max', 'pe_atual', 'pe_max'].forEach(id => {
+            let el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', () => {
+                    updateStatusBars();
+                    if(typeof syncStatusRapido === 'function') syncStatusRapido();
+                });
+            }
+        });
+    });
 
 </script>
 </body>
