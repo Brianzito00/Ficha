@@ -80,7 +80,7 @@
         .catalogo-grid-view, #pistas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; align-content: flex-start; padding-right: 5px; }
 
         .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; }
-        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; flex-shrink: 0; }
+        .player-img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-blue); background: #000; flex-shrink: 0; transition: border-color 0.3s, box-shadow 0.3s; }
         .monster-img { border-color: var(--accent-red); }
         .player-name { font-size: 1.2em; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; margin: 0; }
         .monster-name { color: var(--accent-red); }
@@ -502,7 +502,7 @@
                 if (dados.tipo === 'pedir_catalogo') { sincronizarCatalogoGeral(); }
             });
 
-            // LÓGICA INFALÍVEL DE ATUALIZAÇÃO DO JOGADOR
+            // CORREÇÃO: LÓGICA DE ATUALIZAÇÃO DO JOGADOR EM TEMPO REAL
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
@@ -528,9 +528,15 @@
                 if (newSani !== undefined) { playersDataMemoria[codPuro].sani_atual = newSani; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.sani_atual = newSani; }
                 if (newPe !== undefined) { playersDataMemoria[codPuro].pe_atual = newPe; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.pe_atual = newPe; }
                 
+                // O SEGREDO DO BUG: Puxar o charStatus para garantir os efeitos visuais!
+                if (dados.status) {
+                    playersDataMemoria[codPuro].status = dados.status;
+                } else if (dados.fullData && dados.fullData.charStatus) {
+                    playersDataMemoria[codPuro].status = dados.fullData.charStatus;
+                }
+
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
                 
-                // O Segredo: O card do HTML deve ser recriado se não existir ou se for aquele card "Offline/Aguardando"
                 const cardExiste = document.getElementById(`player-${codPuro}`);
                 const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
@@ -679,6 +685,7 @@
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
         }
 
+        // CORREÇÃO: Atualização visual imediata das fotos e do HUD das bordas!
         function atualizarDOMJogador(codPuro) {
             const dados = playersDataMemoria[codPuro];
             if(!dados) return;
@@ -692,7 +699,20 @@
             const nomeEl = card.querySelector('.player-name');
             const infoEl = card.querySelector('.player-info-nexdef');
 
-            if (imgEl && dados.foto) imgEl.src = dados.foto;
+            if (imgEl && dados.foto && imgEl.src !== dados.foto) {
+                imgEl.src = dados.foto;
+            }
+            
+            // EFEITO VISUAL NO MESTRE PARA SABER QUE O JOGADOR ESTÁ LESIONADO
+            if (dados.status && imgEl) {
+                if (dados.status.morrendo) { imgEl.style.borderColor = 'var(--accent-red)'; imgEl.style.boxShadow = '0 0 15px var(--accent-red)'; }
+                else if (dados.status.inconsciente) { imgEl.style.borderColor = '#ff5252'; imgEl.style.boxShadow = 'none'; }
+                else if (dados.status.lesionado && dados.status.enlouquecendo) { imgEl.style.borderColor = 'var(--accent-purple)'; imgEl.style.boxShadow = '0 0 15px var(--accent-purple)'; }
+                else if (dados.status.lesionado) { imgEl.style.borderColor = 'var(--accent-red)'; imgEl.style.boxShadow = 'none'; }
+                else if (dados.status.enlouquecendo) { imgEl.style.borderColor = 'var(--accent-blue)'; imgEl.style.boxShadow = '0 0 15px var(--accent-blue)'; }
+                else { imgEl.style.borderColor = 'var(--accent-blue)'; imgEl.style.boxShadow = 'none'; }
+            }
+
             if (nomeEl) nomeEl.innerText = dados.nome || 'Desconhecido';
             if (infoEl) infoEl.innerText = `NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}`;
 
@@ -761,10 +781,21 @@
                 const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
                 const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
                 
+                // Configurar estilos iniciais de status se existirem
+                let stBorderColor = 'var(--accent-blue)';
+                let stBoxShadow = 'none';
+                if (dados.status) {
+                    if (dados.status.morrendo) { stBorderColor = 'var(--accent-red)'; stBoxShadow = '0 0 15px var(--accent-red)'; }
+                    else if (dados.status.inconsciente) { stBorderColor = '#ff5252'; }
+                    else if (dados.status.lesionado && dados.status.enlouquecendo) { stBorderColor = 'var(--accent-purple)'; stBoxShadow = '0 0 15px var(--accent-purple)'; }
+                    else if (dados.status.lesionado) { stBorderColor = 'var(--accent-red)'; }
+                    else if (dados.status.enlouquecendo) { stBorderColor = 'var(--accent-blue)'; stBoxShadow = '0 0 15px var(--accent-blue)'; }
+                }
+                
                 card.innerHTML = `
                     <button class="btn-remove" onclick="removerJogador('${codPuro}')">X</button>
                     <div class="player-header">
-                        <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img">
+                        <img src="${dados.foto || 'https://via.placeholder.com/60'}" class="player-img" style="border-color: ${stBorderColor}; box-shadow: ${stBoxShadow}; transition: border-color 0.3s, box-shadow 0.3s;">
                         <div>
                             <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
                             <div class="player-info-nexdef" style="font-size: 0.8em; color: var(--text-secondary); line-height: 1.4;">NEX: ${dados.nex || 0}% | Defesa: ${dados.defesa || 10}</div>
@@ -1557,30 +1588,7 @@
 
         // ================= MAPAS =================
         function adicionarMapa() { const nome = document.getElementById('novo-mapa-nome').value.trim() || 'Novo Mapa'; let url = document.getElementById('novo-mapa-url').value.trim(); const fileInput = document.getElementById('novo-mapa-file'); if (fileInput.dataset.base64 && url === "ARQUIVO CARREGADO") { url = fileInput.dataset.base64; } if (!url) return alert("Insira uma URL ou carregue uma imagem."); const novoMapa = { id: 'mapa_' + Date.now(), nome: nome, url: url, pins: [] }; mapas.push(novoMapa); currentMapaIdMap = novoMapa.id; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); document.getElementById('novo-mapa-nome').value = ''; document.getElementById('novo-mapa-url').value = ''; delete fileInput.dataset.base64; renderizarMapasList(); renderizarMapaAtual(); }
-       function carregarMapaPC(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            let w = img.width; let h = img.height;
-            const MAX_DIM = 1920; // Resolução máxima para evitar erro de limite do Firebase
-            if (w > MAX_DIM || h > MAX_DIM) {
-                if (w > h) { h *= MAX_DIM / w; w = MAX_DIM; } else { w *= MAX_DIM / h; h = MAX_DIM; }
-            }
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            const inputUrl = document.getElementById('novo-mapa-url');
-            inputUrl.value = "ARQUIVO CARREGADO";
-            inputUrl.dataset.base64 = canvas.toDataURL('image/jpeg', 0.7); // Comprime a imagem
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
+        function carregarMapaPC(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { const inputUrl = document.getElementById('novo-mapa-url'); inputUrl.value = "ARQUIVO CARREGADO"; inputUrl.dataset.base64 = e.target.result; }; reader.readAsDataURL(file); }
         function apagarMapaAtual() { if (!currentMapaIdMap) return; if (confirm("Apagar mapa atual?")) { mapas = mapas.filter(m => m.id !== currentMapaIdMap); currentMapaIdMap = mapas.length > 0 ? mapas[0].id : null; localStorage.setItem('mestre_mapas_' + campanhaAtiva, JSON.stringify(mapas)); salvarMestreNoFirebase(); renderizarMapasList(); renderizarMapaAtual(); } }
         function resetarMapaZoom() { mapScale = 1; mapTx = 0; mapTy = 0; applyMapTransform(); }
         function applyMapTransform() { const wrapper = document.getElementById('map-transform-wrapper'); if (wrapper) wrapper.style.transform = `translate(${mapTx}px, ${mapTy}px) scale(${mapScale})`; }
