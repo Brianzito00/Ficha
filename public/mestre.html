@@ -73,7 +73,7 @@
         .player-card:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border-color: #555; }
         
         .player-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; z-index: 2; }
-        .player-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-blue); background: #000; flex-shrink: 0; transition: 0.3s; }
+        .player-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-blue); background: #000; flex-shrink: 0; transition: opacity 0.3s ease-in-out, border-color 0.3s, box-shadow 0.3s; }
         .player-name { font-size: 1.3em; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .btn-remove-card { position: absolute; top: 8px; right: 8px; background: var(--accent-red); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; cursor: pointer; z-index: 10; transition: 0.2s; }
@@ -83,7 +83,7 @@
         
         .stat-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); z-index: 2; }
         .stat-label { font-size: 0.75em; font-weight: 900; letter-spacing: 1px; }
-        .stat-input { width: 35px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0; }
+        .stat-input { width: 35px; background: transparent; border: none; color: white; text-align: right; font-weight: 900; font-size: 1em; outline: none; padding: 0; transition: color 0.3s; }
 
         /* MODAL DE FICHA */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
@@ -165,16 +165,13 @@
             socket.on('comando_mestre', (dados) => {
                 const incCode = (dados.codigo || "").trim().toUpperCase();
                 
-                // Se o overlay pedir sync, enviamos a lista atual
                 if (dados.tipo === 'request_overlay_sync') { 
                     socket.emit('comando_mestre', { tipo: 'sync_overlay', players: jogadoresPermitidos }); 
                 }
                 
-                // Quando um jogador novo entra na mesa via lobby
                 if (dados.tipo === 'jogador_entrou' && dados.codigo) {
                     const codLimpo = dados.codigo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
                     
-                    // Se não estiver na mesa, adicionamos para FICAR ATIVO SEMPRE
                     if (!jogadoresPermitidos.includes(codLimpo)) { 
                         jogadoresPermitidos.push(codLimpo); 
                         localStorage.setItem('mestre_allowed_codes_' + campanhaAtiva, JSON.stringify(jogadoresPermitidos)); 
@@ -188,52 +185,87 @@
                 }
             });
 
-            // Sempre que o jogador clica na ficha dele, recebemos este pacote
+            // =========================================================
+            // A MÁGICA: Atualização Direta Pelo ID (Igual ao Overlay)
+            // =========================================================
             const gerenciarAtualizacaoJogador = (dados) => {
                 const codPuro = (dados.codigo || "").toUpperCase();
                 if (!codPuro || !jogadoresPermitidos.includes(codPuro)) return;
                 
+                // 1. Salva na Memória
                 if (!playersDataMemoria[codPuro]) playersDataMemoria[codPuro] = {};
-
-                if (dados.fullData) {
-                    playersDataMemoria[codPuro].fullData = dados.fullData;
-                }
-
-                // Guarda os dados principais
+                if (dados.fullData) playersDataMemoria[codPuro].fullData = dados.fullData;
+                
                 playersDataMemoria[codPuro].nome = dados.nome || playersDataMemoria[codPuro].fullData?.info?.char_nome || playersDataMemoria[codPuro].nome;
                 playersDataMemoria[codPuro].foto = dados.foto || playersDataMemoria[codPuro].fullData?.info?.char_img || playersDataMemoria[codPuro].foto;
-                playersDataMemoria[codPuro].nex = dados.nex !== undefined ? dados.nex : (playersDataMemoria[codPuro].fullData?.info?.char_nex !== undefined ? playersDataMemoria[codPuro].fullData?.info?.char_nex : playersDataMemoria[codPuro].nex);
-                playersDataMemoria[codPuro].defesa = dados.defesa !== undefined ? dados.defesa : (playersDataMemoria[codPuro].fullData?.defense !== undefined ? playersDataMemoria[codPuro].fullData?.defense : (playersDataMemoria[codPuro].fullData?.info?.defesa || playersDataMemoria[codPuro].defesa || 10));
-
-                // Atualiza as barras de vida/sani/pe
-                let newVida = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual !== undefined ? dados.status?.vida_atual : playersDataMemoria[codPuro].fullData?.info?.vida_atual);
-                let newSani = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual !== undefined ? dados.status?.sani_atual : playersDataMemoria[codPuro].fullData?.info?.sani_atual);
-                let newPe = dados.pe_atual !== undefined ? dados.pe_atual : (dados.status?.pe_atual !== undefined ? dados.status?.pe_atual : playersDataMemoria[codPuro].fullData?.info?.pe_atual);
-
-                if (newVida !== undefined) { playersDataMemoria[codPuro].vida_atual = newVida; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.vida_atual = newVida; }
-                if (newSani !== undefined) { playersDataMemoria[codPuro].sani_atual = newSani; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.sani_atual = newSani; }
-                if (newPe !== undefined) { playersDataMemoria[codPuro].pe_atual = newPe; if(playersDataMemoria[codPuro].fullData && playersDataMemoria[codPuro].fullData.info) playersDataMemoria[codPuro].fullData.info.pe_atual = newPe; }
                 
-                // Atualiza o estado (Lesionado, Morrendo, Enlouquecendo)
-                if (dados.status) {
-                    playersDataMemoria[codPuro].status = dados.status;
-                } else if (dados.fullData && dados.fullData.charStatus) {
-                    playersDataMemoria[codPuro].status = dados.fullData.charStatus;
-                }
+                if (dados.vida_atual !== undefined) playersDataMemoria[codPuro].vida_atual = dados.vida_atual;
+                if (dados.sani_atual !== undefined) playersDataMemoria[codPuro].sani_atual = dados.sani_atual;
+                if (dados.pe_atual !== undefined) playersDataMemoria[codPuro].pe_atual = dados.pe_atual;
+                if (dados.status) playersDataMemoria[codPuro].status = dados.status;
 
                 localStorage.setItem('mestre_players_data_' + campanhaAtiva, JSON.stringify(playersDataMemoria));
-                
-                // Se o card não existir ou for o card "Aguardando", renderiza tudo. Se já existir, atualiza suavemente.
-                const cardExiste = document.getElementById(`player-${codPuro}`);
-                const isOfflineCard = cardExiste && !cardExiste.querySelector('.input-vida');
 
-                if (!cardExiste || isOfflineCard) {
+                // 2. Procura se o card do HTML existe
+                const cardExiste = document.getElementById(`player-${codPuro}`);
+                
+                // Se não existir, tem que desenhar o HTML pela primeira vez
+                if (!cardExiste) {
                     renderizarJogadores();
-                } else {
-                    atualizarDOMJogador(codPuro);
+                    return;
                 }
 
-                // Envia para o iframe se o mestre estiver com a ficha aberta
+                // 3. Atualizar FOTO COM TRANSIÇÃO (Lógica do Overlay)
+                const fotoEl = document.getElementById(`foto-${codPuro}`);
+                const novaFoto = dados.foto || playersDataMemoria[codPuro].foto || 'https://via.placeholder.com/70';
+                
+                if (fotoEl && fotoEl.getAttribute('src') !== novaFoto) {
+                    fotoEl.style.opacity = 0; 
+                    setTimeout(() => {
+                        fotoEl.src = novaFoto; 
+                        fotoEl.setAttribute('src', novaFoto);
+                        fotoEl.onload = () => fotoEl.style.opacity = 1; 
+                        setTimeout(() => fotoEl.style.opacity = 1, 100);
+                    }, 300);
+                }
+
+                // 4. Atualizar NÚMEROS E DAR EFEITO VISUAL
+                const vidaEl = document.getElementById(`vida-${codPuro}`);
+                const saniEl = document.getElementById(`sani-${codPuro}`);
+                const peEl = document.getElementById(`pe-${codPuro}`);
+                
+                if (vidaEl && document.activeElement !== vidaEl && dados.vida_atual !== undefined) {
+                    vidaEl.value = dados.vida_atual;
+                    vidaEl.style.color = '#ffcf33'; // Dá um flash amarelo ao alterar
+                    setTimeout(() => vidaEl.style.color = 'white', 300);
+                }
+                if (saniEl && document.activeElement !== saniEl && dados.sani_atual !== undefined) {
+                    saniEl.value = dados.sani_atual;
+                    saniEl.style.color = '#ffcf33';
+                    setTimeout(() => saniEl.style.color = 'white', 300);
+                }
+                if (peEl && document.activeElement !== peEl && dados.pe_atual !== undefined) {
+                    peEl.value = dados.pe_atual;
+                    peEl.style.color = '#ffcf33';
+                    setTimeout(() => peEl.style.color = 'white', 300);
+                }
+
+                // 5. Atualizar BORDAS baseadas no Status
+                if (dados.status && fotoEl) {
+                    let stBorderColor = 'var(--accent-blue)';
+                    let stBoxShadow = 'none';
+                    if (dados.status.morrendo) { stBorderColor = 'var(--accent-red)'; stBoxShadow = '0 0 15px var(--accent-red)'; }
+                    else if (dados.status.inconsciente) { stBorderColor = '#ff5252'; }
+                    else if (dados.status.lesionado && dados.status.enlouquecendo) { stBorderColor = 'var(--accent-purple)'; stBoxShadow = '0 0 15px var(--accent-purple)'; }
+                    else if (dados.status.lesionado) { stBorderColor = 'var(--accent-red)'; }
+                    else if (dados.status.enlouquecendo) { stBorderColor = 'var(--accent-blue)'; stBoxShadow = '0 0 15px var(--accent-blue)'; }
+                    
+                    fotoEl.style.borderColor = stBorderColor;
+                    fotoEl.style.boxShadow = stBoxShadow;
+                    cardExiste.style.borderTopColor = stBorderColor;
+                }
+
+                // Sincroniza com iframe se a ficha do jogador estiver aberta pelo Mestre
                 const iframe = document.getElementById('iframe-ficha');
                 if (iframe && iframe.src.includes(codPuro) && playersDataMemoria[codPuro].fullData) {
                     iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: playersDataMemoria[codPuro].fullData}, '*');
@@ -290,7 +322,22 @@
             playersDataMemoria[codPuro][fieldA] = fd.info[fieldA];
             playersDataMemoria[codPuro].fullData = fd;
             
-            atualizarDOMJogador(codPuro);
+            // Reutilizamos a lógica manual forçando o evento via código local
+            const tempDados = {
+                codigo: codPuro,
+                vida_atual: playersDataMemoria[codPuro].vida_atual,
+                sani_atual: playersDataMemoria[codPuro].sani_atual,
+                pe_atual: playersDataMemoria[codPuro].pe_atual,
+                status: playersDataMemoria[codPuro].status
+            };
+            
+            // Atualiza os próprios inputs do Mestre
+            const el = document.getElementById(`${tipo}-${codPuro}`);
+            if(el) {
+                el.value = fd.info[fieldA];
+                el.style.color = '#ffcf33';
+                setTimeout(() => el.style.color = 'white', 300);
+            }
             
             const iframe = document.getElementById('iframe-ficha');
             if (iframe && iframe.src.includes(codPuro)) { iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*'); }
@@ -307,7 +354,12 @@
             playersDataMemoria[codPuro][tipo + '_atual'] = fd.info[tipo + '_atual'];
             playersDataMemoria[codPuro].fullData = fd;
             
-            atualizarDOMJogador(codPuro);
+            const el = document.getElementById(`${tipo}-${codPuro}`);
+            if(el) {
+                el.value = fd.info[tipo + '_atual'];
+                el.style.color = '#ffcf33';
+                setTimeout(() => el.style.color = 'white', 300);
+            }
             
             const iframe = document.getElementById('iframe-ficha');
             if (iframe && iframe.src.includes(codPuro)) { iframe.contentWindow.postMessage({tipo: 'load_offline_data', data: fd}, '*'); }
@@ -315,76 +367,6 @@
             if (socket) { socket.emit('comando_mestre', { tipo: 'update_status_force', codigo: codPuro, status: { vida_atual: fd.info.vida_atual, sani_atual: fd.info.sani_atual, pe_atual: fd.info.pe_atual } }); }
             const dbPlayerId = codPuro + '_' + campanhaAtiva;
             fetch('/api/guardar_ficha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: dbPlayerId, fichaData: fd }) }).catch(()=>{});
-        }
-
-        function atualizarDOMJogador(codPuro) {
-            const dados = playersDataMemoria[codPuro];
-            if(!dados) return;
-            const card = document.getElementById(`player-${codPuro}`);
-            if(!card) {
-                renderizarJogadores();
-                return;
-            }
-            
-            const imgEl = card.querySelector('.player-img');
-            const nomeEl = card.querySelector('.player-name');
-
-            // Efeito visual suave ao trocar de foto (Mecânica idêntica ao Overlay)
-            if (imgEl && dados.foto && imgEl.getAttribute('src') !== dados.foto) {
-                imgEl.style.transition = 'opacity 0.3s ease-in-out, border-color 0.3s, box-shadow 0.3s';
-                imgEl.style.opacity = 0; 
-                setTimeout(() => {
-                    imgEl.src = dados.foto; 
-                    imgEl.setAttribute('src', dados.foto);
-                    imgEl.onload = () => imgEl.style.opacity = 1; 
-                    setTimeout(() => imgEl.style.opacity = 1, 100);
-                }, 300);
-            }
-
-            // Efeito visual na borda baseado no Status (Lesionado/Enlouquecendo)
-            let stBorderColor = 'var(--accent-blue)';
-            let stBoxShadow = 'none';
-            if (dados.status && imgEl) {
-                if (dados.status.morrendo) { stBorderColor = 'var(--accent-red)'; stBoxShadow = '0 0 15px var(--accent-red)'; }
-                else if (dados.status.inconsciente) { stBorderColor = '#ff5252'; }
-                else if (dados.status.lesionado && dados.status.enlouquecendo) { stBorderColor = 'var(--accent-purple)'; stBoxShadow = '0 0 15px var(--accent-purple)'; }
-                else if (dados.status.lesionado) { stBorderColor = 'var(--accent-red)'; }
-                else if (dados.status.enlouquecendo) { stBorderColor = 'var(--accent-blue)'; stBoxShadow = '0 0 15px var(--accent-blue)'; }
-                
-                imgEl.style.borderColor = stBorderColor;
-                imgEl.style.boxShadow = stBoxShadow;
-                card.style.borderTopColor = stBorderColor;
-            }
-
-            if (nomeEl) nomeEl.innerText = dados.nome || 'Desconhecido';
-            
-            const nexDefEls = card.querySelectorAll('.player-header b');
-            if (nexDefEls && nexDefEls.length >= 2) {
-                nexDefEls[0].innerText = `${dados.nex || 0}%`;
-                nexDefEls[1].innerText = `${dados.defesa || 10}`;
-            }
-
-            const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.fullData?.info?.vida_atual || 0); 
-            const vM = dados.fullData?.info?.vida_max !== undefined ? dados.fullData.info.vida_max : 1; 
-            const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.fullData?.info?.sani_atual || 0); 
-            const sM = dados.fullData?.info?.sani_max !== undefined ? dados.fullData.info.sani_max : 1; 
-            const pA = dados.pe_atual !== undefined ? dados.pe_atual : (dados.fullData?.info?.pe_atual || 0); 
-            const pM = dados.fullData?.info?.pe_max !== undefined ? dados.fullData.info.pe_max : 1;
-
-            const iVida = card.querySelector('.input-vida');
-            const iSani = card.querySelector('.input-sani');
-            const iPe = card.querySelector('.input-pe');
-            const maxVida = card.querySelector('.max-vida');
-            const maxSani = card.querySelector('.max-sani');
-            const maxPe = card.querySelector('.max-pe');
-
-            if(iVida && document.activeElement !== iVida) iVida.value = vA;
-            if(iSani && document.activeElement !== iSani) iSani.value = sA;
-            if(iPe && document.activeElement !== iPe) iPe.value = pA;
-            
-            if(maxVida) maxVida.innerText = `/${vM}`;
-            if(maxSani) maxSani.innerText = `/${sM}`;
-            if(maxPe) maxPe.innerText = `/${pM}`;
         }
 
         function renderizarJogadores() {
@@ -397,12 +379,12 @@
                 card.id = `player-${codPuro}`;
                 const dados = playersDataMemoria[codPuro];
                 
-                // Se o jogador foi adicionado mas a ficha ainda não carregou
+                // Se o jogador foi adicionado mas a ficha ainda não carregou do servidor
                 if (!dados || !dados.fullData) {
                     card.innerHTML = `
                         <button class="btn-remove-card" onclick="removerJogador('${codPuro}')">X</button>
                         <div class="player-header">
-                            <img src="https://via.placeholder.com/70" class="player-img" style="filter: grayscale(100%); opacity: 0.5;">
+                            <img id="foto-${codPuro}" src="https://via.placeholder.com/70" class="player-img" style="filter: grayscale(100%); opacity: 0.5;">
                             <div style="flex: 1; min-width: 0;">
                                 <h3 class="player-name" style="color: gray;">${codPuro}</h3>
                                 <div style="color:var(--accent-red); font-size: 0.8em; font-weight: bold; margin-top: 5px;">Offline / A carregar...</div>
@@ -436,7 +418,7 @@
                     <button class="btn-remove-card" onclick="removerJogador('${codPuro}')">X</button>
                     <div class="player-header">
                         <div style="position: relative;">
-                            <img src="${dados.foto || 'https://via.placeholder.com/70'}" class="player-img" style="border-color: ${stBorderColor}; box-shadow: ${stBoxShadow};">
+                            <img id="foto-${codPuro}" src="${dados.foto || 'https://via.placeholder.com/70'}" class="player-img" style="border-color: ${stBorderColor}; box-shadow: ${stBoxShadow};">
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <h3 class="player-name">${dados.nome || 'Desconhecido'}</h3>
@@ -454,7 +436,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(229,57,53,0.15); color: var(--accent-red); border-color: rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" class="stat-input input-vida" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
+                                    <input type="number" id="vida-${codPuro}" class="stat-input input-vida" value="${vA}" onchange="setStatusJogador('${codPuro}', 'vida', this.value)">
                                     <span class="max-vida" style="color: var(--text-secondary); font-size: 0.75em;">/${vM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(229,57,53,0.15); color: var(--accent-red); border-color: rgba(229,57,53,0.3);" onclick="alterarStatusJogador('${codPuro}', 'vida', 1)">+</button>
@@ -466,7 +448,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(0,176,255,0.15); color: var(--accent-blue); border-color: rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" class="stat-input input-sani" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
+                                    <input type="number" id="sani-${codPuro}" class="stat-input input-sani" value="${sA}" onchange="setStatusJogador('${codPuro}', 'sani', this.value)">
                                     <span class="max-sani" style="color: var(--text-secondary); font-size: 0.75em;">/${sM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(0,176,255,0.15); color: var(--accent-blue); border-color: rgba(0,176,255,0.3);" onclick="alterarStatusJogador('${codPuro}', 'sani', 1)">+</button>
@@ -478,7 +460,7 @@
                             <div style="display: flex; align-items: center; gap: 5px;">
                                 <button class="btn-ctrl" style="background: rgba(255,207,51,0.15); color: var(--accent-yellow); border-color: rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', -1)">-</button>
                                 <div style="font-weight: 900; color: white; width: 65px; text-align: center;">
-                                    <input type="number" class="stat-input input-pe" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
+                                    <input type="number" id="pe-${codPuro}" class="stat-input input-pe" value="${pA}" onchange="setStatusJogador('${codPuro}', 'pe', this.value)">
                                     <span class="max-pe" style="color: var(--text-secondary); font-size: 0.75em;">/${pM}</span>
                                 </div>
                                 <button class="btn-ctrl" style="background: rgba(255,207,51,0.15); color: var(--accent-yellow); border-color: rgba(255,207,51,0.3);" onclick="alterarStatusJogador('${codPuro}', 'pe', 1)">+</button>
