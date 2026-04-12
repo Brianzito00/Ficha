@@ -65,7 +65,7 @@
         .player-img { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; }
         .player-info h3 { margin: 0 0 5px 0; color: white; text-transform: uppercase; font-size: 1.2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         .player-info p { margin: 0; color: var(--text-secondary); font-size: 0.85em; font-weight: bold; }
-        .player-info .destaque { color: var(--accent-green); font-size: 1.1em; }
+        .player-info .destaque { color: var(--accent-green); font-size: 1.1em; transition: color 0.3s; }
 
         /* Barras de Status */
         .status-row { margin-bottom: 8px; }
@@ -100,7 +100,7 @@
         .popup-box { background: var(--bg-card); border: 2px solid var(--accent-red); border-radius: 12px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); padding: 25px; width: 450px; max-width: 95%; }
         .inv-input { background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
 
-        /* ANIMAÇÕES */
+        /* ANIMAÇÕES DE COMBATE */
         @keyframes hitVidaDano { 0% { transform: translateX(0); } 20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); } 40% { transform: translateX(6px) scale(0.97); } 60% { transform: translateX(-6px) scale(0.97); } 80% { transform: translateX(6px) scale(0.97); } 100% { transform: translateX(0) scale(1); } }
         @keyframes hitVidaCura { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); } 100% { transform: scale(1); } }
         @keyframes hitSaniDano { 0% { transform: translate(0) skew(0); } 20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); filter: hue-rotate(20deg); } 40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 100% { transform: translate(0) skew(0) scale(1); filter: none; } }
@@ -146,8 +146,7 @@
             <div id="tab-inimigos" class="tab-content">
                 <button class="btn-leave" style="width: 100%; border-color: var(--accent-red); margin-bottom: 20px; padding: 12px; font-size: 1.1em;" onclick="document.getElementById('modal-inimigo').style.display = 'flex';">➕ CRIAR NOVO INIMIGO</button>
                 
-                <div id="enemies-grid" class="players-grid">
-                    </div>
+                <div id="enemies-grid" class="players-grid"></div>
             </div>
         </div>
 
@@ -228,7 +227,7 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
-        // TABELA DE SUCESSOS
+        // TABELA DE SUCESSOS E ALVOS
         const tbSucesso = { 
             1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},
             6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},
@@ -242,20 +241,18 @@
             return tbSucesso[vh]; 
         }
 
-        // SISTEMA DE INIMIGOS
+        // SISTEMA DE INIMIGOS E CACHE
         let listaInimigos = [];
         const inimigosCacheKey = 'mestre_inimigos_' + campanhaAtiva;
         if(localStorage.getItem(inimigosCacheKey)) {
             try { listaInimigos = JSON.parse(localStorage.getItem(inimigosCacheKey)); } catch(e) {}
         }
 
-        // CARREGAR JOGADORES DA MEMÓRIA
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
         if (localStorage.getItem(cacheKey)) {
             try { jogadoresConectados = JSON.parse(localStorage.getItem(cacheKey)); setTimeout(() => renderPlayers(), 100); } catch(e) {}
         }
 
-        // TAB SWITCHER
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -264,9 +261,9 @@
             if(tabId === 'inimigos') renderInimigos();
         }
 
-        // ==========================================
-        // SOCKET: ATUALIZAÇÕES DA MESA 100% BLINDADAS
-        // ==========================================
+        // =========================================================
+        // O "CÉREBRO" DE ATUALIZAÇÃO - BLINDADO CONTRA BUGS E F5
+        // =========================================================
         if (socket) {
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
@@ -277,7 +274,7 @@
                 if (!dados || !dados.codigo) return;
                 
                 try {
-                    // Pega no jogador que já existe na memória para não apagar dados!
+                    // Pega na ficha que JÁ ESTÁ na memória para NÃO APAGAR o que já sabemos do jogador!
                     let p = jogadoresConectados[dados.codigo] || { codigo: dados.codigo };
                     
                     // Guarda valores antigos para detetar as animações
@@ -285,55 +282,58 @@
                     let oldSani = parseInt(p.sani_atual) || 0;
                     let oldPe   = parseInt(p.pe_atual) || 0;
 
-                    // 1. Atualiza a "fullData" se vier no pacote
-                    let incomingFicha = dados.fullData || dados.ficha;
-                    if (incomingFicha) {
-                        if (typeof incomingFicha === 'string') {
-                            try { incomingFicha = JSON.parse(incomingFicha); } catch(e) {}
+                    // 1. Resgatar a ficha completa se vier (e extrair os dados escondidos nela)
+                    if (dados.fullData) {
+                        p.fullData = dados.fullData;
+                        if (p.fullData.info) {
+                            p.nome = p.fullData.info.char_nome || p.nome;
+                            p.foto = p.fullData.info.char_img || p.foto;
+                            p.nex = p.fullData.info.char_nex || p.nex;
+                            p.vida_max = p.fullData.info.vida_max || p.vida_max;
+                            p.sani_max = p.fullData.info.sani_max || p.sani_max;
+                            p.pe_max = p.fullData.info.pe_max || p.pe_max;
+                            p.pe_atual = p.fullData.info.pe_atual || p.pe_atual; // Salva o PE que o servidor ignora
                         }
-                        p.fullData = incomingFicha;
+                        if (p.fullData.defense !== undefined) p.defesa = p.fullData.defense;
+                        if (p.fullData.charStatus !== undefined) p.status = p.fullData.charStatus;
                     }
 
-                    // 2. FUSÃO INTELIGENTE (Prioridade: Novo Dado > Dado do fullData > Dado Velho da Memória)
-                    // (Isto impede o congelamento e valores NaN)
-                    p.nome = dados.nome ?? p.fullData?.info?.char_nome ?? p.nome ?? 'Desconhecido';
-                    p.foto = dados.foto ?? p.fullData?.info?.char_img ?? p.foto ?? '';
-                    p.nex = dados.nex ?? p.fullData?.info?.char_nex ?? p.nex ?? 0;
-                    p.defesa = dados.defesa ?? p.fullData?.defense ?? p.defesa ?? 10;
+                    // 2. FUSÃO ABSOLUTA - Só substitui o que realmente veio neste pacote específico
+                    if (dados.nome !== undefined) p.nome = dados.nome;
+                    if (dados.foto !== undefined) p.foto = dados.foto;
+                    if (dados.nex !== undefined) p.nex = dados.nex;
+                    if (dados.defesa !== undefined) p.defesa = dados.defesa;
                     
-                    p.vida_atual = dados.vida_atual ?? p.fullData?.info?.vida_atual ?? p.vida_atual ?? 0;
-                    p.vida_max = dados.vida_max ?? p.fullData?.info?.vida_max ?? p.vida_max ?? 1;
-                    p.sani_atual = dados.sani_atual ?? p.fullData?.info?.sani_atual ?? p.sani_atual ?? 0;
-                    p.sani_max = dados.sani_max ?? p.fullData?.info?.sani_max ?? p.sani_max ?? 1;
-                    p.pe_atual = dados.pe_atual ?? p.fullData?.info?.pe_atual ?? p.pe_atual ?? 0;
-                    p.pe_max = dados.pe_max ?? p.fullData?.info?.pe_max ?? p.pe_max ?? 1;
-                    
-                    p.status = dados.status ?? p.fullData?.charStatus ?? p.status ?? {};
+                    if (dados.vida_atual !== undefined) p.vida_atual = dados.vida_atual;
+                    if (dados.vida_max !== undefined) p.vida_max = dados.vida_max;
+                    if (dados.sani_atual !== undefined) p.sani_atual = dados.sani_atual;
+                    if (dados.sani_max !== undefined) p.sani_max = dados.sani_max;
+                    if (dados.pe_atual !== undefined) p.pe_atual = dados.pe_atual;
+                    if (dados.pe_max !== undefined) p.pe_max = dados.pe_max;
+                    if (dados.status !== undefined) p.status = dados.status;
 
-                    // Mantém a fullData sincronizada por dentro para segurança extra
-                    if (p.fullData && p.fullData.info) {
-                        p.fullData.info.char_nex = p.nex;
-                        p.fullData.defense = p.defesa;
-                        p.fullData.info.vida_atual = p.vida_atual;
-                        p.fullData.info.vida_max = p.vida_max;
-                        p.fullData.info.sani_atual = p.sani_atual;
-                        p.fullData.info.sani_max = p.sani_max;
-                        p.fullData.info.pe_atual = p.pe_atual;
-                        p.fullData.info.pe_max = p.pe_max;
-                        p.fullData.charStatus = p.status;
-                    }
+                    // 3. Fallbacks Seguros (Nunca deixa virar "undefined" ou falhar as contas)
+                    p.nome = p.nome || 'Desconhecido';
+                    p.nex = p.nex || 0;
+                    p.defesa = p.defesa || 10;
+                    p.vida_atual = p.vida_atual || 0;
+                    p.vida_max = p.vida_max || 1;
+                    p.sani_atual = p.sani_atual || 0;
+                    p.sani_max = p.sani_max || 1;
+                    p.pe_atual = p.pe_atual || 0;
+                    p.pe_max = p.pe_max || 1;
 
+                    // Deteta qual barra mudou para aplicar a classe de animação
+                    let animClass = null;
                     let newVida = parseInt(p.vida_atual) || 0;
                     let newSani = parseInt(p.sani_atual) || 0;
                     let newPe   = parseInt(p.pe_atual) || 0;
 
-                    // Deteta qual barra mudou para aplicar a classe de animação
-                    let animClass = null;
                     if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
                     else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
                     else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
 
-                    // Salva e atualiza o DOM
+                    // Salva e atualiza o DOM sem crachar
                     jogadoresConectados[dados.codigo] = p;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
@@ -342,12 +342,14 @@
                     if (animClass) {
                         const cardElement = document.getElementById(`card-${dados.codigo}`);
                         if (cardElement) {
+                            cardElement.classList.remove(animClass);
+                            void cardElement.offsetWidth; // Truque para reiniciar animação CSS sem F5
                             cardElement.classList.add(animClass);
-                            setTimeout(() => { cardElement.classList.remove(animClass); }, 600);
+                            setTimeout(() => { if(cardElement) cardElement.classList.remove(animClass); }, 600);
                         }
                     }
                 } catch (err) {
-                    console.error("Erro na fusão de dados. O sistema protegeu-se do F5:", err);
+                    console.error("O sistema bloqueou um erro do pacote para não te obrigar a dar F5:", err);
                 }
             });
 
@@ -365,63 +367,67 @@
         // RENDER JOGADORES (MESA)
         // ==========================================
         function renderPlayers() {
-            const grid = document.getElementById('players-grid');
-            if (Object.keys(jogadoresConectados).length === 0) {
-                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
-                return;
-            }
-            grid.innerHTML = '';
-            
-            Object.values(jogadoresConectados).forEach(player => {
-                // Matemática segura e à prova de NaN
-                const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
-                const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
-                const pMax = Math.max(1, parseInt(player.pe_max) || 1);
-                
-                const vAtual = parseInt(player.vida_atual) || 0; 
-                const sAtual = parseInt(player.sani_atual) || 0; 
-                const pAtual = parseInt(player.pe_atual) || 0;
-                
-                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); 
-                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); 
-                const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
-
-                let extraStyles = "";
-                if (player.status) {
-                    if (player.status.morrendo) extraStyles = "animation: pulseRed 1.5s infinite; border-color: var(--accent-red); box-shadow: 0 0 15px rgba(229,57,53,0.3);";
-                    else if (player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0,176,255,0.3);";
+            try {
+                const grid = document.getElementById('players-grid');
+                if (Object.keys(jogadoresConectados).length === 0) {
+                    grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
+                    return;
                 }
-
-                const fotoExibicao = (player.foto && player.foto.trim() !== '') ? player.foto : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
-
-                const card = document.createElement('div');
-                card.id = `card-${player.codigo}`; card.className = 'player-card'; card.style.cssText = extraStyles;
+                grid.innerHTML = '';
                 
-                card.innerHTML = `
-                    <div class="player-header">
-                        <img src="${fotoExibicao}" class="player-img">
-                        <div class="player-info">
-                            <h3>${player.nome || 'Desconhecido'}</h3>
-                            <p>NEX: <span class="destaque">${player.nex || 0}%</span> | DEF: <span class="destaque" style="color:var(--accent-blue);">${player.defesa || 10}</span></p>
+                Object.values(jogadoresConectados).forEach(player => {
+                    // Matemática 100% segura e à prova de "NaN" ou divisão por zero!
+                    const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
+                    const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
+                    const pMax = Math.max(1, parseInt(player.pe_max) || 1);
+                    
+                    const vAtual = parseInt(player.vida_atual) || 0; 
+                    const sAtual = parseInt(player.sani_atual) || 0; 
+                    const pAtual = parseInt(player.pe_atual) || 0;
+                    
+                    const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); 
+                    const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); 
+                    const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
+
+                    let extraStyles = "";
+                    if (player.status) {
+                        if (player.status.morrendo) extraStyles = "animation: pulseRed 1.5s infinite; border-color: var(--accent-red); box-shadow: 0 0 15px rgba(229,57,53,0.3);";
+                        else if (player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0,176,255,0.3);";
+                    }
+
+                    const fotoExibicao = (player.foto && player.foto.trim() !== '') ? player.foto : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
+
+                    const card = document.createElement('div');
+                    card.id = `card-${player.codigo}`; card.className = 'player-card'; card.style.cssText = extraStyles;
+                    
+                    card.innerHTML = `
+                        <div class="player-header">
+                            <img src="${fotoExibicao}" class="player-img">
+                            <div class="player-info">
+                                <h3>${player.nome}</h3>
+                                <p>NEX: <span class="destaque">${player.nex}%</span> | DEF: <span class="destaque" style="color:var(--accent-blue);">${player.defesa}</span></p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="status-bars">
-                        <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-red)">VIDA</span><span>${vAtual} / ${vMax}</span></div>
-                            <div class="bar-container"><div class="bar-fill fill-vida" style="width: ${pctVida}%;"></div></div>
+                        <div class="status-bars">
+                            <div class="status-row">
+                                <div class="status-labels"><span style="color:var(--accent-red)">VIDA</span><span>${vAtual} / ${vMax}</span></div>
+                                <div class="bar-container"><div class="bar-fill fill-vida" style="width: ${pctVida}%;"></div></div>
+                            </div>
+                            <div class="status-row">
+                                <div class="status-labels"><span style="color:var(--accent-blue)">SANIDADE</span><span>${sAtual} / ${sMax}</span></div>
+                                <div class="bar-container"><div class="bar-fill fill-sani" style="width: ${pctSani}%;"></div></div>
+                            </div>
+                            <div class="status-row">
+                                <div class="status-labels"><span style="color:var(--accent-yellow)">PE</span><span>${pAtual} / ${pMax}</span></div>
+                                <div class="bar-container"><div class="bar-fill fill-pe" style="width: ${pctPe}%;"></div></div>
+                            </div>
                         </div>
-                        <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-blue)">SANIDADE</span><span>${sAtual} / ${sMax}</span></div>
-                            <div class="bar-container"><div class="bar-fill fill-sani" style="width: ${pctSani}%;"></div></div>
-                        </div>
-                        <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-yellow)">PE</span><span>${pAtual} / ${pMax}</span></div>
-                            <div class="bar-container"><div class="bar-fill fill-pe" style="width: ${pctPe}%;"></div></div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch(e) {
+                console.error("Erro renderizando os Cards da Mesa", e);
+            }
         }
 
         // ==========================================
@@ -541,7 +547,6 @@
                                 <span style="color: var(--accent-blue);">B:${strB}</span>
                                 <span style="color: var(--accent-yellow);">E:${strE}</span>
                             </div>
-
                         </div>
                     </div>
                     
@@ -576,19 +581,15 @@
             const ini = listaInimigos.find(e => e.id === id);
             if(!ini) return;
 
-            // Define o valor total da perícia
             let maxAttr = Math.max(ini.for || 0, ini.agi || 0); 
             let totalValorLuta = (maxAttr * 2) + (ini.luta || 0);
             
-            // Vai buscar as margens
             let tg = getAlvosD20(totalValorLuta);
             let strB = tg.b > 20 ? 'x' : tg.b; 
             let strE = tg.e > 20 ? 'x' : tg.e;
             
-            // ROLA APENAS 1D20 PURO
             let roll = Math.floor(Math.random() * 20) + 1;
             
-            // Decisão do Sucesso validando o 1D20 contra a Tabela
             let textFormat = "";
             let colorFormat = "color: white;";
             
