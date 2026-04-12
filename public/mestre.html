@@ -173,7 +173,7 @@
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Vida Máxima</label>
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Vida Max</label>
                     <input type="number" id="enemy-hp" class="inv-input" value="50">
                 </div>
                 <div style="flex: 1;">
@@ -184,16 +184,20 @@
 
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">FORÇA (FOR)</label>
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">FOR</label>
                     <input type="number" id="enemy-for" class="inv-input" value="1">
                 </div>
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">AGILIDADE (AGI)</label>
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">AGI</label>
                     <input type="number" id="enemy-agi" class="inv-input" value="1">
                 </div>
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">VIGOR (VIG)</label>
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">VIG</label>
                     <input type="number" id="enemy-vig" class="inv-input" value="1">
+                </div>
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold; color: var(--accent-red);">LUTA (+)</label>
+                    <input type="number" id="enemy-luta" class="inv-input" value="5">
                 </div>
             </div>
 
@@ -226,6 +230,22 @@
         const socket = typeof io !== 'undefined' ? io() : null;
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
+
+        // ==========================================
+        // TABELA DE SUCESSOS E ALVOS (MECÂNICA OP)
+        // ==========================================
+        const tbSucesso = { 
+            1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},
+            6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},
+            11:{n:10,b:16,e:19},12:{n:9,b:15,e:19},13:{n:8,b:15,e:19},14:{n:7,b:14,e:19},15:{n:6,b:14,e:18},
+            16:{n:5,b:13,e:18},17:{n:4,b:13,e:18},18:{n:3,b:12,e:18},19:{n:2,b:12,e:18},20:{n:1,b:11,e:18} 
+        };
+
+        function getAlvosD20(vh) { 
+            if (vh < 1) vh = 1; 
+            if (vh > 20) return { n: 1, b: Math.max(2, 21 - Math.floor(vh / 2)), e: Math.max(2, 21 - Math.floor(vh / 5)) }; 
+            return tbSucesso[vh]; 
+        }
 
         // SISTEMA DE INIMIGOS
         let listaInimigos = [];
@@ -367,15 +387,15 @@
             const def = parseInt(document.getElementById('enemy-def').value) || 15;
             const el = document.getElementById('enemy-element').value;
             
-            // Novos Atributos
             const forAttr = parseInt(document.getElementById('enemy-for').value) || 0;
             const agiAttr = parseInt(document.getElementById('enemy-agi').value) || 0;
             const vigAttr = parseInt(document.getElementById('enemy-vig').value) || 0;
+            const lutaAttr = parseInt(document.getElementById('enemy-luta').value) || 0;
             
             listaInimigos.push({ 
                 id: Date.now().toString(), 
                 n: n, hpMax: hp, hpAtual: hp, def: def, el: el,
-                for: forAttr, agi: agiAttr, vig: vigAttr 
+                for: forAttr, agi: agiAttr, vig: vigAttr, luta: lutaAttr
             });
             
             localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
@@ -437,6 +457,16 @@
 
                 const pctVida = Math.max(0, Math.min(100, (ini.hpAtual / Math.max(1, ini.hpMax)) * 100));
                 
+                // Cálculo para a tabela de alvo visual no Card do Monstro
+                let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
+                let totalValor = (maxAttr * 2) + (ini.luta || 0);
+                if(maxAttr <= 0) totalValor = (ini.luta || 0); // Se atb é 0, só vale a perícia no cálculo da tabela
+                
+                let tg = getAlvosD20(totalValor);
+                let strN = tg.n; 
+                let strB = tg.b > 20 ? 'x' : tg.b; 
+                let strE = tg.e > 20 ? 'x' : tg.e;
+                
                 const card = document.createElement('div');
                 card.id = `ini-${ini.id}`;
                 card.className = 'player-card';
@@ -457,6 +487,13 @@
                                 <span>FOR: <span style="color: white;">${ini.for || 0}</span></span>
                                 <span>AGI: <span style="color: white;">${ini.agi || 0}</span></span>
                                 <span>VIG: <span style="color: white;">${ini.vig || 0}</span></span>
+                                <span>LUTA: <span style="color: var(--accent-red);">+${ini.luta || 0}</span></span>
+                            </div>
+                            
+                            <div style="margin-top: 5px; display: flex; justify-content: center; gap: 10px; font-size: 0.7em; background: rgba(0,0,0,0.5); padding: 3px; border-radius: 4px; font-family: monospace;">
+                                <span style="color: var(--accent-green);">N:${strN}</span>
+                                <span style="color: var(--accent-blue);">B:${strB}</span>
+                                <span style="color: var(--accent-yellow);">E:${strE}</span>
                             </div>
 
                         </div>
@@ -478,7 +515,7 @@
                     </div>
 
                     <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <button class="btn-action-sm" style="border-color: var(--accent-blue); color: var(--accent-blue);" onclick="mestreRolaAtaque('${ini.n}')">🎲 ATQ (d20)</button>
+                        <button class="btn-action-sm" style="border-color: var(--accent-blue); color: var(--accent-blue);" onclick="mestreRolaLuta('${ini.id}')">⚔️ ATQ LUTA</button>
                         <button class="btn-action-sm" style="border-color: var(--accent-red); color: var(--accent-red);" onclick="mestreRolaDano('${ini.n}')">💥 DANO</button>
                     </div>
                 `;
@@ -487,27 +524,82 @@
         }
 
         // ==========================================
-        // ROLAGENS DO MESTRE (CORRIGIDAS PARA NÃO DUPLICAR)
+        // ROLAGENS COM REGRAS DE ORDEM PARANORMAL
         // ==========================================
-        function mestreRolaAtaque(nomeInimigo) {
-            const roll = Math.floor(Math.random() * 20) + 1;
-            let color = "color: white;";
-            let textoAdd = "";
-            if (roll === 20) { color = "color: #ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; textoAdd = " (CRÍTICO!)"; }
-            if (roll === 1) { color = "color: #ff5252; text-shadow:2px 2px 4px #000;"; textoAdd = " (DESASTRE)"; }
+        function mestreRolaLuta(id) {
+            const ini = listaInimigos.find(e => e.id === id);
+            if(!ini) return;
+
+            // Define o número de dados: Maior valor entre FOR e AGI
+            let qtdDados = Math.max(ini.for || 0, ini.agi || 0);
+            let bonusLuta = ini.luta || 0;
+            
+            let d20s = [];
+            let melhorDado = 0;
+
+            if (qtdDados <= 0) {
+                // Regra do Zero: Rola 2 dados e pega o PIOR
+                let r1 = Math.floor(Math.random() * 20) + 1;
+                let r2 = Math.floor(Math.random() * 20) + 1;
+                d20s.push(r1, r2);
+                melhorDado = Math.min(r1, r2);
+            } else {
+                // Regra Normal: Rola N dados e pega o MELHOR
+                for(let i = 0; i < qtdDados; i++) {
+                    d20s.push(Math.floor(Math.random() * 20) + 1);
+                }
+                melhorDado = Math.max(...d20s);
+            }
+
+            // Cálculo dos Alvos N/B/E da Perícia
+            let totalValorParaAlvo = (qtdDados * 2) + bonusLuta; 
+            if (qtdDados <= 0) totalValorParaAlvo = bonusLuta; // Se atributo for 0, só vale a luta para o alvo
+            
+            let tg = getAlvosD20(totalValorParaAlvo);
+            
+            // Decisão do Sucesso
+            let textFormat = "";
+            let colorFormat = "color: white;";
+            
+            if (melhorDado === 1) { 
+                textFormat = "DESASTRE"; 
+                colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if (melhorDado >= 20) { 
+                textFormat = "CRÍTICO!"; 
+                colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
+            } 
+            else if (melhorDado >= tg.e) { 
+                textFormat = "EXTREMO"; 
+                colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if (melhorDado >= tg.b) { 
+                textFormat = "BOM"; 
+                colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else if (melhorDado >= tg.n) { 
+                textFormat = "NORMAL"; 
+                colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
+            } 
+            else { 
+                textFormat = "FALHA"; 
+                colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
+            }
+
+            let somaTotalAtk = melhorDado + bonusLuta;
             
             const logData = {
-                jogador: "Mestre (" + nomeInimigo + ")",
-                acao: "Ataque (d20)" + textoAdd,
-                resultado: roll,
-                cor: color
+                jogador: "Mestre (" + ini.n + ")",
+                acao: `⚔️ Luta [${d20s.join(', ')}] + ${bonusLuta} <br><span style="font-size:0.8em; margin-top:2px; display:inline-block;">(${textFormat})</span>`,
+                resultado: somaTotalAtk,
+                cor: colorFormat
             };
             
-            // Se estiver conectado, envia para o servidor. O servidor vai devolver como 'novo_log' e adicionamos lá.
+            // Envia para o servidor. Se não houver servidor (jogo offline test), regista apenas local.
             if(socket) {
                 socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
             } else {
-                adicionarLog(logData); // Fallback caso jogue offline
+                adicionarLog(logData);
             }
         }
 
@@ -537,7 +629,7 @@
 
             const logData = {
                 jogador: "Mestre (" + nomeInimigo + ")",
-                acao: "Dano: " + formula,
+                acao: "💥 Dano: " + formula,
                 resultado: total,
                 cor: "color: var(--accent-red); text-shadow:2px 2px 4px #000;"
             };
@@ -561,7 +653,7 @@
             
             item.className = classeLog;
             item.innerHTML = `
-                <div class="log-player">🎲 ${dados.jogador || 'Jogador'}</div>
+                <div class="log-player">${dados.jogador || 'Jogador'}</div>
                 <div class="log-action">${dados.acao || 'Rolagem'}</div>
                 <div class="log-result" style="${dados.cor || 'color: white;'}">${dados.resultado}</div>
             `;
