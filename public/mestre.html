@@ -232,7 +232,7 @@
         let logsIniciaisRemovidos = false;
 
         // ==========================================
-        // TABELA DE SUCESSOS E ALVOS (MECÂNICA OP)
+        // TABELA DE SUCESSOS E ALVOS (SISTEMA D20 TIPO CoC)
         // ==========================================
         const tbSucesso = { 
             1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},
@@ -457,10 +457,9 @@
 
                 const pctVida = Math.max(0, Math.min(100, (ini.hpAtual / Math.max(1, ini.hpMax)) * 100));
                 
-                // Cálculo para a tabela de alvo visual no Card do Monstro
+                // Cálculo para a tabela de alvo visual no Card do Monstro (IDÊNTICO À FICHA)
                 let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
                 let totalValor = (maxAttr * 2) + (ini.luta || 0);
-                if(maxAttr <= 0) totalValor = (ini.luta || 0); // Se atb é 0, só vale a perícia no cálculo da tabela
                 
                 let tg = getAlvosD20(totalValor);
                 let strN = tg.n; 
@@ -524,60 +523,43 @@
         }
 
         // ==========================================
-        // ROLAGENS COM REGRAS DE ORDEM PARANORMAL
+        // ROLAGEM 1D20 (SISTEMA CoC ADAPTADO)
         // ==========================================
         function mestreRolaLuta(id) {
             const ini = listaInimigos.find(e => e.id === id);
             if(!ini) return;
 
-            // Define o número de dados: Maior valor entre FOR e AGI
-            let qtdDados = Math.max(ini.for || 0, ini.agi || 0);
-            let bonusLuta = ini.luta || 0;
+            // Define o valor da perícia: (Maior Atributo * 2) + Luta
+            let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
+            let totalValorParaAlvo = (maxAttr * 2) + (ini.luta || 0);
             
-            let d20s = [];
-            let melhorDado = 0;
-
-            if (qtdDados <= 0) {
-                // Regra do Zero: Rola 2 dados e pega o PIOR
-                let r1 = Math.floor(Math.random() * 20) + 1;
-                let r2 = Math.floor(Math.random() * 20) + 1;
-                d20s.push(r1, r2);
-                melhorDado = Math.min(r1, r2);
-            } else {
-                // Regra Normal: Rola N dados e pega o MELHOR
-                for(let i = 0; i < qtdDados; i++) {
-                    d20s.push(Math.floor(Math.random() * 20) + 1);
-                }
-                melhorDado = Math.max(...d20s);
-            }
-
-            // Cálculo dos Alvos N/B/E da Perícia
-            let totalValorParaAlvo = (qtdDados * 2) + bonusLuta; 
-            if (qtdDados <= 0) totalValorParaAlvo = bonusLuta; // Se atributo for 0, só vale a luta para o alvo
-            
+            // Vai buscar os alvos precisos baseados no valor total
             let tg = getAlvosD20(totalValorParaAlvo);
             
-            // Decisão do Sucesso
+            // ROLA APENAS 1D20 (como no Call of Cthulhu)
+            let roll = Math.floor(Math.random() * 20) + 1;
+            
+            // Decisão do Sucesso validando o dado contra a Tabela
             let textFormat = "";
             let colorFormat = "color: white;";
             
-            if (melhorDado === 1) { 
+            if (roll === 1) { 
                 textFormat = "DESASTRE"; 
                 colorFormat = "color:#ff5252; text-shadow:2px 2px 4px #000;"; 
             } 
-            else if (melhorDado >= 20) { 
+            else if (roll === 20) { 
                 textFormat = "CRÍTICO!"; 
                 colorFormat = "color:#ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; 
             } 
-            else if (melhorDado >= tg.e) { 
+            else if (roll >= tg.e) { 
                 textFormat = "EXTREMO"; 
                 colorFormat = "color:var(--accent-yellow); text-shadow:2px 2px 4px #000;"; 
             } 
-            else if (melhorDado >= tg.b) { 
+            else if (roll >= tg.b) { 
                 textFormat = "BOM"; 
                 colorFormat = "color:var(--accent-blue); text-shadow:2px 2px 4px #000;"; 
             } 
-            else if (melhorDado >= tg.n) { 
+            else if (roll >= tg.n) { 
                 textFormat = "NORMAL"; 
                 colorFormat = "color:var(--accent-green); text-shadow:2px 2px 4px #000;"; 
             } 
@@ -586,16 +568,13 @@
                 colorFormat = "color:var(--accent-red); text-shadow:2px 2px 4px #000;"; 
             }
 
-            let somaTotalAtk = melhorDado + bonusLuta;
-            
             const logData = {
                 jogador: "Mestre (" + ini.n + ")",
-                acao: `⚔️ Luta [${d20s.join(', ')}] + ${bonusLuta} <br><span style="font-size:0.8em; margin-top:2px; display:inline-block;">(${textFormat})</span>`,
-                resultado: somaTotalAtk,
+                acao: `⚔️ ATQ Luta <br><span style="font-size:0.8em; margin-top:2px; display:inline-block;">(${textFormat})</span>`,
+                resultado: roll, // MOSTRA O VALOR CRU DO 1D20!
                 cor: colorFormat
             };
             
-            // Envia para o servidor. Se não houver servidor (jogo offline test), regista apenas local.
             if(socket) {
                 socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
             } else {
