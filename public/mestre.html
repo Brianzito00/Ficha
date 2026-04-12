@@ -47,7 +47,7 @@
             background: var(--bg-card); border: 1px solid var(--border-color); border-top: 3px solid var(--accent-red);
             border-radius: 12px; padding: 15px; box-shadow: var(--shadow-card); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; gap: 15px; transition: transform 0.2s;
-            will-change: transform, box-shadow; /* Otimização para as animações */
+            will-change: transform, box-shadow; /* Otimização de performance para as animações */
         }
         .player-card:hover { transform: translateY(-3px); border-color: var(--accent-red); }
 
@@ -90,52 +90,82 @@
         .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
 
         /* =========================================
-           ANIMAÇÕES DE STATUS ÚNICAS
+           POP-UP DE INSPEÇÃO DE FICHA
+        ========================================= */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center;
+            z-index: 3000; backdrop-filter: blur(10px);
+        }
+        
+        .popup-box {
+            background: var(--bg-card); border: 2px solid var(--accent-blue);
+            border-radius: 12px; box-shadow: var(--shadow-card);
+            backdrop-filter: blur(15px); padding: 15px;
+        }
+        
+        .ficha-popup {
+            width: 95%; max-width: 1400px; height: 95vh;
+            display: flex; flex-direction: column;
+        }
+        
+        .btn-fechar-popup {
+            padding: 8px 20px; font-weight: bold; background: var(--accent-red); 
+            color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        
+        .btn-fechar-popup:hover { background: #b71c1c; }
+
+        /* =========================================
+           ANIMAÇÕES DE STATUS (BEM FORMATADAS)
         ========================================= */
 
-        /* VIDA: Tremor violento (Dano) / Pulsação suave (Cura) */
-        @keyframes hitVidaDano {
-            0% { transform: translateX(0); border-color: var(--border-color); }
-            20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); }
-            40% { transform: translateX(6px) scale(0.97); }
-            60% { transform: translateX(-6px) scale(0.97); }
-            80% { transform: translateX(6px) scale(0.97); }
-            100% { transform: translateX(0) scale(1); border-color: var(--border-color); }
+        /* VIDA: Tremor violento (Dano) / Pulsação (Cura) */
+        @keyframes hitVidaDano { 
+            0% { transform: translateX(0); border-color: var(--border-color); } 
+            20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); } 
+            40% { transform: translateX(6px) scale(0.97); } 
+            60% { transform: translateX(-6px) scale(0.97); } 
+            80% { transform: translateX(6px) scale(0.97); } 
+            100% { transform: translateX(0) scale(1); border-color: var(--border-color); } 
         }
-        @keyframes hitVidaCura {
-            0% { transform: scale(1); border-color: var(--border-color); }
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); }
-            100% { transform: scale(1); border-color: var(--border-color); }
+        
+        @keyframes hitVidaCura { 
+            0% { transform: scale(1); border-color: var(--border-color); } 
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); } 
+            100% { transform: scale(1); border-color: var(--border-color); } 
         }
 
         /* SANIDADE: Glitch/Distorção Mental (Dano) / Pulsação (Cura) */
-        @keyframes hitSaniDano {
-            0% { transform: translate(0) skew(0); border-color: var(--border-color); }
-            20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); }
-            40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); }
-            60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); }
-            80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); }
-            100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; }
+        @keyframes hitSaniDano { 
+            0% { transform: translate(0) skew(0); border-color: var(--border-color); } 
+            20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); } 
+            40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 
+            60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 
+            80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 
+            100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; } 
         }
-        @keyframes hitSaniCura {
-            0% { transform: scale(1); border-color: var(--border-color); }
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); }
-            100% { transform: scale(1); border-color: var(--border-color); }
-        }
-
-        /* PONTOS DE ESFORÇO: Pesado para baixo (Gasto) / Subir leve (Ganho) */
-        @keyframes hitPeDano {
-            0% { transform: translateY(0); border-color: var(--border-color); }
-            30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); }
-            100% { transform: translateY(0) scale(1); border-color: var(--border-color); }
-        }
-        @keyframes hitPeCura {
-            0% { transform: translateY(0); border-color: var(--border-color); }
-            50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); }
-            100% { transform: translateY(0); border-color: var(--border-color); }
+        
+        @keyframes hitSaniCura { 
+            0% { transform: scale(1); border-color: var(--border-color); } 
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); } 
+            100% { transform: scale(1); border-color: var(--border-color); } 
         }
 
-        /* Classes de Animação */
+        /* PE: Pesado para baixo (Gasto) / Subir leve (Ganho) */
+        @keyframes hitPeDano { 
+            0% { transform: translateY(0); border-color: var(--border-color); } 
+            30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); } 
+            100% { transform: translateY(0) scale(1); border-color: var(--border-color); } 
+        }
+        
+        @keyframes hitPeCura { 
+            0% { transform: translateY(0); border-color: var(--border-color); } 
+            50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); } 
+            100% { transform: translateY(0); border-color: var(--border-color); } 
+        }
+
+        /* Atribuição das Classes de Animação */
         .anim-vida-dano { animation: hitVidaDano 0.5s ease-out !important; z-index: 10; position: relative; }
         .anim-vida-cura { animation: hitVidaCura 0.6s ease-out !important; z-index: 10; position: relative; }
         .anim-sani-dano { animation: hitSaniDano 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important; z-index: 10; position: relative; }
@@ -176,10 +206,27 @@
         </div>
     </div>
 
+    <div id="modal-inspecionar" class="popup-overlay" onclick="fecharFichaLeitura()">
+        <div class="popup-box ficha-popup" onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <div>
+                    <h3 style="color: var(--accent-blue); margin: 0; text-transform: uppercase;">A Inspecionar Ficha</h3>
+                    <span style="font-size: 0.8em; color: var(--accent-green);">(A atualizar em tempo real)</span>
+                </div>
+                <button class="btn-fechar-popup" onclick="fecharFichaLeitura()">X FECHAR</button>
+            </div>
+            <iframe id="iframe-ficha" src="" style="width: 100%; height: 100%; border: none; border-radius: 8px; background: var(--bg-body);"></iframe>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const campanhaAtiva = localStorage.getItem('campanha_atual');
-        if(!campanhaAtiva) { window.location.href = '/index.html'; }
+        
+        if(!campanhaAtiva) { 
+            window.location.href = '/index.html'; 
+        }
+        
         document.getElementById('display-campanha').innerText = campanhaAtiva;
 
         // Recuperar wallpaper da mesa definido na criação (Lobby)
@@ -197,19 +244,20 @@
         // CARREGAR JOGADORES DA MEMÓRIA IMEDIATAMENTE (CACHE LOCAL)
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
         const cacheSalvo = localStorage.getItem(cacheKey);
+        
         if (cacheSalvo) {
-            try {
-                jogadoresConectados = JSON.parse(cacheSalvo);
+            try { 
+                jogadoresConectados = JSON.parse(cacheSalvo); 
                 setTimeout(() => renderPlayers(), 100); 
             } catch(e) {}
         }
 
         if (socket) {
+            // Entrar na sala e pedir os dados ao servidor
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
-                
-                Object.keys(jogadoresConectados).forEach(codigo => {
-                    socket.emit('request_player', codigo);
+                Object.keys(jogadoresConectados).forEach(codigo => { 
+                    socket.emit('request_player', codigo); 
                 });
             });
 
@@ -218,18 +266,16 @@
                 if (dados && dados.codigo) {
                     let animClass = null;
                     
-                    // Lógica para detetar as alterações (Vida, Sani, PE) e aplicar a animação correta
+                    // Lógica das animações: Verifica qual atributo mudou
                     if (jogadoresConectados[dados.codigo]) {
                         let p = jogadoresConectados[dados.codigo];
-                        
-                        let oldVida = parseInt(p.vida_atual) || 0;
+                        let oldVida = parseInt(p.vida_atual) || 0; 
                         let newVida = parseInt(dados.vida_atual) || 0;
-                        let oldSani = parseInt(p.sani_atual) || 0;
+                        let oldSani = parseInt(p.sani_atual) || 0; 
                         let newSani = parseInt(dados.sani_atual) || 0;
-                        let oldPe   = parseInt(p.pe_atual) || 0;
+                        let oldPe   = parseInt(p.pe_atual) || 0;   
                         let newPe   = parseInt(dados.pe_atual) || 0;
                         
-                        // Hierarquia de animação: Vida > Sanidade > PE
                         if (newVida < oldVida) animClass = 'anim-vida-dano';
                         else if (newVida > oldVida) animClass = 'anim-vida-cura';
                         else if (newSani < oldSani) animClass = 'anim-sani-dano';
@@ -238,29 +284,28 @@
                         else if (newPe > oldPe) animClass = 'anim-pe-cura';
                     }
 
+                    // Guardar e renderizar
                     jogadoresConectados[dados.codigo] = dados;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
-                    
                     renderPlayers();
 
-                    // Aplicar a animação ao card recém-renderizado
+                    // Aplicar animação ao card gerado
                     if (animClass) {
                         const cardElement = document.getElementById(`card-${dados.codigo}`);
                         if (cardElement) {
                             cardElement.classList.add(animClass);
-                            // Remove a classe após a animação terminar para poder ser repetida futuramente
                             setTimeout(() => { cardElement.classList.remove(animClass); }, 600);
                         }
                     }
                 }
             });
 
-            socket.on('mestre_pede_ficha', (codigo) => {
-                console.log(`Servidor pediu a ficha de ${codigo}, a aguardar que o jogador sincronize...`);
+            socket.on('mestre_pede_ficha', (codigo) => { 
+                console.log(`Servidor pediu a ficha de ${codigo}`); 
             });
-
-            socket.on('novo_log', (dados) => {
-                adicionarLog(dados);
+            
+            socket.on('novo_log', (dados) => { 
+                adicionarLog(dados); 
             });
             
             socket.on('comando_mestre', (dados) => {
@@ -272,28 +317,30 @@
             });
         }
 
+        // Função para construir os Cards
         function renderPlayers() {
             const grid = document.getElementById('players-grid');
             
             if (Object.keys(jogadoresConectados).length === 0) {
-                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...<br><span style="font-size: 0.8em;">Os jogadores aparecerão aqui assim que abrirem ou alterarem a ficha.</span></div>`;
+                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
                 return;
             }
             
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                const vMax = Math.max(1, parseInt(player.vida_max) || 1);
-                const sMax = Math.max(1, parseInt(player.sani_max) || 1);
+                // Matemática segura
+                const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
+                const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
                 const pMax = Math.max(1, parseInt(player.pe_max) || 1);
                 
-                const vAtual = parseInt(player.vida_atual) || 0;
-                const sAtual = parseInt(player.sani_atual) || 0;
+                const vAtual = parseInt(player.vida_atual) || 0; 
+                const sAtual = parseInt(player.sani_atual) || 0; 
                 const pAtual = parseInt(player.pe_atual) || 0;
-
-                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100));
-                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100));
-                const pctPe   = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
+                
+                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); 
+                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); 
+                const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
 
                 let extraStyles = "";
                 if (player.status) {
@@ -301,9 +348,7 @@
                     else if (player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0,176,255,0.3);";
                 }
 
-                const fotoExibicao = (player.foto && player.foto.trim() !== '') 
-                    ? player.foto 
-                    : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
+                const fotoExibicao = (player.foto && player.foto.trim() !== '') ? player.foto : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
 
                 const card = document.createElement('div');
                 card.id = `card-${player.codigo}`; 
@@ -336,24 +381,24 @@
 
                     <button class="btn-view-sheet" onclick="abrirFichaLeitura('${player.codigo}')">🔍 Inspecionar Ficha</button>
                 `;
-                
                 grid.appendChild(card);
             });
         }
 
+        // Função para os logs de dados
         function adicionarLog(dados) {
             const list = document.getElementById('log-list');
-            
-            if (!logsIniciaisRemovidos) {
-                list.innerHTML = '';
-                logsIniciaisRemovidos = true;
+            if (!logsIniciaisRemovidos) { 
+                list.innerHTML = ''; 
+                logsIniciaisRemovidos = true; 
             }
-
+            
             const item = document.createElement('div');
             let classeLog = 'log-item';
+            
             if (dados.cor && dados.cor.includes('#ffcf33')) classeLog += ' crit';
             if (dados.cor && dados.cor.includes('#ff5252')) classeLog += ' fail';
-
+            
             item.className = classeLog;
             item.innerHTML = `
                 <div class="log-player">🎲 ${dados.jogador || 'Jogador'}</div>
@@ -365,8 +410,25 @@
             if (list.children.length > 25) list.removeChild(list.lastChild);
         }
 
+        // ==========================================
+        // FUNÇÕES DO POP-UP DA FICHA
+        // ==========================================
         function abrirFichaLeitura(codigoJogador) {
-            window.open('/ficha.html?view=' + codigoJogador, '_blank');
+            const modal = document.getElementById('modal-inspecionar');
+            const iframe = document.getElementById('iframe-ficha');
+            
+            // Coloca o link do modo leitura (view) no iframe
+            iframe.src = '/ficha.html?view=' + codigoJogador;
+            modal.style.display = 'flex';
+        }
+
+        function fecharFichaLeitura() {
+            const modal = document.getElementById('modal-inspecionar');
+            const iframe = document.getElementById('iframe-ficha');
+            
+            modal.style.display = 'none';
+            // Apaga o src para parar a conexão de socket do iframe e poupar RAM
+            iframe.src = '';
         }
 
         function voltarLobby() {
