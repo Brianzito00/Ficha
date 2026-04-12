@@ -88,6 +88,27 @@
         .log-action { font-size: 0.9em; color: white; margin-bottom: 5px; font-style: italic; }
         .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
 
+        /* =========================================
+           ANIMAÇÕES DE VIDA (DANO E CURA)
+        ========================================= */
+        @keyframes hitDamage {
+            0% { transform: translateX(0); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+            20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); }
+            40% { transform: translateX(6px) scale(0.97); }
+            60% { transform: translateX(-6px) scale(0.97); }
+            80% { transform: translateX(6px) scale(0.97); }
+            100% { transform: translateX(0) scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+        }
+        
+        @keyframes hitHeal {
+            0% { transform: scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); }
+            100% { transform: scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+        }
+
+        .anim-dano { animation: hitDamage 0.5s ease-out !important; z-index: 10; position: relative; }
+        .anim-cura { animation: hitHeal 0.6s ease-out !important; z-index: 10; position: relative; }
+
         @media (max-width: 900px) {
             .main-content { flex-direction: column; }
             .log-area { width: 100%; height: 300px; border-left: none; border-top: 1px solid var(--border-color); }
@@ -139,54 +160,68 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
-        // 1. CARREGAR JOGADORES DA MEMÓRIA IMEDIATAMENTE (CACHE LOCAL)
+        // CARREGAR JOGADORES DA MEMÓRIA IMEDIATAMENTE (CACHE LOCAL)
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
         const cacheSalvo = localStorage.getItem(cacheKey);
         if (cacheSalvo) {
             try {
                 jogadoresConectados = JSON.parse(cacheSalvo);
-                setTimeout(() => renderPlayers(), 100); // Renderiza os cards salvos instantaneamente
+                setTimeout(() => renderPlayers(), 100); 
             } catch(e) {}
         }
 
         if (socket) {
-            // 2. Entrar na sala e pedir dados atualizados
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
-                console.log("Conectado à campanha:", campanhaAtiva);
-
-                // Pede ao servidor os dados mais recentes dos jogadores que estão na memória
+                
                 Object.keys(jogadoresConectados).forEach(codigo => {
                     socket.emit('request_player', codigo);
                 });
             });
 
-            // 3. Escutar atualizações de ficha do servidor
+            // ESCUTAR ATUALIZAÇÕES DE FICHA
             socket.on('update_mestre', (dados) => {
                 if (dados && dados.codigo) {
-                    jogadoresConectados[dados.codigo] = dados;
+                    let animClass = null;
                     
-                    // SALVAR QUALQUER ALTERAÇÃO NA MEMÓRIA
+                    // Lógica para detetar se levou dano ou foi curado
+                    if (jogadoresConectados[dados.codigo]) {
+                        let oldVida = parseInt(jogadoresConectados[dados.codigo].vida_atual) || 0;
+                        let newVida = parseInt(dados.vida_atual) || 0;
+                        
+                        if (newVida < oldVida) animClass = 'anim-dano';
+                        else if (newVida > oldVida) animClass = 'anim-cura';
+                    }
+
+                    jogadoresConectados[dados.codigo] = dados;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
+                    
                     renderPlayers();
+
+                    // Aplicar a animação ao card recém-renderizado
+                    if (animClass) {
+                        const cardElement = document.getElementById(`card-${dados.codigo}`);
+                        if (cardElement) {
+                            cardElement.classList.add(animClass);
+                            // Remove a classe após a animação terminar para poder ser repetida
+                            setTimeout(() => { cardElement.classList.remove(animClass); }, 600);
+                        }
+                    }
                 }
             });
 
-            // Se o servidor pedir uma ficha que não tem
             socket.on('mestre_pede_ficha', (codigo) => {
                 console.log(`Servidor pediu a ficha de ${codigo}, a aguardar que o jogador sincronize...`);
             });
 
-            // 4. Escutar rolagens de dados
             socket.on('novo_log', (dados) => {
                 adicionarLog(dados);
             });
             
-            // 5. Escutar se alguém sair da campanha
             socket.on('comando_mestre', (dados) => {
                 if (dados.tipo === 'jogador_saiu' && dados.codigo) {
                     delete jogadoresConectados[dados.codigo];
-                    localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados)); // Atualiza memória
+                    localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados)); 
                     renderPlayers();
                 }
             });
@@ -203,7 +238,6 @@
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                // Cálculo seguro das percentagens para evitar divisão por zero
                 const vMax = Math.max(1, parseInt(player.vida_max) || 1);
                 const sMax = Math.max(1, parseInt(player.sani_max) || 1);
                 const pMax = Math.max(1, parseInt(player.pe_max) || 1);
@@ -216,19 +250,18 @@
                 const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100));
                 const pctPe   = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
 
-                // Borda brilhante se o jogador estiver num estado crítico
                 let extraStyles = "";
                 if (player.status) {
                     if (player.status.morrendo) extraStyles = "animation: pulseRed 1.5s infinite; border-color: var(--accent-red); box-shadow: 0 0 15px rgba(229,57,53,0.3);";
                     else if (player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0,176,255,0.3);";
                 }
 
-                // Foto padrão caso o jogador não tenha colocado
                 const fotoExibicao = (player.foto && player.foto.trim() !== '') 
                     ? player.foto 
                     : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
 
                 const card = document.createElement('div');
+                card.id = `card-${player.codigo}`; // ID adicionado para aplicar a animação
                 card.className = 'player-card';
                 card.style.cssText = extraStyles;
                 
@@ -266,17 +299,15 @@
         function adicionarLog(dados) {
             const list = document.getElementById('log-list');
             
-            // Remove o texto placeholder "Nenhum dado rolado ainda" na primeira rolagem
             if (!logsIniciaisRemovidos) {
                 list.innerHTML = '';
                 logsIniciaisRemovidos = true;
             }
 
             const item = document.createElement('div');
-            
             let classeLog = 'log-item';
-            if (dados.cor && dados.cor.includes('#ffcf33')) classeLog += ' crit'; // Amarelo de crítico
-            if (dados.cor && dados.cor.includes('#ff5252')) classeLog += ' fail'; // Vermelho de desastre
+            if (dados.cor && dados.cor.includes('#ffcf33')) classeLog += ' crit';
+            if (dados.cor && dados.cor.includes('#ff5252')) classeLog += ' fail';
 
             item.className = classeLog;
             item.innerHTML = `
@@ -285,18 +316,11 @@
                 <div class="log-result" style="${dados.cor || 'color: white;'}">${dados.resultado}</div>
             `;
             
-            // Adiciona no topo
             list.insertBefore(item, list.firstChild);
-            
-            // Manter apenas os últimos 25 registos para não pesar a memória do navegador
-            if (list.children.length > 25) {
-                list.removeChild(list.lastChild);
-            }
+            if (list.children.length > 25) list.removeChild(list.lastChild);
         }
 
-        // Abre a ficha em modo View Only
         function abrirFichaLeitura(codigoJogador) {
-            // Usa o parâmetro ?view= como já configuraste no ficha.html
             window.open('/ficha.html?view=' + codigoJogador, '_blank');
         }
 
