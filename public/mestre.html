@@ -228,9 +228,7 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
-        // ==========================================
-        // TABELA DE SUCESSOS E ALVOS (SISTEMA D20 TIPO CoC)
-        // ==========================================
+        // TABELA DE SUCESSOS
         const tbSucesso = { 
             1:{n:20,b:99,e:99},2:{n:19,b:20,e:99},3:{n:18,b:20,e:99},4:{n:17,b:19,e:99},5:{n:16,b:19,e:20},
             6:{n:15,b:18,e:20},7:{n:14,b:18,e:20},8:{n:13,b:17,e:20},9:{n:12,b:17,e:20},10:{n:11,b:16,e:19},
@@ -267,7 +265,7 @@
         }
 
         // ==========================================
-        // SOCKET: ATUALIZAÇÕES DA MESA - CORRIGIDO
+        // SOCKET: ATUALIZAÇÕES DA MESA 100% BLINDADAS
         // ==========================================
         if (socket) {
             socket.on('connect', () => {
@@ -276,60 +274,71 @@
             });
 
             socket.on('update_mestre', (dados) => {
-                if (dados && dados.codigo) {
-                    let animClass = null;
-                    
-                    // IMPORTANTE: Busca o jogador já existente na memória, para NÃO APAGAR o que falta no pacote!
+                if (!dados || !dados.codigo) return;
+                
+                try {
+                    // Pega no jogador que já existe na memória para não apagar dados!
                     let p = jogadoresConectados[dados.codigo] || { codigo: dados.codigo };
                     
+                    // Guarda valores antigos para detetar as animações
                     let oldVida = parseInt(p.vida_atual) || 0;
                     let oldSani = parseInt(p.sani_atual) || 0;
                     let oldPe   = parseInt(p.pe_atual) || 0;
 
-                    // MANTÉM OS DADOS COMPLETOS (MERGE INTELIGENTE)
-                    if (dados.nome !== undefined) p.nome = dados.nome;
-                    if (dados.foto !== undefined) p.foto = dados.foto;
-                    if (dados.nex !== undefined) p.nex = dados.nex;
-                    if (dados.defesa !== undefined) p.defesa = dados.defesa;
-                    if (dados.status !== undefined) p.status = dados.status;
-
-                    if (dados.vida_atual !== undefined) p.vida_atual = dados.vida_atual;
-                    if (dados.vida_max !== undefined) p.vida_max = dados.vida_max;
-                    if (dados.sani_atual !== undefined) p.sani_atual = dados.sani_atual;
-                    if (dados.sani_max !== undefined) p.sani_max = dados.sani_max;
-                    if (dados.pe_atual !== undefined) p.pe_atual = dados.pe_atual;
-                    if (dados.pe_max !== undefined) p.pe_max = dados.pe_max;
-
-                    // Se vier ficha completa no pacote
-                    if (dados.fullData) {
-                        p.fullData = dados.fullData;
+                    // 1. Atualiza a "fullData" se vier no pacote
+                    let incomingFicha = dados.fullData || dados.ficha;
+                    if (incomingFicha) {
+                        if (typeof incomingFicha === 'string') {
+                            try { incomingFicha = JSON.parse(incomingFicha); } catch(e) {}
+                        }
+                        p.fullData = incomingFicha;
                     }
 
-                    // Forçar atualização do fullData interno (para precaver)
+                    // 2. FUSÃO INTELIGENTE (Prioridade: Novo Dado > Dado do fullData > Dado Velho da Memória)
+                    // (Isto impede o congelamento e valores NaN)
+                    p.nome = dados.nome ?? p.fullData?.info?.char_nome ?? p.nome ?? 'Desconhecido';
+                    p.foto = dados.foto ?? p.fullData?.info?.char_img ?? p.foto ?? '';
+                    p.nex = dados.nex ?? p.fullData?.info?.char_nex ?? p.nex ?? 0;
+                    p.defesa = dados.defesa ?? p.fullData?.defense ?? p.defesa ?? 10;
+                    
+                    p.vida_atual = dados.vida_atual ?? p.fullData?.info?.vida_atual ?? p.vida_atual ?? 0;
+                    p.vida_max = dados.vida_max ?? p.fullData?.info?.vida_max ?? p.vida_max ?? 1;
+                    p.sani_atual = dados.sani_atual ?? p.fullData?.info?.sani_atual ?? p.sani_atual ?? 0;
+                    p.sani_max = dados.sani_max ?? p.fullData?.info?.sani_max ?? p.sani_max ?? 1;
+                    p.pe_atual = dados.pe_atual ?? p.fullData?.info?.pe_atual ?? p.pe_atual ?? 0;
+                    p.pe_max = dados.pe_max ?? p.fullData?.info?.pe_max ?? p.pe_max ?? 1;
+                    
+                    p.status = dados.status ?? p.fullData?.charStatus ?? p.status ?? {};
+
+                    // Mantém a fullData sincronizada por dentro para segurança extra
                     if (p.fullData && p.fullData.info) {
-                        if (dados.vida_atual !== undefined) p.fullData.info.vida_atual = dados.vida_atual;
-                        if (dados.vida_max !== undefined) p.fullData.info.vida_max = dados.vida_max;
-                        if (dados.sani_atual !== undefined) p.fullData.info.sani_atual = dados.sani_atual;
-                        if (dados.sani_max !== undefined) p.fullData.info.sani_max = dados.sani_max;
-                        if (dados.pe_atual !== undefined) p.fullData.info.pe_atual = dados.pe_atual;
-                        if (dados.pe_max !== undefined) p.fullData.info.pe_max = dados.pe_max;
-                        if (dados.status !== undefined) p.fullData.charStatus = dados.status;
+                        p.fullData.info.char_nex = p.nex;
+                        p.fullData.defense = p.defesa;
+                        p.fullData.info.vida_atual = p.vida_atual;
+                        p.fullData.info.vida_max = p.vida_max;
+                        p.fullData.info.sani_atual = p.sani_atual;
+                        p.fullData.info.sani_max = p.sani_max;
+                        p.fullData.info.pe_atual = p.pe_atual;
+                        p.fullData.info.pe_max = p.pe_max;
+                        p.fullData.charStatus = p.status;
                     }
 
-                    // Novas vidas para calcular animação
                     let newVida = parseInt(p.vida_atual) || 0;
                     let newSani = parseInt(p.sani_atual) || 0;
                     let newPe   = parseInt(p.pe_atual) || 0;
 
+                    // Deteta qual barra mudou para aplicar a classe de animação
+                    let animClass = null;
                     if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
                     else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
                     else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
 
-                    // Salva e renderiza
+                    // Salva e atualiza o DOM
                     jogadoresConectados[dados.codigo] = p;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
 
+                    // Dispara a Animação se aplicável
                     if (animClass) {
                         const cardElement = document.getElementById(`card-${dados.codigo}`);
                         if (cardElement) {
@@ -337,6 +346,8 @@
                             setTimeout(() => { cardElement.classList.remove(animClass); }, 600);
                         }
                     }
+                } catch (err) {
+                    console.error("Erro na fusão de dados. O sistema protegeu-se do F5:", err);
                 }
             });
 
@@ -362,9 +373,18 @@
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                const vMax = Math.max(1, parseInt(player.vida_max) || 1); const sMax = Math.max(1, parseInt(player.sani_max) || 1); const pMax = Math.max(1, parseInt(player.pe_max) || 1);
-                const vAtual = parseInt(player.vida_atual) || 0; const sAtual = parseInt(player.sani_atual) || 0; const pAtual = parseInt(player.pe_atual) || 0;
-                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
+                // Matemática segura e à prova de NaN
+                const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
+                const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
+                const pMax = Math.max(1, parseInt(player.pe_max) || 1);
+                
+                const vAtual = parseInt(player.vida_atual) || 0; 
+                const sAtual = parseInt(player.sani_atual) || 0; 
+                const pAtual = parseInt(player.pe_atual) || 0;
+                
+                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); 
+                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); 
+                const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
 
                 let extraStyles = "";
                 if (player.status) {
