@@ -253,18 +253,20 @@ io.on('connection', (socket) => {
                 if (doc.exists && doc.data().ficha) {
                     const f = doc.data().ficha;
                     const dadosRecuperados = {
-                        codigo: codigo, 
-                        nome: f.info.char_nome, 
-                        foto: f.info.char_img, 
-                        nex: f.info.char_nex, 
-                        defesa: f.defense,
-                        vida_atual: f.info.vida_atual, 
-                        vida_max: f.info.vida_max, 
-                        sani_atual: f.info.sani_atual, 
-                        sani_max: f.info.sani_max,
-                        status: f.charStatus, 
-                        fullData: f
-                    };
+    codigo: codigo, 
+    nome: f.info.char_nome, 
+    foto: f.info.char_img, 
+    nex: f.info.char_nex, 
+    defesa: f.defense,
+    vida_atual: f.info.vida_atual, 
+    vida_max: f.info.vida_max, 
+    sani_atual: f.info.sani_atual, 
+    sani_max: f.info.sani_max,
+    pe_atual: f.info.pe_atual,   // <-- ADICIONA ESTA LINHA
+    pe_max: f.info.pe_max,       // <-- E ESTA LINHA
+    status: f.charStatus, 
+    fullData: f
+};
                     playersData[idUnico] = dadosRecuperados;
                     socket.emit('update_mestre', dadosRecuperados);
                 } else {
