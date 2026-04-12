@@ -100,7 +100,7 @@
 
         /* MODAIS */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
-        .popup-box { background: var(--bg-card); border: 2px solid var(--accent-red); border-radius: 12px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); padding: 25px; width: 400px; max-width: 90%; }
+        .popup-box { background: var(--bg-card); border: 2px solid var(--accent-red); border-radius: 12px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); padding: 25px; width: 450px; max-width: 95%; }
         .inv-input { background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
 
         /* ANIMAÇÕES */
@@ -182,6 +182,21 @@
                 </div>
             </div>
 
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">FORÇA (FOR)</label>
+                    <input type="number" id="enemy-for" class="inv-input" value="1">
+                </div>
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">AGILIDADE (AGI)</label>
+                    <input type="number" id="enemy-agi" class="inv-input" value="1">
+                </div>
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">VIGOR (VIG)</label>
+                    <input type="number" id="enemy-vig" class="inv-input" value="1">
+                </div>
+            </div>
+
             <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Elemento Principal</label>
             <select id="enemy-element" class="inv-input" style="margin-bottom: 25px;">
                 <option value="Sangue">Sangue (Vermelho)</option>
@@ -204,7 +219,6 @@
         if(!campanhaAtiva) { window.location.href = '/index.html'; }
         document.getElementById('display-campanha').innerText = campanhaAtiva;
 
-        // Recuperar wallpaper da mesa
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
         if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; } 
         else { document.body.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg')`; }
@@ -254,6 +268,16 @@
                         if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
                         else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
                         else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
+                    }
+
+                    if (dados.fullData && dados.fullData.info) {
+                        if (dados.vida_atual !== undefined) dados.fullData.info.vida_atual = dados.vida_atual;
+                        if (dados.vida_max !== undefined) dados.fullData.info.vida_max = dados.vida_max;
+                        if (dados.sani_atual !== undefined) dados.fullData.info.sani_atual = dados.sani_atual;
+                        if (dados.sani_max !== undefined) dados.fullData.info.sani_max = dados.sani_max;
+                        if (dados.pe_atual !== undefined) dados.fullData.info.pe_atual = dados.pe_atual;
+                        if (dados.pe_max !== undefined) dados.fullData.info.pe_max = dados.pe_max;
+                        if (dados.status !== undefined) dados.fullData.charStatus = dados.status;
                     }
 
                     jogadoresConectados[dados.codigo] = dados;
@@ -343,11 +367,24 @@
             const def = parseInt(document.getElementById('enemy-def').value) || 15;
             const el = document.getElementById('enemy-element').value;
             
-            listaInimigos.push({ id: Date.now().toString(), n: n, hpMax: hp, hpAtual: hp, def: def, el: el });
+            // Novos Atributos
+            const forAttr = parseInt(document.getElementById('enemy-for').value) || 0;
+            const agiAttr = parseInt(document.getElementById('enemy-agi').value) || 0;
+            const vigAttr = parseInt(document.getElementById('enemy-vig').value) || 0;
+            
+            listaInimigos.push({ 
+                id: Date.now().toString(), 
+                n: n, hpMax: hp, hpAtual: hp, def: def, el: el,
+                for: forAttr, agi: agiAttr, vig: vigAttr 
+            });
+            
             localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
             
             document.getElementById('modal-inimigo').style.display = 'none';
-            document.getElementById('enemy-name').value = ''; // limpa o campo
+            document.getElementById('enemy-name').value = ''; 
+            document.getElementById('enemy-for').value = '1';
+            document.getElementById('enemy-agi').value = '1';
+            document.getElementById('enemy-vig').value = '1';
             renderInimigos();
         }
 
@@ -364,13 +401,12 @@
             if(ini) {
                 let oldVida = ini.hpAtual;
                 ini.hpAtual += valor;
-                if(ini.hpAtual > ini.hpMax) ini.hpAtual = ini.hpMax; // Impede curar mais que o máximo
-                if(ini.hpAtual < 0) ini.hpAtual = 0; // Impede vida negativa
+                if(ini.hpAtual > ini.hpMax) ini.hpAtual = ini.hpMax; 
+                if(ini.hpAtual < 0) ini.hpAtual = 0; 
                 
                 localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
                 renderInimigos();
 
-                // Adiciona animação de dano/cura no card do inimigo
                 const card = document.getElementById(`ini-${id}`);
                 if(card) {
                     let animClass = ini.hpAtual < oldVida ? 'anim-vida-dano' : (ini.hpAtual > oldVida ? 'anim-vida-cura' : null);
@@ -391,7 +427,7 @@
             grid.innerHTML = '';
 
             listaInimigos.forEach(ini => {
-                let colorHex = "#e53935"; // Sangue (default)
+                let colorHex = "#e53935"; // Sangue
                 let imgUrl = "https://via.placeholder.com/75x75/202024/e53935?text=S";
                 
                 if(ini.el === "Morte") { colorHex = "#71717a"; imgUrl = "https://via.placeholder.com/75x75/202024/71717a?text=M"; }
@@ -406,7 +442,6 @@
                 card.className = 'player-card';
                 card.style.borderTopColor = colorHex;
                 
-                // Se o inimigo morrer, fica meio transparente
                 if(ini.hpAtual === 0) card.style.opacity = '0.5';
 
                 card.innerHTML = `
@@ -416,7 +451,14 @@
                         <img src="${imgUrl}" class="player-img" style="border-color: ${colorHex};">
                         <div class="player-info">
                             <h3 style="color: ${colorHex};">${ini.n}</h3>
-                            <p style="color: white;">DEFESA: <span style="color: var(--accent-blue); font-size: 1.2em;">${ini.def}</span></p>
+                            <p style="color: white; margin-bottom: 2px;">DEFESA: <span style="color: var(--accent-blue); font-size: 1.2em;">${ini.def}</span></p>
+                            
+                            <div style="display: flex; gap: 10px; font-size: 0.85em; font-weight: bold; color: var(--text-secondary);">
+                                <span>FOR: <span style="color: white;">${ini.for || 0}</span></span>
+                                <span>AGI: <span style="color: white;">${ini.agi || 0}</span></span>
+                                <span>VIG: <span style="color: white;">${ini.vig || 0}</span></span>
+                            </div>
+
                         </div>
                     </div>
                     
@@ -445,7 +487,7 @@
         }
 
         // ==========================================
-        // ROLAGENS DO MESTRE PARA O SOCKET
+        // ROLAGENS DO MESTRE (CORRIGIDAS PARA NÃO DUPLICAR)
         // ==========================================
         function mestreRolaAtaque(nomeInimigo) {
             const roll = Math.floor(Math.random() * 20) + 1;
@@ -461,14 +503,14 @@
                 cor: color
             };
             
-            // Adiciona no log local do Mestre
-            adicionarLog(logData);
-            
-            // Envia para todos os jogadores na mesa!
-            if(socket) socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+            // Se estiver conectado, envia para o servidor. O servidor vai devolver como 'novo_log' e adicionamos lá.
+            if(socket) {
+                socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+            } else {
+                adicionarLog(logData); // Fallback caso jogue offline
+            }
         }
 
-        // Mini-parser de fórmulas (ex: 2d8+5) para o Mestre
         function mestreRolaDano(nomeInimigo) {
             const formula = prompt(`Qual a fórmula de Dano de ${nomeInimigo}? (Ex: 2d8+5 ou apenas 10)`);
             if(!formula) return;
@@ -500,8 +542,11 @@
                 cor: "color: var(--accent-red); text-shadow:2px 2px 4px #000;"
             };
             
-            adicionarLog(logData);
-            if(socket) socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+            if(socket) {
+                socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+            } else {
+                adicionarLog(logData);
+            }
         }
 
         function adicionarLog(dados) {
