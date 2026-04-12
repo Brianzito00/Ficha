@@ -38,16 +38,26 @@
         /* Layout Principal */
         .main-content { display: flex; width: 100%; height: calc(100vh - 60px); margin-top: 60px; }
 
-        /* Grelha de Jogadores */
-        .players-area { flex: 1; padding: 20px; overflow-y: auto; }
+        /* Area Esquerda (Abas) */
+        .left-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .tabs-container { display: flex; gap: 10px; background: rgba(18, 18, 20, 0.95); padding: 10px 20px 0 20px; border-bottom: 1px solid var(--border-color); backdrop-filter: blur(10px); }
+        .tab-btn { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-color); border-bottom: none; padding: 10px 20px; font-weight: bold; font-size: 1em; cursor: pointer; border-radius: 8px 8px 0 0; text-transform: uppercase; transition: 0.2s; }
+        .tab-btn:hover { color: white; background: rgba(50,50,56,0.8); }
+        .tab-btn.active { background: var(--accent-red); color: white; border-color: var(--accent-red); }
+
+        .tab-content { display: none; flex: 1; padding: 20px; overflow-y: auto; }
+        .tab-content.active { display: block; }
+
+        /* Grelhas */
         .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
-        /* Card do Jogador */
+        /* Card do Jogador / Inimigo */
         .player-card { 
             background: var(--bg-card); border: 1px solid var(--border-color); border-top: 3px solid var(--accent-red);
             border-radius: 12px; padding: 15px; box-shadow: var(--shadow-card); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; gap: 15px; transition: transform 0.2s;
-            will-change: transform, box-shadow; 
+            will-change: transform, box-shadow; position: relative;
         }
         .player-card:hover { transform: translateY(-3px); border-color: var(--accent-red); }
 
@@ -59,7 +69,7 @@
 
         /* Barras de Status */
         .status-row { margin-bottom: 8px; }
-        .status-labels { display: flex; justify-content: space-between; font-size: 0.8em; font-weight: 900; margin-bottom: 3px; }
+        .status-labels { display: flex; justify-content: space-between; font-size: 0.8em; font-weight: 900; margin-bottom: 3px; align-items: center; }
         .bar-container { width: 100%; height: 18px; background: rgba(0,0,0,0.8); border-radius: 4px; border: 1px solid #222; overflow: hidden; position: relative;}
         .bar-fill { height: 100%; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
         
@@ -67,11 +77,17 @@
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
         .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
 
+        .btn-view-sheet { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; width: 100%; }
+        .btn-view-sheet:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        .btn-circle { background: transparent; border: 1px solid var(--text-secondary); color: white; width: 22px; height: 22px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
+        .btn-circle:hover { border-color: white; background: rgba(255,255,255,0.2); }
+
+        .btn-action-sm { background: rgba(18,18,20,0.8); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8em; text-transform: uppercase; transition: 0.2s; flex: 1; }
+        .btn-action-sm:hover { filter: brightness(1.2); }
+
         /* Painel Lateral (Log de Dados) */
-        .log-area { 
-            width: 350px; background: rgba(18,18,20,0.95); border-left: 1px solid var(--border-color); 
-            display: flex; flex-direction: column; padding: 15px; box-sizing: border-box;
-        }
+        .log-area { width: 350px; background: rgba(18,18,20,0.95); border-left: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; }
         .log-area h3 { color: var(--accent-yellow); text-align: center; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .log-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
         
@@ -82,22 +98,25 @@
         .log-action { font-size: 0.9em; color: white; margin-bottom: 5px; font-style: italic; }
         .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
 
-        /* =========================================
-           ANIMAÇÕES DE STATUS
-        ========================================= */
-        @keyframes hitVidaDano { 0% { transform: translateX(0); border-color: var(--border-color); } 20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); } 40% { transform: translateX(6px) scale(0.97); } 60% { transform: translateX(-6px) scale(0.97); } 80% { transform: translateX(6px) scale(0.97); } 100% { transform: translateX(0) scale(1); border-color: var(--border-color); } }
-        @keyframes hitVidaCura { 0% { transform: scale(1); border-color: var(--border-color); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); } 100% { transform: scale(1); border-color: var(--border-color); } }
-        @keyframes hitSaniDano { 0% { transform: translate(0) skew(0); border-color: var(--border-color); } 20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); } 40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; } }
-        @keyframes hitSaniCura { 0% { transform: scale(1); border-color: var(--border-color); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); } 100% { transform: scale(1); border-color: var(--border-color); } }
-        @keyframes hitPeDano { 0% { transform: translateY(0); border-color: var(--border-color); } 30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); } 100% { transform: translateY(0) scale(1); border-color: var(--border-color); } }
-        @keyframes hitPeCura { 0% { transform: translateY(0); border-color: var(--border-color); } 50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); } 100% { transform: translateY(0); border-color: var(--border-color); } }
+        /* MODAIS */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(10px); }
+        .popup-box { background: var(--bg-card); border: 2px solid var(--accent-red); border-radius: 12px; box-shadow: var(--shadow-card); backdrop-filter: blur(15px); padding: 25px; width: 400px; max-width: 90%; }
+        .inv-input { background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; }
 
-        .anim-vida-dano { animation: hitVidaDano 0.5s ease-out !important; z-index: 10; position: relative; }
-        .anim-vida-cura { animation: hitVidaCura 0.6s ease-out !important; z-index: 10; position: relative; }
-        .anim-sani-dano { animation: hitSaniDano 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important; z-index: 10; position: relative; }
-        .anim-sani-cura { animation: hitSaniCura 0.6s ease-out !important; z-index: 10; position: relative; }
-        .anim-pe-dano   { animation: hitPeDano 0.4s ease-out !important; z-index: 10; position: relative; }
-        .anim-pe-cura   { animation: hitPeCura 0.5s ease-out !important; z-index: 10; position: relative; }
+        /* ANIMAÇÕES */
+        @keyframes hitVidaDano { 0% { transform: translateX(0); } 20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); } 40% { transform: translateX(6px) scale(0.97); } 60% { transform: translateX(-6px) scale(0.97); } 80% { transform: translateX(6px) scale(0.97); } 100% { transform: translateX(0) scale(1); } }
+        @keyframes hitVidaCura { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); } 100% { transform: scale(1); } }
+        @keyframes hitSaniDano { 0% { transform: translate(0) skew(0); } 20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); filter: hue-rotate(20deg); } 40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 100% { transform: translate(0) skew(0) scale(1); filter: none; } }
+        @keyframes hitSaniCura { 0% { transform: scale(1); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); } 100% { transform: scale(1); } }
+        @keyframes hitPeDano { 0% { transform: translateY(0); } 30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); } 100% { transform: translateY(0) scale(1); } }
+        @keyframes hitPeCura { 0% { transform: translateY(0); } 50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); } 100% { transform: translateY(0); } }
+
+        .anim-vida-dano { animation: hitVidaDano 0.5s ease-out !important; z-index: 10; border-color: var(--accent-red) !important; }
+        .anim-vida-cura { animation: hitVidaCura 0.6s ease-out !important; z-index: 10; border-color: var(--accent-green) !important; }
+        .anim-sani-dano { animation: hitSaniDano 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important; z-index: 10; border-color: var(--accent-blue) !important; }
+        .anim-sani-cura { animation: hitSaniCura 0.6s ease-out !important; z-index: 10; border-color: var(--accent-blue) !important; }
+        .anim-pe-dano   { animation: hitPeDano 0.4s ease-out !important; z-index: 10; border-color: var(--accent-yellow) !important; }
+        .anim-pe-cura   { animation: hitPeCura 0.5s ease-out !important; z-index: 10; border-color: var(--accent-yellow) !important; }
 
         @media (max-width: 900px) {
             .main-content { flex-direction: column; }
@@ -113,12 +132,25 @@
     </div>
 
     <div class="main-content">
-        <div class="players-area">
-            <div id="players-grid" class="players-grid">
-                <div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">
-                    A aguardar ligação dos jogadores...<br>
-                    <span style="font-size: 0.8em;">Os jogadores aparecerão aqui assim que abrirem ou alterarem a ficha.</span>
+        <div class="left-panel">
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('mesa', this)">👥 Mesa</button>
+                <button class="tab-btn" onclick="switchTab('inimigos', this)">💀 Inimigos</button>
+            </div>
+
+            <div id="tab-mesa" class="tab-content active">
+                <div id="players-grid" class="players-grid">
+                    <div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">
+                        A aguardar ligação dos jogadores...
+                    </div>
                 </div>
+            </div>
+
+            <div id="tab-inimigos" class="tab-content">
+                <button class="btn-leave" style="width: 100%; border-color: var(--accent-red); margin-bottom: 20px; padding: 12px; font-size: 1.1em;" onclick="document.getElementById('modal-inimigo').style.display = 'flex';">➕ CRIAR NOVO INIMIGO</button>
+                
+                <div id="enemies-grid" class="players-grid">
+                    </div>
             </div>
         </div>
 
@@ -132,90 +164,102 @@
         </div>
     </div>
 
+    <div id="modal-inimigo" class="popup-overlay" onclick="document.getElementById('modal-inimigo').style.display='none'">
+        <div class="popup-box" onclick="event.stopPropagation()">
+            <h3 style="color: var(--accent-red); margin-top: 0; text-align: center; text-transform: uppercase;">Criar Inimigo</h3>
+            
+            <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Nome do Monstro / NPC</label>
+            <input type="text" id="enemy-name" class="inv-input" style="margin-bottom: 15px;" placeholder="Ex: Zumbi de Sangue">
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Vida Máxima</label>
+                    <input type="number" id="enemy-hp" class="inv-input" value="50">
+                </div>
+                <div style="flex: 1;">
+                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Defesa</label>
+                    <input type="number" id="enemy-def" class="inv-input" value="15">
+                </div>
+            </div>
+
+            <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">Elemento Principal</label>
+            <select id="enemy-element" class="inv-input" style="margin-bottom: 25px;">
+                <option value="Sangue">Sangue (Vermelho)</option>
+                <option value="Morte">Morte (Cinza Escuro)</option>
+                <option value="Conhecimento">Conhecimento (Amarelo)</option>
+                <option value="Energia">Energia (Roxo)</option>
+                <option value="Medo">Medo (Branco)</option>
+            </select>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-leave" style="flex: 1; background: var(--accent-red); color: white;" onclick="criarInimigo()">CRIAR</button>
+                <button class="btn-leave" style="flex: 1; border-color: #555; color: #aaa;" onclick="document.getElementById('modal-inimigo').style.display='none'">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const campanhaAtiva = localStorage.getItem('campanha_atual');
-        
-        if(!campanhaAtiva) { 
-            window.location.href = '/index.html'; 
-        }
-        
+        if(!campanhaAtiva) { window.location.href = '/index.html'; }
         document.getElementById('display-campanha').innerText = campanhaAtiva;
 
         // Recuperar wallpaper da mesa
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
-        if(customWP && customWP.trim() !== '') {
-            document.body.style.backgroundImage = `url('${customWP}')`;
-        } else {
-            document.body.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg')`;
-        }
+        if(customWP && customWP.trim() !== '') { document.body.style.backgroundImage = `url('${customWP}')`; } 
+        else { document.body.style.backgroundImage = `url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEixvi2mJH9iT2I1itmVsUXChJZ6M1-9LLb2aYaubdjXd7bGBH2sYnpazs_Cr7gNZdLLw_amMEna0FiVTU9fd4qDAm85gtq00RMJSBnktnscwDQ3l_SB2vlB9lpKHhsRgihn-EsnG0PdWX-fLTggvcBd_rXCfYPqZ7Itko_-0wI6ORDKeNrahjWfj1Q9fnuM/s1920/Wallpaper%20Ordem%20Paranormal%20O%20Culto%20do%20Outro%20Lado.jpg')`; }
 
         const socket = typeof io !== 'undefined' ? io() : null;
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
-        // CARREGAR JOGADORES DA MEMÓRIA
-        const cacheKey = 'mestre_cache_' + campanhaAtiva;
-        const cacheSalvo = localStorage.getItem(cacheKey);
-        
-        if (cacheSalvo) {
-            try { 
-                jogadoresConectados = JSON.parse(cacheSalvo); 
-                setTimeout(() => renderPlayers(), 100); 
-            } catch(e) {}
+        // SISTEMA DE INIMIGOS
+        let listaInimigos = [];
+        const inimigosCacheKey = 'mestre_inimigos_' + campanhaAtiva;
+        if(localStorage.getItem(inimigosCacheKey)) {
+            try { listaInimigos = JSON.parse(localStorage.getItem(inimigosCacheKey)); } catch(e) {}
         }
 
+        // CARREGAR JOGADORES DA MEMÓRIA
+        const cacheKey = 'mestre_cache_' + campanhaAtiva;
+        if (localStorage.getItem(cacheKey)) {
+            try { jogadoresConectados = JSON.parse(localStorage.getItem(cacheKey)); setTimeout(() => renderPlayers(), 100); } catch(e) {}
+        }
+
+        // TAB SWITCHER
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            btn.classList.add('active');
+            if(tabId === 'inimigos') renderInimigos();
+        }
+
+        // SOCKET EVENTOS
         if (socket) {
-            // Entrar na sala
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
-                Object.keys(jogadoresConectados).forEach(codigo => { 
-                    socket.emit('request_player', codigo); 
-                });
+                Object.keys(jogadoresConectados).forEach(codigo => { socket.emit('request_player', codigo); });
             });
 
-            // ESCUTAR ATUALIZAÇÕES DE FICHA
             socket.on('update_mestre', (dados) => {
                 if (dados && dados.codigo) {
                     let animClass = null;
-                    
                     if (jogadoresConectados[dados.codigo]) {
                         let p = jogadoresConectados[dados.codigo];
-                        
-                        // Lógica das animações
                         let oldVida = parseInt(p.vida_atual) || 0; let newVida = parseInt(dados.vida_atual) || 0;
                         let oldSani = parseInt(p.sani_atual) || 0; let newSani = parseInt(dados.sani_atual) || 0;
                         let oldPe   = parseInt(p.pe_atual) || 0;   let newPe   = parseInt(dados.pe_atual) || 0;
                         
-                        if (newVida < oldVida) animClass = 'anim-vida-dano';
-                        else if (newVida > oldVida) animClass = 'anim-vida-cura';
-                        else if (newSani < oldSani) animClass = 'anim-sani-dano';
-                        else if (newSani > oldSani) animClass = 'anim-sani-cura';
-                        else if (newPe < oldPe) animClass = 'anim-pe-dano';
-                        else if (newPe > oldPe) animClass = 'anim-pe-cura';
-
-                        // Mantém o fullData para prevenir perdas de memória caso faças outras lógicas depois
-                        if (!dados.fullData && p.fullData) {
-                            dados.fullData = JSON.parse(JSON.stringify(p.fullData));
-                        }
+                        if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
+                        else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
+                        else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
                     }
 
-                    if (dados.fullData && dados.fullData.info) {
-                        if (dados.vida_atual !== undefined) dados.fullData.info.vida_atual = dados.vida_atual;
-                        if (dados.vida_max !== undefined) dados.fullData.info.vida_max = dados.vida_max;
-                        if (dados.sani_atual !== undefined) dados.fullData.info.sani_atual = dados.sani_atual;
-                        if (dados.sani_max !== undefined) dados.fullData.info.sani_max = dados.sani_max;
-                        if (dados.pe_atual !== undefined) dados.fullData.info.pe_atual = dados.pe_atual;
-                        if (dados.pe_max !== undefined) dados.fullData.info.pe_max = dados.pe_max;
-                        if (dados.status !== undefined) dados.fullData.charStatus = dados.status;
-                    }
-
-                    // Guardar e renderizar
                     jogadoresConectados[dados.codigo] = dados;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
 
-                    // Aplicar animação ao card gerado
                     if (animClass) {
                         const cardElement = document.getElementById(`card-${dados.codigo}`);
                         if (cardElement) {
@@ -226,7 +270,6 @@
                 }
             });
 
-            socket.on('mestre_pede_ficha', (codigo) => { console.log(`A aguardar ficha de ${codigo}`); });
             socket.on('novo_log', (dados) => { adicionarLog(dados); });
             socket.on('comando_mestre', (dados) => {
                 if (dados.tipo === 'jogador_saiu' && dados.codigo) {
@@ -237,29 +280,21 @@
             });
         }
 
-        // Função para construir os Cards
+        // ==========================================
+        // RENDER JOGADORES (MESA)
+        // ==========================================
         function renderPlayers() {
             const grid = document.getElementById('players-grid');
-            
             if (Object.keys(jogadoresConectados).length === 0) {
                 grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
                 return;
             }
-            
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
-                const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
-                const pMax = Math.max(1, parseInt(player.pe_max) || 1);
-                
-                const vAtual = parseInt(player.vida_atual) || 0; 
-                const sAtual = parseInt(player.sani_atual) || 0; 
-                const pAtual = parseInt(player.pe_atual) || 0;
-                
-                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); 
-                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); 
-                const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
+                const vMax = Math.max(1, parseInt(player.vida_max) || 1); const sMax = Math.max(1, parseInt(player.sani_max) || 1); const pMax = Math.max(1, parseInt(player.pe_max) || 1);
+                const vAtual = parseInt(player.vida_atual) || 0; const sAtual = parseInt(player.sani_atual) || 0; const pAtual = parseInt(player.pe_atual) || 0;
+                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100)); const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100)); const pctPe = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
 
                 let extraStyles = "";
                 if (player.status) {
@@ -270,9 +305,7 @@
                 const fotoExibicao = (player.foto && player.foto.trim() !== '') ? player.foto : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
 
                 const card = document.createElement('div');
-                card.id = `card-${player.codigo}`; 
-                card.className = 'player-card';
-                card.style.cssText = extraStyles;
+                card.id = `card-${player.codigo}`; card.className = 'player-card'; card.style.cssText = extraStyles;
                 
                 card.innerHTML = `
                     <div class="player-header">
@@ -282,7 +315,6 @@
                             <p>NEX: <span class="destaque">${player.nex || 0}%</span> | DEF: <span class="destaque" style="color:var(--accent-blue);">${player.defesa || 10}</span></p>
                         </div>
                     </div>
-                    
                     <div class="status-bars">
                         <div class="status-row">
                             <div class="status-labels"><span style="color:var(--accent-red)">VIDA</span><span>${vAtual} / ${vMax}</span></div>
@@ -302,7 +334,176 @@
             });
         }
 
-        // Função para os logs de dados
+        // ==========================================
+        // SISTEMA DE INIMIGOS
+        // ==========================================
+        function criarInimigo() {
+            const n = document.getElementById('enemy-name').value || 'Monstro';
+            const hp = parseInt(document.getElementById('enemy-hp').value) || 50;
+            const def = parseInt(document.getElementById('enemy-def').value) || 15;
+            const el = document.getElementById('enemy-element').value;
+            
+            listaInimigos.push({ id: Date.now().toString(), n: n, hpMax: hp, hpAtual: hp, def: def, el: el });
+            localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
+            
+            document.getElementById('modal-inimigo').style.display = 'none';
+            document.getElementById('enemy-name').value = ''; // limpa o campo
+            renderInimigos();
+        }
+
+        function apagarInimigo(id) {
+            if(confirm("Remover este inimigo da mesa?")) {
+                listaInimigos = listaInimigos.filter(e => e.id !== id);
+                localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
+                renderInimigos();
+            }
+        }
+
+        function mudarVidaInimigo(id, valor) {
+            const ini = listaInimigos.find(e => e.id === id);
+            if(ini) {
+                let oldVida = ini.hpAtual;
+                ini.hpAtual += valor;
+                if(ini.hpAtual > ini.hpMax) ini.hpAtual = ini.hpMax; // Impede curar mais que o máximo
+                if(ini.hpAtual < 0) ini.hpAtual = 0; // Impede vida negativa
+                
+                localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
+                renderInimigos();
+
+                // Adiciona animação de dano/cura no card do inimigo
+                const card = document.getElementById(`ini-${id}`);
+                if(card) {
+                    let animClass = ini.hpAtual < oldVida ? 'anim-vida-dano' : (ini.hpAtual > oldVida ? 'anim-vida-cura' : null);
+                    if(animClass) {
+                        card.classList.add(animClass);
+                        setTimeout(() => { card.classList.remove(animClass); }, 600);
+                    }
+                }
+            }
+        }
+
+        function renderInimigos() {
+            const grid = document.getElementById('enemies-grid');
+            if(listaInimigos.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">Nenhum inimigo na mesa. Clique em "CRIAR NOVO INIMIGO".</div>`;
+                return;
+            }
+            grid.innerHTML = '';
+
+            listaInimigos.forEach(ini => {
+                let colorHex = "#e53935"; // Sangue (default)
+                let imgUrl = "https://via.placeholder.com/75x75/202024/e53935?text=S";
+                
+                if(ini.el === "Morte") { colorHex = "#71717a"; imgUrl = "https://via.placeholder.com/75x75/202024/71717a?text=M"; }
+                if(ini.el === "Conhecimento") { colorHex = "#ffcf33"; imgUrl = "https://via.placeholder.com/75x75/202024/ffcf33?text=C"; }
+                if(ini.el === "Energia") { colorHex = "#b82bf2"; imgUrl = "https://via.placeholder.com/75x75/202024/b82bf2?text=E"; }
+                if(ini.el === "Medo") { colorHex = "#ffffff"; imgUrl = "https://via.placeholder.com/75x75/202024/ffffff?text=X"; }
+
+                const pctVida = Math.max(0, Math.min(100, (ini.hpAtual / Math.max(1, ini.hpMax)) * 100));
+                
+                const card = document.createElement('div');
+                card.id = `ini-${ini.id}`;
+                card.className = 'player-card';
+                card.style.borderTopColor = colorHex;
+                
+                // Se o inimigo morrer, fica meio transparente
+                if(ini.hpAtual === 0) card.style.opacity = '0.5';
+
+                card.innerHTML = `
+                    <button class="btn-circle" style="position:absolute; top:10px; right:10px; color:var(--text-secondary); border-color:var(--text-secondary);" onclick="apagarInimigo('${ini.id}')">X</button>
+                    
+                    <div class="player-header" style="margin-bottom: 5px;">
+                        <img src="${imgUrl}" class="player-img" style="border-color: ${colorHex};">
+                        <div class="player-info">
+                            <h3 style="color: ${colorHex};">${ini.n}</h3>
+                            <p style="color: white;">DEFESA: <span style="color: var(--accent-blue); font-size: 1.2em;">${ini.def}</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="status-bars">
+                        <div class="status-row">
+                            <div class="status-labels">
+                                <span style="color:var(--accent-red)">VIDA</span>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <button class="btn-circle" onclick="mudarVidaInimigo('${ini.id}', -5)">-5</button>
+                                    <button class="btn-circle" onclick="mudarVidaInimigo('${ini.id}', -1)">-1</button>
+                                    <span style="min-width: 50px; text-align: center;">${ini.hpAtual} / ${ini.hpMax}</span>
+                                    <button class="btn-circle" onclick="mudarVidaInimigo('${ini.id}', 1)">+1</button>
+                                </div>
+                            </div>
+                            <div class="bar-container" style="margin-top: 5px;"><div class="bar-fill fill-vida" style="width: ${pctVida}%;"></div></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="btn-action-sm" style="border-color: var(--accent-blue); color: var(--accent-blue);" onclick="mestreRolaAtaque('${ini.n}')">🎲 ATQ (d20)</button>
+                        <button class="btn-action-sm" style="border-color: var(--accent-red); color: var(--accent-red);" onclick="mestreRolaDano('${ini.n}')">💥 DANO</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==========================================
+        // ROLAGENS DO MESTRE PARA O SOCKET
+        // ==========================================
+        function mestreRolaAtaque(nomeInimigo) {
+            const roll = Math.floor(Math.random() * 20) + 1;
+            let color = "color: white;";
+            let textoAdd = "";
+            if (roll === 20) { color = "color: #ffcf33; text-shadow:0 0 10px #ff0000, 2px 2px 4px #000;"; textoAdd = " (CRÍTICO!)"; }
+            if (roll === 1) { color = "color: #ff5252; text-shadow:2px 2px 4px #000;"; textoAdd = " (DESASTRE)"; }
+            
+            const logData = {
+                jogador: "Mestre (" + nomeInimigo + ")",
+                acao: "Ataque (d20)" + textoAdd,
+                resultado: roll,
+                cor: color
+            };
+            
+            // Adiciona no log local do Mestre
+            adicionarLog(logData);
+            
+            // Envia para todos os jogadores na mesa!
+            if(socket) socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+        }
+
+        // Mini-parser de fórmulas (ex: 2d8+5) para o Mestre
+        function mestreRolaDano(nomeInimigo) {
+            const formula = prompt(`Qual a fórmula de Dano de ${nomeInimigo}? (Ex: 2d8+5 ou apenas 10)`);
+            if(!formula) return;
+            
+            let total = 0;
+            try {
+                let f = formula.toLowerCase().replace(/\s/g, ''); 
+                const matches = f.match(/([+-]?\d+d\d+|[+-]?\d+)/g); 
+                if(matches) { 
+                    matches.forEach(m => { 
+                        let sign = m.startsWith('-') ? -1 : 1;
+                        let cur = m.replace(/[+-]/,''); 
+                        if(cur.includes('d')) { 
+                            const parts = cur.split('d'); 
+                            for(let i=0; i<(parseInt(parts[0])||1); i++) { 
+                                total += (Math.floor(Math.random()*parseInt(parts[1]))+1)*sign; 
+                            } 
+                        } else {
+                            total += parseInt(cur)*sign; 
+                        }
+                    }); 
+                }
+            } catch(e) { alert("Fórmula inválida."); return; }
+
+            const logData = {
+                jogador: "Mestre (" + nomeInimigo + ")",
+                acao: "Dano: " + formula,
+                resultado: total,
+                cor: "color: var(--accent-red); text-shadow:2px 2px 4px #000;"
+            };
+            
+            adicionarLog(logData);
+            if(socket) socket.emit('rolagem_feita', { ...logData, codigo: 'Mestre' });
+        }
+
         function adicionarLog(dados) {
             const list = document.getElementById('log-list');
             if (!logsIniciaisRemovidos) { list.innerHTML = ''; logsIniciaisRemovidos = true; }
