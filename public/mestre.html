@@ -201,6 +201,10 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
+        // Variaveis de Controlo do Iframe
+        let currentIframePlayer = null;
+        let iframeSyncInterval = null;
+
         // CARREGAR JOGADORES DA MEMÓRIA
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
         const cacheSalvo = localStorage.getItem(cacheKey);
@@ -241,18 +245,40 @@
                         else if (newPe < oldPe) animClass = 'anim-pe-dano';
                         else if (newPe > oldPe) animClass = 'anim-pe-cura';
 
-                        // EXTREMAMENTE IMPORTANTE: Preservar o fullData!
-                        // Quando o jogador toma dano, ele envia um "sync rápido" que não tem a ficha toda.
-                        // Se isso acontecer, copiamos a ficha completa que já tínhamos na memória para não perder o inventário.
+                        // EXTREMAMENTE IMPORTANTE: Preservar a Ficha Completa!
+                        // Quando o jogador toma dano, o pacote é pequeno. Temos de injetar a ficha antiga nele.
                         if (!dados.fullData && p.fullData) {
-                            dados.fullData = p.fullData;
+                            // Fazemos uma cópia profunda para não estragar a memória
+                            dados.fullData = JSON.parse(JSON.stringify(p.fullData));
                         }
+                    }
+
+                    // Agora garantimos que o FullData tem as barras de vida/sanidade atualizadas pelo Dano Rápido!
+                    if (dados.fullData && dados.fullData.info) {
+                        if (dados.vida_atual !== undefined) dados.fullData.info.vida_atual = dados.vida_atual;
+                        if (dados.vida_max !== undefined) dados.fullData.info.vida_max = dados.vida_max;
+                        if (dados.sani_atual !== undefined) dados.fullData.info.sani_atual = dados.sani_atual;
+                        if (dados.sani_max !== undefined) dados.fullData.info.sani_max = dados.sani_max;
+                        if (dados.pe_atual !== undefined) dados.fullData.info.pe_atual = dados.pe_atual;
+                        if (dados.pe_max !== undefined) dados.fullData.info.pe_max = dados.pe_max;
+                        if (dados.status !== undefined) dados.fullData.charStatus = dados.status;
                     }
 
                     // Guardar e renderizar
                     jogadoresConectados[dados.codigo] = dados;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
+
+                    // Manda os dados atualizados para o pop-up se ele estiver aberto!
+                    if (currentIframePlayer === dados.codigo) {
+                        const iframe = document.getElementById('iframe-ficha');
+                        if (iframe && iframe.contentWindow && dados.fullData) {
+                            iframe.contentWindow.postMessage({
+                                tipo: 'load_offline_data',
+                                data: dados.fullData
+                            }, '*');
+                        }
+                    }
 
                     // Aplicar animação ao card gerado
                     if (animClass) {
@@ -366,39 +392,41 @@
         }
 
         // ==========================================
-        // FUNÇÕES DO POP-UP DA FICHA - ATUALIZADAS
+        // FUNÇÕES DO POP-UP DA FICHA - FIXADAS!
         // ==========================================
         function abrirFichaLeitura(codigoJogador) {
             const modal = document.getElementById('modal-inspecionar');
             const iframe = document.getElementById('iframe-ficha');
             
-            // Abre o modal
             modal.style.display = 'flex';
-            
-            // Coloca o link do jogador e inicia o carregamento da página no iframe
+            currentIframePlayer = codigoJogador;
             iframe.src = '/ficha.html?view=' + codigoJogador;
             
-            // Função ativada assim que o Iframe avisa que acabou de carregar a página
-            iframe.onload = () => {
-                // Pequeno atraso de 400ms para garantir que o Javascript de dentro da ficha 
-                // já teve tempo de ativar os "ouvidos" (event listeners)
-                setTimeout(() => {
-                    const playerData = jogadoresConectados[codigoJogador];
-                    
-                    // Se o GM tiver a ficha guardada, injetamos ela à força para dentro do iframe!
-                    if (playerData && playerData.fullData) {
-                        iframe.contentWindow.postMessage({
-                            tipo: 'load_offline_data',
-                            data: playerData.fullData
-                        }, '*');
-                        console.log("Ficha enviada para o Iframe com sucesso!");
-                    } else {
-                        // Se por algum motivo o GM não tiver o fullData, pedimos ao servidor
-                        console.warn("Ficha incompleta. Pedindo atualização ao servidor...");
-                        if (socket) socket.emit('request_player', codigoJogador);
-                    }
-                }, 400); 
-            };
+            // Limpa qualquer tentativa antiga
+            if (iframeSyncInterval) clearInterval(iframeSyncInterval);
+            
+            // Pede dados frescos ao servidor (por prevenção)
+            if (socket) socket.emit('request_player', codigoJogador);
+            
+            // INSISTÊNCIA INTELIGENTE: Tenta enviar a ficha para o iframe a cada 800ms
+            // Assim, independentemente do tempo que a página demorar a carregar, os dados entram!
+            let attempts = 0;
+            iframeSyncInterval = setInterval(() => {
+                attempts++;
+                const playerData = jogadoresConectados[codigoJogador];
+                
+                if (playerData && playerData.fullData && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        tipo: 'load_offline_data',
+                        data: playerData.fullData
+                    }, '*');
+                }
+                
+                // Pára de tentar após 5 tentativas (4 segundos) ou se fechares o Pop-up
+                if (attempts > 5 || modal.style.display === 'none') {
+                    clearInterval(iframeSyncInterval);
+                }
+            }, 800);
         }
 
         function fecharFichaLeitura() {
@@ -406,9 +434,9 @@
             const iframe = document.getElementById('iframe-ficha');
             
             modal.style.display = 'none';
-            // Apaga o src para destruir a página dentro do iframe e poupar memória RAM
             iframe.src = '';
-            iframe.onload = null; // Limpa o evento de onload
+            currentIframePlayer = null;
+            if (iframeSyncInterval) clearInterval(iframeSyncInterval);
         }
 
         function voltarLobby() {
