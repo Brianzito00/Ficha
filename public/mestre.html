@@ -414,23 +414,24 @@
         // FUNÇÕES DO POP-UP DA FICHA
         // ==========================================
         function abrirFichaLeitura(codigoJogador) {
-            const modal = document.getElementById('modal-inspecionar');
-            const iframe = document.getElementById('iframe-ficha');
-            
-            // Coloca o link do modo leitura (view) no iframe
-            iframe.src = '/ficha.html?view=' + codigoJogador;
-            modal.style.display = 'flex';
-        }
+    const modal = document.getElementById('modal-inspecionar');
+    const iframe = document.getElementById('iframe-ficha');
+    
+    // Coloca o link do modo leitura (view) no iframe
+    iframe.src = '/ficha.html?view=' + codigoJogador;
+    modal.style.display = 'flex';
 
-        function fecharFichaLeitura() {
-            const modal = document.getElementById('modal-inspecionar');
-            const iframe = document.getElementById('iframe-ficha');
-            
-            modal.style.display = 'none';
-            // Apaga o src para parar a conexão de socket do iframe e poupar RAM
-            iframe.src = '';
+    // NOVIDADE: Assim que o Iframe terminar de carregar, o Escudo do Mestre 
+    // injeta os dados do jogador diretamente lá para dentro!
+    iframe.onload = () => {
+        if (jogadoresConectados[codigoJogador] && jogadoresConectados[codigoJogador].fullData) {
+            iframe.contentWindow.postMessage({
+                tipo: 'load_offline_data',
+                data: jogadoresConectados[codigoJogador].fullData
+            }, '*');
         }
-
+    };
+}
         function voltarLobby() {
             localStorage.removeItem('campanha_atual');
             window.location.href = '/index.html';
