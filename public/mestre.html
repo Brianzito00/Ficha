@@ -139,35 +139,54 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
+        // 1. CARREGAR JOGADORES DA MEMÓRIA IMEDIATAMENTE (CACHE LOCAL)
+        const cacheKey = 'mestre_cache_' + campanhaAtiva;
+        const cacheSalvo = localStorage.getItem(cacheKey);
+        if (cacheSalvo) {
+            try {
+                jogadoresConectados = JSON.parse(cacheSalvo);
+                setTimeout(() => renderPlayers(), 100); // Renderiza os cards salvos instantaneamente
+            } catch(e) {}
+        }
+
         if (socket) {
-            // 1. Entrar na sala correta ao conectar
+            // 2. Entrar na sala e pedir dados atualizados
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
                 console.log("Conectado à campanha:", campanhaAtiva);
+
+                // Pede ao servidor os dados mais recentes dos jogadores que estão na memória
+                Object.keys(jogadoresConectados).forEach(codigo => {
+                    socket.emit('request_player', codigo);
+                });
             });
 
-            // 2. Escutar atualizações de ficha do servidor ('update_mestre' e não 'status_change')
+            // 3. Escutar atualizações de ficha do servidor
             socket.on('update_mestre', (dados) => {
                 if (dados && dados.codigo) {
                     jogadoresConectados[dados.codigo] = dados;
+                    
+                    // SALVAR QUALQUER ALTERAÇÃO NA MEMÓRIA
+                    localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
                 }
             });
 
-            // Se o servidor pedir uma ficha que não tem, ignora ou processa (o mestre só visualiza)
+            // Se o servidor pedir uma ficha que não tem
             socket.on('mestre_pede_ficha', (codigo) => {
                 console.log(`Servidor pediu a ficha de ${codigo}, a aguardar que o jogador sincronize...`);
             });
 
-            // 3. Escutar rolagens de dados ('novo_log'/'nova_rolagem' e não 'rolagem_feita')
+            // 4. Escutar rolagens de dados
             socket.on('novo_log', (dados) => {
                 adicionarLog(dados);
             });
             
-            // Opcional: Escutar se alguém sair da campanha
+            // 5. Escutar se alguém sair da campanha
             socket.on('comando_mestre', (dados) => {
                 if (dados.tipo === 'jogador_saiu' && dados.codigo) {
                     delete jogadoresConectados[dados.codigo];
+                    localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados)); // Atualiza memória
                     renderPlayers();
                 }
             });
@@ -177,7 +196,7 @@
             const grid = document.getElementById('players-grid');
             
             if (Object.keys(jogadoresConectados).length === 0) {
-                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
+                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...<br><span style="font-size: 0.8em;">Os jogadores aparecerão aqui assim que abrirem ou alterarem a ficha.</span></div>`;
                 return;
             }
             
@@ -277,7 +296,7 @@
 
         // Abre a ficha em modo View Only
         function abrirFichaLeitura(codigoJogador) {
-            // Usa o parâmetro ?view= como já configuraste perfeitamente no ficha.html
+            // Usa o parâmetro ?view= como já configuraste no ficha.html
             window.open('/ficha.html?view=' + codigoJogador, '_blank');
         }
 
