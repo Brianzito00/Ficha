@@ -77,9 +77,6 @@
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
         .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
 
-        .btn-view-sheet { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; width: 100%; }
-        .btn-view-sheet:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
-
         .btn-circle { background: transparent; border: 1px solid var(--text-secondary); color: white; width: 22px; height: 22px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; }
         .btn-circle:hover { border-color: white; background: rgba(255,255,255,0.2); }
 
@@ -196,7 +193,7 @@
                     <input type="number" id="enemy-vig" class="inv-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0;">
                 </div>
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.7em; font-weight: bold; color: var(--accent-red);" title="Soma bónus extra de treino à Luta Total.">BÓNUS ATQ</label>
+                    <label style="color: var(--text-secondary); font-size: 0.7em; font-weight: bold; color: var(--accent-red);" title="Bónus extra que soma ao cálculo da Luta.">BÓNUS ATQ</label>
                     <input type="number" id="enemy-luta" class="inv-input" value="0">
                 </div>
             </div>
@@ -269,7 +266,9 @@
             if(tabId === 'inimigos') renderInimigos();
         }
 
-        // SOCKET EVENTOS
+        // ==========================================
+        // SOCKET: ATUALIZAÇÕES DA MESA - CORRIGIDO
+        // ==========================================
         if (socket) {
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
@@ -279,28 +278,55 @@
             socket.on('update_mestre', (dados) => {
                 if (dados && dados.codigo) {
                     let animClass = null;
-                    if (jogadoresConectados[dados.codigo]) {
-                        let p = jogadoresConectados[dados.codigo];
-                        let oldVida = parseInt(p.vida_atual) || 0; let newVida = parseInt(dados.vida_atual) || 0;
-                        let oldSani = parseInt(p.sani_atual) || 0; let newSani = parseInt(dados.sani_atual) || 0;
-                        let oldPe   = parseInt(p.pe_atual) || 0;   let newPe   = parseInt(dados.pe_atual) || 0;
-                        
-                        if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
-                        else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
-                        else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
+                    
+                    // IMPORTANTE: Busca o jogador já existente na memória, para NÃO APAGAR o que falta no pacote!
+                    let p = jogadoresConectados[dados.codigo] || { codigo: dados.codigo };
+                    
+                    let oldVida = parseInt(p.vida_atual) || 0;
+                    let oldSani = parseInt(p.sani_atual) || 0;
+                    let oldPe   = parseInt(p.pe_atual) || 0;
+
+                    // MANTÉM OS DADOS COMPLETOS (MERGE INTELIGENTE)
+                    if (dados.nome !== undefined) p.nome = dados.nome;
+                    if (dados.foto !== undefined) p.foto = dados.foto;
+                    if (dados.nex !== undefined) p.nex = dados.nex;
+                    if (dados.defesa !== undefined) p.defesa = dados.defesa;
+                    if (dados.status !== undefined) p.status = dados.status;
+
+                    if (dados.vida_atual !== undefined) p.vida_atual = dados.vida_atual;
+                    if (dados.vida_max !== undefined) p.vida_max = dados.vida_max;
+                    if (dados.sani_atual !== undefined) p.sani_atual = dados.sani_atual;
+                    if (dados.sani_max !== undefined) p.sani_max = dados.sani_max;
+                    if (dados.pe_atual !== undefined) p.pe_atual = dados.pe_atual;
+                    if (dados.pe_max !== undefined) p.pe_max = dados.pe_max;
+
+                    // Se vier ficha completa no pacote
+                    if (dados.fullData) {
+                        p.fullData = dados.fullData;
                     }
 
-                    if (dados.fullData && dados.fullData.info) {
-                        if (dados.vida_atual !== undefined) dados.fullData.info.vida_atual = dados.vida_atual;
-                        if (dados.vida_max !== undefined) dados.fullData.info.vida_max = dados.vida_max;
-                        if (dados.sani_atual !== undefined) dados.fullData.info.sani_atual = dados.sani_atual;
-                        if (dados.sani_max !== undefined) dados.fullData.info.sani_max = dados.sani_max;
-                        if (dados.pe_atual !== undefined) dados.fullData.info.pe_atual = dados.pe_atual;
-                        if (dados.pe_max !== undefined) dados.fullData.info.pe_max = dados.pe_max;
-                        if (dados.status !== undefined) dados.fullData.charStatus = dados.status;
+                    // Forçar atualização do fullData interno (para precaver)
+                    if (p.fullData && p.fullData.info) {
+                        if (dados.vida_atual !== undefined) p.fullData.info.vida_atual = dados.vida_atual;
+                        if (dados.vida_max !== undefined) p.fullData.info.vida_max = dados.vida_max;
+                        if (dados.sani_atual !== undefined) p.fullData.info.sani_atual = dados.sani_atual;
+                        if (dados.sani_max !== undefined) p.fullData.info.sani_max = dados.sani_max;
+                        if (dados.pe_atual !== undefined) p.fullData.info.pe_atual = dados.pe_atual;
+                        if (dados.pe_max !== undefined) p.fullData.info.pe_max = dados.pe_max;
+                        if (dados.status !== undefined) p.fullData.charStatus = dados.status;
                     }
 
-                    jogadoresConectados[dados.codigo] = dados;
+                    // Novas vidas para calcular animação
+                    let newVida = parseInt(p.vida_atual) || 0;
+                    let newSani = parseInt(p.sani_atual) || 0;
+                    let newPe   = parseInt(p.pe_atual) || 0;
+
+                    if (newVida < oldVida) animClass = 'anim-vida-dano'; else if (newVida > oldVida) animClass = 'anim-vida-cura';
+                    else if (newSani < oldSani) animClass = 'anim-sani-dano'; else if (newSani > oldSani) animClass = 'anim-sani-cura';
+                    else if (newPe < oldPe) animClass = 'anim-pe-dano'; else if (newPe > oldPe) animClass = 'anim-pe-cura';
+
+                    // Salva e renderiza
+                    jogadoresConectados[dados.codigo] = p;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
 
@@ -458,7 +484,7 @@
 
                 const pctVida = Math.max(0, Math.min(100, (ini.hpAtual / Math.max(1, ini.hpMax)) * 100));
                 
-                // Cálculo para a tabela de alvo visual no Card do Monstro (IDÊNTICO À FICHA)
+                // CÁLCULO EXATO DA LUTA (Atributo * 2) + Bónus Opcional
                 let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
                 let totalValorLuta = (maxAttr * 2) + (ini.luta || 0);
                 
@@ -530,17 +556,16 @@
             const ini = listaInimigos.find(e => e.id === id);
             if(!ini) return;
 
-            // Define o valor total da perícia (Para calcular os alvos exatos)
-            // Lógica: (Maior Atributo * 2) + Bónus Luta
+            // Define o valor total da perícia
             let maxAttr = Math.max(ini.for || 0, ini.agi || 0); 
-            let totalValorParaAlvo = (maxAttr * 2) + (ini.luta || 0);
+            let totalValorLuta = (maxAttr * 2) + (ini.luta || 0);
             
-            // Vai buscar as margens de alvo (Normal, Bom, Extremo) baseadas no valor total
-            let tg = getAlvosD20(totalValorParaAlvo);
+            // Vai buscar as margens
+            let tg = getAlvosD20(totalValorLuta);
             let strB = tg.b > 20 ? 'x' : tg.b; 
             let strE = tg.e > 20 ? 'x' : tg.e;
             
-            // ROLA APENAS 1D20 (Tal como a ficha dos jogadores faz)
+            // ROLA APENAS 1D20 PURO
             let roll = Math.floor(Math.random() * 20) + 1;
             
             // Decisão do Sucesso validando o 1D20 contra a Tabela
@@ -575,7 +600,7 @@
             const logData = {
                 jogador: "Mestre (" + ini.n + ")",
                 acao: `⚔️ ATQ Luta <br><span style="font-size:0.7em; color:var(--text-secondary);">Alvos: N${tg.n} / B${strB} / E${strE}</span><br><span style="font-size:0.9em; margin-top:4px; display:inline-block; font-weight:bold;">${textFormat}</span>`,
-                resultado: roll, // Mostra SOMENTE O VALOR DO 1D20
+                resultado: roll, 
                 cor: colorFormat
             };
             
