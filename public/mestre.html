@@ -67,13 +67,6 @@
         .fill-sani { background: linear-gradient(90deg, #01579b, var(--accent-blue)); }
         .fill-pe { background: linear-gradient(90deg, #b38f00, var(--accent-yellow)); }
 
-        .btn-view-sheet { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
-            color: white; padding: 10px; border-radius: 6px; cursor: pointer; 
-            font-weight: bold; text-transform: uppercase; transition: 0.2s; width: 100%;
-        }
-        .btn-view-sheet:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
-
         /* Painel Lateral (Log de Dados) */
         .log-area { 
             width: 350px; background: rgba(18,18,20,0.95); border-left: 1px solid var(--border-color); 
@@ -88,33 +81,6 @@
         .log-player { font-size: 0.8em; color: var(--text-secondary); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
         .log-action { font-size: 0.9em; color: white; margin-bottom: 5px; font-style: italic; }
         .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
-
-        /* =========================================
-           POP-UP DE INSPEÇÃO DE FICHA
-        ========================================= */
-        .popup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center;
-            z-index: 3000; backdrop-filter: blur(10px);
-        }
-        
-        .popup-box {
-            background: var(--bg-card); border: 2px solid var(--accent-blue);
-            border-radius: 12px; box-shadow: var(--shadow-card);
-            backdrop-filter: blur(15px); padding: 15px;
-        }
-        
-        .ficha-popup {
-            width: 95%; max-width: 1400px; height: 95vh;
-            display: flex; flex-direction: column;
-        }
-        
-        .btn-fechar-popup {
-            padding: 8px 20px; font-weight: bold; background: var(--accent-red); 
-            color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s;
-        }
-        
-        .btn-fechar-popup:hover { background: #b71c1c; }
 
         /* =========================================
            ANIMAÇÕES DE STATUS
@@ -166,19 +132,6 @@
         </div>
     </div>
 
-    <div id="modal-inspecionar" class="popup-overlay" onclick="fecharFichaLeitura()">
-        <div class="popup-box ficha-popup" onclick="event.stopPropagation()">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                <div>
-                    <h3 style="color: var(--accent-blue); margin: 0; text-transform: uppercase;">A Inspecionar Ficha</h3>
-                    <span style="font-size: 0.8em; color: var(--accent-green);">(A atualizar em tempo real)</span>
-                </div>
-                <button class="btn-fechar-popup" onclick="fecharFichaLeitura()">X FECHAR</button>
-            </div>
-            <iframe id="iframe-ficha" src="" style="width: 100%; height: 100%; border: none; border-radius: 8px; background: var(--bg-body);"></iframe>
-        </div>
-    </div>
-
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const campanhaAtiva = localStorage.getItem('campanha_atual');
@@ -200,10 +153,6 @@
         const socket = typeof io !== 'undefined' ? io() : null;
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
-
-        // Variaveis de Controlo do Iframe
-        let currentIframePlayer = null;
-        let iframeSyncInterval = null;
 
         // CARREGAR JOGADORES DA MEMÓRIA
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
@@ -245,15 +194,12 @@
                         else if (newPe < oldPe) animClass = 'anim-pe-dano';
                         else if (newPe > oldPe) animClass = 'anim-pe-cura';
 
-                        // EXTREMAMENTE IMPORTANTE: Preservar a Ficha Completa!
-                        // Quando o jogador toma dano, o pacote é pequeno. Temos de injetar a ficha antiga nele.
+                        // Mantém o fullData para prevenir perdas de memória caso faças outras lógicas depois
                         if (!dados.fullData && p.fullData) {
-                            // Fazemos uma cópia profunda para não estragar a memória
                             dados.fullData = JSON.parse(JSON.stringify(p.fullData));
                         }
                     }
 
-                    // Agora garantimos que o FullData tem as barras de vida/sanidade atualizadas pelo Dano Rápido!
                     if (dados.fullData && dados.fullData.info) {
                         if (dados.vida_atual !== undefined) dados.fullData.info.vida_atual = dados.vida_atual;
                         if (dados.vida_max !== undefined) dados.fullData.info.vida_max = dados.vida_max;
@@ -268,17 +214,6 @@
                     jogadoresConectados[dados.codigo] = dados;
                     localStorage.setItem(cacheKey, JSON.stringify(jogadoresConectados));
                     renderPlayers();
-
-                    // Manda os dados atualizados para o pop-up se ele estiver aberto!
-                    if (currentIframePlayer === dados.codigo) {
-                        const iframe = document.getElementById('iframe-ficha');
-                        if (iframe && iframe.contentWindow && dados.fullData) {
-                            iframe.contentWindow.postMessage({
-                                tipo: 'load_offline_data',
-                                data: dados.fullData
-                            }, '*');
-                        }
-                    }
 
                     // Aplicar animação ao card gerado
                     if (animClass) {
@@ -362,8 +297,6 @@
                             <div class="bar-container"><div class="bar-fill fill-pe" style="width: ${pctPe}%;"></div></div>
                         </div>
                     </div>
-
-                    <button class="btn-view-sheet" onclick="abrirFichaLeitura('${player.codigo}')">🔍 Inspecionar Ficha</button>
                 `;
                 grid.appendChild(card);
             });
@@ -389,54 +322,6 @@
             
             list.insertBefore(item, list.firstChild);
             if (list.children.length > 25) list.removeChild(list.lastChild);
-        }
-
-        // ==========================================
-        // FUNÇÕES DO POP-UP DA FICHA - FIXADAS!
-        // ==========================================
-        function abrirFichaLeitura(codigoJogador) {
-            const modal = document.getElementById('modal-inspecionar');
-            const iframe = document.getElementById('iframe-ficha');
-            
-            modal.style.display = 'flex';
-            currentIframePlayer = codigoJogador;
-            iframe.src = '/ficha.html?view=' + codigoJogador;
-            
-            // Limpa qualquer tentativa antiga
-            if (iframeSyncInterval) clearInterval(iframeSyncInterval);
-            
-            // Pede dados frescos ao servidor (por prevenção)
-            if (socket) socket.emit('request_player', codigoJogador);
-            
-            // INSISTÊNCIA INTELIGENTE: Tenta enviar a ficha para o iframe a cada 800ms
-            // Assim, independentemente do tempo que a página demorar a carregar, os dados entram!
-            let attempts = 0;
-            iframeSyncInterval = setInterval(() => {
-                attempts++;
-                const playerData = jogadoresConectados[codigoJogador];
-                
-                if (playerData && playerData.fullData && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage({
-                        tipo: 'load_offline_data',
-                        data: playerData.fullData
-                    }, '*');
-                }
-                
-                // Pára de tentar após 5 tentativas (4 segundos) ou se fechares o Pop-up
-                if (attempts > 5 || modal.style.display === 'none') {
-                    clearInterval(iframeSyncInterval);
-                }
-            }, 800);
-        }
-
-        function fecharFichaLeitura() {
-            const modal = document.getElementById('modal-inspecionar');
-            const iframe = document.getElementById('iframe-ficha');
-            
-            modal.style.display = 'none';
-            iframe.src = '';
-            currentIframePlayer = null;
-            if (iframeSyncInterval) clearInterval(iframeSyncInterval);
         }
 
         function voltarLobby() {
