@@ -47,6 +47,7 @@
             background: var(--bg-card); border: 1px solid var(--border-color); border-top: 3px solid var(--accent-red);
             border-radius: 12px; padding: 15px; box-shadow: var(--shadow-card); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; gap: 15px; transition: transform 0.2s;
+            will-change: transform, box-shadow; /* Otimização para as animações */
         }
         .player-card:hover { transform: translateY(-3px); border-color: var(--accent-red); }
 
@@ -89,25 +90,58 @@
         .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
 
         /* =========================================
-           ANIMAÇÕES DE VIDA (DANO E CURA)
+           ANIMAÇÕES DE STATUS ÚNICAS
         ========================================= */
-        @keyframes hitDamage {
-            0% { transform: translateX(0); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+
+        /* VIDA: Tremor violento (Dano) / Pulsação suave (Cura) */
+        @keyframes hitVidaDano {
+            0% { transform: translateX(0); border-color: var(--border-color); }
             20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); }
             40% { transform: translateX(6px) scale(0.97); }
             60% { transform: translateX(-6px) scale(0.97); }
             80% { transform: translateX(6px) scale(0.97); }
-            100% { transform: translateX(0) scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+            100% { transform: translateX(0) scale(1); border-color: var(--border-color); }
         }
-        
-        @keyframes hitHeal {
-            0% { transform: scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+        @keyframes hitVidaCura {
+            0% { transform: scale(1); border-color: var(--border-color); }
             50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); }
-            100% { transform: scale(1); box-shadow: var(--shadow-card); border-color: var(--border-color); }
+            100% { transform: scale(1); border-color: var(--border-color); }
         }
 
-        .anim-dano { animation: hitDamage 0.5s ease-out !important; z-index: 10; position: relative; }
-        .anim-cura { animation: hitHeal 0.6s ease-out !important; z-index: 10; position: relative; }
+        /* SANIDADE: Glitch/Distorção Mental (Dano) / Pulsação (Cura) */
+        @keyframes hitSaniDano {
+            0% { transform: translate(0) skew(0); border-color: var(--border-color); }
+            20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); }
+            40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); }
+            60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); }
+            80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); }
+            100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; }
+        }
+        @keyframes hitSaniCura {
+            0% { transform: scale(1); border-color: var(--border-color); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); }
+            100% { transform: scale(1); border-color: var(--border-color); }
+        }
+
+        /* PONTOS DE ESFORÇO: Pesado para baixo (Gasto) / Subir leve (Ganho) */
+        @keyframes hitPeDano {
+            0% { transform: translateY(0); border-color: var(--border-color); }
+            30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); }
+            100% { transform: translateY(0) scale(1); border-color: var(--border-color); }
+        }
+        @keyframes hitPeCura {
+            0% { transform: translateY(0); border-color: var(--border-color); }
+            50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); }
+            100% { transform: translateY(0); border-color: var(--border-color); }
+        }
+
+        /* Classes de Animação */
+        .anim-vida-dano { animation: hitVidaDano 0.5s ease-out !important; z-index: 10; position: relative; }
+        .anim-vida-cura { animation: hitVidaCura 0.6s ease-out !important; z-index: 10; position: relative; }
+        .anim-sani-dano { animation: hitSaniDano 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important; z-index: 10; position: relative; }
+        .anim-sani-cura { animation: hitSaniCura 0.6s ease-out !important; z-index: 10; position: relative; }
+        .anim-pe-dano   { animation: hitPeDano 0.4s ease-out !important; z-index: 10; position: relative; }
+        .anim-pe-cura   { animation: hitPeCura 0.5s ease-out !important; z-index: 10; position: relative; }
 
         @media (max-width: 900px) {
             .main-content { flex-direction: column; }
@@ -184,13 +218,24 @@
                 if (dados && dados.codigo) {
                     let animClass = null;
                     
-                    // Lógica para detetar se levou dano ou foi curado
+                    // Lógica para detetar as alterações (Vida, Sani, PE) e aplicar a animação correta
                     if (jogadoresConectados[dados.codigo]) {
-                        let oldVida = parseInt(jogadoresConectados[dados.codigo].vida_atual) || 0;
-                        let newVida = parseInt(dados.vida_atual) || 0;
+                        let p = jogadoresConectados[dados.codigo];
                         
-                        if (newVida < oldVida) animClass = 'anim-dano';
-                        else if (newVida > oldVida) animClass = 'anim-cura';
+                        let oldVida = parseInt(p.vida_atual) || 0;
+                        let newVida = parseInt(dados.vida_atual) || 0;
+                        let oldSani = parseInt(p.sani_atual) || 0;
+                        let newSani = parseInt(dados.sani_atual) || 0;
+                        let oldPe   = parseInt(p.pe_atual) || 0;
+                        let newPe   = parseInt(dados.pe_atual) || 0;
+                        
+                        // Hierarquia de animação: Vida > Sanidade > PE
+                        if (newVida < oldVida) animClass = 'anim-vida-dano';
+                        else if (newVida > oldVida) animClass = 'anim-vida-cura';
+                        else if (newSani < oldSani) animClass = 'anim-sani-dano';
+                        else if (newSani > oldSani) animClass = 'anim-sani-cura';
+                        else if (newPe < oldPe) animClass = 'anim-pe-dano';
+                        else if (newPe > oldPe) animClass = 'anim-pe-cura';
                     }
 
                     jogadoresConectados[dados.codigo] = dados;
@@ -203,7 +248,7 @@
                         const cardElement = document.getElementById(`card-${dados.codigo}`);
                         if (cardElement) {
                             cardElement.classList.add(animClass);
-                            // Remove a classe após a animação terminar para poder ser repetida
+                            // Remove a classe após a animação terminar para poder ser repetida futuramente
                             setTimeout(() => { cardElement.classList.remove(animClass); }, 600);
                         }
                     }
@@ -261,7 +306,7 @@
                     : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
 
                 const card = document.createElement('div');
-                card.id = `card-${player.codigo}`; // ID adicionado para aplicar a animação
+                card.id = `card-${player.codigo}`; 
                 card.className = 'player-card';
                 card.style.cssText = extraStyles;
                 
