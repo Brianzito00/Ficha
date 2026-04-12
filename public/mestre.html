@@ -40,7 +40,7 @@
 
         /* Grelha de Jogadores */
         .players-area { flex: 1; padding: 20px; overflow-y: auto; }
-        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
         /* Card do Jogador */
         .player-card { 
@@ -51,15 +51,15 @@
         .player-card:hover { transform: translateY(-3px); border-color: var(--accent-red); }
 
         .player-header { display: flex; align-items: center; gap: 15px; }
-        .player-img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); }
-        .player-info h3 { margin: 0 0 5px 0; color: white; text-transform: uppercase; font-size: 1.2em; }
+        .player-img { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue); background: #000; }
+        .player-info h3 { margin: 0 0 5px 0; color: white; text-transform: uppercase; font-size: 1.2em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         .player-info p { margin: 0; color: var(--text-secondary); font-size: 0.85em; font-weight: bold; }
-        .player-info .defesa { color: var(--accent-green); }
+        .player-info .destaque { color: var(--accent-green); font-size: 1.1em; }
 
         /* Barras de Status */
         .status-row { margin-bottom: 8px; }
         .status-labels { display: flex; justify-content: space-between; font-size: 0.8em; font-weight: 900; margin-bottom: 3px; }
-        .bar-container { width: 100%; height: 16px; background: rgba(0,0,0,0.8); border-radius: 4px; border: 1px solid #222; overflow: hidden; }
+        .bar-container { width: 100%; height: 18px; background: rgba(0,0,0,0.8); border-radius: 4px; border: 1px solid #222; overflow: hidden; position: relative;}
         .bar-fill { height: 100%; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
         
         .fill-vida { background: linear-gradient(90deg, #8b0000, var(--accent-red)); }
@@ -68,7 +68,7 @@
 
         .btn-view-sheet { 
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); 
-            color: white; padding: 8px; border-radius: 6px; cursor: pointer; 
+            color: white; padding: 10px; border-radius: 6px; cursor: pointer; 
             font-weight: bold; text-transform: uppercase; transition: 0.2s; width: 100%;
         }
         .btn-view-sheet:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-blue); color: var(--accent-blue); }
@@ -82,15 +82,15 @@
         .log-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
         
         .log-item { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; border-radius: 8px; }
-        .log-item.crit { border-color: var(--accent-yellow); box-shadow: 0 0 10px rgba(255,207,51,0.2); }
-        .log-item.fail { border-color: var(--accent-red); box-shadow: 0 0 10px rgba(229,57,53,0.2); }
-        .log-player { font-size: 0.8em; color: var(--text-secondary); font-weight: bold; margin-bottom: 5px; }
-        .log-action { font-size: 0.9em; color: white; margin-bottom: 5px; }
-        .log-result { font-family: 'Permanent Marker', cursive; font-size: 2em; text-align: right; }
+        .log-item.crit { border-color: var(--accent-yellow); box-shadow: inset 0 0 10px rgba(255,207,51,0.1); }
+        .log-item.fail { border-color: var(--accent-red); box-shadow: inset 0 0 10px rgba(229,57,53,0.1); }
+        .log-player { font-size: 0.8em; color: var(--text-secondary); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        .log-action { font-size: 0.9em; color: white; margin-bottom: 5px; font-style: italic; }
+        .log-result { font-family: 'Permanent Marker', cursive; font-size: 2.2em; text-align: right; line-height: 1; }
 
         @media (max-width: 900px) {
             .main-content { flex-direction: column; }
-            .log-area { width: 100%; height: 250px; border-left: none; border-top: 1px solid var(--border-color); }
+            .log-area { width: 100%; height: 300px; border-left: none; border-top: 1px solid var(--border-color); }
         }
     </style>
 </head>
@@ -98,21 +98,26 @@
 
     <div class="top-bar">
         <h1>Mesa: <span id="display-campanha" style="color: white;">---</span></h1>
-        <button class="btn-leave" onclick="voltarLobby()">Voltar ao Lobby</button>
+        <button class="btn-leave" onclick="voltarLobby()">Sair da Mesa</button>
     </div>
 
     <div class="main-content">
         <div class="players-area">
             <div id="players-grid" class="players-grid">
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">
-                    A aguardar ligação dos jogadores...
+                <div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">
+                    A aguardar ligação dos jogadores...<br>
+                    <span style="font-size: 0.8em;">Os jogadores aparecerão aqui assim que abrirem ou alterarem a ficha.</span>
                 </div>
             </div>
         </div>
 
         <div class="log-area">
             <h3>Registos de Rolagens</h3>
-            <div id="log-list" class="log-list"></div>
+            <div id="log-list" class="log-list">
+                <div style="text-align: center; color: #555; font-size: 0.8em; font-style: italic; margin-top: 20px;">
+                    Nenhum dado rolado ainda.
+                </div>
+            </div>
         </div>
     </div>
 
@@ -122,7 +127,7 @@
         if(!campanhaAtiva) { window.location.href = '/index.html'; }
         document.getElementById('display-campanha').innerText = campanhaAtiva;
 
-        // Recuperar wallpaper da mesa (se existir)
+        // Recuperar wallpaper da mesa definido na criação (Lobby)
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
         if(customWP && customWP.trim() !== '') {
             document.body.style.backgroundImage = `url('${customWP}')`;
@@ -132,42 +137,77 @@
 
         const socket = typeof io !== 'undefined' ? io() : null;
         let jogadoresConectados = {};
+        let logsIniciaisRemovidos = false;
 
         if (socket) {
+            // 1. Entrar na sala correta ao conectar
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
+                console.log("Conectado à campanha:", campanhaAtiva);
             });
 
-            // Escuta as atualizações das fichas
-            socket.on('status_change', (dados) => {
+            // 2. Escutar atualizações de ficha do servidor ('update_mestre' e não 'status_change')
+            socket.on('update_mestre', (dados) => {
                 if (dados && dados.codigo) {
                     jogadoresConectados[dados.codigo] = dados;
                     renderPlayers();
                 }
             });
 
-            // Escuta as rolagens de dados
-            socket.on('rolagem_feita', (dados) => {
+            // Se o servidor pedir uma ficha que não tem, ignora ou processa (o mestre só visualiza)
+            socket.on('mestre_pede_ficha', (codigo) => {
+                console.log(`Servidor pediu a ficha de ${codigo}, a aguardar que o jogador sincronize...`);
+            });
+
+            // 3. Escutar rolagens de dados ('novo_log'/'nova_rolagem' e não 'rolagem_feita')
+            socket.on('novo_log', (dados) => {
                 adicionarLog(dados);
+            });
+            
+            // Opcional: Escutar se alguém sair da campanha
+            socket.on('comando_mestre', (dados) => {
+                if (dados.tipo === 'jogador_saiu' && dados.codigo) {
+                    delete jogadoresConectados[dados.codigo];
+                    renderPlayers();
+                }
             });
         }
 
         function renderPlayers() {
             const grid = document.getElementById('players-grid');
-            if (Object.keys(jogadoresConectados).length === 0) return;
+            
+            if (Object.keys(jogadoresConectados).length === 0) {
+                grid.innerHTML = `<div id="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); font-style: italic; margin-top: 50px;">A aguardar ligação dos jogadores...</div>`;
+                return;
+            }
             
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                // Cálculo das percentagens para as barras
-                const pctVida = Math.max(0, Math.min(100, (player.vida_atual / Math.max(1, player.vida_max)) * 100));
-                const pctSani = Math.max(0, Math.min(100, (player.sani_atual / Math.max(1, player.sani_max)) * 100));
-                const pctPe = Math.max(0, Math.min(100, (player.pe_atual / Math.max(1, player.pe_max)) * 100));
+                // Cálculo seguro das percentagens para evitar divisão por zero
+                const vMax = Math.max(1, parseInt(player.vida_max) || 1);
+                const sMax = Math.max(1, parseInt(player.sani_max) || 1);
+                const pMax = Math.max(1, parseInt(player.pe_max) || 1);
+                
+                const vAtual = parseInt(player.vida_atual) || 0;
+                const sAtual = parseInt(player.sani_atual) || 0;
+                const pAtual = parseInt(player.pe_atual) || 0;
+
+                const pctVida = Math.max(0, Math.min(100, (vAtual / vMax) * 100));
+                const pctSani = Math.max(0, Math.min(100, (sAtual / sMax) * 100));
+                const pctPe   = Math.max(0, Math.min(100, (pAtual / pMax) * 100));
 
                 // Borda brilhante se o jogador estiver num estado crítico
                 let extraStyles = "";
-                if (player.status && player.status.morrendo) extraStyles = "animation: pulseRed 1.5s infinite; border-color: var(--accent-red);";
-                else if (player.status && player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue);";
+                if (player.status) {
+                    if (player.status.morrendo) extraStyles = "animation: pulseRed 1.5s infinite; border-color: var(--accent-red); box-shadow: 0 0 15px rgba(229,57,53,0.3);";
+                    else if (player.status.enlouquecendo) extraStyles = "animation: pulseBlue 1.5s infinite; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(0,176,255,0.3);";
+                }
+
+                // Foto padrão caso o jogador não tenha colocado
+                const fotoExibicao = (player.foto && player.foto.trim() !== '') 
+                    ? player.foto 
+                    : 'https://static.vecteezy.com/ti/vetor-gratis/p1/35129568-silhueta-do-desconhecido-pessoa-com-face-escondido-coberto-e-mascarado-misterioso-estranho-homem-anonimo-personagem-ilustracao-isolado-em-branco-fundo-gratis-vetor.jpg';
 
                 const card = document.createElement('div');
                 card.className = 'player-card';
@@ -175,29 +215,29 @@
                 
                 card.innerHTML = `
                     <div class="player-header">
-                        <img src="${player.foto || 'https://via.placeholder.com/70'}" class="player-img">
+                        <img src="${fotoExibicao}" class="player-img">
                         <div class="player-info">
                             <h3>${player.nome || 'Desconhecido'}</h3>
-                            <p>NEX: ${player.nex}% | DEFESA: <span class="defesa">${player.defesa || 10}</span></p>
+                            <p>NEX: <span class="destaque">${player.nex || 0}%</span> | DEF: <span class="destaque" style="color:var(--accent-blue);">${player.defesa || 10}</span></p>
                         </div>
                     </div>
                     
                     <div class="status-bars">
                         <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-red)">VIDA</span><span>${player.vida_atual} / ${player.vida_max}</span></div>
+                            <div class="status-labels"><span style="color:var(--accent-red)">VIDA</span><span>${vAtual} / ${vMax}</span></div>
                             <div class="bar-container"><div class="bar-fill fill-vida" style="width: ${pctVida}%;"></div></div>
                         </div>
                         <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-blue)">SANIDADE</span><span>${player.sani_atual} / ${player.sani_max}</span></div>
+                            <div class="status-labels"><span style="color:var(--accent-blue)">SANIDADE</span><span>${sAtual} / ${sMax}</span></div>
                             <div class="bar-container"><div class="bar-fill fill-sani" style="width: ${pctSani}%;"></div></div>
                         </div>
                         <div class="status-row">
-                            <div class="status-labels"><span style="color:var(--accent-yellow)">PONTOS DE ESFORÇO</span><span>${player.pe_atual} / ${player.pe_max}</span></div>
+                            <div class="status-labels"><span style="color:var(--accent-yellow)">PE</span><span>${pAtual} / ${pMax}</span></div>
                             <div class="bar-container"><div class="bar-fill fill-pe" style="width: ${pctPe}%;"></div></div>
                         </div>
                     </div>
 
-                    <button class="btn-view-sheet" onclick="abrirFichaLeitura('${player.codigo}')">Inspecionar Ficha</button>
+                    <button class="btn-view-sheet" onclick="abrirFichaLeitura('${player.codigo}')">🔍 Inspecionar Ficha</button>
                 `;
                 
                 grid.appendChild(card);
@@ -206,30 +246,38 @@
 
         function adicionarLog(dados) {
             const list = document.getElementById('log-list');
+            
+            // Remove o texto placeholder "Nenhum dado rolado ainda" na primeira rolagem
+            if (!logsIniciaisRemovidos) {
+                list.innerHTML = '';
+                logsIniciaisRemovidos = true;
+            }
+
             const item = document.createElement('div');
             
             let classeLog = 'log-item';
-            if (dados.cor && dados.cor.includes('#ffcf33')) classeLog += ' crit';
-            if (dados.cor && dados.cor.includes('#ff5252')) classeLog += ' fail';
+            if (dados.cor && dados.cor.includes('#ffcf33')) classeLog += ' crit'; // Amarelo de crítico
+            if (dados.cor && dados.cor.includes('#ff5252')) classeLog += ' fail'; // Vermelho de desastre
 
             item.className = classeLog;
             item.innerHTML = `
-                <div class="log-player">${dados.jogador}</div>
-                <div class="log-action">${dados.acao}</div>
-                <div class="log-result" style="${dados.cor}">${dados.resultado}</div>
+                <div class="log-player">🎲 ${dados.jogador || 'Jogador'}</div>
+                <div class="log-action">${dados.acao || 'Rolagem'}</div>
+                <div class="log-result" style="${dados.cor || 'color: white;'}">${dados.resultado}</div>
             `;
             
             // Adiciona no topo
             list.insertBefore(item, list.firstChild);
             
-            // Manter apenas os últimos 30 registos para não pesar a memória
-            if (list.children.length > 30) {
+            // Manter apenas os últimos 25 registos para não pesar a memória do navegador
+            if (list.children.length > 25) {
                 list.removeChild(list.lastChild);
             }
         }
 
-        // Abre a ficha em modo View Only usando a estrutura que deixaste preparada
+        // Abre a ficha em modo View Only
         function abrirFichaLeitura(codigoJogador) {
+            // Usa o parâmetro ?view= como já configuraste perfeitamente no ficha.html
             window.open('/ficha.html?view=' + codigoJogador, '_blank');
         }
 
