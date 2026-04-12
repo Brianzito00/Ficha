@@ -47,7 +47,7 @@
             background: var(--bg-card); border: 1px solid var(--border-color); border-top: 3px solid var(--accent-red);
             border-radius: 12px; padding: 15px; box-shadow: var(--shadow-card); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; gap: 15px; transition: transform 0.2s;
-            will-change: transform, box-shadow; /* Otimização de performance para as animações */
+            will-change: transform, box-shadow; 
         }
         .player-card:hover { transform: translateY(-3px); border-color: var(--accent-red); }
 
@@ -117,55 +117,15 @@
         .btn-fechar-popup:hover { background: #b71c1c; }
 
         /* =========================================
-           ANIMAÇÕES DE STATUS (BEM FORMATADAS)
+           ANIMAÇÕES DE STATUS
         ========================================= */
+        @keyframes hitVidaDano { 0% { transform: translateX(0); border-color: var(--border-color); } 20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); } 40% { transform: translateX(6px) scale(0.97); } 60% { transform: translateX(-6px) scale(0.97); } 80% { transform: translateX(6px) scale(0.97); } 100% { transform: translateX(0) scale(1); border-color: var(--border-color); } }
+        @keyframes hitVidaCura { 0% { transform: scale(1); border-color: var(--border-color); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); } 100% { transform: scale(1); border-color: var(--border-color); } }
+        @keyframes hitSaniDano { 0% { transform: translate(0) skew(0); border-color: var(--border-color); } 20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); } 40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; } }
+        @keyframes hitSaniCura { 0% { transform: scale(1); border-color: var(--border-color); } 50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); } 100% { transform: scale(1); border-color: var(--border-color); } }
+        @keyframes hitPeDano { 0% { transform: translateY(0); border-color: var(--border-color); } 30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); } 100% { transform: translateY(0) scale(1); border-color: var(--border-color); } }
+        @keyframes hitPeCura { 0% { transform: translateY(0); border-color: var(--border-color); } 50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); } 100% { transform: translateY(0); border-color: var(--border-color); } }
 
-        /* VIDA: Tremor violento (Dano) / Pulsação (Cura) */
-        @keyframes hitVidaDano { 
-            0% { transform: translateX(0); border-color: var(--border-color); } 
-            20% { transform: translateX(-6px) scale(0.97); box-shadow: 0 0 25px rgba(229,57,53,0.9); border-color: var(--accent-red); } 
-            40% { transform: translateX(6px) scale(0.97); } 
-            60% { transform: translateX(-6px) scale(0.97); } 
-            80% { transform: translateX(6px) scale(0.97); } 
-            100% { transform: translateX(0) scale(1); border-color: var(--border-color); } 
-        }
-        
-        @keyframes hitVidaCura { 
-            0% { transform: scale(1); border-color: var(--border-color); } 
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,230,118,1); border-color: var(--accent-green); } 
-            100% { transform: scale(1); border-color: var(--border-color); } 
-        }
-
-        /* SANIDADE: Glitch/Distorção Mental (Dano) / Pulsação (Cura) */
-        @keyframes hitSaniDano { 
-            0% { transform: translate(0) skew(0); border-color: var(--border-color); } 
-            20% { transform: translate(-4px, 2px) skew(-5deg) scale(0.98); box-shadow: 0 0 25px rgba(0,176,255,0.9); border-color: var(--accent-blue); filter: hue-rotate(20deg); } 
-            40% { transform: translate(4px, -2px) skew(5deg) scale(0.98); } 
-            60% { transform: translate(-2px, 2px) skew(-3deg) scale(0.98); } 
-            80% { transform: translate(2px, -2px) skew(3deg) scale(0.98); } 
-            100% { transform: translate(0) skew(0) scale(1); border-color: var(--border-color); filter: none; } 
-        }
-        
-        @keyframes hitSaniCura { 
-            0% { transform: scale(1); border-color: var(--border-color); } 
-            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(0,176,255,0.8); border-color: var(--accent-blue); } 
-            100% { transform: scale(1); border-color: var(--border-color); } 
-        }
-
-        /* PE: Pesado para baixo (Gasto) / Subir leve (Ganho) */
-        @keyframes hitPeDano { 
-            0% { transform: translateY(0); border-color: var(--border-color); } 
-            30% { transform: translateY(6px) scale(0.98); box-shadow: inset 0 0 25px rgba(255,207,51,0.5); border-color: var(--accent-yellow); } 
-            100% { transform: translateY(0) scale(1); border-color: var(--border-color); } 
-        }
-        
-        @keyframes hitPeCura { 
-            0% { transform: translateY(0); border-color: var(--border-color); } 
-            50% { transform: translateY(-6px); box-shadow: 0 15px 25px rgba(255,207,51,0.8); border-color: var(--accent-yellow); } 
-            100% { transform: translateY(0); border-color: var(--border-color); } 
-        }
-
-        /* Atribuição das Classes de Animação */
         .anim-vida-dano { animation: hitVidaDano 0.5s ease-out !important; z-index: 10; position: relative; }
         .anim-vida-cura { animation: hitVidaCura 0.6s ease-out !important; z-index: 10; position: relative; }
         .anim-sani-dano { animation: hitSaniDano 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important; z-index: 10; position: relative; }
@@ -229,7 +189,7 @@
         
         document.getElementById('display-campanha').innerText = campanhaAtiva;
 
-        // Recuperar wallpaper da mesa definido na criação (Lobby)
+        // Recuperar wallpaper da mesa
         const customWP = localStorage.getItem('campanha_wp_' + campanhaAtiva);
         if(customWP && customWP.trim() !== '') {
             document.body.style.backgroundImage = `url('${customWP}')`;
@@ -241,7 +201,7 @@
         let jogadoresConectados = {};
         let logsIniciaisRemovidos = false;
 
-        // CARREGAR JOGADORES DA MEMÓRIA IMEDIATAMENTE (CACHE LOCAL)
+        // CARREGAR JOGADORES DA MEMÓRIA
         const cacheKey = 'mestre_cache_' + campanhaAtiva;
         const cacheSalvo = localStorage.getItem(cacheKey);
         
@@ -253,7 +213,7 @@
         }
 
         if (socket) {
-            // Entrar na sala e pedir os dados ao servidor
+            // Entrar na sala
             socket.on('connect', () => {
                 socket.emit('join_campaign', campanhaAtiva);
                 Object.keys(jogadoresConectados).forEach(codigo => { 
@@ -266,15 +226,13 @@
                 if (dados && dados.codigo) {
                     let animClass = null;
                     
-                    // Lógica das animações: Verifica qual atributo mudou
                     if (jogadoresConectados[dados.codigo]) {
                         let p = jogadoresConectados[dados.codigo];
-                        let oldVida = parseInt(p.vida_atual) || 0; 
-                        let newVida = parseInt(dados.vida_atual) || 0;
-                        let oldSani = parseInt(p.sani_atual) || 0; 
-                        let newSani = parseInt(dados.sani_atual) || 0;
-                        let oldPe   = parseInt(p.pe_atual) || 0;   
-                        let newPe   = parseInt(dados.pe_atual) || 0;
+                        
+                        // Lógica das animações
+                        let oldVida = parseInt(p.vida_atual) || 0; let newVida = parseInt(dados.vida_atual) || 0;
+                        let oldSani = parseInt(p.sani_atual) || 0; let newSani = parseInt(dados.sani_atual) || 0;
+                        let oldPe   = parseInt(p.pe_atual) || 0;   let newPe   = parseInt(dados.pe_atual) || 0;
                         
                         if (newVida < oldVida) animClass = 'anim-vida-dano';
                         else if (newVida > oldVida) animClass = 'anim-vida-cura';
@@ -282,6 +240,13 @@
                         else if (newSani > oldSani) animClass = 'anim-sani-cura';
                         else if (newPe < oldPe) animClass = 'anim-pe-dano';
                         else if (newPe > oldPe) animClass = 'anim-pe-cura';
+
+                        // EXTREMAMENTE IMPORTANTE: Preservar o fullData!
+                        // Quando o jogador toma dano, ele envia um "sync rápido" que não tem a ficha toda.
+                        // Se isso acontecer, copiamos a ficha completa que já tínhamos na memória para não perder o inventário.
+                        if (!dados.fullData && p.fullData) {
+                            dados.fullData = p.fullData;
+                        }
                     }
 
                     // Guardar e renderizar
@@ -300,14 +265,8 @@
                 }
             });
 
-            socket.on('mestre_pede_ficha', (codigo) => { 
-                console.log(`Servidor pediu a ficha de ${codigo}`); 
-            });
-            
-            socket.on('novo_log', (dados) => { 
-                adicionarLog(dados); 
-            });
-            
+            socket.on('mestre_pede_ficha', (codigo) => { console.log(`A aguardar ficha de ${codigo}`); });
+            socket.on('novo_log', (dados) => { adicionarLog(dados); });
             socket.on('comando_mestre', (dados) => {
                 if (dados.tipo === 'jogador_saiu' && dados.codigo) {
                     delete jogadoresConectados[dados.codigo];
@@ -329,7 +288,6 @@
             grid.innerHTML = '';
             
             Object.values(jogadoresConectados).forEach(player => {
-                // Matemática segura
                 const vMax = Math.max(1, parseInt(player.vida_max) || 1); 
                 const sMax = Math.max(1, parseInt(player.sani_max) || 1); 
                 const pMax = Math.max(1, parseInt(player.pe_max) || 1);
@@ -388,10 +346,7 @@
         // Função para os logs de dados
         function adicionarLog(dados) {
             const list = document.getElementById('log-list');
-            if (!logsIniciaisRemovidos) { 
-                list.innerHTML = ''; 
-                logsIniciaisRemovidos = true; 
-            }
+            if (!logsIniciaisRemovidos) { list.innerHTML = ''; logsIniciaisRemovidos = true; }
             
             const item = document.createElement('div');
             let classeLog = 'log-item';
@@ -411,27 +366,51 @@
         }
 
         // ==========================================
-        // FUNÇÕES DO POP-UP DA FICHA
+        // FUNÇÕES DO POP-UP DA FICHA - ATUALIZADAS
         // ==========================================
         function abrirFichaLeitura(codigoJogador) {
-    const modal = document.getElementById('modal-inspecionar');
-    const iframe = document.getElementById('iframe-ficha');
-    
-    // Coloca o link do modo leitura (view) no iframe
-    iframe.src = '/ficha.html?view=' + codigoJogador;
-    modal.style.display = 'flex';
-
-    // NOVIDADE: Assim que o Iframe terminar de carregar, o Escudo do Mestre 
-    // injeta os dados do jogador diretamente lá para dentro!
-    iframe.onload = () => {
-        if (jogadoresConectados[codigoJogador] && jogadoresConectados[codigoJogador].fullData) {
-            iframe.contentWindow.postMessage({
-                tipo: 'load_offline_data',
-                data: jogadoresConectados[codigoJogador].fullData
-            }, '*');
+            const modal = document.getElementById('modal-inspecionar');
+            const iframe = document.getElementById('iframe-ficha');
+            
+            // Abre o modal
+            modal.style.display = 'flex';
+            
+            // Coloca o link do jogador e inicia o carregamento da página no iframe
+            iframe.src = '/ficha.html?view=' + codigoJogador;
+            
+            // Função ativada assim que o Iframe avisa que acabou de carregar a página
+            iframe.onload = () => {
+                // Pequeno atraso de 400ms para garantir que o Javascript de dentro da ficha 
+                // já teve tempo de ativar os "ouvidos" (event listeners)
+                setTimeout(() => {
+                    const playerData = jogadoresConectados[codigoJogador];
+                    
+                    // Se o GM tiver a ficha guardada, injetamos ela à força para dentro do iframe!
+                    if (playerData && playerData.fullData) {
+                        iframe.contentWindow.postMessage({
+                            tipo: 'load_offline_data',
+                            data: playerData.fullData
+                        }, '*');
+                        console.log("Ficha enviada para o Iframe com sucesso!");
+                    } else {
+                        // Se por algum motivo o GM não tiver o fullData, pedimos ao servidor
+                        console.warn("Ficha incompleta. Pedindo atualização ao servidor...");
+                        if (socket) socket.emit('request_player', codigoJogador);
+                    }
+                }, 400); 
+            };
         }
-    };
-}
+
+        function fecharFichaLeitura() {
+            const modal = document.getElementById('modal-inspecionar');
+            const iframe = document.getElementById('iframe-ficha');
+            
+            modal.style.display = 'none';
+            // Apaga o src para destruir a página dentro do iframe e poupar memória RAM
+            iframe.src = '';
+            iframe.onload = null; // Limpa o evento de onload
+        }
+
         function voltarLobby() {
             localStorage.removeItem('campanha_atual');
             window.location.href = '/index.html';
