@@ -185,19 +185,19 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
                     <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">FOR</label>
-                    <input type="number" id="enemy-for" class="inv-input" value="1">
+                    <input type="number" id="enemy-for" class="inv-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0;">
                 </div>
                 <div style="flex: 1;">
                     <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">AGI</label>
-                    <input type="number" id="enemy-agi" class="inv-input" value="1">
+                    <input type="number" id="enemy-agi" class="inv-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0;">
                 </div>
                 <div style="flex: 1;">
                     <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold;">VIG</label>
-                    <input type="number" id="enemy-vig" class="inv-input" value="1">
+                    <input type="number" id="enemy-vig" class="inv-input" value="1" min="0" max="10" oninput="if(this.value>10)this.value=10; if(this.value<0)this.value=0;">
                 </div>
                 <div style="flex: 1;">
-                    <label style="color: var(--text-secondary); font-size: 0.8em; font-weight: bold; color: var(--accent-red);">LUTA (+)</label>
-                    <input type="number" id="enemy-luta" class="inv-input" value="5">
+                    <label style="color: var(--text-secondary); font-size: 0.7em; font-weight: bold; color: var(--accent-red);" title="Soma bónus extra de treino à Luta Total.">BÓNUS ATQ</label>
+                    <input type="number" id="enemy-luta" class="inv-input" value="0">
                 </div>
             </div>
 
@@ -390,12 +390,12 @@
             const forAttr = parseInt(document.getElementById('enemy-for').value) || 0;
             const agiAttr = parseInt(document.getElementById('enemy-agi').value) || 0;
             const vigAttr = parseInt(document.getElementById('enemy-vig').value) || 0;
-            const lutaAttr = parseInt(document.getElementById('enemy-luta').value) || 0;
+            const lutaBonus = parseInt(document.getElementById('enemy-luta').value) || 0;
             
             listaInimigos.push({ 
                 id: Date.now().toString(), 
                 n: n, hpMax: hp, hpAtual: hp, def: def, el: el,
-                for: forAttr, agi: agiAttr, vig: vigAttr, luta: lutaAttr
+                for: forAttr, agi: agiAttr, vig: vigAttr, luta: lutaBonus
             });
             
             localStorage.setItem(inimigosCacheKey, JSON.stringify(listaInimigos));
@@ -405,6 +405,7 @@
             document.getElementById('enemy-for').value = '1';
             document.getElementById('enemy-agi').value = '1';
             document.getElementById('enemy-vig').value = '1';
+            document.getElementById('enemy-luta').value = '0';
             renderInimigos();
         }
 
@@ -459,9 +460,9 @@
                 
                 // Cálculo para a tabela de alvo visual no Card do Monstro (IDÊNTICO À FICHA)
                 let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
-                let totalValor = (maxAttr * 2) + (ini.luta || 0);
+                let totalValorLuta = (maxAttr * 2) + (ini.luta || 0);
                 
-                let tg = getAlvosD20(totalValor);
+                let tg = getAlvosD20(totalValorLuta);
                 let strN = tg.n; 
                 let strB = tg.b > 20 ? 'x' : tg.b; 
                 let strE = tg.e > 20 ? 'x' : tg.e;
@@ -486,7 +487,7 @@
                                 <span>FOR: <span style="color: white;">${ini.for || 0}</span></span>
                                 <span>AGI: <span style="color: white;">${ini.agi || 0}</span></span>
                                 <span>VIG: <span style="color: white;">${ini.vig || 0}</span></span>
-                                <span>LUTA: <span style="color: var(--accent-red);">+${ini.luta || 0}</span></span>
+                                <span>LUTA: <span style="color: var(--accent-red);">${totalValorLuta}</span></span>
                             </div>
                             
                             <div style="margin-top: 5px; display: flex; justify-content: center; gap: 10px; font-size: 0.7em; background: rgba(0,0,0,0.5); padding: 3px; border-radius: 4px; font-family: monospace;">
@@ -523,23 +524,26 @@
         }
 
         // ==========================================
-        // ROLAGEM 1D20 (SISTEMA CoC ADAPTADO)
+        // ROLAGEM 1D20 PURO (SISTEMA CoC ADAPTADO)
         // ==========================================
         function mestreRolaLuta(id) {
             const ini = listaInimigos.find(e => e.id === id);
             if(!ini) return;
 
-            // Define o valor da perícia: (Maior Atributo * 2) + Luta
-            let maxAttr = Math.max(ini.for || 0, ini.agi || 0);
+            // Define o valor total da perícia (Para calcular os alvos exatos)
+            // Lógica: (Maior Atributo * 2) + Bónus Luta
+            let maxAttr = Math.max(ini.for || 0, ini.agi || 0); 
             let totalValorParaAlvo = (maxAttr * 2) + (ini.luta || 0);
             
-            // Vai buscar os alvos precisos baseados no valor total
+            // Vai buscar as margens de alvo (Normal, Bom, Extremo) baseadas no valor total
             let tg = getAlvosD20(totalValorParaAlvo);
+            let strB = tg.b > 20 ? 'x' : tg.b; 
+            let strE = tg.e > 20 ? 'x' : tg.e;
             
-            // ROLA APENAS 1D20 (como no Call of Cthulhu)
+            // ROLA APENAS 1D20 (Tal como a ficha dos jogadores faz)
             let roll = Math.floor(Math.random() * 20) + 1;
             
-            // Decisão do Sucesso validando o dado contra a Tabela
+            // Decisão do Sucesso validando o 1D20 contra a Tabela
             let textFormat = "";
             let colorFormat = "color: white;";
             
@@ -570,8 +574,8 @@
 
             const logData = {
                 jogador: "Mestre (" + ini.n + ")",
-                acao: `⚔️ ATQ Luta <br><span style="font-size:0.8em; margin-top:2px; display:inline-block;">(${textFormat})</span>`,
-                resultado: roll, // MOSTRA O VALOR CRU DO 1D20!
+                acao: `⚔️ ATQ Luta <br><span style="font-size:0.7em; color:var(--text-secondary);">Alvos: N${tg.n} / B${strB} / E${strE}</span><br><span style="font-size:0.9em; margin-top:4px; display:inline-block; font-weight:bold;">${textFormat}</span>`,
+                resultado: roll, // Mostra SOMENTE O VALOR DO 1D20
                 cor: colorFormat
             };
             
