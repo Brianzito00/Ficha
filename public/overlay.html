@@ -20,6 +20,23 @@
             overflow: hidden;
         }
 
+        /* AVISO PARA O OBS (SE O LINK ESTIVER ERRADO) */
+        #erro-obs {
+            display: none;
+            background: rgba(200, 0, 0, 0.9);
+            border: 2px solid white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            font-family: 'Gabriele Bad', sans-serif;
+            font-size: 24px;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+
         /* GRADE CONFIGURADA */
         #multi-overlay-container {
             display: grid;
@@ -38,6 +55,7 @@
             animation: fadeIn 0.6s ease-out;
             cursor: pointer;
             position: relative;
+            transition: filter 0.5s ease;
         }
 
         /* Efeito Hover do Rato (Para o OBS) */
@@ -52,16 +70,10 @@
             z-index: 10;
         }
 
-        /* A ampliação e o brilho vão para o contentor da foto no turno */
-        .player-card.active-turn .foto-container {
-            transform: scale(1.25) translateX(10px);
-            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 1));
-        }
-
-        /* Destaca a vida com amarelo no turno */
-        .player-card.active-turn .val-vida {
-            color: #ffcf33;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.9), 0 0 10px rgba(255, 207, 51, 0.9), 0 0 20px rgba(255, 207, 51, 0.6);
+        /* O DESTAQUE E ANIMAÇÃO APLICAM-SE APENAS À FOTO */
+        .player-card.active-turn .foto {
+            transform: perspective(400px) scale(1.2) translateX(10px) !important; 
+            filter: drop-shadow(0 0 15px rgba(255, 207, 51, 1)); 
         }
         /* ===================================================== */
 
@@ -81,10 +93,8 @@
             position: relative;
             flex-shrink: 0;
             display: flex;
-            align-items: flex-end; /* Mantém a base presa */
+            align-items: flex-end; 
             justify-content: center;
-            /* Transição para quando ganha o turno */
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
         }
 
         /* =====================================================
@@ -95,27 +105,17 @@
             height: 100%;
             object-fit: cover;
             opacity: 1;
-            /* A origem do movimento é a base do pescoço/ombros para parecer real */
+            border-radius: 8px; /* Cantos ligeiramente arredondados caso prefiras */
             transform-origin: bottom center; 
-            /* A animação infinita de respiração */
             animation: live2d-breathe 4s infinite ease-in-out alternate;
-            transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
             will-change: transform;
         }
 
         @keyframes live2d-breathe {
-            0% {
-                /* Estado Normal */
-                transform: perspective(400px) rotateY(0deg) scaleX(1) scaleY(1) translateY(0) skewX(0deg);
-            }
-            50% {
-                /* Inspirar: O peito sobe, estica a malha na vertical, contrai na horizontal, e cria um leve balanço 3D */
-                transform: perspective(400px) rotateY(2deg) scaleX(0.97) scaleY(1.04) translateY(-2px) skewX(0.5deg);
-            }
-            100% {
-                /* Expirar: Relaxa, alarga um pouco e inverte o balanço 3D */
-                transform: perspective(400px) rotateY(-1deg) scaleX(1.01) scaleY(0.99) translateY(1px) skewX(-0.5deg);
-            }
+            0% { transform: perspective(400px) rotateY(0deg) scaleX(1) scaleY(1) translateY(0) skewX(0deg); }
+            50% { transform: perspective(400px) rotateY(2deg) scaleX(0.97) scaleY(1.04) translateY(-2px) skewX(0.5deg); }
+            100% { transform: perspective(400px) rotateY(-1deg) scaleX(1.01) scaleY(0.99) translateY(1px) skewX(-0.5deg); }
         }
         /* ===================================================== */
 
@@ -160,6 +160,14 @@
 </head>
 <body>
 
+    <div id="erro-obs">
+        ERRO DE LIGAÇÃO!<br><br>
+        O Streamlabs não sabe qual é a tua mesa.<br>
+        Por favor, clica no botão "OVERLAY" no Escudo do Mestre,<br>
+        copia o link completo (que termina em ?mesa=nome-da-mesa)<br>
+        e cola nas propriedades do Browser Source no Streamlabs.
+    </div>
+
     <div id="multi-overlay-container"></div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -170,6 +178,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         let campanhaAtiva = urlParams.get('mesa') || localStorage.getItem('campanha_atual');
         
+        // Exibe o erro se estiver a ser corrido no OBS sem a identificação da mesa
+        if (!campanhaAtiva) {
+            document.getElementById('erro-obs').style.display = 'block';
+        }
+
         let activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
 
         function atualizarOverlay() {
@@ -205,7 +218,7 @@
             
             div.innerHTML = `
                 <div class="foto-container">
-                    <img src="" id="foto-${code}" class="foto" style="animation-delay: ${randomDelay}s;">
+                    <img src="https://via.placeholder.com/140" id="foto-${code}" class="foto" style="animation-delay: ${randomDelay}s;">
                 </div>
                 <div class="info-wrapper">
                     <div class="status-numbers">
@@ -222,7 +235,6 @@
             const el = document.getElementById(`card-${code}`);
             if (el) {
                 el.style.animation = 'fadeOut 0.4s ease-in forwards'; 
-                
                 setTimeout(() => {
                     el.remove();
                     activePlayers = activePlayers.filter(c => c !== code);
@@ -248,7 +260,7 @@
         }
 
         window.onload = () => {
-            atualizarOverlay();
+            if (campanhaAtiva) atualizarOverlay();
             setInterval(() => {
                 if(campanhaAtiva) {
                     activePlayers.forEach(code => socket.emit('request_player', code));
@@ -259,13 +271,6 @@
         window.addEventListener('storage', (e) => {
             if (e.key === 'mestre_allowed_codes_' + campanhaAtiva) {
                 activePlayers = JSON.parse(e.newValue) || [];
-                atualizarOverlay();
-            }
-            if (e.key === 'campanha_atual' && !urlParams.get('mesa')) {
-                campanhaAtiva = e.newValue;
-                activePlayers = JSON.parse(localStorage.getItem('mestre_allowed_codes_' + campanhaAtiva)) || [];
-                socket.emit('join_campaign', campanhaAtiva);
-                socket.emit('comando_mestre', { tipo: 'request_overlay_sync' });
                 atualizarOverlay();
             }
         });
@@ -289,38 +294,52 @@
             }
         });
 
-        socket.on('update_mestre', (dados) => {
-            const codPuro = dados.codigo; 
+        // Função Centralizada para Extrair e Atualizar os Dados
+        function processarAtualizacao(dados) {
+            const codPuro = (dados.codigo || "").toUpperCase(); 
+            if (!codPuro || !activePlayers.includes(codPuro)) return;
+
+            // Extração Segura da Foto
+            const fotoEl = document.getElementById(`foto-${codPuro}`);
+            const novaFoto = dados.foto || dados.fullData?.info?.char_img || 'https://via.placeholder.com/140';
             
-            if (activePlayers.includes(codPuro)) {
-                const fotoEl = document.getElementById(`foto-${codPuro}`);
-                const novaFoto = dados.foto || 'https://via.placeholder.com/140';
-                
-                if (fotoEl && fotoEl.getAttribute('src') !== novaFoto) {
-                    fotoEl.style.opacity = 0; 
-                    setTimeout(() => {
-                        fotoEl.src = novaFoto; 
-                        fotoEl.setAttribute('src', novaFoto);
-                        fotoEl.onload = () => fotoEl.style.opacity = 1; 
-                        setTimeout(() => fotoEl.style.opacity = 1, 100);
-                    }, 300);
-                }
-
-                const vidaEl = document.getElementById(`vida-${codPuro}`);
-                const saniEl = document.getElementById(`sani-${codPuro}`);
-                
-                if(vidaEl) vidaEl.innerText = `${dados.vida_atual || 0}/${dados.vida_max || 0}`;
-                if(saniEl) saniEl.innerText = `${dados.sani_atual || 0}/${dados.sani_max || 0}`;
-
-                const ammoEl = document.getElementById(`ammo-${codPuro}`);
-                let muniTexto = "";
-                if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
-                    const arma = dados.fullData.inv.find(item => item.id === dados.fullData.arma_ativa_id);
-                    if (arma && arma.ammo !== "Nenhuma") muniTexto = arma.currentShots || "0";
-                }
-                if(ammoEl) ammoEl.innerText = muniTexto;
+            if (fotoEl && fotoEl.getAttribute('src') !== novaFoto) {
+                fotoEl.style.opacity = 0; 
+                setTimeout(() => {
+                    fotoEl.src = novaFoto; 
+                    fotoEl.setAttribute('src', novaFoto);
+                    fotoEl.onload = () => fotoEl.style.opacity = 1; 
+                    setTimeout(() => fotoEl.style.opacity = 1, 100);
+                }, 300);
             }
-        });
+
+            // Extração Segura dos Valores de Status (Vida e Sani)
+            const vA = dados.vida_atual !== undefined ? dados.vida_atual : (dados.status?.vida_atual !== undefined ? dados.status?.vida_atual : (dados.fullData?.info?.vida_atual || 0));
+            const vM = dados.vida_max !== undefined ? dados.vida_max : (dados.fullData?.info?.vida_max || 0);
+            const sA = dados.sani_atual !== undefined ? dados.sani_atual : (dados.status?.sani_atual !== undefined ? dados.status?.sani_atual : (dados.fullData?.info?.sani_atual || 0));
+            const sM = dados.sani_max !== undefined ? dados.sani_max : (dados.fullData?.info?.sani_max || 0);
+
+            const vidaEl = document.getElementById(`vida-${codPuro}`);
+            const saniEl = document.getElementById(`sani-${codPuro}`);
+            
+            if(vidaEl) vidaEl.innerText = `${vA}/${vM}`;
+            if(saniEl) saniEl.innerText = `${sA}/${sM}`;
+
+            // Extração Segura da Munição da Arma Ativa
+            const ammoEl = document.getElementById(`ammo-${codPuro}`);
+            let muniTexto = "";
+            if (dados.fullData && dados.fullData.arma_ativa_id && dados.fullData.inv) {
+                const arma = dados.fullData.inv.find(item => item.id === dados.fullData.arma_ativa_id);
+                if (arma && arma.ammo !== "Nenhuma") muniTexto = arma.currentShots !== undefined ? arma.currentShots : (arma.capacity || "0");
+            }
+            if(ammoEl) ammoEl.innerText = muniTexto;
+        }
+
+        // O Overlay agora escuta todos os eventos possíveis de atualização para não perder dados!
+        socket.on('update_mestre', processarAtualizacao);
+        socket.on('status_change', processarAtualizacao);
+        socket.on('mestre_force_sync_player', processarAtualizacao);
+
     </script>
 </body>
 </html>
